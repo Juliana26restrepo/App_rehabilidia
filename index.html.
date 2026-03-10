@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RehabilitaMind - Módulo de Memoria</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e7d32; /* Verde salud */
+            --secondary: #00796b;
+            --bg: #f1f8e9;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .session-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .session-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+
+        .session-card i {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .btn-diario {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            margin: 20px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,152,0,0.3);
+        }
+
+        .status-bar {
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>REHABILITAMIND</h1>
+    <p>Programa de Rehabilitación Neuropsicológica para TCE</p>
+</header>
+
+<div class="container">
+    <button class="btn-diario">
+        <i class="fas fa-book"></i> REGISTRAR MI DIARIO DE ÁNIMO
+    </button>
+
+    <div class="status-bar">
+        Módulo 4: Entrenamiento de la Memoria
+    </div>
+
+    <p>Selecciona la sesión de hoy según tu plan de tratamiento:</p>
+
+    <div class="menu-grid">
+        <div class="session-card" onclick="alert('Cargando Sesión 1: Entorno Doméstico...')">
+            <i class="fas fa-home"></i>
+            <div>Sesión 1</div>
+        </div>
+        <div class="session-card" onclick="alert('Cargando Sesión 2: Lista de Mercado...')">
+            <i class="fas fa-shopping-cart"></i>
+            <div>Sesión 2</div>
+        </div>
+        <div class="session-card" onclick="alert('Cargando Sesión 3: Sonidos...')">
+            <i class="fas fa-volume-up"></i>
+            <div>Sesión 3</div>
+        </div>
+        </div>
+</div>
+
+</body>
+</html>
