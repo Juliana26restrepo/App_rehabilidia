@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REHABILIDIA - Configuración</title>
+    <title>REHABILIDIA - Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -14,160 +14,152 @@
         body {
             font-family: 'Segoe UI', sans-serif; margin: 0;
             background-color: var(--light-silver); color: var(--prussian-blue);
-            padding-bottom: 90px; transition: all 0.3s;
+            padding-bottom: 100px; /* Espacio para el menú inferior */
         }
 
-        /* HEADER */
+        /* HEADER: DATOS IZQUIERDA, LOGO DERECHA */
         header {
             background-color: var(--prussian-blue); color: var(--white);
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
         }
-        .datos-paciente { font-size: 0.8rem; }
-        .logo-top-right img { max-width: 60px; border-radius: 5px; }
+        .info-paciente { font-size: 0.85rem; text-align: left; line-height: 1.3; }
+        .info-paciente strong { font-size: 1rem; color: var(--pastel-blue); display: block; }
+        .logo-derecha img { max-width: 65px; border-radius: 5px; }
 
-        .main-container { padding: 20px; max-width: 800px; margin: auto; }
+        .main-container { padding: 20px; max-width: 900px; margin: auto; }
 
-        /* COTERAPEUTA */
-        .guia-section {
+        /* ZONA DEL COTERAPEUTA */
+        .guia-contenedor {
             display: flex; align-items: center; background: white;
-            padding: 15px; border-radius: 20px; margin-bottom: 20px;
+            padding: 15px; border-radius: 20px; margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        .guia-img { width: 80px; height: auto; margin-right: 15px; }
-        .burbuja { background: var(--light-silver); padding: 12px; border-radius: 15px; flex: 1; font-size: 0.9rem; }
+        .guia-img { width: 90px; height: auto; margin-right: 15px; }
+        .burbuja { background: var(--light-silver); padding: 15px; border-radius: 15px; flex: 1; font-size: 0.95rem; }
 
-        /* VISTAS */
-        .seccion-vista { display: none; }
-        .seccion-vista.activa { display: block; }
+        /* VISTAS DE CONTENIDO */
+        .seccion-contenido { display: none; }
+        .seccion-contenido.activa { display: block; }
 
-        /* ESTILOS DE AJUSTES */
-        .ajuste-card {
-            background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        .tarjeta-modulo {
+            background: white; padding: 25px; border-radius: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; gap: 20px; font-weight: bold;
+            border-left: 6px solid var(--teal-blue); cursor: pointer;
         }
-        .control-label { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px; }
-        input[type="range"] { width: 100%; accent-color: var(--teal-blue); }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-toggle { 
-            flex: 1; padding: 10px; border: 1px solid var(--teal-blue); 
-            background: white; border-radius: 8px; cursor: pointer; 
-        }
-        .btn-toggle.active { background: var(--teal-blue); color: white; }
 
-        /* NAVEGACIÓN INFERIOR */
-        .tab-bar {
+        /* BARRA DE NAVEGACIÓN INFERIOR (LOS 5 BOTONES SOLICITADOS) */
+        nav.nav-inferior {
             position: fixed; bottom: 0; width: 100%; background: var(--white);
-            display: flex; justify-content: space-around; padding: 10px 0;
-            box-shadow: 0 -3px 15px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-around; padding: 12px 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 1000;
         }
-        .tab-item { text-align: center; color: var(--prussian-blue); text-decoration: none; font-size: 0.7rem; flex: 1; }
-        .tab-item i { display: block; font-size: 1.4rem; margin-bottom: 3px; }
-        .tab-item.active { color: var(--teal-blue); font-weight: bold; }
+        .nav-btn {
+            text-align: center; color: var(--prussian-blue); text-decoration: none;
+            font-size: 0.75rem; flex: 1; border: none; background: none; cursor: pointer;
+        }
+        .nav-btn i { display: block; font-size: 1.6rem; margin-bottom: 4px; }
+        .nav-btn.activo { color: var(--mughal-green); font-weight: bold; }
 
+        /* ESTILOS PARA AJUSTES (Sliders) */
+        .ajuste-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; }
+        input[type="range"] { width: 100%; accent-color: var(--mughal-green); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="datos-paciente"><strong>Juan Pérez</strong><br>📅 17/03/2026</div>
-    <div class="logo-top-right"><img src="logo.jpg" alt="Logo"></div>
+    <div class="info-paciente">
+        <strong>Juan Pérez</strong>
+        📅 17/03/2026 | 🕒 15:00<br>
+        📍 Medellín, Colombia
+    </div>
+    <div class="logo-derecha">
+        <img src="logo.jpg" alt="Logo">
+    </div>
 </header>
 
 <div class="main-container">
     
-    <div class="guia-section">
-        <img src="COTERAPEUTA.JPG" class="guia-img" id="img-guia">
-        <div class="burbuja" id="texto-guia">Personaliza tu experiencia para que te sientas más cómodo trabajando conmigo.</div>
+    <div class="guia-contenedor">
+        <img src="COTERAPEUTA.JPG" class="guia-img" id="personaje">
+        <div class="burbuja" id="texto-guia">
+            Hola Juan, selecciona una opción en la parte de abajo para comenzar.
+        </div>
     </div>
 
-    <div id="view-ejercicios" class="seccion-vista activa">
-        <h3>Módulos de Entrenamiento</h3>
-        <div class="ajuste-card">Atención (Próximamente)</div>
-        <div class="ajuste-card" style="border: 2px solid var(--mughal-green)">Memoria (Sesión 1 habilitada)</div>
-        <div class="ajuste-card">Funciones Ejecutivas (Próximamente)</div>
+    <div id="ejercicios" class="seccion-contenido activa">
+        <h3>Módulos de Rehabilitación</h3>
+        <div class="tarjeta-modulo"><i class="fas fa-eye"></i> Atención</div>
+        <div class="tarjeta-modulo" style="border-color: var(--mughal-green);"><i class="fas fa-brain"></i> Memoria (Sesión en curso)</div>
+        <div class="tarjeta-modulo"><i class="fas fa-puzzle-piece"></i> Funciones Ejecutivas</div>
     </div>
 
-    <div id="view-ajustes" class="seccion-vista">
-        <h3>Configuración de Accesibilidad</h3>
-        
-        <div class="ajuste-card">
-            <div class="control-label"><span>Tamaño de Texto</span></div>
-            <div class="btn-group">
-                <button class="btn-toggle active" onclick="setFirma(this, 'normal')">Normal</button>
-                <button class="btn-toggle" onclick="setFirma(this, 'grande')">Grande</button>
-            </div>
+    <div id="diario" class="seccion-contenido">
+        <h3>Registrar mi Diario</h3>
+        <p>¿Cómo te sientes hoy? Monitoreo de sueño, ánimo y alimentación.</p>
         </div>
 
-        <div class="ajuste-card">
-            <div class="control-label"><span>Volumen Voz</span> <i class="fas fa-volume-up"></i></div>
-            <input type="range" min="0" max="100" value="80">
-            <div class="control-label" style="margin-top:15px;"><span>Velocidad de Voz</span></div>
-            <input type="range" min="0.5" max="2" step="0.1" value="1">
-        </div>
+    <div id="videos" class="seccion-contenido">
+        <h3>Material Psicoeducativo</h3>
+        <p>Aquí estarán tus 10 videos de apoyo.</p>
+    </div>
 
-        <div class="ajuste-card">
-            <div class="control-label"><span>Brillo</span> <i class="fas fa-sun"></i></div>
-            <input type="range" min="50" max="150" value="100">
-            
-            <div class="control-label" style="margin-top:15px;"><span>Saturación</span></div>
+    <div id="datos" class="seccion-contenido">
+        <h3>Mis Avances</h3>
+        <div class="tarjeta-modulo">Gráfica de progreso por sesiones</div>
+    </div>
+
+    <div id="ajustes" class="seccion-contenido">
+        <h3>Ajustes de Aplicación</h3>
+        <div class="ajuste-item">
+            <label>Tamaño de letra</label>
+            <input type="range" min="12" max="24" value="16">
+        </div>
+        <div class="ajuste-item">
+            <label>Saturación</label>
             <input type="range" min="0" max="200" value="100">
         </div>
-
-        <div class="ajuste-card">
-            <div class="control-label"><span>Resaltar Texto Importante</span></div>
-            <button class="btn-toggle" onclick="this.classList.toggle('active')">Desactivado / Activado</button>
-            
-            <div class="control-label" style="margin-top:15px;"><span>Espaciado de Texto</span></div>
-            <div class="btn-group">
-                <button class="btn-toggle active">Normal</button>
-                <button class="btn-toggle">Amplio</button>
-            </div>
         </div>
-    </div>
-
-    <div id="view-diario" class="seccion-vista"><h3>Mi Diario</h3></div>
-    <div id="view-videos" class="seccion-vista"><h3>Material Psicoeducativo</h3></div>
-    <div id="view-datos" class="seccion-vista"><h3>Mis Avances</h3></div>
 
 </div>
 
-<nav class="tab-bar">
-    <a href="javascript:void(0)" class="tab-item active" onclick="cambiarSeccion('view-ejercicios', this)">
-        <i class="fas fa-dumbbell"></i> Ejercicios
-    </a>
-    <a href="javascript:void(0)" class="tab-item" onclick="cambiarSeccion('view-diario', this)">
-        <i class="fas fa-notes-medical"></i> Diario
-    </a>
-    <a href="javascript:void(0)" class="tab-item" onclick="cambiarSeccion('view-videos', this)">
-        <i class="fas fa-play-circle"></i> Videos
-    </a>
-    <a href="javascript:void(0)" class="tab-item" onclick="cambiarSeccion('view-datos', this)">
-        <i class="fas fa-chart-line"></i> Datos
-    </a>
-    <a href="javascript:void(0)" class="tab-item" onclick="cambiarSeccion('view-ajustes', this)">
+<nav class="nav-inferior">
+    <button class="nav-btn activo" onclick="abrir('ejercicios', this)">
+        <i class="fas fa-brain"></i> Ejercicios
+    </button>
+    <button class="nav-btn" onclick="abrir('diario', this)">
+        <i class="fas fa-pen-alt"></i> Registrar mi Diario
+    </button>
+    <button class="nav-btn" onclick="abrir('videos', this)">
+        <i class="fas fa-video"></i> Videos
+    </button>
+    <button class="nav-btn" onclick="abrir('datos', this)">
+        <i class="fas fa-chart-bar"></i> Mis Datos
+    </button>
+    <button class="nav-btn" onclick="abrir('ajustes', this)">
         <i class="fas fa-cog"></i> Ajustes
-    </a>
+    </button>
 </nav>
 
 <script>
-    function cambiarSeccion(id, el) {
-        document.querySelectorAll('.seccion-vista').forEach(v => v.classList.remove('activa'));
-        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    function abrir(id, btn) {
+        // Cambiar sección
+        document.querySelectorAll('.seccion-contenido').forEach(s => s.classList.remove('activa'));
         document.getElementById(id).classList.add('activa');
-        el.classList.add('active');
         
-        // Cambiar cara del coterapeuta al ir a ajustes
-        const img = document.getElementById('img-guia');
-        if(id === 'view-ajustes') {
-            img.src = 'COTERAPEUTA_PENSATIVO.JPG';
-        } else {
-            img.src = 'COTERAPEUTA.JPG';
-        }
-    }
+        // Cambiar botón activo
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
 
-    function setFirma(btn, tipo) {
-        document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.body.style.fontSize = (tipo === 'grande') ? '1.2rem' : '1rem';
+        // Cambiar cara del coterapeuta según sección
+        const cara = document.getElementById('personaje');
+        if(id === 'ajustes') {
+            cara.src = 'COTERAPEUTA_PENSATIVO.JPG';
+            document.getElementById('texto-guia').innerText = "Ajustemos la aplicación a tus necesidades.";
+        } else if (id === 'ejercicios') {
+            cara.src = 'COTERAPEUTA.JPG';
+            document.getElementById('texto-guia').innerText = "¡Vamos a entrenar! Selecciona un módulo.";
+        }
     }
 </script>
 
