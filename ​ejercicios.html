@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulos de Rehabilitación - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
+            --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif; margin: 0;
+            background-color: var(--light-silver); color: var(--prussian-blue);
+            padding-bottom: 50px;
+        }
+
+        header {
+            background-color: var(--prussian-blue); color: var(--white);
+            padding: 15px 25px; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .btn-volver {
+            color: white; text-decoration: none; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+
+        /* GUÍA */
+        .guia-card {
+            background: white; border-radius: 20px; padding: 15px;
+            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .guia-card img { width: 80px; height: auto; }
+
+        /* MÓDULOS */
+        .modulo-item {
+            background: white; border-radius: 15px; margin-bottom: 15px;
+            overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .modulo-header {
+            padding: 20px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; font-weight: bold; font-size: 1.1rem;
+            border-left: 8px solid var(--teal-blue);
+        }
+
+        .modulo-header i { font-size: 1.5rem; color: var(--teal-blue); }
+
+        /* LISTA DE EJERCICIOS (Oculta por defecto) */
+        .lista-ejercicios {
+            display: none; background: #f9f9f9; padding: 10px 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .ejercicio-link {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #eee;
+            text-decoration: none; color: var(--prussian-blue);
+        }
+
+        .ejercicio-link:last-child { border-bottom: none; }
+        .ejercicio-link .status { font-size: 0.8rem; color: #888; }
+        .ejercicio-link:hover { color: var(--mughal-green); }
+
+        .active .lista-ejercicios { display: block; }
+        .active .modulo-header { background: #f0f7f4; border-left-color: var(--mughal-green); }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Menú</a>
+    <div style="font-weight: bold;">REHABILIDIA</div>
+</header>
+
+<div class="container">
+    <div class="guia-card">
+        <img src="COTERAPEUTA.JPG" alt="Coterapeuta">
+        <div style="background: var(--light-silver); padding: 10px; border-radius: 10px; flex: 1;">
+            Selecciona un módulo para ver tus 10 ejercicios disponibles. ¡Tú puedes!
+        </div>
+    </div>
+
+    <div class="modulo-item">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <span><i class="fas fa-eye"></i> ATENCIÓN</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="lista-ejercicios" id="atencion-list">
+            </div>
+    </div>
+
+    <div class="modulo-item">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <span><i class="fas fa-brain"></i> MEMORIA</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="lista-ejercicios" id="memoria-list"></div>
+    </div>
+
+    <div class="modulo-item">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <span><i class="fas fa-puzzle-piece"></i> FUNCIONES EJECUTIVAS</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="lista-ejercicios" id="ejecutivas-list"></div>
+    </div>
+</div>
+
+<script>
+    function toggleModulo(header) {
+        const item = header.parentElement;
+        item.classList.toggle('active');
+    }
+
+    // Función para llenar los 10 ejercicios de cada módulo
+    function cargarEjercicios(idContenedor, nombreModulo) {
+        const contenedor = document.getElementById(idContenedor);
+        for (let i = 1; i <= 10; i++) {
+            contenedor.innerHTML += `
+                <a href="sesion.html?mod=${nombreModulo}&ej=${i}" class="ejercicio-link">
+                    <span>Ejercicio ${i}</span>
+                    <span class="status">Pendiente <i class="fas fa-lock-open"></i></span>
+                </a>
+            `;
+        }
+    }
+
+    // Ejecutar carga al abrir la página
+    cargarEjercicios('atencion-list', 'atencion');
+    cargarEjercicios('memoria-list', 'memoria');
+    cargarEjercicios('ejecutivas-list', 'ejecutivas');
+</script>
+
+</body>
+</html>
 
