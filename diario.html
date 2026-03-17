@@ -12,11 +12,11 @@
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
         header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
-        .btn-volver { color: white; text-decoration: none; }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
         
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; padding-bottom: 40px; }
         .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 2px solid var(--light-silver); padding-bottom: 10px; margin-bottom: 15px; }
+        h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 2px solid var(--light-silver); padding-bottom: 10px; margin-bottom: 15px; color: var(--prussian-blue); }
 
         /* Emociones */
         .emociones { display: flex; justify-content: space-around; margin-bottom: 10px; }
@@ -31,33 +31,36 @@
         /* Checklist de Síntomas */
         .sintomas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .sintoma-item { 
-            display: flex; align-items: center; gap: 10px; padding: 10px; 
-            background: #f9f9f9; border-radius: 10px; cursor: pointer; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 10px; padding: 12px; 
+            background: #f9f9f9; border-radius: 10px; cursor: pointer; font-size: 0.85rem;
+            border: 1px solid #eee;
         }
         .sintoma-item input { accent-color: var(--mughal-green); width: 18px; height: 18px; }
 
         /* Escala de Energía */
-        .energia-range { width: 100%; margin: 15px 0; accent-color: var(--teal-blue); }
-        .labels-energia { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold; }
+        .energia-range { width: 100%; margin: 15px 0; accent-color: var(--teal-blue); cursor: pointer; }
+        .labels-energia { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: bold; color: #555; }
 
         textarea { 
             width: 100%; border: 2px solid var(--light-silver); border-radius: 15px; 
             padding: 15px; font-family: inherit; font-size: 1rem; box-sizing: border-box; 
-            resize: none; outline: none;
+            resize: none; outline: none; margin-top: 5px;
         }
 
         .btn-guardar { 
             background: var(--mughal-green); color: white; border: none; 
             width: 100%; padding: 18px; border-radius: 15px; font-weight: bold; 
             font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(54, 107, 43, 0.3);
+            transition: 0.3s;
         }
+        .btn-guardar:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
 <header>
     <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">DIARIO DE SEGUIMIENTO</span>
+    <span style="font-weight: bold;">SEGUIMIENTO DIARIO</span>
 </header>
 
 <div class="container">
@@ -73,8 +76,9 @@
 
     <div class="card">
         <h3>2. Nivel de energía / Fatiga</h3>
-        <div class="labels-energia"><span>Baja (Cansado)</span><span>Alta (Activo)</span></div>
-        <input type="range" class="energia-range" min="1" max="10" value="5">
+        <div class="labels-energia"><span>Baja (Muy cansado)</span><span>Alta (Activo)</span></div>
+        <input type="range" class="energia-range" min="1" max="10" value="5" id="rangoEnergia">
+        <div id="valorEnergia" style="text-align: center; font-weight: bold; color: var(--teal-blue);">Nivel: 5</div>
     </div>
 
     <div class="card">
@@ -90,23 +94,28 @@
     </div>
 
     <div class="card">
-        <h3>4. Notas adicionales</h3>
-        <textarea id="nota" rows="4" placeholder="¿Hubo algo especial hoy?"></textarea>
+        <h3>4. Notas del paciente</h3>
+        <textarea id="nota" rows="4" placeholder="Escribe aquí tus observaciones del día..."></textarea>
         <br><br>
-        <button class="btn-guardar" onclick="guardarDato()">
-            <i class="fas fa-check-circle"></i> FINALIZAR REGISTRO
+        <button class="btn-guardar" onclick="finalizarRegistro()">
+            <i class="fas fa-cloud-upload-alt"></i> GUARDAR REGISTRO CLÍNICO
         </button>
     </div>
 </div>
 
 <script>
+    // Mostrar valor numérico del rango
+    const range = document.getElementById('rangoEnergia');
+    const valorLabel = document.getElementById('valorEnergia');
+    range.oninput = function() { valorLabel.innerHTML = "Nivel: " + this.value; }
+
     function seleccionar(btn) {
         document.querySelectorAll('.emocion-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
 
-    function guardarDato() {
-        alert("¡Registro clínico guardado! Esta información ayudará mucho en tu proceso.");
+    function finalizarRegistro() {
+        alert("¡Registro guardado correctamente! Estos datos son fundamentales para tu terapeuta.");
         window.location.href = "index.html";
     }
 </script>
