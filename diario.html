@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Diario - REHABILIDIA</title>
+    <title>Diario Clínico - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -12,82 +12,104 @@
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
         header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
-        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
+        .btn-volver { color: white; text-decoration: none; }
         
-        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        
+        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; padding-bottom: 40px; }
         .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h3 { margin-top: 0; font-size: 1.1rem; color: var(--prussian-blue); text-align: center; }
+        h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 2px solid var(--light-silver); padding-bottom: 10px; margin-bottom: 15px; }
 
-        .emociones { display: flex; justify-content: space-around; margin: 20px 0; }
+        /* Emociones */
+        .emociones { display: flex; justify-content: space-around; margin-bottom: 10px; }
         .emocion-btn { 
-            border: 2px solid transparent; background: #f8f9fa; border-radius: 15px; 
-            padding: 10px; font-size: 2rem; cursor: pointer; transition: 0.3s; 
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            border: 2px solid #eee; background: none; border-radius: 15px; 
+            padding: 10px; font-size: 1.8rem; cursor: pointer; transition: 0.3s; 
+            display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; margin: 0 5px;
         }
-        .emocion-btn span { font-size: 0.7rem; font-weight: bold; color: #666; }
-        .emocion-btn:hover { transform: translateY(-5px); background: var(--pastel-blue); }
-        .emocion-btn.active { background: var(--teal-blue); border-color: var(--prussian-blue); }
-        .emocion-btn.active span { color: white; }
+        .emocion-btn span { font-size: 0.6rem; font-weight: bold; color: #666; text-transform: uppercase; }
+        .emocion-btn.active { background: var(--pastel-blue); border-color: var(--teal-blue); transform: scale(1.05); }
+
+        /* Checklist de Síntomas */
+        .sintomas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sintoma-item { 
+            display: flex; align-items: center; gap: 10px; padding: 10px; 
+            background: #f9f9f9; border-radius: 10px; cursor: pointer; font-size: 0.9rem;
+        }
+        .sintoma-item input { accent-color: var(--mughal-green); width: 18px; height: 18px; }
+
+        /* Escala de Energía */
+        .energia-range { width: 100%; margin: 15px 0; accent-color: var(--teal-blue); }
+        .labels-energia { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold; }
 
         textarea { 
             width: 100%; border: 2px solid var(--light-silver); border-radius: 15px; 
             padding: 15px; font-family: inherit; font-size: 1rem; box-sizing: border-box; 
-            margin-top: 10px; resize: none; outline: none; transition: 0.3s;
+            resize: none; outline: none;
         }
-        textarea:focus { border-color: var(--teal-blue); }
 
         .btn-guardar { 
             background: var(--mughal-green); color: white; border: none; 
             width: 100%; padding: 18px; border-radius: 15px; font-weight: bold; 
-            font-size: 1.1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(54, 107, 43, 0.3);
+            font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(54, 107, 43, 0.3);
         }
-        .btn-guardar:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
 <header>
     <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">REGISTRO DIARIO</span>
+    <span style="font-weight: bold;">DIARIO DE SEGUIMIENTO</span>
 </header>
 
 <div class="container">
     <div class="card">
-        <h3>¿Cómo te sientes en este momento?</h3>
+        <h3>1. ¿Cómo te sientes hoy?</h3>
         <div class="emociones">
-            <button class="emocion-btn" onclick="seleccionar(this)"><span>Muy bien</span>😊</button>
-            <button class="emocion-btn" onclick="seleccionar(this)"><span>Normal</span>😐</button>
-            <button class="emocion-btn" onclick="seleccionar(this)"><span>Triste</span>😔</button>
-            <button class="emocion-btn" onclick="seleccionar(this)"><span>Cansado</span>😫</button>
+            <button class="emocion-btn" onclick="seleccionar(this)">😊<span>Excelente</span></button>
+            <button class="emocion-btn" onclick="seleccionar(this)">😐<span>Bien</span></button>
+            <button class="emocion-btn" onclick="seleccionar(this)">😔<span>Bajo</span></button>
+            <button class="emocion-btn" onclick="seleccionar(this)">😫<span>Mal</span></button>
         </div>
     </div>
 
     <div class="card">
-        <h3>¿Alguna nota sobre hoy?</h3>
-        <textarea id="nota" rows="5" placeholder="Escribe aquí si algo te costó trabajo o si lograste algo nuevo..."></textarea>
+        <h3>2. Nivel de energía / Fatiga</h3>
+        <div class="labels-energia"><span>Baja (Cansado)</span><span>Alta (Activo)</span></div>
+        <input type="range" class="energia-range" min="1" max="10" value="5">
+    </div>
+
+    <div class="card">
+        <h3>3. ¿Has sentido hoy...?</h3>
+        <div class="sintomas-grid">
+            <label class="sintoma-item"><input type="checkbox"> Dolor de cabeza</label>
+            <label class="sintoma-item"><input type="checkbox"> Mareo</label>
+            <label class="sintoma-item"><input type="checkbox"> Mucho sueño</label>
+            <label class="sintoma-item"><input type="checkbox"> Olvidos</label>
+            <label class="sintoma-item"><input type="checkbox"> Irritabilidad</label>
+            <label class="sintoma-item"><input type="checkbox"> Ruido molesto</label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>4. Notas adicionales</h3>
+        <textarea id="nota" rows="4" placeholder="¿Hubo algo especial hoy?"></textarea>
+        <br><br>
         <button class="btn-guardar" onclick="guardarDato()">
-            <i class="fas fa-save"></i> GUARDAR MI PROGRESO
+            <i class="fas fa-check-circle"></i> FINALIZAR REGISTRO
         </button>
     </div>
 </div>
 
 <script>
     function seleccionar(btn) {
-        // Quita la selección de los otros botones
         document.querySelectorAll('.emocion-btn').forEach(b => b.classList.remove('active'));
-        // Marca el actual
         btn.classList.add('active');
     }
 
     function guardarDato() {
-        // Animación de guardado para la tesis
-        const nota = document.getElementById('nota').value;
-        alert("¡Registro guardado con éxito! Sigue así, Juan.");
+        alert("¡Registro clínico guardado! Esta información ayudará mucho en tu proceso.");
         window.location.href = "index.html";
     }
 </script>
 
 </body>
 </html>
-
