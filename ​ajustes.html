@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
+            --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
+        header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
+        
+        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
+        
+        /* Tarjeta de Perfil */
+        .perfil-card { 
+            background: white; border-radius: 20px; padding: 25px; text-align: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px;
+        }
+        .perfil-card img { 
+            width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--teal-blue);
+            margin-bottom: 10px; object-fit: cover;
+        }
+        .perfil-card h2 { margin: 0; font-size: 1.4rem; }
+        .perfil-card p { margin: 5px 0; color: #666; font-size: 0.9rem; }
+
+        /* Lista de Opciones */
+        .menu-ajustes { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .opcion { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 18px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer;
+            transition: 0.2s;
+        }
+        .opcion:last-child { border-bottom: none; }
+        .opcion:active { background: #f9f9f9; }
+        
+        .opcion-info { display: flex; align-items: center; gap: 15px; }
+        .opcion-info i { width: 20px; color: var(--teal-blue); font-size: 1.1rem; }
+        .opcion-info span { font-weight: 500; }
+
+        .flecha { color: #ccc; font-size: 0.8rem; }
+        
+        .btn-cerrar {
+            margin-top: 30px; text-align: center; color: #d9534f; 
+            font-weight: bold; cursor: pointer; padding: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <span style="font-weight: bold;">CONFIGURACIÓN</span>
+</header>
+
+<div class="container">
+    <div class="perfil-card">
+        <img src="logo.jpg" alt="Foto de Juan">
+        <h2>Juan Pérez</h2>
+        <p>ID: REHAB-2026-JP</p>
+        <span style="background: var(--pastel-blue); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold;">PACIENTE ACTIVO</span>
+    </div>
+
+    <div class="menu-ajustes">
+        <div class="opcion">
+            <div class="opcion-info">
+                <i class="fas fa-text-height"></i>
+                <span>Tamaño de letra</span>
+            </div>
+            <span class="flecha"><i class="fas fa-chevron-right"></i></span>
+        </div>
+
+        <div class="opcion">
+            <div class="opcion-info">
+                <i class="fas fa-bell"></i>
+                <span>Recordatorios</span>
+            </div>
+            <i class="fas fa-toggle-on" style="color: var(--mughal-green); font-size: 1.4rem;"></i>
+        </div>
+
+        <div class="opcion">
+            <div class="opcion-info">
+                <i class="fas fa-lock"></i>
+                <span>Privacidad de datos</span>
+            </div>
+            <span class="flecha"><i class="fas fa-chevron-right"></i></span>
+        </div>
+
+        <div class="opcion">
+            <div class="opcion-info">
+                <i class="fas fa-question-circle"></i>
+                <span>Ayuda / Soporte</span>
+            </div>
+            <span class="flecha"><i class="fas fa-chevron-right"></i></span>
+        </div>
+    </div>
+
+    <div class="btn-cerrar" onclick="location.href='index.html'">
+        <i class="fas fa-sign-out-alt"></i> SALIR DE LA APLICACIÓN
+    </div>
+</div>
+
+</body>
+</html>
 
