@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesión de Entrenamiento - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --prussian-blue: #103A57; --mughal-green: #366B2B; --light-silver: #CEE5D6;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); text-align: center; }
+        header { background: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .area-trabajo { background: white; margin: 20px auto; width: 90%; max-width: 600px; min-height: 300px; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .btn-finalizar { background: var(--mughal-green); color: white; padding: 15px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .instruccion { font-style: italic; color: #555; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="ejercicios.html" style="color:white; text-decoration:none;"><i class="fas fa-chevron-left"></i> Salir</a>
+    <div id="titulo-sesion">Cargando...</div>
+    <div></div>
+</header>
+
+<div class="area-trabajo">
+    <h2 id="nombre-ejercicio">Preparando Ejercicio</h2>
+    <p class="instruccion" id="instruccion-ej">Cargando instrucciones de rehabilitación...</p>
+    
+    <div id="contenido-ejercicio" style="font-size: 5rem; padding: 40px;">
+        <i class="fas fa-brain" style="color: var(--prussian-blue);"></i>
+    </div>
+
+    <button class="btn-finalizar" onclick="finalizar()">FINALIZAR EJERCICIO</button>
+</div>
+
+<script>
+    // ESTO LEE QUÉ EJERCICIO SE ELIGIÓ
+    const urlParams = new URLSearchParams(window.location.search);
+    const modulo = urlParams.get('mod');
+    const numero = urlParams.get('ej');
+
+    if(modulo && numero) {
+        document.getElementById('titulo-sesion').innerText = modulo.toUpperCase();
+        document.getElementById('nombre-ejercicio').innerText = "Ejercicio #" + numero;
+        document.getElementById('instruccion-ej').innerText = "Juan, por favor sigue las indicaciones para completar esta actividad de " + modulo + ".";
+    }
+
+    function finalizar() {
+        alert("¡Excelente trabajo, Juan! Ejercicio completado.");
+        window.location.href = "ejercicios.html";
+    }
+</script>
+
+</body>
+</html>
