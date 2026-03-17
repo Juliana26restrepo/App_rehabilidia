@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Videos - REHABILIDIA</title>
+    <title>Biblioteca de Videos - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -14,53 +14,49 @@
         header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
         
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
         
         .guia-videos { background: white; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .guia-videos img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
 
-        .video-card { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .video-card { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
         
-        /* Ajuste para videos verticales (Shorts) */
-        .video-wrapper { position: relative; padding-bottom: 177.77%; /* Proporción 9:16 vertical */ height: 0; overflow: hidden; background: #000; }
+        /* Ajuste para Shorts de YouTube */
+        .video-wrapper { position: relative; padding-bottom: 177.77%; height: 0; overflow: hidden; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
-        .video-info { padding: 15px; border-top: 4px solid var(--mughal-green); }
-        .video-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
-        .video-info p { margin: 0; font-size: 0.9rem; color: #666; }
+        .video-info { padding: 15px; border-top: 5px solid var(--mughal-green); }
+        .video-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--prussian-blue); }
+        .video-info p { margin: 0; font-size: 0.9rem; color: #666; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <header>
     <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">BIBLIOTECA DE VIDEOS</span>
+    <span style="font-weight: bold;">BIBLIOTECA PSICOEDUCATIVA</span>
 </header>
 
 <div class="container">
     <div class="guia-videos">
         <img src="COTERAPEUTA_FELIZ.JPG" alt="Guía">
-        <div><strong>¡Hola Juan!</strong> Mira estos videos para aprender sobre tu recuperación.</div>
+        <div><strong>¡Excelente, Juan!</strong> Estos 9 videos te ayudarán en tu recuperación paso a paso.</div>
     </div>
 
-    <div id="lista-videos">
-        </div>
+    <div id="lista-videos"></div>
 </div>
 
 <script>
-    // LISTA DE TUS 10 VIDEOS
     const misVideos = [
-        { 
-            id: "AES8a-GPow8", 
-            titulo: "1. Introducción al Proceso", 
-            desc: "Primer acercamiento a tu rehabilitación diaria." 
-        },
-        { 
-            id: "OTRO_ID", 
-            titulo: "2. Título del Video 2", 
-            desc: "Breve descripción de lo que Juan aprenderá aquí." 
-        }
-        // Puedes seguir agregando hasta los 10...
+        { id: "Il7bFjCy-Q8", titulo: "1. Introducción", desc: "Bienvenida a tu programa de rehabilitación REHABILIDIA." },
+        { id: "luL8ziTLTmU", titulo: "2. El Cerebro y el TCE", desc: "Cómo entender los cambios tras un trauma moderado." },
+        { id: "THl4KmcJBnU", titulo: "3. Importancia del Reposo", desc: "El descanso es la base de tu recuperación cerebral." },
+        { id: "LGPpjxyFevU", titulo: "4. Alimentación y Mente", desc: "Nutrientes esenciales para sanar desde adentro." },
+        { id: "oyCQfAh_hiY", titulo: "5. Gestión Emocional", desc: "Herramientas para manejar la frustración e irritabilidad." },
+        { id: "AES8a-GPow8", titulo: "6. Atención Diaria", desc: "Consejos prácticos para mejorar tu enfoque hoy mismo." },
+        { id: "EQBKJXSQAtY", titulo: "7. Estrategias de Memoria", desc: "Trucos sencillos para no olvidar las cosas importantes." },
+        { id: "lS0K4I4CiQM", titulo: "8. El Apoyo Familiar", desc: "Cómo tu entorno ayuda a que sanes más rápido." },
+        { id: "AKPXLI4it14", titulo: "9. Mirando al Futuro", desc: "Tus metas y el camino que aún tenemos por delante." }
     ];
 
     const contenedor = document.getElementById('lista-videos');
