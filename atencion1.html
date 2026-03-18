@@ -39,7 +39,7 @@
         <a-entity id="contenedor-objetos"></a-entity>
     </a-scene>
 
-  <script>
+<script>
     const urlParams = new URLSearchParams(window.location.search);
     const nivelActual = urlParams.get('nivel') || 'bajo';
     
@@ -53,6 +53,21 @@
     const idObjetivo = Math.floor(Math.random() * 20) + 1;
     const avatar = document.getElementById('avatar-guia');
 
+    // --- COORDENADAS FIJAS PARA EVITAR AMONTONAMIENTO ---
+    // Estas posiciones están repartidas por toda la habitación (X, Y, Z)
+    const posicionesFijas = [
+        {x: -3, y: 0.5, z: -3}, {x: 0, y: 1.8, z: -4},  {x: 3, y: 0.8, z: -3},
+        {x: -4, y: 2.2, z: 0},  {x: 4, y: 0.3, z: 0},   {x: -3, y: 1.2, z: 3},
+        {x: 0, y: 0.4, z: 4},   {x: 3, y: 2.5, z: 3},   {x: -2, y: 0.7, z: -4},
+        {x: 2, y: 1.5, z: -4},  {x: -4, y: 0.5, z: -2}, {x: 4, y: 1.8, z: -2},
+        {x: -4, y: 1.0, z: 2},  {x: 4, y: 0.6, z: 2},   {x: -1.5, y: 2.8, z: 0},
+        {x: 1.5, y: 0.2, z: 0}, {x: 0, y: 3.0, z: -2},  {x: -2.5, y: 0.4, z: 2.5},
+        {x: 2.5, y: 1.1, z: 3.5},{x: 0, y: 0.3, z: -3.5}
+    ];
+
+    // Desordenamos las posiciones para que no siempre sea igual
+    posicionesFijas.sort(() => Math.random() - 0.5);
+
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
         const voz = new SpeechSynthesisUtterance(mensaje);
@@ -63,58 +78,23 @@
 
     document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
     document.getElementById('info-nivel').innerText = config[nivelActual].texto;
-    
-    // Feedback de voz inicial
     setTimeout(() => hablar("Juan, busca el objeto " + nombres[idObjetivo]), 1000);
 
     const contenedor = document.getElementById('contenedor-objetos');
-
-    // --- NUEVA ESTRATEGIA: GRILLA DE POSICIONES FIJAS (Sin montajes) ---
-    // Definimos una grilla de 24 puntos alrededor del paciente (360 grados)
-    // 3 alturas y 8 ángulos diferentes.
-    const grillaPosiciones = [];
-    const radio = 4.5; // Distancia fija de 4.5 metros
-    const alturas = [0.4, 1.0, 1.6]; // Piso, Mesas, Estantes
-    const angulosSegmetos = 8; // 8 divisiones del círculo (cada 45 grados)
-
-    for (let h = 0; h < alturas.length; h++) {
-        for (let a = 0; a < angulosSegmetos; a++) {
-            // Calculamos el ángulo en radianes para este segmento
-            const anguloRadianes = (a / angulosSegmetos) * Math.PI * 2;
-            
-            // Calculamos X y Z en el círculo
-            const x = radio * Math.sin(anguloRadianes);
-            const z = -radio * Math.cos(anguloRadianes); // Negativo para que el ángulo 0 sea al frente
-            const y = alturas[h];
-
-            grillaPosiciones.push({ x, y, z });
-        }
-    }
-
-    // Desordenamos la grilla para que las posiciones no sean predecibles
-    function desordenarArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-    desordenarArray(grillaPosiciones);
-
-    let indicePosicionActual = 0;
+    let indicePos = 0;
 
     function crearObjeto(id, esObjetivo) {
-        // Obtenemos la siguiente posición disponible de la grilla desordenada
-        const pos = grillaPosiciones[indicePosicionActual];
-        indicePosicionActual++;
+        if (indicePos >= posicionesFijas.length) return;
+
+        const pos = posicionesFijas[indicePos];
+        indicePos++;
 
         const entidad = document.createElement('a-image');
         entidad.setAttribute('src', 'obj' + id + '.png');
         entidad.setAttribute('class', 'clickable');
-        
-        // Asignamos la posición fija de la grilla
         entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-        entidad.setAttribute('scale', '0.8 0.8 0.8'); // Tamaño intermedio cómodo
-        entidad.setAttribute('look-at', '[camera]'); // Siempre miran al paciente
+        entidad.setAttribute('scale', '0.7 0.7 0.7');
+        entidad.setAttribute('look-at', '[camera]');
 
         entidad.addEventListener('click', function() {
             if (esObjetivo) {
@@ -127,33 +107,29 @@
                     window.location.href = 'atencion_sesiones.html';
                 } else {
                     hablar("¡Excelente Juan! Pasamos al siguiente nivel.");
-                    // Cambio automático después de 2 segundos (tiempo para la voz)
                     setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2000);
                 }
             } else {
                 avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
                 hablar("No te preocupes Juan, ese no es. Sigue buscando.");
-                // Vuelve a la imagen normal
                 setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2500);
             }
         });
         contenedor.appendChild(entidad);
     }
 
-    // --- GENERAR ELEMENTOS USANDO LA GRILLA ---
-    // Crear el objetivo primero
+    // Primero el objetivo
     crearObjeto(idObjetivo, true);
 
-    // Crear distractores según el nivel
+    // Luego los distractores
     let creados = 0;
     const totalDistractores = config[nivelActual].objetos - 1;
-
-    while(creados < totalDistractores && indicePosicionActual < grillaPosiciones.length) {
+    while(creados < totalDistractores) {
         let idAzar = Math.floor(Math.random() * 20) + 1;
-        // Evitamos repetir el objetivo
         if(idAzar !== idObjetivo) {
             crearObjeto(idAzar, false);
             creados++;
         }
     }
 </script>
+
