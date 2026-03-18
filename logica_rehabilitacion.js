@@ -1,58 +1,57 @@
-// --- APLICADOR UNIVERSAL DE ESTILOS ---
-function aplicarAjustesGlobales() {
-    const esNegrilla = localStorage.getItem('config_negrilla') === 'activo';
-    const esGrande = localStorage.getItem('config_tamaño') === 'grande';
-
-    if (esNegrilla) {
-        // Esto afecta a ABSOLUTAMENTE TODO el texto de la página actual
-        document.body.style.fontWeight = "bold";
-        
-        // Forzamos a títulos y botones específicos para que se noten más
-        const elementosFuertes = document.querySelectorAll('h1, h2, h3, p, a, button, .texto-instruccion');
-        elementosFuertes.forEach(el => {
-            el.style.fontWeight = "900"; 
-        });
-    }
-
-    if (esGrande) {
-        // Aumentamos el tamaño base de la fuente en toda la pantalla
-        document.documentElement.style.fontSize = "1.25rem"; 
-        
-        // Ajustamos los títulos para que resalten más para Juan
-        const titulos = document.querySelectorAll('h1, h2');
-        titulos.forEach(t => {
-            t.style.fontSize = "2rem";
-        });
-    }
-}
-
-// Se ejecuta automáticamente cada vez que una página se abre
-window.addEventListener('DOMContentLoaded', aplicarAjustesGlobales);
+// --- CEREBRO CENTRAL REHABILIDIA ---
 
 function aplicarAjustes() {
-    // Aplicar Negrilla si está activa
-    if (localStorage.getItem('config_negrilla') === 'activo') {
+    // 1. OBTENER VALORES DE LA MEMORIA (localStorage)
+    const negrilla = localStorage.getItem('config_negrilla');
+    const tamaño = localStorage.getItem('config_tamaño');
+    const brillo = localStorage.getItem('config_brillo') || 100;
+    const contraste = localStorage.getItem('config_contraste') || 100;
+    const saturacion = localStorage.getItem('config_saturacion') || 100;
+
+    // 2. APLICAR FILTROS VISUALES (Brillo, Contraste, Saturación)
+    // Esto aplica los cambios a toda la pantalla de la app
+    document.body.style.filter = `brightness(${brillo}%) contrast(${contraste}%) saturate(${saturacion}%)`;
+
+    // 3. APLICAR NEGRILLA
+    if (negrilla === 'activo') {
         document.body.style.fontWeight = "bold";
-        const textos = document.querySelectorAll('#instruccion, #info-nivel');
-        textos.forEach(t => t.style.fontWeight = "900");
+        // Forzamos a todos los textos, títulos y botones
+        const elementos = document.querySelectorAll('h1, h2, h3, p, span, a, button, .label-txt, .texto-instruccion');
+        elementos.forEach(el => {
+            el.style.setProperty('font-weight', '900', 'important');
+        });
+    } else {
+        document.body.style.fontWeight = "normal";
     }
 
-    // Aplicar Tamaño Grande si está activo
-    if (localStorage.getItem('config_tamaño') === 'grande') {
-        const instrucciones = document.querySelectorAll('#instruccion, #info-nivel');
-        instrucciones.forEach(t => t.style.fontSize = "1.5rem");
+    // 4. APLICAR TAMAÑO DE LETRA
+    if (tamaño === 'grande') {
+        // Aumentamos el tamaño base de la app
+        document.documentElement.style.fontSize = "1.25rem"; 
+        // Agrandamos específicamente instrucciones en las sesiones
+        const instrucciones = document.querySelectorAll('#instruccion, #info-nivel, .texto-instruccion');
+        instrucciones.forEach(t => t.style.fontSize = "1.6rem");
+    } else {
+        document.documentElement.style.fontSize = "1rem";
     }
 }
 
-// Esta función reemplaza a la antigua para que la voz respete los ajustes
-function hablar(mensaje) {
+// 5. FUNCIÓN DE VOZ UNIVERSAL
+// Reemplaza la voz vieja para que respete la velocidad elegida en Ajustes
+window.hablar = function(mensaje) {
     window.speechSynthesis.cancel();
     const voz = new SpeechSynthesisUtterance(mensaje);
     voz.lang = 'es-ES';
-    const vel = localStorage.getItem('config_voz') || '0.9';
+    
+    // Si no hay velocidad guardada, usa 1.0 (normal)
+    const vel = localStorage.getItem('config_voz') || '1.0';
     voz.rate = parseFloat(vel);
+    
     window.speechSynthesis.speak(voz);
-}
+};
 
-// Se ejecuta solo al cargar la página
+// 6. EJECUCIÓN AUTOMÁTICA
+// Se asegura de que los ajustes se apliquen apenas abra cualquier página
+window.addEventListener('DOMContentLoaded', aplicarAjustes);
+// Por si acaso la página es muy pesada, lo intentamos de nuevo al cargar todo
 window.onload = aplicarAjustes;
