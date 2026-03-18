@@ -8,7 +8,7 @@
     <style>
         :root {
             --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
-            --light-silver: #CEE5D6; --white: #ffffff;
+            --light-silver: #CEE5D6; --white: #ffffff; --error-red: #d9534f;
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); transition: 0.3s; }
         header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
@@ -25,6 +25,10 @@
         .btn-group { display: flex; gap: 10px; }
         .btn-opt { flex: 1; padding: 12px; border: 2px solid var(--teal-blue); background: white; color: var(--teal-blue); border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-opt.active { background: var(--teal-blue); color: white; }
+
+        /* Estilo especial para botón restaurar */
+        .btn-restore { border: 2px solid var(--error-red); color: var(--error-red); background: #fff5f5; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-restore:active { background: var(--error-red); color: white; }
 
         .item-gestion { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
@@ -85,6 +89,12 @@
         </div>
     </div>
 
+    <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
+        <button class="btn-restore" onclick="restaurarTodo()">
+            <i class="fas fa-trash-arrow-up"></i> RESTAURAR CONFIGURACIÓN
+        </button>
+    </div>
+
     <div class="card">
         <h3>Gestión y Seguridad</h3>
         <div class="item-gestion">
@@ -100,8 +110,6 @@
 </div>
 
 <script>
-    // --- FUNCIONES DE ACCIÓN ---
-
     function setLetra(valor) {
         localStorage.setItem('config_tamaño', valor);
         actualizarUI();
@@ -129,27 +137,29 @@
         document.body.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
     }
 
-    // --- FUNCIÓN PARA ACTUALIZAR COLORES DE BOTONES Y ESTILOS ---
+    function restaurarTodo() {
+        if(confirm("¿Restablecer todos los ajustes visuales y de voz?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
     function actualizarUI() {
         const tamaño = localStorage.getItem('config_tamaño') || 'normal';
         const voz = localStorage.getItem('config_voz') || '1.0';
         const negrilla = localStorage.getItem('config_negrilla') || 'inactivo';
 
-        // Actualizar botones de Tamaño
         document.getElementById('btn-normal').classList.toggle('active', tamaño === 'normal');
         document.getElementById('btn-grande').classList.toggle('active', tamaño === 'grande');
         document.body.style.fontSize = (tamaño === 'grande') ? '1.2rem' : '1rem';
 
-        // Actualizar botones de Voz
         document.getElementById('btn-v-lenta').classList.toggle('active', voz === '0.6');
         document.getElementById('btn-v-normal').classList.toggle('active', voz === '1.0');
 
-        // Actualizar Negrilla
         const checkN = document.getElementById('check-negrilla');
         checkN.checked = (negrilla === 'activo');
         document.body.style.fontWeight = (negrilla === 'activo') ? 'bold' : 'normal';
 
-        // Cargar Filtros guardados en los sliders
         const b = localStorage.getItem('config_brillo') || 100;
         const c = localStorage.getItem('config_contraste') || 100;
         const s = localStorage.getItem('config_saturacion') || 100;
@@ -160,7 +170,6 @@
         document.body.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
     }
 
-    // Al cargar la página, recuperar todo
     document.addEventListener('DOMContentLoaded', actualizarUI);
 </script>
 
