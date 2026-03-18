@@ -87,11 +87,9 @@
             return;
         }
 
-        // Preparar datos para la gráfica
-        const fechas = historial.map(r => r.fecha.split(',')[0]); // Solo la fecha, sin hora
+        const fechas = historial.map(r => r.fecha.split(',')[0]); 
         const energias = historial.map(r => r.energia);
 
-        // Crear Gráfica
         new Chart(document.getElementById('graficaEnergia'), {
             type: 'line',
             data: {
@@ -108,14 +106,20 @@
             options: { scales: { y: { min: 1, max: 10 } } }
         });
 
-        // Llenar lista textual
         historial.reverse().forEach(reg => {
             const item = document.createElement('div');
             item.className = 'registro-item';
+            
+            // Lógica para mostrar los síntomas si existen
+            const sintomasTxt = reg.sintomas && reg.sintomas.length > 0 
+                ? reg.sintomas.join(", ") 
+                : "Ninguno";
+
             item.innerHTML = `
                 <div class="fecha-label">${reg.fecha}</div>
-                <div><strong>Estado:</strong> ${reg.emocion} | <strong>Energía:</strong> ${reg.energia}</div>
-                <div style="color: #555; font-style: italic;">"${reg.nota}"</div>
+                <div><strong>Estado:</strong> ${reg.emocion} | <strong>Energía:</strong> ${reg.energia}/10</div>
+                <div style="color: #d9534f; font-size: 0.85rem;"><strong>Sintomas:</strong> ${sintomasTxt}</div>
+                <div style="color: #555; font-style: italic;">"${reg.nota || 'Sin notas'}"</div>
             `;
             lista.appendChild(item);
         });
