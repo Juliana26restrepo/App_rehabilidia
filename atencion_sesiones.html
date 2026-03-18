@@ -2,30 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sesiones de Atención - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --prussian-blue: #103A57; --teal-blue: #307B8E; --light-silver: #CEE5D6; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-silver); margin: 0; }
-        header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
-        .container { padding: 20px; max-width: 500px; margin: auto; }
-        .btn-sesion { 
-            background: white; border-radius: 15px; padding: 20px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            text-decoration: none; color: var(--prussian-blue); font-weight: bold; 
-            border-left: 10px solid var(--teal-blue); box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        :root {
+            --prussian-blue: #103A57; --teal-blue: #307B8E; --light-silver: #CEE5D6;
         }
-        .bloqueada { opacity: 0.5; filter: grayscale(1); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
+        header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; }
+        .container { padding: 30px 20px; max-width: 600px; margin: auto; }
+
+        .sesion-card {
+            background: white; border-radius: 15px; padding: 18px 25px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 10px solid var(--teal-blue); transition: 0.3s;
+        }
+        .sesion-card:active { transform: scale(0.98); }
+        .sesion-card span { font-weight: bold; font-size: 1rem; color: #333; }
+        .bloqueada { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <header><a href="ejercicios.html" style="color:white; text-decoration:none;">← Volver</a> <span style="font-weight:bold;">SESIONES DE ATENCIÓN</span></header>
-    <div class="container">
-        <a href="atencion_sesion1_niveles.html" class="btn-sesion">
-            <span>SESIÓN 1</span> <i class="fas fa-chevron-right"></i>
-        </a>
-        <div class="btn-sesion bloqueada"><span>SESIÓN 2</span> <i class="fas fa-lock"></i></div>
-        <div class="btn-sesion bloqueada"><span>SESIÓN 3</span> <i class="fas fa-lock"></i></div>
+
+<header>
+    <a href="ejercicios.html" class="btn-volver">← Volver</a>
+    <span style="font-weight: bold; margin-left: 10px;">SESIONES DE ATENCIÓN</span>
+</header>
+
+<div class="container" id="lista-sesiones">
+    <div class="sesion-card" onclick="location.href='atencion_sesion1_niveles.html'">
+        <span>SESIÓN 1</span>
+        <i class="fas fa-chevron-right" style="color: var(--teal-blue);"></i>
     </div>
+
+    <script>
+        for(let i=2; i<=10; i++) {
+            document.write(`
+                <div class="sesion-card bloqueada" onclick="alert('Esta sesión estará disponible próximamente.')">
+                    <span>SESIÓN ${i}</span>
+                    <i class="fas fa-lock" style="color: #999;"></i>
+                </div>
+            `);
+        }
+    </script>
+</div>
+
 </body>
 </html>
