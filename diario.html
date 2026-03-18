@@ -116,13 +116,38 @@
         btn.classList.add('active');
     }
 
-    function finalizarRegistro() {
-        // --- NUEVA FUNCIÓN DE GUARDADO ---
+           function finalizarRegistro() {
+        // 1. Capturar emoción
         const emocionActiva = document.querySelector('.emocion-btn.active span')?.innerText || "No especificado";
+        
+        // 2. Capturar energía
         const nivelEnergia = document.getElementById('rangoEnergia').value;
+        
+        // 3. Capturar SÍNTOMAS (Esto es lo que te faltaba)
         const checkboxes = document.querySelectorAll('#listaSintomas input[type="checkbox"]:checked');
-        const sintomas = Array.from(checkboxes).map(cb => cb.value);
+        const sintomasSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+        
+        // 4. Capturar nota
         const notaPaciente = document.getElementById('nota').value;
+
+        // 5. Crear el objeto del registro
+        const nuevoRegistro = {
+            fecha: new Date().toLocaleString(),
+            emocion: emocionActiva,
+            energia: nivelEnergia,
+            sintomas: sintomasSeleccionados, 
+            nota: notaPaciente
+        };
+
+        // 6. Guardar en el historial
+        let historial = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
+        historial.push(nuevoRegistro);
+        localStorage.setItem('historial_rehabilitidia', JSON.stringify(historial));
+
+        alert("¡Registro guardado con éxito!");
+        window.location.href = "index.html";
+    }
+
 
         const nuevoRegistro = {
             fecha: new Date().toLocaleString(),
