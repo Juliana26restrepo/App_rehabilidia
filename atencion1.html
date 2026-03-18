@@ -35,5 +35,101 @@
         <a-sky src="habitacion_animada.png" rotation="0 -90 0"></a-sky>
         <a-camera look-controls></a-camera>
         <a-entity id="contenedor-objetos"></a-entity>
-    </
+    </a-scene>
 
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const nivelActual = urlParams.get('nivel') || 'bajo';
+        
+        const config = {
+            'bajo': { objetos: 5, siguiente: 'medio', texto: 'Nivel 1: Inicial' },
+            'medio': { objetos: 12, siguiente: 'alto', texto: 'Nivel 2: Intermedio' },
+            'alto': { objetos: 20, siguiente: 'final', texto: 'Nivel 3: Avanzado' }
+        };
+
+        const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
+        const idObjetivo = Math.floor(Math.random() * 20) + 1;
+        const avatar = document.getElementById('avatar-guia');
+
+        // --- FUNCIÓN DE VOZ CORREGIDA ---
+        function hablar(mensaje) {
+            window.speechSynthesis.cancel(); // Detiene cualquier voz previa
+            const voz = new SpeechSynthesisUtterance(mensaje);
+            voz.lang = 'es-ES';
+            voz.rate = 0.85; // Velocidad un poco más lenta para claridad
+            window.speechSynthesis.speak(voz);
+        }
+
+        // Mostrar texto y activar voz
+        document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
+        document.getElementById('info-nivel').innerText = config[nivelActual].texto;
+        
+        // La voz se activa con un pequeño retraso para asegurar que el navegador esté listo
+        setTimeout(() => {
+            hablar("Juan, para esta actividad busca el objeto " + nombres[idObjetivo]);
+        }, 1200);
+
+        const contenedor = document.getElementById('contenedor-objetos');
+
+        // Puntos fijos para evitar amontonamiento
+        const puntosGrilla = [];
+        for(let i=0; i<24; i++) {
+            let angulo = (i / 24) * Math.PI * 2;
+            let radio = 4.5;
+            puntosGrilla.push({
+                x: Math.sin(angulo) * radio,
+                y: (i % 3) * 0.8 + 0.5, 
+                z: -Math.cos(angulo) * radio
+            });
+        }
+        puntosGrilla.sort(() => Math.random() - 0.5);
+
+        function crearObjeto(id, esObjetivo, posIndex) {
+            const pos = puntosGrilla[posIndex];
+            const entidad = document.createElement('a-image');
+            entidad.setAttribute('src', 'obj' + id + '.png');
+            entidad.setAttribute('class', 'clickable');
+            entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+            entidad.setAttribute('scale', '0.7 0.7 0.7');
+            entidad.setAttribute('look-at', '[camera]');
+
+            entidad.addEventListener('click', function() {
+                if (esObjetivo) {
+                    avatar.src = "COTERAPEUTA_FELIZ.JPG";
+                    const sig = config[nivelActual].siguiente;
+                    if(sig === 'final') {
+                        hablar("¡Excelente Juan! Cuidar de tus objetos personales requiere atención, lo lograste.");
+                        setTimeout(() => window.location.href = 'atencion_sesiones.html', 3500);
+                    } else {
+                        hablar("¡Muy bien Juan! Encontraste el objeto. Vamos al siguiente nivel.");
+                        setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2500);
+                    }
+                } else {
+                    avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
+                    hablar("No te preocupes Juan, ese no es. Sigue buscando.");
+                    setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2000);
+                }
+            });
+            contenedor.appendChild(entidad);
+        }
+
+        // Crear primero el objetivo
+        crearObjeto(idObjetivo, true, 0);
+
+        // Crear distractores
+        let creados = 1;
+        let posUsada = 1;
+        const idsUsados = [idObjetivo];
+
+        while(creados < config[nivelActual].objetos) {
+            let azar = Math.floor(Math.random() * 20) + 1;
+            if(!idsUsados.includes(azar)) {
+                crearObjeto(azar, false, posUsada);
+                idsUsados.push(azar);
+                creados++;
+                posUsada++;
+            }
+        }
+    </script>
+</body>
+</html>
