@@ -51,44 +51,54 @@
         const idObjetivo = Math.floor(Math.random() * 20) + 1;
         const avatar = document.getElementById('avatar-guia');
 
-        // --- FUNCIÓN DE VOZ CORREGIDA ---
         function hablar(mensaje) {
-            window.speechSynthesis.cancel(); // Detiene cualquier voz previa
+            window.speechSynthesis.cancel();
             const voz = new SpeechSynthesisUtterance(mensaje);
             voz.lang = 'es-ES';
-            voz.rate = 0.85; // Velocidad un poco más lenta para claridad
+            voz.rate = 0.9;
             window.speechSynthesis.speak(voz);
         }
 
-        // Mostrar texto y activar voz
         document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
         document.getElementById('info-nivel').innerText = config[nivelActual].texto;
-        
-        // La voz se activa con un pequeño retraso para asegurar que el navegador esté listo
-        setTimeout(() => {
-            hablar("Juan, para esta actividad busca el objeto " + nombres[idObjetivo]);
-        }, 1200);
+        setTimeout(() => hablar("Juan, busca el objeto " + nombres[idObjetivo]), 1000);
 
         const contenedor = document.getElementById('contenedor-objetos');
 
-        // Puntos fijos para evitar amontonamiento
+        // --- SOLUCIÓN: GRILLA MATEMÁTICA DE 24 PUNTOS ---
+        // Generamos posiciones fijas para que NUNCA se amontonen
         const puntosGrilla = [];
-        for(let i=0; i<24; i++) {
-            let angulo = (i / 24) * Math.PI * 2;
-            let radio = 4.5;
-            puntosGrilla.push({
-                x: Math.sin(angulo) * radio,
-                y: (i % 3) * 0.8 + 0.5, 
-                z: -Math.cos(angulo) * radio
-            });
+        const radio = 4.5;
+        // 3 alturas diferentes (piso, mesa, estante)
+        const alturas = [0.5, 1.2, 1.9]; 
+        // 8 ángulos diferentes (repartidos en 360 grados)
+        const angulos = 8; 
+
+        for (let h = 0; h < alturas.length; h++) {
+            for (let a = 0; a < angulos; a++) {
+                // Calculamos ángulo en radianes
+                const anguloRadianes = (a / angulos) * Math.PI * 2;
+                
+                puntosGrilla.push({
+                    x: radio * Math.sin(anguloRadianes),
+                    y: alturas[h],
+                    z: -radio * Math.cos(anguloRadianes) // Negativo para que el ángulo 0 sea al frente
+                });
+            }
         }
+
+        // Desordenamos la grilla para que las posiciones sean aleatorias pero fijas
         puntosGrilla.sort(() => Math.random() - 0.5);
 
         function crearObjeto(id, esObjetivo, posIndex) {
+            // Obtenemos la posición predefinida de la grilla
             const pos = puntosGrilla[posIndex];
+            
             const entidad = document.createElement('a-image');
             entidad.setAttribute('src', 'obj' + id + '.png');
             entidad.setAttribute('class', 'clickable');
+            
+            // Asignamos la posición fija y segura de la grilla
             entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
             entidad.setAttribute('scale', '0.7 0.7 0.7');
             entidad.setAttribute('look-at', '[camera]');
@@ -101,24 +111,25 @@
                         hablar("¡Excelente Juan! Cuidar de tus objetos personales requiere atención, lo lograste.");
                         setTimeout(() => window.location.href = 'atencion_sesiones.html', 3500);
                     } else {
-                        hablar("¡Muy bien Juan! Encontraste el objeto. Vamos al siguiente nivel.");
-                        setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2500);
+                        hablar("¡Muy bien! Vamos al siguiente nivel.");
+                        setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2000);
                     }
                 } else {
                     avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
-                    hablar("No te preocupes Juan, ese no es. Sigue buscando.");
+                    hablar("Ese no es Juan, sigue intentando.");
                     setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2000);
                 }
             });
             contenedor.appendChild(entidad);
         }
 
-        // Crear primero el objetivo
+        // --- CREACIÓN ORDENADA ---
+        // 1. Primero el objetivo, asegurando su espacio
         crearObjeto(idObjetivo, true, 0);
 
-        // Crear distractores
+        // 2. Luego los distractores (sin repetir IDs)
         let creados = 1;
-        let posUsada = 1;
+        let posUsada = 1; // Empezamos en la posición 1 de la grilla
         const idsUsados = [idObjetivo];
 
         while(creados < config[nivelActual].objetos) {
@@ -133,3 +144,4 @@
     </script>
 </body>
 </html>
+
