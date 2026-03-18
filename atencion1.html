@@ -1,87 +1,132 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>Ejercicio 1: Atención Selectiva - REHABILIDIA</title>
+    <title>Sesión 1: Atención - REHABILIDIA</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <style>
-      #interfaz-guia {
-        position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-        background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px;
-        text-align: center; font-family: sans-serif; z-index: 100; border: 3px solid #307B8E;
-      }
-      .btn-volver {
-        position: absolute; bottom: 20px; left: 20px; z-index: 100;
-        padding: 10px 20px; background: #103A57; color: white; border-radius: 10px; text-decoration: none;
-      }
+        #interfaz-guia {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 15px;
+            text-align: center; font-family: 'Segoe UI', sans-serif; z-index: 100;
+            border: 4px solid #307B8E; width: 380px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #avatar-guia { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #307B8E; object-fit: cover; }
+        .texto-instruccion { flex: 1; text-align: left; }
+        .btn-volver {
+            position: absolute; bottom: 20px; left: 20px; z-index: 100;
+            padding: 12px 20px; background: #103A57; color: white; border-radius: 10px; 
+            text-decoration: none; font-family: sans-serif; font-weight: bold;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
 
     <div id="interfaz-guia">
-      <h2 id="instruccion-texto">Cargando ejercicio...</h2>
-      <p>Mueve la pantalla para buscar el objeto.</p>
+        <img id="avatar-guia" src="COTERAPEUTA.JPG" alt="Coterapeuta">
+        <div class="texto-instruccion">
+            <h2 id="instruccion" style="margin:0; font-size: 1.1rem; color: #103A57;">Iniciando sesión...</h2>
+            <p id="info-nivel" style="margin:2px 0 0; color:#307B8E; font-size: 0.85rem; font-weight:bold;"></p>
+        </div>
     </div>
 
-    <a href="index.html" class="btn-volver">Volver al Menú</a>
+    <a href="atencion_sesiones.html" class="btn-volver">← Salir</a>
 
     <a-scene>
-      <a-sky src="habitacion_animada.png" rotation="0 -90 0"></a-sky>
-
-      <a-camera>
-        <a-cursor fuse="false" color="#307B8E"></a-cursor>
-      </a-camera>
-
-      <a-entity id="contenedor-objetos"></a-entity>
+        <a-sky src="habitacion_animada.png" rotation="0 -90 0"></a-sky>
+        <a-camera>
+            <a-cursor fuse="false" raycaster="objects: .clickable" color="#307B8E" scale="2 2 2"></a-cursor>
+        </a-camera>
+        <a-entity id="contenedor-objetos"></a-entity>
     </a-scene>
 
     <script>
-      // Lista de nombres de los 20 objetos para la instrucción
-      const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
-      
-      // 1. Elegir el objetivo al azar (del 1 al 20)
-      const idObjetivo = Math.floor(Math.random() * 20) + 1;
-      document.getElementById('instruccion-texto').innerText = "Juan, busca el objeto: " + nombres[idObjetivo];
-
-      const contenedor = document.getElementById('contenedor-objetos');
-
-      // 2. Función para crear objetos en posiciones aleatorias
-      function crearObjeto(id, esObjetivo) {
-        const entidad = document.createElement('a-image');
-        entidad.setAttribute('src', 'obj' + id + '.png');
+        const urlParams = new URLSearchParams(window.location.search);
+        const nivelActual = urlParams.get('nivel') || 'bajo';
         
-        // Posición aleatoria en el espacio 360
-        const x = (Math.random() - 0.5) * 10;
-        const y = (Math.random() - 0.5) * 5 + 1.5;
-        const z = (Math.random() - 0.5) * 10;
-        entidad.setAttribute('position', `${x} ${y} ${z}`);
-        entidad.setAttribute('scale', '1.5 1.5 1.5');
-        entidad.setAttribute('look-at', '[camera]'); // Que siempre miren al paciente
+        const config = {
+            'bajo': { objetos: 5, siguiente: 'medio', texto: 'Nivel 1: Inicial' },
+            'medio': { objetos: 12, siguiente: 'alto', texto: 'Nivel 2: Intermedio' },
+            'alto': { objetos: 20, siguiente: 'final', texto: 'Nivel 3: Avanzado' }
+        };
 
-        entidad.addEventListener('click', function() {
-          if (esObjetivo) {
-            alert("¡Excelente atención, Juan! Encontraste el objeto. " + "Cuidar tus objetos personales requiere atención, lo estás logrando.");
-            window.location.reload(); // Reinicia con otro objeto
-          } else {
-            alert("Ese no es. ¡Sigue buscando!");
-          }
-        });
+        const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
+        const idObjetivo = Math.floor(Math.random() * 20) + 1;
+        const avatar = document.getElementById('avatar-guia');
 
-        contenedor.appendChild(entidad);
-      }
-
-      // 3. NIVEL BAJO: Crear el objetivo y 4 distractores al azar
-      crearObjeto(idObjetivo, true);
-
-      let creados = 0;
-      while(creados < 4) {
-        let idAzar = Math.floor(Math.random() * 20) + 1;
-        if(idAzar !== idObjetivo) {
-          crearObjeto(idAzar, false);
-          creados++;
+        function hablar(mensaje) {
+            window.speechSynthesis.cancel();
+            const voz = new SpeechSynthesisUtterance(mensaje);
+            voz.lang = 'es-ES';
+            voz.rate = 0.85; 
+            window.speechSynthesis.speak(voz);
         }
-      }
+
+        // Instrucción inicial
+        const msgInicial = "Juan, para esta actividad busca el objeto: " + nombres[idObjetivo];
+        document.getElementById('instruccion').innerText = msgInicial;
+        document.getElementById('info-nivel').innerText = config[nivelActual].texto;
+        
+        // El coterapeuta habla al iniciar (esperamos un poco a que cargue la página)
+        setTimeout(() => hablar(msgInicial), 1000);
+
+        const contenedor = document.getElementById('contenedor-objetos');
+
+        function crearObjeto(id, esObjetivo) {
+            const entidad = document.createElement('a-image');
+            entidad.setAttribute('src', 'obj' + id + '.png');
+            entidad.setAttribute('class', 'clickable');
+            
+            const angulo = (Math.random() - 0.5) * 2.5; 
+            const radio = 4 + Math.random() * 1.2;
+            const x = Math.sin(angulo) * radio;
+            const z = -Math.cos(angulo) * radio;
+            const y = (Math.random() * 0.7) + 0.9; 
+
+            entidad.setAttribute('position', `${x} ${y} ${z}`);
+            entidad.setAttribute('scale', '0.5 0.5 0.5');
+            entidad.setAttribute('look-at', '[camera]');
+
+            entidad.addEventListener('click', function() {
+                if (esObjetivo) {
+                    const sig = config[nivelActual].siguiente;
+                    avatar.src = "COTERAPEUTA_FELIZ.JPG";
+                    
+                    if(sig === 'final') {
+                        const textoFinal = "Cuidar de tus objetos personales requiere atención, lo lograste.";
+                        document.getElementById('instruccion').innerText = textoFinal;
+                        hablar(textoFinal);
+                        setTimeout(() => {
+                            alert(textoFinal);
+                            window.location.href = 'atencion_sesiones.html';
+                        }, 100);
+                    } else {
+                        hablar("¡Excelente Juan! Encontraste el objeto. Vamos al siguiente nivel.");
+                        setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2500);
+                    }
+                } else {
+                    avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
+                    hablar("No te preocupes Juan, ese no es. Respira y sigue buscando.");
+                    // Vuelve a la imagen normal después de 3 segundos
+                    setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 3000);
+                }
+            });
+            contenedor.appendChild(entidad);
+        }
+
+        // Generar elementos
+        crearObjeto(idObjetivo, true);
+        let creados = 0;
+        while(creados < config[nivelActual].objetos - 1) {
+            let idAzar = Math.floor(Math.random() * 20) + 1;
+            if(idAzar !== idObjetivo) {
+                crearObjeto(idAzar, false);
+                creados++;
+            }
+        }
     </script>
-  </body>
+</body>
 </html>
+
 
