@@ -10,8 +10,8 @@
             --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
             --light-silver: #CEE5D6; --white: #ffffff;
         }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
-        header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); transition: 0.3s; }
+        header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
         .btn-volver { color: white; text-decoration: none; }
         
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; padding-bottom: 60px; }
@@ -20,19 +20,13 @@
         h3 { font-size: 0.8rem; margin: 0 0 10px 0; color: var(--teal-blue); text-transform: uppercase; letter-spacing: 1px; }
         .label-txt { font-weight: bold; display: block; margin-bottom: 10px; font-size: 0.95rem; }
         
-        /* Controles */
         input[type="range"] { width: 100%; accent-color: var(--teal-blue); cursor: pointer; }
         
         .btn-group { display: flex; gap: 10px; }
-        .btn-opt { flex: 1; padding: 12px; border: 2px solid var(--teal-blue); background: white; color: var(--teal-blue); border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .btn-opt { flex: 1; padding: 12px; border: 2px solid var(--teal-blue); background: white; color: var(--teal-blue); border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-opt.active { background: var(--teal-blue); color: white; }
 
-        /* Estilo para Gestión */
-        .item-gestion { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .item-gestion:last-child { border-bottom: none; }
-        .item-gestion i { color: var(--teal-blue); width: 25px; }
-
-        /* Switch */
+        .item-gestion { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider-sw { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -53,49 +47,42 @@
     <div class="card">
         <span class="label-txt">Tamaño de letra</span>
         <div class="btn-group">
-            <button class="btn-opt active" id="btnN" onclick="setLetra('normal')">Normal</button>
-            <button class="btn-opt" id="btnG" onclick="setLetra('grande')">Grande</button>
+            <button class="btn-opt" id="btn-normal" onclick="setLetra('normal')">Normal</button>
+            <button class="btn-opt" id="btn-grande" onclick="setLetra('grande')">Grande</button>
         </div>
     </div>
 
     <div class="card">
-        <span class="label-txt">Volumen del Coterapeuta</span>
-        <input type="range" min="0" max="100" value="80">
-    </div>
-
-    <div class="card">
         <span class="label-txt">Brillo de pantalla</span>
-        <input type="range" min="40" max="100" value="100" oninput="setBrillo(this.value)">
+        <input type="range" id="range-brillo" min="40" max="150" value="100" oninput="updateFiltros()">
     </div>
 
     <div class="card">
         <span class="label-txt">Contraste visual</span>
-        <input type="range" min="50" max="150" value="100" oninput="setContraste(this.value)">
+        <input type="range" id="range-contraste" min="50" max="200" value="100" oninput="updateFiltros()">
     </div>
 
     <div class="card">
         <span class="label-txt">Velocidad de voz</span>
         <div class="btn-group">
-            <button class="btn-opt" onclick="alert('Voz Lenta')">Lenta</button>
-            <button class="btn-opt active" onclick="alert('Voz Normal')">Normal</button>
+            <button class="btn-opt" id="btn-v-lenta" onclick="setVoz('0.6')">Lenta</button>
+            <button class="btn-opt" id="btn-v-normal" onclick="setVoz('1.0')">Normal</button>
         </div>
     </div>
 
     <div class="card">
         <span class="label-txt">Saturación de color</span>
-        <input type="range" min="0" max="200" value="100" oninput="setSaturacion(this.value)">
+        <input type="range" id="range-saturacion" min="0" max="200" value="100" oninput="updateFiltros()">
     </div>
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="label-txt" style="margin:0;">Resaltar Texto</span>
-            <label class="switch"><input type="checkbox" onchange="setResaltado(this.checked)"><span class="slider-sw"></span></label>
+            <span class="label-txt" style="margin:0;">Resaltar Texto (Negrilla)</span>
+            <label class="switch">
+                <input type="checkbox" id="check-negrilla" onchange="setNegrilla(this.checked)">
+                <span class="slider-sw"></span>
+            </label>
         </div>
-    </div>
-
-    <div class="card">
-        <span class="label-txt">Espacio del Texto</span>
-        <input type="range" min="1" max="5" value="1" oninput="setEspacio(this.value)">
     </div>
 
     <div class="card">
@@ -104,12 +91,8 @@
             <div><i class="fas fa-bell"></i> Notificaciones</div>
             <label class="switch"><input type="checkbox" checked><span class="slider-sw"></span></label>
         </div>
-        <div class="item-gestion" onclick="alert('Tus datos están seguros.')">
-            <div><i class="fas fa-lock"></i> Privacidad de datos</div>
-            <i class="fas fa-chevron-right" style="font-size:0.8rem; color:#ccc;"></i>
-        </div>
-        <div class="item-gestion" onclick="alert('Contacto: soporte@rehabilitidia.com')">
-            <div><i class="fas fa-question-circle"></i> Ayuda / Soporte</div>
+        <div class="item-gestion" onclick="alert('Datos protegidos')">
+            <div><i class="fas fa-lock"></i> Privacidad</div>
             <i class="fas fa-chevron-right" style="font-size:0.8rem; color:#ccc;"></i>
         </div>
     </div>
@@ -117,50 +100,68 @@
 </div>
 
 <script>
- document.addEventListener('DOMContentLoaded', () => {
-    // 1. CONECTAR BOTONES DE TAMAÑO (Normal / Grande)
-    document.querySelectorAll('.boton-tamaño').forEach(boton => {
-        boton.addEventListener('click', () => {
-            const esGrande = boton.innerText.includes('Grande');
-            localStorage.setItem('config_tamaño', esGrande ? 'grande' : 'normal');
-            
-            // Feedback visual: Cambiar color del botón seleccionado
-            document.querySelectorAll('.boton-tamaño').forEach(b => b.style.backgroundColor = '#f0f0f0');
-            boton.style.backgroundColor = '#307B8E';
-            boton.style.color = 'white';
-            
-            console.log("Tamaño guardado: " + localStorage.getItem('config_tamaño'));
-        });
-    });
+    // --- FUNCIONES DE ACCIÓN ---
 
-    // 2. CONECTAR BOTONES DE VOZ (Lenta / Normal)
-    document.querySelectorAll('.boton-voz').forEach(boton => {
-        boton.addEventListener('click', () => {
-            const esLenta = boton.innerText.includes('Lenta');
-            localStorage.setItem('config_voz', esLenta ? '0.6' : '1.0');
-            
-            // Feedback visual
-            document.querySelectorAll('.boton-voz').forEach(b => b.style.backgroundColor = '#f0f0f0');
-            boton.style.backgroundColor = '#307B8E';
-            boton.style.color = 'white';
-        });
-    });
-
-    // 3. CONECTAR SWITCH DE NEGRILLA (Resaltar Texto)
-    const switchNegrilla = document.querySelector('#switch-resaltar');
-    if (switchNegrilla) {
-        // Cargar el estado que ya estaba guardado
-        switchNegrilla.checked = localStorage.getItem('config_negrilla') === 'activo';
-        
-        switchNegrilla.addEventListener('change', (e) => {
-            const estado = e.target.checked ? 'activo' : 'inactivo';
-            localStorage.setItem('config_negrilla', estado);
-            
-            // Esto permite que veas el cambio en ajustes de una vez
-            document.body.style.fontWeight = e.target.checked ? 'bold' : 'normal';
-        });
+    function setLetra(valor) {
+        localStorage.setItem('config_tamaño', valor);
+        actualizarUI();
     }
-}); // <--- ESTE CIERRE ES VITAL (Cierra el DOMContentLoaded de la línea 120)
+
+    function setVoz(valor) {
+        localStorage.setItem('config_voz', valor);
+        actualizarUI();
+    }
+
+    function setNegrilla(valor) {
+        localStorage.setItem('config_negrilla', valor ? 'activo' : 'inactivo');
+        actualizarUI();
+    }
+
+    function updateFiltros() {
+        const b = document.getElementById('range-brillo').value;
+        const c = document.getElementById('range-contraste').value;
+        const s = document.getElementById('range-saturacion').value;
+        
+        localStorage.setItem('config_brillo', b);
+        localStorage.setItem('config_contraste', c);
+        localStorage.setItem('config_saturacion', s);
+        
+        document.body.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+    }
+
+    // --- FUNCIÓN PARA ACTUALIZAR COLORES DE BOTONES Y ESTILOS ---
+    function actualizarUI() {
+        const tamaño = localStorage.getItem('config_tamaño') || 'normal';
+        const voz = localStorage.getItem('config_voz') || '1.0';
+        const negrilla = localStorage.getItem('config_negrilla') || 'inactivo';
+
+        // Actualizar botones de Tamaño
+        document.getElementById('btn-normal').classList.toggle('active', tamaño === 'normal');
+        document.getElementById('btn-grande').classList.toggle('active', tamaño === 'grande');
+        document.body.style.fontSize = (tamaño === 'grande') ? '1.2rem' : '1rem';
+
+        // Actualizar botones de Voz
+        document.getElementById('btn-v-lenta').classList.toggle('active', voz === '0.6');
+        document.getElementById('btn-v-normal').classList.toggle('active', voz === '1.0');
+
+        // Actualizar Negrilla
+        const checkN = document.getElementById('check-negrilla');
+        checkN.checked = (negrilla === 'activo');
+        document.body.style.fontWeight = (negrilla === 'activo') ? 'bold' : 'normal';
+
+        // Cargar Filtros guardados en los sliders
+        const b = localStorage.getItem('config_brillo') || 100;
+        const c = localStorage.getItem('config_contraste') || 100;
+        const s = localStorage.getItem('config_saturacion') || 100;
+        
+        document.getElementById('range-brillo').value = b;
+        document.getElementById('range-contraste').value = c;
+        document.getElementById('range-saturacion').value = s;
+        document.body.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+    }
+
+    // Al cargar la página, recuperar todo
+    document.addEventListener('DOMContentLoaded', actualizarUI);
 </script>
 
 </body>
