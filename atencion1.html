@@ -1,1 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ejercicio 1: Atención Selectiva - REHABILIDIA</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <style>
+      #interfaz-guia {
+        position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px;
+        text-align: center; font-family: sans-serif; z-index: 100; border: 3px solid #307B8E;
+      }
+      .btn-volver {
+        position: absolute; bottom: 20px; left: 20px; z-index: 100;
+        padding: 10px 20px; background: #103A57; color: white; border-radius: 10px; text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="interfaz-guia">
+      <h2 id="instruccion-texto">Cargando ejercicio...</h2>
+      <p>Mueve la pantalla para buscar el objeto.</p>
+    </div>
+
+    <a href="index.html" class="btn-volver">Volver al Menú</a>
+
+    <a-scene>
+      <a-sky src="fondo_habitacion.png" rotation="0 -90 0"></a-sky>
+
+      <a-camera>
+        <a-cursor fuse="false" color="#307B8E"></a-cursor>
+      </a-camera>
+
+      <a-entity id="contenedor-objetos"></a-entity>
+    </a-scene>
+
+    <script>
+      // Lista de nombres de los 20 objetos para la instrucción
+      const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
+      
+      // 1. Elegir el objetivo al azar (del 1 al 20)
+      const idObjetivo = Math.floor(Math.random() * 20) + 1;
+      document.getElementById('instruccion-texto').innerText = "Juan, busca el objeto: " + nombres[idObjetivo];
+
+      const contenedor = document.getElementById('contenedor-objetos');
+
+      // 2. Función para crear objetos en posiciones aleatorias
+      function crearObjeto(id, esObjetivo) {
+        const entidad = document.createElement('a-image');
+        entidad.setAttribute('src', 'obj' + id + '.png');
+        
+        // Posición aleatoria en el espacio 360
+        const x = (Math.random() - 0.5) * 10;
+        const y = (Math.random() - 0.5) * 5 + 1.5;
+        const z = (Math.random() - 0.5) * 10;
+        entidad.setAttribute('position', `${x} ${y} ${z}`);
+        entidad.setAttribute('scale', '1.5 1.5 1.5');
+        entidad.setAttribute('look-at', '[camera]'); // Que siempre miren al paciente
+
+        entidad.addEventListener('click', function() {
+          if (esObjetivo) {
+            alert("¡Excelente atención, Juan! Encontraste el objeto. " + "Cuidar tus objetos personales requiere atención, lo estás logrando.");
+            window.location.reload(); // Reinicia con otro objeto
+          } else {
+            alert("Ese no es. ¡Sigue buscando!");
+          }
+        });
+
+        contenedor.appendChild(entidad);
+      }
+
+      // 3. NIVEL BAJO: Crear el objetivo y 4 distractores al azar
+      crearObjeto(idObjetivo, true);
+
+      let creados = 0;
+      while(creados < 4) {
+        let idAzar = Math.floor(Math.random() * 20) + 1;
+        if(idAzar !== idObjetivo) {
+          crearObjeto(idAzar, false);
+          creados++;
+        }
+      }
+    </script>
+  </body>
+</html>
 
