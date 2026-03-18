@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
+            --light-silver: #CEE5D6; --white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
+        header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
+        .btn-volver { color: white; text-decoration: none; }
+        
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; padding-bottom: 60px; }
+        
+        /* Pestañas */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #cbded1; color: var(--prussian-blue); font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: var(--teal-blue); color: white; }
+
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        h3 { margin-top: 0; color: var(--teal-blue); font-size: 1.1rem; }
+
+        .registro-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; }
+        .registro-item:last-child { border-bottom: none; }
+        .fecha-label { font-weight: bold; color: #666; font-size: 0.8rem; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <span style="font-weight: bold;">CENTRAL DE DATOS</span>
+</header>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="verTab('diario')">Registro Diario</button>
+        <button class="tab-btn" onclick="verTab('sesiones')">Registro Sesiones</button>
+    </div>
+
+    <div id="seccion-diario">
+        <div class="card">
+            <h3>Evolución de Energía</h3>
+            <canvas id="graficaEnergia"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Historial de Notas</h3>
+            <div id="lista-diario">
+                </div>
+        </div>
+    </div>
+
+    <div id="seccion-sesiones" class="hidden">
+        <div class="card">
+            <h3>Desempeño en Sesiones</h3>
+            <p style="color: #888; text-align: center;">Próximamente: Gráficas de aciertos y tiempo de respuesta.</p>
+            <div id="lista-sesiones">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function verTab(tipo) {
+        document.getElementById('seccion-diario').classList.toggle('hidden', tipo !== 'diario');
+        document.getElementById('seccion-sesiones').classList.toggle('hidden', tipo !== 'sesiones');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.innerText.toLowerCase().includes(tipo));
+        });
+    }
+
+    function cargarDatosDiario() {
+        const historial = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
+        const lista = document.getElementById('lista-diario');
+        
+        if (historial.length === 0) {
+            lista.innerHTML = "<p>No hay registros aún.</p>";
+            return;
+        }
+
+        // Preparar datos para la gráfica
+        const fechas = historial.map(r => r.fecha.split(',')[0]); // Solo la fecha, sin hora
+        const energias = historial.map(r => r.energia);
+
+        // Crear Gráfica
+        new Chart(document.getElementById('graficaEnergia'), {
+            type: 'line',
+            data: {
+                labels: fechas,
+                datasets: [{
+                    label: 'Nivel de Energía',
+                    data: energias,
+                    borderColor: '#307B8E',
+                    backgroundColor: 'rgba(48, 123, 142, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { scales: { y: { min: 1, max: 10 } } }
+        });
+
+        // Llenar lista textual
+        historial.reverse().forEach(reg => {
+            const item = document.createElement('div');
+            item.className = 'registro-item';
+            item.innerHTML = `
+                <div class="fecha-label">${reg.fecha}</div>
+                <div><strong>Estado:</strong> ${reg.emocion} | <strong>Energía:</strong> ${reg.energia}</div>
+                <div style="color: #555; font-style: italic;">"${reg.nota}"</div>
+            `;
+            lista.appendChild(item);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarDatosDiario);
+</script>
+
+<script src="logica_rehabilitacion.js"></script>
+
+</body>
+</html>
