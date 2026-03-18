@@ -117,18 +117,33 @@
 </div>
 
 <script>
-    function setLetra(t) {
-        document.body.style.fontSize = (t === 'grande') ? "1.3rem" : "1rem";
-        document.getElementById('btnG').classList.toggle('active', t === 'grande');
-        document.getElementById('btnN').classList.toggle('active', t === 'normal');
-    }
-    function setBrillo(v) { document.getElementById('app-body').style.opacity = v/100; }
-    function setContraste(v) { document.body.style.filter = `contrast(${v}%)`; }
-    function setSaturacion(v) { document.getElementById('app-body').style.filter = `saturate(${v}%)`; }
-    function setResaltado(c) { document.body.style.fontWeight = c ? "bold" : "normal"; }
-    function setEspacio(v) { 
-        document.body.style.letterSpacing = (v-1)+"px"; 
-        document.body.style.lineHeight = 1.2 + (v*0.2);
+  // 1. Tamaño de Letra
+document.querySelectorAll('.boton-tamaño').forEach(boton => {
+    boton.addEventListener('click', () => {
+        const tamaño = boton.innerText.includes('Grande') ? 'grande' : 'normal';
+        localStorage.setItem('config_tamaño', tamaño);
+        alert("Tamaño " + tamaño + " guardado"); // Confirmación visual rápida
+    });
+});
+
+// 2. Velocidad de voz (Botones Lenta/Normal)
+document.querySelectorAll('.boton-voz').forEach(boton => {
+    boton.addEventListener('click', () => {
+        const velocidad = boton.innerText.includes('Lenta') ? '0.6' : '1.0';
+        localStorage.setItem('config_voz', velocidad);
+        alert("Velocidad de voz ajustada");
+    });
+});
+
+// 3. Resaltar Texto (El switch de "Negrilla")
+// Importante: Verifica que en tu HTML el switch tenga id="switch-resaltar"
+const switchNegrilla = document.querySelector('#switch-resaltar');
+if(switchNegrilla) {
+    switchNegrilla.addEventListener('change', (e) => {
+        const estado = e.target.checked ? 'activo' : 'inactivo';
+        localStorage.setItem('config_negrilla', estado);
+    });
+}
     }
 </script>
 
