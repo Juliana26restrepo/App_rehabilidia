@@ -117,34 +117,50 @@
 </div>
 
 <script>
-  // 1. Tamaño de Letra
-document.querySelectorAll('.boton-tamaño').forEach(boton => {
-    boton.addEventListener('click', () => {
-        const tamaño = boton.innerText.includes('Grande') ? 'grande' : 'normal';
-        localStorage.setItem('config_tamaño', tamaño);
-        alert("Tamaño " + tamaño + " guardado"); // Confirmación visual rápida
+ document.addEventListener('DOMContentLoaded', () => {
+    // 1. CONECTAR BOTONES DE TAMAÑO (Normal / Grande)
+    document.querySelectorAll('.boton-tamaño').forEach(boton => {
+        boton.addEventListener('click', () => {
+            const esGrande = boton.innerText.includes('Grande');
+            localStorage.setItem('config_tamaño', esGrande ? 'grande' : 'normal');
+            
+            // Feedback visual: Cambiar color del botón seleccionado
+            document.querySelectorAll('.boton-tamaño').forEach(b => b.style.backgroundColor = '#f0f0f0');
+            boton.style.backgroundColor = '#307B8E';
+            boton.style.color = 'white';
+            
+            console.log("Tamaño guardado: " + localStorage.getItem('config_tamaño'));
+        });
     });
-});
 
-// 2. Velocidad de voz (Botones Lenta/Normal)
-document.querySelectorAll('.boton-voz').forEach(boton => {
-    boton.addEventListener('click', () => {
-        const velocidad = boton.innerText.includes('Lenta') ? '0.6' : '1.0';
-        localStorage.setItem('config_voz', velocidad);
-        alert("Velocidad de voz ajustada");
+    // 2. CONECTAR BOTONES DE VOZ (Lenta / Normal)
+    document.querySelectorAll('.boton-voz').forEach(boton => {
+        boton.addEventListener('click', () => {
+            const esLenta = boton.innerText.includes('Lenta');
+            localStorage.setItem('config_voz', esLenta ? '0.6' : '1.0');
+            
+            // Feedback visual
+            document.querySelectorAll('.boton-voz').forEach(b => b.style.backgroundColor = '#f0f0f0');
+            boton.style.backgroundColor = '#307B8E';
+            boton.style.color = 'white';
+        });
     });
-});
 
-// 3. Resaltar Texto (El switch de "Negrilla")
-// Importante: Verifica que en tu HTML el switch tenga id="switch-resaltar"
-const switchNegrilla = document.querySelector('#switch-resaltar');
-if(switchNegrilla) {
-    switchNegrilla.addEventListener('change', (e) => {
-        const estado = e.target.checked ? 'activo' : 'inactivo';
-        localStorage.setItem('config_negrilla', estado);
-    });
-}
+    // 3. CONECTAR SWITCH DE NEGRILLA (Resaltar Texto)
+    const switchNegrilla = document.querySelector('#switch-resaltar');
+    if (switchNegrilla) {
+        // Cargar el estado que ya estaba guardado
+        switchNegrilla.checked = localStorage.getItem('config_negrilla') === 'activo';
+        
+        switchNegrilla.addEventListener('change', (e) => {
+            const estado = e.target.checked ? 'activo' : 'inactivo';
+            localStorage.setItem('config_negrilla', estado);
+            
+            // Esto permite que veas el cambio en ajustes de una vez
+            document.body.style.fontWeight = e.target.checked ? 'bold' : 'normal';
+        });
     }
+}); // <--- ESTE CIERRE ES VITAL (Cierra el DOMContentLoaded de la línea 120)
 </script>
 
 </body>
