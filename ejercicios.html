@@ -6,19 +6,72 @@
     <title>Ejercicios - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B; --light-silver: #CEE5D6; }
-        body { font-family: sans-serif; margin: 0; background-color: var(--light-silver); }
-        header { background: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; }
-        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
-        .modulo { background: white; border-radius: 15px; margin-bottom: 15px; padding: 20px; border-left: 10px solid var(--teal-blue); font-weight: bold; }
+        :root {
+            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
+            --light-silver: #CEE5D6; --white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
+        
+        /* Header corregido según tu imagen */
+        header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; }
+
+        .container { padding: 30px 20px; max-width: 600px; margin: auto; }
+
+        /* Estilo fiel a tu imagen 1000215140.png */
+        .modulo-card {
+            background: white; 
+            border-radius: 15px; 
+            padding: 18px 25px; 
+            margin-bottom: 20px;
+            display: flex; 
+            align-items: center; 
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .modulo-card:active { transform: scale(0.98); }
+
+        /* Bordes laterales de colores */
+        .border-atencion { border-left: 10px solid var(--teal-blue); }
+        .border-memoria { border-left: 10px solid var(--mughal-green); }
+        .border-ejecutivas { border-left: 10px solid #5D9CB3; }
+
+        .modulo-card span {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emoji { font-size: 1.2rem; }
     </style>
 </head>
 <body>
-    <header><a href="index.html" style="color:white; text-decoration:none;">← Volver</a></header>
-    <div class="container">
-        <div class="modulo">🧠 MÓDULO 1: ATENCIÓN (10 Ejercicios)</div>
-        <div class="modulo" style="border-left-color: var(--mughal-green);">🧠 MÓDULO 2: MEMORIA (10 Ejercicios)</div>
-        <div class="modulo">🧠 MÓDULO 3: FUNCIONES EJECUTIVAS (10 Ejercicios)</div>
+
+<header>
+    <a href="index.html" class="btn-volver">← Volver</a>
+</header>
+
+<div class="container">
+
+    <div class="modulo-card border-atencion" onclick="location.href='atencion1.html'">
+        <span><span class="emoji">🧠</span> MÓDULO 1: ATENCIÓN (10 Ejercicios)</span>
     </div>
+
+    <div class="modulo-card border-memoria" onclick="location.href='memoria1.html'">
+        <span><span class="emoji">🧠</span> MÓDULO 2: MEMORIA (10 Ejercicios)</span>
+    </div>
+
+    <div class="modulo-card border-ejecutivas" onclick="location.href='ejecutivas1.html'">
+        <span><span class="emoji">🧠</span> MÓDULO 3: FUNCIONES EJECUTIVAS (10 Ejercicios)</span>
+    </div>
+
+</div>
+
 </body>
 </html>
