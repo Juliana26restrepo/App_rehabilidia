@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sesiones de Atención - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --prussian-blue: #103A57; --teal-blue: #307B8E; --light-silver: #CEE5D6; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light-silver); margin: 0; }
+        header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+        .btn-sesion { 
+            background: white; border-radius: 15px; padding: 20px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            text-decoration: none; color: var(--prussian-blue); font-weight: bold; 
+            border-left: 10px solid var(--teal-blue); box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .bloqueada { opacity: 0.5; filter: grayscale(1); }
+    </style>
+</head>
+<body>
+    <header><a href="ejercicios.html" style="color:white; text-decoration:none;">← Volver</a> <span style="font-weight:bold;">SESIONES DE ATENCIÓN</span></header>
+    <div class="container">
+        <a href="atencion_sesion1_niveles.html" class="btn-sesion">
+            <span>SESIÓN 1</span> <i class="fas fa-chevron-right"></i>
+        </a>
+        <div class="btn-sesion bloqueada"><span>SESIÓN 2</span> <i class="fas fa-lock"></i></div>
+        <div class="btn-sesion bloqueada"><span>SESIÓN 3</span> <i class="fas fa-lock"></i></div>
+    </div>
+</body>
+</html>
