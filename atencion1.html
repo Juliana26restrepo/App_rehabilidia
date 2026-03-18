@@ -24,7 +24,7 @@
     <div id="interfaz-guia">
         <img id="avatar-guia" src="COTERAPEUTA.JPG" alt="Coterapeuta">
         <div class="texto-instruccion">
-            <h2 id="instruccion" style="margin:0; font-size: 1.1rem; color: #103A57;">Iniciando...</h2>
+            <h2 id="instruccion" style="margin:0; font-size: 1.1rem; color: #103A57;">Preparando...</h2>
             <p id="info-nivel" style="margin:2px 0 0; color:#307B8E; font-size: 0.8rem; font-weight:bold;"></p>
         </div>
     </div>
@@ -61,113 +61,75 @@
 
         document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
         document.getElementById('info-nivel').innerText = config[nivelActual].texto;
-        setTimeout(() => hablar("Juan, busca el objeto " + nombres[idObjetivo]), 1000);
 
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const nivelActual = urlParams.get('nivel') || 'bajo';
-    
-    const config = {
-        'bajo': { objetos: 5, siguiente: 'medio', texto: 'Nivel 1: Inicial' },
-        'medio': { objetos: 12, siguiente: 'alto', texto: 'Nivel 2: Intermedio' },
-        'alto': { objetos: 20, siguiente: 'final', texto: 'Nivel 3: Avanzado' }
-    };
+        // Activar voz al primer toque para evitar bloqueos en celular
+        window.addEventListener('touchstart', function() {
+            hablar("Juan, busca el objeto " + nombres[idObjetivo]);
+        }, { once: true });
 
-    const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
-    const idObjetivo = Math.floor(Math.random() * 20) + 1;
-    const avatar = document.getElementById('avatar-guia');
+        const contenedor = document.getElementById('contenedor-objetos');
 
-    // --- MEJORA DE VOZ PARA CELULARES ---
-    function hablar(mensaje) {
-        // Limpieza profunda de la cola de voz para que no se trabe
-        window.speechSynthesis.cancel();
-        
-        const voz = new SpeechSynthesisUtterance(mensaje);
-        voz.lang = 'es-ES';
-        voz.rate = 0.9;
-        voz.pitch = 1;
+        // Grilla de 48 puntos para evitar amontonamiento
+        const puntosGrilla = [];
+        const radio = 4.8; 
+        const alturas = [0.2, 0.8, 1.4, 2.0];
+        const angulos = 12;
 
-        // Pequeño truco: si el navegador está en celular, espera un instante
-        setTimeout(() => {
-            window.speechSynthesis.speak(voz);
-        }, 100);
-    }
-
-    // Activar voz al primer toque (Requisito de celulares)
-    window.addEventListener('touchstart', function() {
-        hablar("Juan, busca el objeto " + nombres[idObjetivo]);
-    }, { once: true }); // Solo se ejecuta la primera vez que toca
-
-    document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
-    document.getElementById('info-nivel').innerText = config[nivelActual].texto;
-
-    const contenedor = document.getElementById('contenedor-objetos');
-
-    // Grilla de 48 puntos (Mantenemos tu excelente idea)
-    const puntosGrilla = [];
-    const radio = 4.8; 
-    const alturas = [0.2, 0.8, 1.4, 2.0];
-    const angulos = 12;
-
-    for (let h = 0; h < alturas.length; h++) {
-        for (let a = 0; a < angulos; a++) {
-            let rad = (a / angulos) * Math.PI * 2;
-            puntosGrilla.push({
-                x: Math.sin(rad) * radio,
-                y: alturas[h],
-                z: -Math.cos(rad) * radio
-            });
-        }
-    }
-    puntosGrilla.sort(() => Math.random() - 0.5);
-
-    function crearObjeto(id, esObjetivo, posIndex) {
-        const pos = puntosGrilla[posIndex];
-        const entidad = document.createElement('a-image');
-        entidad.setAttribute('src', 'obj' + id + '.png');
-        entidad.setAttribute('class', 'clickable');
-        entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-        entidad.setAttribute('scale', '0.65 0.65 0.65');
-        entidad.setAttribute('look-at', '[camera]');
-
-        entidad.addEventListener('click', function() {
-            if (esObjetivo) {
-                avatar.src = "COTERAPEUTA_FELIZ.JPG";
-                const sig = config[nivelActual].siguiente;
-                if(sig === 'final') {
-                    hablar("¡Excelente Juan! Has completado el entrenamiento.");
-                    setTimeout(() => window.location.href = 'atencion_sesiones.html', 3000);
-                } else {
-                    hablar("¡Muy bien! Pasamos al siguiente nivel.");
-                    setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2000);
-                }
-            } else {
-                avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
-                hablar("Ese no es Juan, sigue buscando.");
-                setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2000);
+        for (let h = 0; h < alturas.length; h++) {
+            for (let a = 0; a < angulos; a++) {
+                let rad = (a / angulos) * Math.PI * 2;
+                puntosGrilla.push({
+                    x: Math.sin(rad) * radio,
+                    y: alturas[h],
+                    z: -Math.cos(rad) * radio
+                });
             }
-        });
-        contenedor.appendChild(entidad);
-    }
-
-    // Generar
-    crearObjeto(idObjetivo, true, 0);
-    let creados = 1;
-    let posUsada = 1;
-    const idsUsados = [idObjetivo];
-
-    while(creados < config[nivelActual].objetos) {
-        let azar = Math.floor(Math.random() * 20) + 1;
-        if(!idsUsados.includes(azar)) {
-            crearObjeto(azar, false, posUsada);
-            idsUsados.push(azar);
-            creados++;
-            posUsada++;
         }
-    }
-</script>
+        puntosGrilla.sort(() => Math.random() - 0.5);
 
+        function crearObjeto(id, esObjetivo, posIndex) {
+            const pos = puntosGrilla[posIndex];
+            const entidad = document.createElement('a-image');
+            entidad.setAttribute('src', 'obj' + id + '.png');
+            entidad.setAttribute('class', 'clickable');
+            entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+            entidad.setAttribute('scale', '0.65 0.65 0.65');
+            entidad.setAttribute('look-at', '[camera]');
+
+            entidad.addEventListener('click', function() {
+                if (esObjetivo) {
+                    avatar.src = "COTERAPEUTA_FELIZ.JPG";
+                    const sig = config[nivelActual].siguiente;
+                    if(sig === 'final') {
+                        hablar("¡Excelente Juan! Has completado el entrenamiento.");
+                        setTimeout(() => window.location.href = 'atencion_sesiones.html', 3000);
+                    } else {
+                        hablar("¡Muy bien! Pasamos al siguiente nivel.");
+                        setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2000);
+                    }
+                } else {
+                    avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
+                    hablar("Ese no es Juan, sigue buscando.");
+                    setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2000);
+                }
+            });
+            contenedor.appendChild(entidad);
+        }
+
+        crearObjeto(idObjetivo, true, 0);
+        let creados = 1;
+        let posUsada = 1;
+        const idsUsados = [idObjetivo];
+
+        while(creados < config[nivelActual].objetos) {
+            let azar = Math.floor(Math.random() * 20) + 1;
+            if(!idsUsados.has ? !idsUsados.includes(azar) : !idsUsados.includes(azar)) {
+                crearObjeto(azar, false, posUsada);
+                idsUsados.push(azar);
+                creados++;
+                posUsada++;
+            }
+        }
+    </script>
 </body>
 </html>
-
-
