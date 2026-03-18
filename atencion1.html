@@ -27,7 +27,7 @@
     <div id="interfaz-guia">
         <img id="avatar-guia" src="COTERAPEUTA.JPG" alt="Coterapeuta">
         <div class="texto-instruccion">
-            <h2 id="instruccion" style="margin:0; font-size: 1.2rem; color: #103A57;">Iniciando ejercicio...</h2>
+            <h2 id="instruccion" style="margin:0; font-size: 1.2rem; color: #103A57;">Cargando ejercicio...</h2>
             <p id="info-nivel" style="margin:3px 0 0; color:#307B8E; font-size: 0.9rem; font-weight:bold;"></p>
         </div>
     </div>
@@ -44,128 +44,128 @@
     </a-scene>
 
     <script>
-    // --- 1. CONFIGURACIÓN DEL SISTEMA DE NIVELES ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const nivelActual = urlParams.get('nivel') || 'bajo';
-    
-    const config = {
-        'bajo': { objetos: 5, siguiente: 'medio', texto: 'Nivel 1: Inicial' },
-        'medio': { objetos: 12, siguiente: 'alto', texto: 'Nivel 2: Intermedio' },
-        'alto': { objetos: 20, siguiente: 'final', texto: 'Nivel 3: Avanzado' }
-    };
-
-    const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
-    
-    // --- 2. GENERACIÓN MATEMÁTICA DE GRILLA (Para evitar amontonamiento) ---
-    const grillaPosiciones = [];
-    const radio = 4.5; // Distancia fija cómoda para Juan
-    const alturas = [0.3, 1.1, 1.9]; // 3 alturas (Suelo, Mesas, Estantes)
-    const segmentosCírculo = 8; // 8 divisiones del círculo de 360°
-
-    // Creamos 24 "asientos" predefinidos alrededor de Juan (3 alturas * 8 ángulos)
-    for (let h = 0; h < alturas.length; h++) {
-        for (let a = 0; a < segmentosCírculo; a++) {
-            // Calculamos ángulo en radianes (cada 45 grados)
-            const angulo = (a / segmentosCírculo) * Math.PI * 2;
-            
-            grillaPosiciones.push({
-                x: radio * Math.sin(angulo),
-                z: -radio * Math.cos(angulo), // Negativo para que el ángulo 0 sea al frente
-                y: alturas[h]
-            });
-        }
-    }
-
-    // Desordenamos la grilla para que las posiciones no sean predecibles
-    function desordenarArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-    desordenarArray(grillaPosiciones);
-
-    // --- 3. SELECCIÓN DE OBJETIVO (El objeto que Juan debe buscar) ---
-    const idObjetivo = Math.floor(Math.random() * 20) + 1; // Un ID al azar entre obj1 y obj20
-    document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
-    document.getElementById('info-nivel').innerText = config[nivelActual].texto;
-
-    const contenedor = document.getElementById('contenedor-objetos');
-    const avatar = document.getElementById('avatar-guia');
-    let indicePosDisponibles = 0; // Para llevar la cuenta de asientos usados
-
-    // --- 4. FUNCIÓN PARA HABLAR (TTS) ---
-    function hablar(mensaje) {
-        window.speechSynthesis.cancel();
-        const voz = new SpeechSynthesisUtterance(mensaje);
-        voz.lang = 'es-ES';
-        voz.rate = 0.85; 
-        window.speechSynthesis.speak(voz);
-    }
-
-    // El coterapeuta explica al cargar
-    setTimeout(() => hablar("Juan, para este ejercicio busca el objeto " + nombres[idObjetivo]), 1000);
-
-    // --- 5. FUNCIÓN DE CREACIÓN DE ESTÍMULO (obj1.png, obj2.png...) ---
-    function crearEstímulo(id, esObjetivo) {
-        if (indicePosDisponibles >= grillaPosiciones.length) return;
-
-        // Tomamos una posición fija y segura de la grilla
-        const pos = grillaPosiciones[indicePosDisponibles];
-        indicePosDisponibles++; // Marcamos el asiento como usado
-
-        const entidad = document.createElement('a-image');
-        entidad.setAttribute('src', 'obj' + id + '.png');
-        entidad.setAttribute('class', 'clickable'); // Clase para el cursor raycaster
-        entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-        entidad.setAttribute('scale', '0.7 0.7 0.7'); // Tamaño intermedio cómodo
-        entidad.setAttribute('look-at', '[camera]'); // Siempre miran al paciente
-
-        entidad.addEventListener('click', function() {
-            if (esObjetivo) {
-                avatar.src = "COTERAPEUTA_FELIZ.JPG";
-                const sig = config[nivelActual].siguiente;
-                if(sig === 'final') {
-                    const textoFinal = "Cuidar de tus objetos personales requiere atención, lo lograste.";
-                    hablar(textoFinal);
-                    alert(textoFinal);
-                    window.location.href = 'atencion_sesiones.html';
-                } else {
-                    hablar("¡Excelente Juan! Pasamos automáticamente al siguiente nivel.");
-                    // Cambio automático de nivel con delay para la voz
-                    setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2200);
-                }
-            } else {
-                avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
-                hablar("No te preocupes Juan, concéntrate y sigue buscando.");
-                // Vuelve a imagen normal después de la voz
-                setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2500);
-            }
-        });
-        contenedor.appendChild(entidad);
-    }
-
-    // --- 6. GENERAR ELEMENTOS SIN REPETICIÓN (Y asegurando el objetivo) ---
-    // !!! CAMBIO IMPORTANTE !!!
-    // CREAR EL OBJETIVO PRIMERO (Asegura su espacio en la grilla y su ID)
-    crearEstímulo(idObjetivo, true);
-
-    // Luego creamos los distractores hasta completar la meta del nivel actual
-    let distractoresCreados = 0;
-    const totalDistractoresMeta = config[nivelActual].objetos - 1;
-    const idsUsados = new Set([idObjetivo]); // Para evitar repetir objetos
-
-    // Bucle para llenar con distractores
-    while(distractoresCreados < totalDistractoresMeta && indicePosDisponibles < grillaPosiciones.length) {
-        let idAzar = Math.floor(Math.random() * 20) + 1;
+        // --- 1. CONFIGURACIÓN DEL SISTEMA DE NIVELES ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const nivelActual = urlParams.get('nivel') || 'bajo';
         
-        // Evitamos repetir el objetivo o distraer con el mismo objeto repetido
-        if(!idsUsados.has(idAzar)) {
-            crearEstímulo(idAzar, false);
-            idsUsados.add(idAzar); // Añadimos el ID al set de usados
-            distractoresCreados++;
+        const config = {
+            'bajo': { objetos: 5, siguiente: 'medio', texto: 'Nivel 1: Inicial' },
+            'medio': { objetos: 12, siguiente: 'alto', texto: 'Nivel 2: Intermedio' },
+            'alto': { objetos: 20, siguiente: 'final', texto: 'Nivel 3: Avanzado' }
+        };
+
+        const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
+        
+        // --- 2. SELECCIÓN DE OBJETIVO (El objeto que Juan debe buscar) ---
+        const idObjetivo = Math.floor(Math.random() * 20) + 1; // Un ID al azar entre obj1 y obj20
+        document.getElementById('instruccion').innerText = "Juan, busca: " + nombres[idObjetivo];
+        document.getElementById('info-nivel').innerText = config[nivelActual].texto;
+
+        const contenedor = document.getElementById('contenedor-objetos');
+        const avatar = document.getElementById('avatar-guia');
+        const posicionesUsadas = []; // Para verificar distancias
+
+        // --- 3. FUNCIÓN PARA HABLAR (TTS) ---
+        function hablar(mensaje) {
+            window.speechSynthesis.cancel();
+            const voz = new SpeechSynthesisUtterance(mensaje);
+            voz.lang = 'es-ES';
+            voz.rate = 0.85; 
+            window.speechSynthesis.speak(voz);
         }
-    }
-</script>
+
+        // El coterapeuta explica al cargar
+        setTimeout(() => hablar("Juan, para este ejercicio busca el objeto " + nombres[idObjetivo]), 1000);
+
+        // --- 4. FUNCIÓN DE CREACIÓN PERFECTA (obj1.png, obj2.png...) ---
+        function crearEstímulo(id, esObjetivo) {
+            const entidad = document.createElement('a-image');
+            entidad.setAttribute('src', 'obj' + id + '.png');
+            
+            // Clase clickable para el cursor y look-at para mirar a Juan
+            entidad.setAttribute('class', 'clickable');
+            entidad.setAttribute('look-at', '[camera]');
+            
+            // Escala intermiedia perfecta para no verse 'mocho' (image_11.png)
+            entidad.setAttribute('scale', '0.7 0.7 0.7'); 
+
+            // --- DISPERSIÓN ESFÉRICA FORZADA (Adiós amontonamiento y ocultación) ---
+            let x, y, z, posicionValida = false;
+            let intentos = 0;
+
+            while (!posicionValida && intentos < 100) {
+                // Generamos coordenadas esféricas aleatorias alrededor de Juan (360°)
+                const theta = Math.random() * Math.PI * 2; // Ángulo horizontal (0 a 360°)
+                const phi = Math.acos((Math.random() * 2) - 1); // Ángulo vertical (Arriba/Abajo)
+                const radio = 4.5; // Distancia fija cómoda para Juan
+
+                x = radio * Math.sin(phi) * Math.cos(theta);
+                y = Math.max(0.3, radio * Math.sin(phi) * Math.sin(theta)); // Evitamos que aparezcan bajo el suelo
+                z = radio * Math.cos(phi);
+
+                // Verificamos que no esté muy cerca de otro objeto ya creado (mínimo 1.5m)
+                // Usamos la fórmula de distancia 3D: sqrt((x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2)
+                posicionValida = !posicionesUsadas.some(p => {
+                    const distancia = Math.sqrt((p.x - x)**2 + (p.y - y)**2 + (p.z - z)**2);
+                    return distancia < 1.5; // Distancia mínima de seguridad (muy importante)
+                });
+                intentos++;
+            }
+
+            // Si es el objetivo, forzamos que aparezca en el semicírculo frontal (más fácil)
+            if (esObjetivo) {
+                // Ajustamos Z para que siempre sea negativo (frente a la cámara inicial)
+                if (z > 0) z = -z;
+            }
+
+            posicionesUsadas.push({x, y, z});
+            entidad.setAttribute('position', `${x} ${y} ${z}`);
+
+            // --- LÓGICA DEL CLIC ---
+            entidad.addEventListener('click', function() {
+                if (esObjetivo) {
+                    avatar.src = "COTERAPEUTA_FELIZ.JPG";
+                    const sig = config[nivelActual].siguiente;
+                    if(sig === 'final') {
+                        const textoFinal = "Cuidar de tus objetos personales requiere atención, lo lograste.";
+                        hablar(textoFinal);
+                        alert(textoFinal);
+                        window.location.href = 'atencion_sesiones.html';
+                    } else {
+                        hablar("¡Excelente Juan! Pasamos automáticamente al siguiente nivel.");
+                        // Cambio automático de nivel con delay para la voz
+                        setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2200);
+                    }
+                } else {
+                    avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
+                    hablar("No te preocupes Juan, concéntrate y sigue buscando.");
+                    // Vuelve a imagen normal después de la voz
+                    setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2500);
+                }
+            });
+            contenedor.appendChild(entidad);
+        }
+
+        // --- 5. GENERAR ELEMENTOS SIN REPETICIÓN (Y asegurando el objetivo) ---
+        // CREAR EL OBJETIVO PRIMERO (Asegura su espacio y su ID)
+        crearEstímulo(idObjetivo, true);
+
+        // Luego creamos los distractores hasta completar la meta del nivel actual
+        let distractoresCreados = 0;
+        const totalDistractoresMeta = config[nivelActual].objetos - 1;
+        const idsUsados = new Set([idObjetivo]); // Para evitar repetir objetos
+
+        while(distractoresCreados < totalDistractoresMeta && distractoresCreados < 24) {
+            let idAzar = Math.floor(Math.random() * 20) + 1;
+            
+            // Evitamos repetir el objetivo o distraer con el mismo objeto repetido
+            if(!idsUsados.has(idAzar)) {
+                crearEstímulo(idAzar, false);
+                idsUsados.add(idAzar); // Añadimos el ID al set de usados
+                distractoresCreados++;
+            }
+        }
+    </script>
 </body>
 </html>
+
