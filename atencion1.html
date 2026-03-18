@@ -24,7 +24,7 @@
     <div id="interfaz-guia">
         <img id="avatar-guia" src="COTERAPEUTA.JPG" alt="Coterapeuta">
         <div class="texto-instruccion">
-            <h2 id="instruccion" style="margin:0; font-size: 1.1rem; color: #103A57;">Preparando...</h2>
+            <h2 id="instruccion" style="margin:0; font-size: 1.1rem; color: #103A57;">Iniciando...</h2>
             <p id="info-nivel" style="margin:2px 0 0; color:#307B8E; font-size: 0.8rem; font-weight:bold;"></p>
         </div>
     </div>
@@ -65,33 +65,34 @@
 
         const contenedor = document.getElementById('contenedor-objetos');
 
-        // --- NUEVA GRILLA DE 48 PUNTOS ---
-        const puntosGrilla = [];
-        const radio = 4.8; 
-        const alturas = [0.2, 0.8, 1.4, 2.0]; // 4 niveles de altura
-        const angulos = 12; // 12 direcciones (una cada 30 grados)
-
-        for (let h = 0; h < alturas.length; h++) {
-            for (let a = 0; a < angulos; a++) {
-                let rad = (a / angulos) * Math.PI * 2;
-                puntosGrilla.push({
-                    x: Math.sin(rad) * radio,
-                    y: alturas[h],
-                    z: -Math.cos(rad) * radio
-                });
-            }
+        // --- SOLUCIÓN DEFINITIVA: ÁNGULOS ÚNICOS ---
+        // Repartimos 360 grados entre los 20 posibles objetos para que NUNCA coincidan en el mismo eje vertical
+        const angulosDisponibles = [];
+        for(let i = 0; i < 20; i++) {
+            angulosDisponibles.push((i * (360 / 20)) * (Math.PI / 180));
         }
+        // Barajamos los ángulos
+        angulosDisponibles.sort(() => Math.random() - 0.5);
 
-        // Barajamos los 48 puntos
-        puntosGrilla.sort(() => Math.random() - 0.5);
-
-        function crearObjeto(id, esObjetivo, posIndex) {
-            const pos = puntosGrilla[posIndex];
+        function crearObjeto(id, esObjetivo, index) {
             const entidad = document.createElement('a-image');
             entidad.setAttribute('src', 'obj' + id + '.png');
             entidad.setAttribute('class', 'clickable');
-            entidad.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
-            entidad.setAttribute('scale', '0.65 0.65 0.65'); // Un poquito más pequeños para que no se toquen
+            
+            // Usamos un ángulo único para este objeto
+            const angulo = angulosDisponibles[index];
+            const radio = 4.5;
+            
+            // Variamos la altura según el índice para que no todos estén a la misma altura visual
+            const altura = (index % 4) * 0.6 + 0.4; 
+
+            entidad.setAttribute('position', {
+                x: Math.sin(angulo) * radio,
+                y: altura,
+                z: -Math.cos(angulo) * radio
+            });
+            
+            entidad.setAttribute('scale', '0.7 0.7 0.7');
             entidad.setAttribute('look-at', '[camera]');
 
             entidad.addEventListener('click', function() {
@@ -99,39 +100,36 @@
                     avatar.src = "COTERAPEUTA_FELIZ.JPG";
                     const sig = config[nivelActual].siguiente;
                     if(sig === 'final') {
-                        hablar("¡Excelente Juan! Has completado el entrenamiento.");
+                        hablar("¡Excelente Juan! Lo lograste.");
                         setTimeout(() => window.location.href = 'atencion_sesiones.html', 3000);
                     } else {
-                        hablar("¡Muy bien! Pasamos al siguiente nivel.");
+                        hablar("¡Muy bien! Vamos al siguiente nivel.");
                         setTimeout(() => window.location.href = `atencion1.html?nivel=${sig}`, 2000);
                     }
                 } else {
                     avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
-                    hablar("Ese no es Juan, sigue buscando.");
+                    hablar("Sigue buscando Juan.");
                     setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 2000);
                 }
             });
             contenedor.appendChild(entidad);
         }
 
-        // 1. Objetivo primero
+        // Generar objetivo y distractores
         crearObjeto(idObjetivo, true, 0);
 
-        // 2. Distractores
         let creados = 1;
-        let posUsada = 1;
         const idsUsados = [idObjetivo];
-
         while(creados < config[nivelActual].objetos) {
             let azar = Math.floor(Math.random() * 20) + 1;
             if(!idsUsados.includes(azar)) {
-                crearObjeto(azar, false, posUsada);
+                crearObjeto(azar, false, creados);
                 idsUsados.push(azar);
                 creados++;
-                posUsada++;
             }
         }
     </script>
 </body>
 </html>
+
 
