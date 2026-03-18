@@ -1,94 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Sesión 1: Atención - REHABILIDIA</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <style>
-        #interfaz-guia {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 15px;
-            text-align: center; font-family: 'Segoe UI', sans-serif; z-index: 100;
-            border: 4px solid #307B8E; width: 380px; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        #avatar-guia { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #307B8E; object-fit: cover; }
-        .texto-instruccion { flex: 1; text-align: left; }
-        .btn-volver {
-            position: absolute; bottom: 20px; left: 20px; z-index: 100;
-            padding: 12px 20px; background: #103A57; color: white; border-radius: 10px; 
-            text-decoration: none; font-family: sans-serif; font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="interfaz-guia">
-        <img id="avatar-guia" src="COTERAPEUTA.JPG" alt="Coterapeuta">
-        <div class="texto-instruccion">
-            <h2 id="instruccion" style="margin:0; font-size: 1.1rem; color: #103A57;">Iniciando sesión...</h2>
-            <p id="info-nivel" style="margin:2px 0 0; color:#307B8E; font-size: 0.85rem; font-weight:bold;"></p>
-        </div>
-    </div>
-
-    <a href="atencion_sesiones.html" class="btn-volver">← Salir</a>
-
-    <a-scene>
-        <a-sky src="habitacion_animada.png" rotation="0 -90 0"></a-sky>
-        <a-camera>
-            <a-cursor fuse="false" raycaster="objects: .clickable" color="#307B8E" scale="2 2 2"></a-cursor>
-        </a-camera>
-        <a-entity id="contenedor-objetos"></a-entity>
-    </a-scene>
-
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const nivelActual = urlParams.get('nivel') || 'bajo';
-        
-        const config = {
-            'bajo': { objetos: 5, siguiente: 'medio', texto: 'Nivel 1: Inicial' },
-            'medio': { objetos: 12, siguiente: 'alto', texto: 'Nivel 2: Intermedio' },
-            'alto': { objetos: 20, siguiente: 'final', texto: 'Nivel 3: Avanzado' }
-        };
-
-        const nombres = ["", "Reloj", "Gafas", "Celular", "Libro", "Vaso", "Llaves", "Lámpara", "Gorra", "Peine", "Botella", "Control", "Planta", "Zapato", "Almohada", "Monedas", "Cuadro", "Audífonos", "Fruta", "Billetera", "Lapicero"];
-        const idObjetivo = Math.floor(Math.random() * 20) + 1;
-        const avatar = document.getElementById('avatar-guia');
-
-        function hablar(mensaje) {
-            window.speechSynthesis.cancel();
-            const voz = new SpeechSynthesisUtterance(mensaje);
-            voz.lang = 'es-ES';
-            voz.rate = 0.85; 
-            window.speechSynthesis.speak(voz);
-        }
-
-        // Instrucción inicial
-        const msgInicial = "Juan, para esta actividad busca el objeto: " + nombres[idObjetivo];
-        document.getElementById('instruccion').innerText = msgInicial;
-        document.getElementById('info-nivel').innerText = config[nivelActual].texto;
-        
-        // El coterapeuta habla al iniciar (esperamos un poco a que cargue la página)
-        setTimeout(() => hablar(msgInicial), 1000);
-
-        const contenedor = document.getElementById('contenedor-objetos');
-
+        // --- FUNCIÓN MEJORADA: SOLUCIONA CLIC Y DISTRIBUCIÓN ---
         function crearObjeto(id, esObjetivo) {
-            const entidad = document.createElement('a-image');
-            entidad.setAttribute('src', 'obj' + id + '.png');
-            entidad.setAttribute('class', 'clickable');
+            // 1. Contenedor principal para agrupar el objeto y su panel de clic
+            const contenedorGlobal = document.createElement('a-entity');
             
-            const angulo = (Math.random() - 0.5) * 2.5; 
-            const radio = 4 + Math.random() * 1.2;
-            const x = Math.sin(angulo) * radio;
-            const z = -Math.cos(angulo) * radio;
-            const y = (Math.random() * 0.7) + 0.9; 
+            // --- POSICIONAMIENTO EN 360 GRADOS ---
+            // Usamos un círculo completo alrededor del paciente
+            const angulo = Math.random() * Math.PI * 2;
+            const radio = 4; // Distancia fija de 4 metros para buen tamaño visual
+            
+            const x = Math.cos(angulo) * radio;
+            const z = Math.sin(angulo) * radio;
+            
+            // Altura variada: Piso (0.3m), Muebles bajos (0.7m), Mesas/Estantes (1.2m)
+            const alturasPosibles = [0.3, 0.7, 1.2];
+            const y = alturasPosibles[Math.floor(Math.random() * alturasPosibles.length)];
 
-            entidad.setAttribute('position', `${x} ${y} ${z}`);
-            entidad.setAttribute('scale', '0.5 0.5 0.5');
-            entidad.setAttribute('look-at', '[camera]');
+            contenedorGlobal.setAttribute('position', `${x} ${y} ${z}`);
+            contenedorGlobal.setAttribute('look-at', '[camera]'); // Todo el grupo mira a Juan
 
-            entidad.addEventListener('click', function() {
+            // 2. Imagen del Objeto Visible
+            const imagenObjeto = document.createElement('a-image');
+            imagenObjeto.setAttribute('src', 'obj' + id + '.png');
+            imagenObjeto.setAttribute('scale', '0.8 0.8 0.8'); // Tamaño visible y cómodo
+            
+            // 3. Panel Invisible para facilitar el Clic (La Solución)
+            // Creamos un disco transparente grande detrás del objeto. 
+            // Juan tocará este disco y activará el evento.
+            const panelClic = document.createElement('a-disk');
+            panelClic.setAttribute('radius', '0.6'); // Radio grande para fácil selección
+            panelClic.setAttribute('material', 'transparent: true; opacity: 0;'); // Invisible
+            panelClic.setAttribute('class', 'clickable'); // Importante para el cursor
+            panelClic.setAttribute('position', '0 0 -0.01'); // Justo detrás de la imagen
+
+            // 4. LÓGICA DEL CLIC (Ahora unida al panel invisible)
+            panelClic.addEventListener('click', function() {
                 if (esObjetivo) {
                     const sig = config[nivelActual].siguiente;
                     avatar.src = "COTERAPEUTA_FELIZ.JPG";
@@ -108,25 +53,31 @@
                 } else {
                     avatar.src = "COTERAPEUTA_PENSATIVO.JPG";
                     hablar("No te preocupes Juan, ese no es. Respira y sigue buscando.");
-                    // Vuelve a la imagen normal después de 3 segundos
                     setTimeout(() => { avatar.src = "COTERAPEUTA.JPG"; }, 3000);
                 }
             });
-            contenedor.appendChild(entidad);
+
+            // Unir todo
+            contenedorGlobal.appendChild(imagenObjeto);
+            contenedorGlobal.appendChild(panelClic); // El panel está detrás de la imagen
+            contenedor.appendChild(contenedorGlobal);
         }
 
-        // Generar elementos
+        // --- GENERAR ELEMENTOS ---
+        // Crear el objetivo primero
         crearObjeto(idObjetivo, true);
+
+        // Crear distractores según el nivel
         let creados = 0;
-        while(creados < config[nivelActual].objetos - 1) {
+        const totalDistractores = config[nivelActual].objetos - 1;
+
+        while(creados < totalDistractores) {
             let idAzar = Math.floor(Math.random() * 20) + 1;
+            // Asegurar que no repetimos el objetivo ni creamos demasiados del mismo tipo
             if(idAzar !== idObjetivo) {
                 crearObjeto(idAzar, false);
                 creados++;
             }
         }
-    </script>
-</body>
-</html>
 
 
