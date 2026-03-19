@@ -6,10 +6,10 @@
     <title>Sesión 2: Rutinas - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --m-green: #366B2B; --silver: #CEE5D6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #000; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #333; }
         
-        /* Escenario de fondo */
+        /* Ajustado al nombre real con tilde que tienes en GitHub */
         #escenario {
             width: 100vw; height: 100vh;
             background-image: url('fondo_baño.jpg'); 
@@ -17,31 +17,25 @@
             position: relative; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Guía del Coterapeuta mejorado */
         #guia {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(255,255,255,0.95); padding: 15px; border-radius: 20px;
             border: 4px solid var(--t-blue); width: 85%; max-width: 450px;
             display: flex; align-items: center; gap: 15px; z-index: 10;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
-        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; line-height: 1.2; }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
 
-        /* Contenedor de objetos */
         #objetos-container { position: relative; width: 90%; height: 65%; margin-top: 80px; }
         
         .objeto {
             position: absolute; width: 110px; height: 110px;
-            cursor: pointer; transition: transform 0.2s, filter 0.3s;
+            cursor: pointer; transition: transform 0.2s;
             filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.4));
-            object-fit: contain;
         }
-        
-        .objeto:hover { transform: scale(1.05); }
         .objeto.seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2); transform: scale(1.15); border: 2px solid gold; border-radius: 10px; }
         
-        .btn-volver { position: absolute; bottom: 20px; left: 20px; padding: 12px 25px; background: var(--p-blue); color: white; border-radius: 15px; text-decoration: none; z-index: 20; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .btn-volver { position: absolute; bottom: 20px; left: 20px; padding: 12px 25px; background: var(--p-blue); color: white; border-radius: 15px; text-decoration: none; z-index: 20; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -49,20 +43,82 @@
 <div id="escenario">
     <div id="guia">
         <img src="COTERAPEUTA.JPG" alt="Guía">
-        <p id="texto-instruccion">Preparando tu rutina de hoy...</p>
+        <p id="texto-instruccion">Preparando rutina...</p>
     </div>
-
     <div id="objetos-container"></div>
-    
-    <a href="index.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Menú</a>
+    <a href="atencion_sesiones.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
 </div>
 
 <script>
-    // Definición de Rutinas basadas en los 20 estímulos
     const rutinas = [
-        { id: 1, nombre: "Dientes", correctos: [1, 2], instruccion: "Juan, selecciona el cepillo y la crema dental para lavar tus dientes." },
-        { id: 2, nombre: "Manos", correctos: [3, 4], instruccion: "Juan, busca el jabón y la toalla para lavar tus manos." },
-        { id: 3, nombre: "Cabello", correctos: [5, 6], instruccion: "Juan, elige el peine y el fijador para arreglar tu cabello." },
-        { id: 4, nombre: "Afeitado", correctos: [7, 8], instruccion: "Juan, selecciona la máquina y la espuma para afeitarte."
+        { nombre: "Dientes", correctos: [1, 2], instruccion: "Juan, selecciona el cepillo y la crema dental para lavar tus dientes." },
+        { nombre: "Manos", correctos: [3, 4], instruccion: "Juan, busca el jabón y la toalla para lavar tus manos." },
+        { nombre: "Cabello", correctos: [5, 6], instruccion: "Juan, elige el peine y el fijador para arreglar tu cabello." },
+        { nombre: "Afeitado", correctos: [7, 8], instruccion: "Juan, selecciona la máquina y la espuma para afeitarte." },
+        { nombre: "Baño", correctos: [9, 10], instruccion: "Juan, busca el champú y la esponja para tu baño." }
+    ];
 
+    let rutinaActual = rutinas[Math.floor(Math.random() * rutinas.length)];
+    let seleccionados = [];
+
+    function hablar(mensaje) {
+        window.speechSynthesis.cancel();
+        const voz = new SpeechSynthesisUtterance(mensaje);
+        voz.lang = 'es-ES';
+        voz.rate = 0.85;
+        window.speechSynthesis.speak(voz);
+    }
+
+    function iniciarJuego() {
+        const container = document.getElementById('objetos-container');
+        document.getElementById('texto-instruccion').innerText = rutinaActual.instruccion;
+        setTimeout(() => { hablar(rutinaActual.instruccion); }, 500);
+
+        let idsParaMostrar = [...rutinaActual.correctos];
+        let distractores = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+        distractores.sort(() => Math.random() - 0.5);
+        for(let i=0; i<8; i++) { idsParaMostrar.push(distractores[i]); }
+        idsParaMostrar.sort(() => Math.random() - 0.5);
+
+        idsParaMostrar.forEach((id, index) => {
+            const img = document.createElement('img');
+            // Ajustado a .png minúscula según tu lista de archivos
+            img.src = `aseo${id}.png`; 
+            img.className = 'objeto';
+            
+            const col = index % 5;
+            const row = Math.floor(index / 5);
+            img.style.left = (col * 18 + Math.random() * 5) + "%";
+            img.style.top = (row * 45 + Math.random() * 5) + "%";
+
+            img.onclick = () => {
+                if(seleccionados.includes(id)) return;
+                if(rutinaActual.correctos.includes(id)) {
+                    img.classList.add('seleccionado');
+                    seleccionados.push(id);
+                    hablar("Muy bien.");
+                    if(seleccionados.length === 2) finalizar();
+                } else {
+                    hablar("Ese no es.");
+                    img.style.opacity = "0.5";
+                    setTimeout(() => { img.style.opacity = "1"; }, 800);
+                }
+            };
+            container.appendChild(img);
+        });
+    }
+
+    function finalizar() {
+        hablar("¡Excelente Juan! Has completado la rutina.");
+        const data = { fecha: new Date().toLocaleString(), categoria: "Atención S2", puntaje: "Completado", rendimiento: 100 };
+        let sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        sesiones.push(data);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(sesiones));
+        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 4000);
+    }
+
+    window.onload = iniciarJuego;
+</script>
+</body>
+</html>
 
