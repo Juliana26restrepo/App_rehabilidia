@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REHABILIDIA - Acceso</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F0F4F8; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        
+        .logo { text-align: center; margin-bottom: 40px; }
+        .logo h1 { color: var(--p-blue); font-size: 2.5rem; margin: 0; }
+        .logo p { color: var(--t-blue); font-weight: bold; letter-spacing: 2px; margin: 5px 0; }
+
+        .perfiles { display: flex; gap: 25px; justify-content: center; flex-wrap: wrap; width: 90%; max-width: 800px; }
+
+        .card {
+            background: white; border-radius: 25px; padding: 40px 20px; width: 240px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); cursor: pointer;
+            transition: 0.3s; border: 4px solid transparent;
+            text-decoration: none; text-align: center;
+        }
+
+        .card:hover { transform: translateY(-10px); border-color: var(--t-blue); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .card i { font-size: 4rem; color: var(--t-blue); margin-bottom: 20px; }
+        .card h2 { margin: 10px 0; color: var(--p-blue); font-size: 1.5rem; }
+        
+        .role-tag { background: #E1F5FE; color: #0288D1; padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<div class="logo">
+    <h1>REHABILIDIA</h1>
+    <p>SISTEMA COGNITIVO</p>
+</div>
+
+<div class="perfiles">
+    <a href="perfil_paciente.html" class="card">
+        <span class="role-tag">Paciente</span>
+        <i class="fas fa-user-circle"></i>
+        <h2>Juan Pérez</h2>
+    </a>
+
+    <a href="perfil_neuropsicologo.html" class="card">
+        <span class="role-tag">Especialista</span>
+        <i class="fas fa-user-md"></i>
+        <h2>Neuropsicólogo</h2>
+    </a>
+</div>
+
+</body>
+</html>
