@@ -3,17 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 2: Rutinas - REHABILIDIA</title>
+    <title>Sesión 2: Rutinas Variadas</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; }
-        
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            overflow: hidden; 
-            background-color: #B0E0E6; 
-        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #B0E0E6; }
 
         #pantalla-juego {
             width: 100vw; height: 100vh;
@@ -23,7 +17,7 @@
         }
 
         #escenario-ancho {
-            width: 250vw; /* Baño muy ancho para que no se amontonen */
+            width: 300vw; /* Más espacio para que no haya amontonamiento */
             height: 100vh;
             background-image: url('fondo_bano.jpg'); 
             background-size: cover; background-position: center;
@@ -36,12 +30,11 @@
             border: 4px solid var(--t-blue); width: 85%; max-width: 500px;
             display: flex; align-items: center; gap: 15px; z-index: 100;
         }
-        #guia img { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
+        #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
         #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
 
-        /* TAMAÑO SENIOR: Grande y claro */
         .objeto {
-            position: absolute; width: 140px; height: 140px;
+            position: absolute; width: 125px; height: 125px;
             cursor: pointer; transition: 0.3s;
             filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
             object-fit: contain;
@@ -55,9 +48,9 @@
 
         .flecha-indicadora {
             position: fixed; bottom: 30px; right: 30px;
-            background: rgba(16, 58, 87, 0.7); color: white;
+            background: rgba(16, 58, 87, 0.8); color: white;
             padding: 12px 20px; border-radius: 30px; animation: moveRight 1.5s infinite;
-            font-size: 1rem; z-index: 90; font-weight: bold;
+            font-size: 0.9rem; z-index: 90; font-weight: bold;
         }
         @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
     </style>
@@ -66,10 +59,10 @@
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
-    <p id="texto-instruccion">Cargando...</p>
+    <p id="texto-instruccion">Juan, vamos a empezar...</p>
 </div>
 
-<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Mueve para buscar</div>
+<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza para buscar</div>
 
 <div id="pantalla-juego">
     <div id="escenario-ancho">
@@ -78,6 +71,7 @@
 </div>
 
 <script>
+    // Pool completo de 10 objetos reales
     const poolObjetos = [
         { id: 1, nombre: "el cepillo" }, { id: 2, nombre: "la crema" },
         { id: 3, nombre: "el jabón" }, { id: 4, nombre: "la toalla" },
@@ -89,7 +83,6 @@
     let faseActual = 1; 
     let seleccionados = [];
     let objetivosActuales = [];
-    let metaFase = 2;
 
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
@@ -104,9 +97,9 @@
         container.innerHTML = "";
         seleccionados = [];
         
-        // Dificultad automática: 2 -> 4 -> 6 objetivos
-        metaFase = faseActual * 2;
+        let metaFase = faseActual * 2; // 2, 4, 6
 
+        // MEZCLA TOTAL: Elegimos objetivos aleatorios del pool de 10
         let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
         objetivosActuales = copiaPool.slice(0, metaFase);
 
@@ -116,36 +109,46 @@
         document.getElementById('texto-instruccion').innerText = instruccion;
         hablar(instruccion);
 
-        // Mezclar objetivos con distractores (aseo11 a aseo20)
-        let totalIds = objetivosActuales.map(o => o.id);
+        // Crear lista de IDs asegurando que NO se repitan con los distractores
+        let idsFinales = [];
+        // Añadir los correctos
+        objetivosActuales.forEach(obj => idsFinales.push({id: obj.id, correcto: true}));
+        
+        // Añadir distractores (aseo11 al 20)
         let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
-        for(let i=0; i<10; i++) { totalIds.push(distractores[i]); }
-        totalIds.sort(() => Math.random() - 0.5);
+        // Siempre ponemos 8 distractores para mantener el nivel de atención
+        for(let i=0; i<8; i++) {
+            idsFinales.push({id: distractores[i], correcto: false});
+        }
 
-        // REJILLA TOTAL (8 columnas distribuidas en 250vw)
-        totalIds.forEach((id, index) => {
+        // Mezclar posiciones finales
+        idsFinales.sort(() => Math.random() - 0.5);
+
+        // REJILLA SÚPER ANCHA (14 espacios en 300vw)
+        idsFinales.forEach((item, index) => {
             const img = document.createElement('img');
-            // CORRECCIÓN CLAVE: Usamos .png en minúsculas para coincidir con GitHub
-            img.src = `aseo${id}.png`; 
+            img.src = `aseo${item.id}.png`; 
             img.className = 'objeto';
             
-            // Rejilla amplia para que NO se amontonen nunca
-            const col = index % 8;
-            const row = Math.floor(index / 8);
+            const col = index % 7;
+            const row = Math.floor(index / 7);
             
-            img.style.left = (col * 30 + 10) + "vw"; 
+            // Espaciado generoso para evitar sobremontaje
+            img.style.left = (col * 40 + 20) + "vw"; 
             img.style.top = (row * 35 + 30) + "vh";
 
             img.onclick = () => {
-                if(objetivosActuales.some(obj => obj.id === id)) {
-                    if(!seleccionados.includes(id)) {
+                if(item.correcto) {
+                    if(!seleccionados.includes(item.id)) {
                         img.classList.add('seleccionado');
-                        seleccionados.push(id);
+                        seleccionados.push(item.id);
                         hablar("¡Muy bien!");
                         if(seleccionados.length === metaFase) pasarSiguienteNivel();
                     }
                 } else {
-                    hablar("Ese no es, busca con cuidado.");
+                    hablar("Ese no es, sigue buscando.");
+                    img.style.opacity = "0.5";
+                    setTimeout(() => img.style.opacity = "1", 500);
                 }
             };
             container.appendChild(img);
@@ -155,15 +158,20 @@
     function pasarSiguienteNivel() {
         if(faseActual < 3) {
             faseActual++;
-            setTimeout(iniciarFase, 2000);
+            setTimeout(() => {
+                document.getElementById('pantalla-juego').scrollLeft = 0;
+                iniciarFase();
+            }, 2000);
         } else {
-            hablar("¡Excelente Juan! Has terminado toda tu rutina.");
+            hablar("¡Excelente Juan! Has terminado toda la rutina de hoy.");
             setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
         }
     }
 
-    window.onload = iniciarFase;
+    window.onload = () => {
+        faseActual = 1;
+        iniciarFase();
+    };
 </script>
 </body>
 </html>
-
