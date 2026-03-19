@@ -7,52 +7,71 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--p-blue); height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--p-blue); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
         header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; cursor: pointer; }
 
-        /* Contenedor Principal */
-        .main-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .main-container { flex: 1; position: relative; overflow: hidden; }
 
-        /* VISTA 1: LISTA DE PACIENTES (TIPO MESSENGER) */
-        #lista-chats { flex: 1; overflow-y: auto; padding: 10px; }
+        /* VISTA 1: LISTA DE PACIENTES */
+        #lista-chats { width: 100%; height: 100%; overflow-y: auto; padding: 10px; box-sizing: border-box; }
         .chat-item { 
             background: white; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; 
             margin-bottom: 10px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .chat-item:hover { background: #eef2f5; }
-        .avatar { width: 50px; height: 50px; background: var(--t-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
-        .chat-info { flex: 1; }
+        .chat-item:active { transform: scale(0.98); }
+
+        .avatar { width: 50px; height: 50px; background: var(--t-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; }
+        .chat-info { flex: 1; overflow: hidden; }
         .chat-info h4 { margin: 0; font-size: 1rem; }
         .chat-info p { margin: 5px 0 0; font-size: 0.85rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* VISTA 2: VENTANA DE CHAT (OCULTA POR DEFECTO) */
+        /* VISTA 2: VENTANA DE CHAT (ESTILO MESSENGER) */
         #ventana-chat { 
             position: absolute; top: 0; left: 100%; width: 100%; height: 100%; 
-            background: var(--bg); display: flex; flex-direction: column; transition: 0.3s ease; z-index: 10;
+            background: #e5ddd5; /* Color clásico de fondo de chat */
+            display: flex; flex-direction: column; transition: 0.3s ease; z-index: 100;
         }
         #ventana-chat.active { left: 0; }
 
-        .chat-header { background: white; padding: 10px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #ddd; }
+        .chat-header { background: var(--white); padding: 10px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #ddd; flex-shrink: 0; }
 
-        #mensajes-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
+        #mensajes-box { 
+            flex: 1; padding: 15px; overflow-y: auto; 
+            display: flex; flex-direction: column; gap: 8px; 
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); 
+        }
         
-        .msg { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; position: relative; }
+        /* Burbujas */
+        .msg { max-width: 75%; padding: 10px 14px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
         .msg.pro { align-self: flex-end; background: var(--t-blue); color: white; border-bottom-right-radius: 2px; }
-        .msg.paciente { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .msg-info { font-size: 0.65rem; display: block; margin-top: 4px; opacity: 0.7; }
+        .msg.paciente { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg-info { font-size: 0.6rem; display: block; margin-top: 4px; opacity: 0.7; text-align: right; }
 
-        .input-area { background: white; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        input { flex: 1; border: 1px solid #ddd; padding: 12px; border-radius: 25px; outline: none; }
-        .btn-enviar { background: var(--p-blue); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
+        /* AREA DE ESCRITURA (ESTA ES LA QUE NECESITAS) */
+        .input-area { 
+            background: white; padding: 10px 15px; 
+            display: flex; align-items: center; gap: 10px; 
+            border-top: 1px solid #ddd; flex-shrink: 0;
+            padding-bottom: 25px; /* Espacio para gestos de móvil */
+        }
+        #mensajeInput { 
+            flex: 1; border: 1px solid #ddd; padding: 12px 15px; 
+            border-radius: 25px; outline: none; font-size: 1rem; background: #f0f2f5;
+        }
+        .btn-enviar { 
+            background: var(--p-blue); color: white; border: none; 
+            width: 45px; height: 45px; border-radius: 50%; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
     </style>
 </head>
 <body>
 
 <header id="main-header">
     <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">Mensajes</span>
+    <span style="font-weight: bold;">Mensajes de Pacientes</span>
 </header>
 
 <div class="main-container">
@@ -61,24 +80,27 @@
             <div class="avatar">JP</div>
             <div class="chat-info">
                 <h4>Juan Pérez</h4>
-                <p id="last-msg-juan">Haz clic para ver la conversación...</p>
+                <p id="preview-juan">Toca para escribir un mensaje...</p>
             </div>
             <i class="fas fa-chevron-right" style="color: #ccc;"></i>
         </div>
-        </div>
+    </div>
 
     <div id="ventana-chat">
         <div class="chat-header">
-            <i class="fas fa-arrow-left btn-volver" style="color: var(--p-blue);" onclick="cerrarChat()"></i>
-            <div class="avatar" style="width: 40px; height: 40px; font-size: 1rem;" id="chat-avatar">JP</div>
-            <strong id="chat-nombre">Nombre Paciente</strong>
+            <i class="fas fa-arrow-left" style="color: var(--p-blue); font-size: 1.2rem; cursor: pointer;" onclick="cerrarChat()"></i>
+            <div class="avatar" style="width: 35px; height: 35px; font-size: 0.9rem;" id="chat-avatar-mini">JP</div>
+            <strong id="chat-nombre-header">Paciente</strong>
         </div>
         
-        <div id="mensajes-box"></div>
+        <div id="mensajes-box">
+            </div>
 
         <div class="input-area">
-            <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter') enviarMensaje()">
-            <button class="btn-enviar" onclick="enviarMensaje()"><i class="fas fa-paper-plane"></i></button>
+            <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." autocomplete="off">
+            <button class="btn-enviar" onclick="enviarMensaje()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -88,10 +110,13 @@
 
     function abrirChat(nombre, key) {
         chatActualKey = key;
-        document.getElementById('chat-nombre').innerText = nombre;
-        document.getElementById('chat-avatar').innerText = nombre.split(' ').map(n => n[0]).join('');
+        document.getElementById('chat-nombre-header').innerText = nombre;
+        document.getElementById('chat-avatar-mini').innerText = nombre.split(' ').map(n => n[0]).join('');
         document.getElementById('ventana-chat').classList.add('active');
         cargarMensajes();
+        
+        // Enfocar el input automáticamente
+        setTimeout(() => document.getElementById('mensajeInput').focus(), 300);
     }
 
     function cerrarChat() {
@@ -101,47 +126,61 @@
 
     function cargarMensajes() {
         if (!chatActualKey) return;
-        const container = document.getElementById('mensajes-box');
+        const box = document.getElementById('mensajes-box');
         const mensajes = JSON.parse(localStorage.getItem(chatActualKey)) || [];
 
-        container.innerHTML = '';
+        box.innerHTML = '';
         mensajes.forEach(m => {
             const div = document.createElement('div');
             div.className = `msg ${m.emisor}`;
             div.innerHTML = `${m.texto} <span class="msg-info">${m.fecha}</span>`;
-            container.appendChild(div);
+            box.appendChild(div);
         });
-        container.scrollTop = container.scrollHeight;
-        
-        // Actualizar vista previa en la lista
-        if(mensajes.length > 0) {
-            document.getElementById('last-msg-juan').innerText = mensajes[mensajes.length-1].texto;
-        }
+        box.scrollTop = box.scrollHeight;
     }
 
     function enviarMensaje() {
         const input = document.getElementById('mensajeInput');
         const texto = input.value.trim();
+        
         if (!texto || !chatActualKey) return;
 
         const mensajes = JSON.parse(localStorage.getItem(chatActualKey)) || [];
         const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        mensajes.push({ emisor: 'pro', texto: texto, fecha: hora });
+        mensajes.push({
+            emisor: 'pro',
+            texto: texto,
+            fecha: hora
+        });
+
         localStorage.setItem(chatActualKey, JSON.stringify(mensajes));
-        
         input.value = '';
         cargarMensajes();
+        
+        // Actualizar la vista previa en la lista principal
+        document.getElementById('preview-juan').innerText = "Tú: " + texto;
     }
 
+    // Permitir enviar con la tecla Enter
+    document.getElementById('mensajeInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            enviarMensaje();
+        }
+    });
+
+    // Actualización en tiempo real si el paciente responde
     window.addEventListener('storage', (e) => {
         if (e.key === chatActualKey) cargarMensajes();
     });
 
-    // Carga inicial para la vista previa
+    // Carga inicial para mostrar el último mensaje en la lista
     window.onload = () => {
         const m = JSON.parse(localStorage.getItem('chat_rehabilitidia_juan')) || [];
-        if(m.length > 0) document.getElementById('last-msg-juan').innerText = m[m.length-1].texto;
+        if(m.length > 0) {
+            const ultimo = m[m.length-1];
+            document.getElementById('preview-juan').innerText = (ultimo.emisor === 'pro' ? 'Tú: ' : '') + ultimo.texto;
+        }
     };
 </script>
 
