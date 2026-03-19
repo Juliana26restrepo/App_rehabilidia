@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajes Profesional - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
+
+        #chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
+        
+        /* Burbujas */
+        .msg { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .msg.pro { align-self: flex-end; background: var(--t-blue); color: white; border-bottom-right-radius: 2px; }
+        .msg.paciente { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        .msg-info { font-size: 0.65rem; display: block; margin-top: 4px; opacity: 0.7; text-align: right; }
+
+        /* Input */
+        .input-area { background: white; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #ddd; align-items: center; }
+        #mensajeInput { flex: 1; border: 1px solid #ddd; padding: 12px 18px; border-radius: 25px; outline: none; font-size: 1rem; }
+        #mensajeInput:focus { border-color: var(--t-blue); }
+        .btn-enviar { background: var(--p-blue); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-enviar:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <div>
+        <strong style="display:block;">Juan Pérez</strong>
+        <span style="font-size: 0.7rem; opacity: 0.8;"><i class="fas fa-circle" style="color: #4CAF50; font-size: 0.6rem;"></i> Paciente en fase de atención</span>
+    </div>
+</header>
+
+<div id="chat-container">
+    </div>
+
+<div class="input-area">
+    <input type="text" id="mensajeInput" placeholder="Escribe una indicación o mensaje..." onkeypress="if(event.key==='Enter') enviarMensaje()">
+    <button class="btn-enviar" onclick="enviarMensaje()"><i class="fas fa-paper-plane"></i></button>
+</div>
+
+<script>
+    const CHAT_KEY = 'chat_rehabilitidia_juan';
+
+    function cargarMensajes() {
+        const container = document.getElementById('chat-container');
+        const mensajes = JSON.parse(localStorage.getItem(CHAT_KEY)) || [
+            { emisor: 'paciente', texto: 'Hola Dr., ya terminé mis ejercicios de hoy.', fecha: 'Hace un momento' }
+        ];
+
+        container.innerHTML = '';
+        mensajes.forEach(m => {
+            const div = document.createElement('div');
+            div.className = `msg ${m.emisor}`;
+            div.innerHTML = `${m.texto} <span class="msg-info">${m.fecha}</span>`;
+            container.appendChild(div);
+        });
+        
+        // Auto-scroll al final
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function enviarMensaje() {
+        const input = document.getElementById('mensajeInput');
+        const texto = input.value.trim();
+        
+        if (!texto) return;
+
+        const mensajes = JSON.parse(localStorage.getItem(CHAT_KEY)) || [];
+        const ahora = new Date();
+        const horaStr = ahora.getHours() + ":" + ahora.getMinutes().toString().padStart(2, '0');
+
+        mensajes.push({
+            emisor: 'pro',
+            texto: texto,
+            fecha: horaStr
+        });
+
+        localStorage.setItem(CHAT_KEY, JSON.stringify(mensajes));
+        input.value = '';
+        cargarMensajes();
+    }
+
+    // Detectar si el paciente escribe desde otra pestaña/ventana
+    window.addEventListener('storage', (e) => {
+        if (e.key === CHAT_KEY) cargarMensajes();
+    });
+
+    // Carga inicial
+    document.addEventListener('DOMContentLoaded', cargarMensajes);
+</script>
+
+</body>
+</html>
 
