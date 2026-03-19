@@ -15,7 +15,6 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             color: white; text-align: center; cursor: pointer; padding: 20px;
         }
-        #overlay-inicio h1 { font-size: 1.8rem; }
 
         #pantalla-juego {
             width: 100vw; height: 100vh; overflow-x: scroll; overflow-y: hidden;
@@ -23,11 +22,13 @@
         }
 
         #escenario-ancho {
-            width: 300vw; /* Tres veces el ancho de pantalla para explorar */
+            width: 300vw; 
             height: 100vh;
             background-image: url('habitacion_animada.png'); 
             background-size: 100% 100%; background-repeat: no-repeat;
             position: relative; flex-shrink: 0;
+            /* Asegura que los objetos se posicionen respecto a este contenedor */
+            display: block; 
         }
 
         #guia {
@@ -36,27 +37,20 @@
             border: 3px solid var(--t-blue); width: 90%; max-width: 400px;
             display: flex; align-items: center; gap: 10px; z-index: 100;
         }
-        #guia img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--t-blue); object-fit: cover; }
+        #guia img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
         #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 0.9rem; }
 
-        /* TAMAÑO BASE DE OBJETOS (Para Tablets/PC) */
         .objeto {
             position: absolute; 
-            width: 120px; height: 120px; 
+            width: 80px; height: 80px; /* Tamaño equilibrado para celular y tablet */
             cursor: pointer; transition: 0.3s;
-            filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
+            filter: drop-shadow(4px 4px 5px rgba(0,0,0,0.3));
             object-fit: contain;
+            z-index: 10;
         }
 
-        /* AJUSTES ESPECÍFICOS PARA CELULARES (Pantallas de menos de 600px de ancho) */
-        @media (max-width: 600px) {
-            .objeto {
-                width: 70px; height: 70px; /* Objetos mucho más pequeños en celular */
-            }
-            #guia { padding: 8px; top: 5px; }
-            #guia img { width: 40px; height: 40px; }
-            #texto-instruccion { font-size: 0.8rem; }
-            #overlay-inicio h1 { font-size: 1.4rem; }
+        @media (min-width: 800px) {
+            .objeto { width: 110px; height: 110px; }
         }
         
         .seleccionado { 
@@ -64,14 +58,6 @@
             transform: scale(1.1); border: 3px solid gold; border-radius: 10px; 
             pointer-events: none; 
         }
-
-        .flecha-indicadora {
-            position: fixed; bottom: 20px; right: 20px;
-            background: rgba(16, 58, 87, 0.8); color: white;
-            padding: 8px 15px; border-radius: 20px; animation: moveRight 1.5s infinite;
-            font-size: 0.8rem; z-index: 90; font-weight: bold;
-        }
-        @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
@@ -79,15 +65,12 @@
 <div id="overlay-inicio" onclick="comenzarSesion()">
     <i class="fas fa-play-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
     <h1>Tocar para iniciar</h1>
-    <p>Sesión 1: Habitación</p>
 </div>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
     <p id="texto-instruccion">Juan, por favor toca para empezar.</p>
 </div>
-
-<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza</div>
 
 <div id="pantalla-juego">
     <div id="escenario-ancho">
@@ -97,9 +80,8 @@
 
 <script>
     const poolNombres = {
-        1: "el reloj", 2: "las gafas", 3: "el celular", 4: "el libro", 
-        5: "el vaso", 6: "las llaves", 7: "la lámpara", 8: "la gorra",
-        9: "el peine", 10: "la botella"
+        1: "el reloj", 2: "las gafas", 3: "el celular", 4: "el libro", 5: "el vaso",
+        6: "las llaves", 7: "la lámpara", 8: "la gorra", 9: "el peine", 10: "la botella"
     };
 
     let faseActual = 1; 
@@ -137,33 +119,30 @@
         }
         items.sort(() => Math.random() - 0.5);
 
-        // LÓGICA DE CUADRÍCULA RESPONSIVA
-        const esCelular = window.innerWidth <= 600;
+        // --- NUEVA CUADRÍCULA CORREGIDA ---
+        // Repartimos los objetos a lo largo de los 300vw
+        const columnas = 8; 
+        const filas = 3; // Usamos 3 filas para que no se bajen tanto
         
-        // En celular usamos una cuadrícula más densa verticalmente (4 filas, 5 columnas) 
-        // para aprovechar el espacio alto y estrecho de cada "pantalla" del 300vw.
-        const columnas = esCelular ? 5 : 8; 
-        const filas = esCelular ? 4 : 2;
-        
-        // Calculamos separación basada en el ancho panorámico total (300vw)
-        const separacionH = 300 / columnas; // vw
-        const separacionV = esCelular ? 18 : 35; // vh (Más juntas en celular)
-        const offsetSuperior = esCelular ? 20 : 25; // vh (Margen para la guía)
+        const anchoEscenario = 300; // vw
+        const altoEscenario = 70; // Usamos solo el 70% del alto para que no toquen el borde inferior
 
         items.forEach((item, index) => {
             const img = document.createElement('img');
             img.src = `obj${item.id}.png`; 
             img.className = 'objeto';
             
-            // Calculamos columna y fila
+            // Calculamos posición
             const col = index % columnas;
             const fila = Math.floor(index / columnas);
             
-            // Posicionamiento preciso en vw y vh
-            // Centramos el objeto restando la mitad de su tamaño aproximado en vw
-            const correccionCentro = esCelular ? 5 : 6; // Aproximación de la mitad del objeto en vw
-            img.style.left = (col * separacionH + separacionH / 2) - correccionCentro + "vw"; 
-            img.style.top = (fila * separacionV + offsetSuperior) + "vh";
+            // Posición horizontal: distribuida en los 300vw
+            const x = (col * (anchoEscenario / columnas)) + 5; // +5 de margen
+            // Posición vertical: distribuida en la zona central (de 25% a 75% del alto)
+            const y = (fila * (altoEscenario / filas)) + 25; 
+
+            img.style.left = x + "vw";
+            img.style.top = y + "vh";
 
             img.onclick = () => {
                 if(item.id === objetivoId) {
@@ -184,7 +163,7 @@
             document.getElementById('pantalla-juego').scrollLeft = 0;
             iniciarFase();
         } else {
-            hablar("Excelente Juan, has completado la sesión.");
+            hablar("Excelente Juan, has terminado.");
             setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3000);
         }
     }
