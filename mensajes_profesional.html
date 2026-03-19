@@ -2,104 +2,119 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensajería REHABILIDIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chat Profesional - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; }
-        
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* HEADER */
-        header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
 
         /* LISTA DE PACIENTES */
-        .pacientes-container { padding: 15px; max-width: 600px; margin: auto; }
+        .pacientes-container { padding: 20px; max-width: 500px; margin: auto; }
         .paciente-card { 
-            background: white; padding: 15px; border-radius: 12px; display: flex; align-items: center; 
-            gap: 15px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: white; padding: 15px; border-radius: 15px; display: flex; align-items: center; 
+            gap: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.3s; border: 1px solid #eee;
         }
+        .paciente-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .avatar-circle { width: 50px; height: 50px; background: var(--t-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
 
-        /* FONDO OSCURO DEL POP-UP (OVERLAY) */
+        /* MODAL DEL CHAT (POP-UP) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100;
+            background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000;
         }
 
-        /* CAJA DEL CHAT (IGUAL A LA HISTORIA CLÍNICA) */
         .chat-modal {
-            background: white; width: 90%; max-width: 450px; height: 80vh;
-            border-radius: 20px; display: flex; flex-direction: column; position: relative;
-            overflow: hidden; animation: zoomIn 0.3s ease;
+            background: white; width: 95%; max-width: 400px; height: 85vh;
+            border-radius: 25px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popScale { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* HEADER DEL CHAT */
         .chat-header { 
-            padding: 15px; background: white; border-bottom: 1px solid #eee;
-            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; 
+            align-items: center; justify-content: space-between; background: #fff;
         }
 
-        /* CUERPO DE MENSAJES */
+        /* AREA DE MENSAJES */
         #mensajes-box { 
-            flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9;
-            display: flex; flex-direction: column; gap: 10px; padding-bottom: 70px;
+            flex: 1; overflow-y: auto; padding: 20px; background: #f8f9fa;
+            display: flex; flex-direction: column; gap: 12px;
         }
 
-        .msg { max-width: 80%; padding: 10px 14px; border-radius: 15px; font-size: 0.9rem; }
-        .msg.pro { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 2px; }
-        .msg.paciente { align-self: flex-start; background: #e0e0e0; color: #333; border-bottom-left-radius: 2px; }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; position: relative; }
+        .msg.pro { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 4px; }
+        .msg.paciente { align-self: flex-start; background: #E9EDEF; color: #333; border-bottom-left-radius: 4px; }
 
-        /* BARRA DE ESCRIBIR (ANCLADA AL FONDO DEL MODAL) */
+        /* BARRA DE ESCRIBIR ESTILO MESSENGER */
         .input-chat {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: white; padding: 10px; border-top: 1px solid #eee;
+            padding: 15px; background: white; border-top: 1px solid #eee;
             display: flex; align-items: center; gap: 10px;
         }
 
-        .input-chat input {
-            flex: 1; border: none; background: #f0f2f5; padding: 10px 15px;
-            border-radius: 20px; outline: none;
+        .input-field {
+            flex: 1; background: #f0f2f5; border-radius: 25px; 
+            padding: 8px 15px; display: flex; align-items: center; gap: 10px;
         }
 
+        .input-field input { border: none; background: transparent; flex: 1; outline: none; padding: 5px 0; font-size: 1rem; }
+
+        .btn-action { color: var(--t-blue); cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .btn-action:hover { color: var(--p-blue); }
+        
         .btn-send { 
-            background: var(--t-blue); color: white; border: none; 
+            background: var(--p-blue); color: white; border: none; 
             width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="perfil_neuropsicologo.html" style="color:white;"><i class="fas fa-arrow-left"></i></a>
-    <span style="font-weight: bold; margin-left:10px;">Mensajería Profesional</span>
+    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-arrow-left"></i></a>
+    <span style="font-weight: bold; margin-left: 10px;">Centro de Mensajes</span>
 </header>
 
 <div class="pacientes-container">
-    <div class="paciente-card" onclick="abrirChat('Juan Pérez', 'chat_juan')">
-        <div style="width:50px; height:50px; background:var(--t-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">JP</div>
-        <div>
-            <strong style="display:block;">Juan Pérez</strong>
-            <span style="font-size:0.8rem; color:#888;">Toca para hablar</span>
+    <div class="paciente-card" onclick="abrirChat('Juan Pérez', 'chat_juan_v1')">
+        <div class="avatar-circle">JP</div>
+        <div style="flex:1">
+            <strong style="display:block; color:var(--p-blue);">Juan Pérez</strong>
+            <span style="font-size:0.85rem; color:#888;">Paciente en fase de atención</span>
         </div>
+        <i class="fas fa-chevron-right" style="color:#ccc;"></i>
     </div>
 </div>
 
 <div id="chatModal" class="modal-overlay">
     <div class="chat-modal">
         <div class="chat-header">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:35px; height:35px; background:var(--p-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem;">JP</div>
-                <strong id="nombreChat">Nombre</strong>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:35px; height:35px; background:var(--t-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem; font-weight:bold;">JP</div>
+                <div>
+                    <strong id="nombreChat" style="display:block; font-size:0.95rem;">Nombre</strong>
+                    <span style="font-size:0.7rem; color:green;">● En línea</span>
+                </div>
             </div>
-            <i class="fas fa-times" onclick="cerrarChat()" style="cursor:pointer; color:#888;"></i>
+            <i class="fas fa-times" onclick="cerrarChat()" style="cursor:pointer; color:#aaa; font-size:1.2rem; padding:5px;"></i>
         </div>
 
-        <div id="mensajes-box"></div>
+        <div id="mensajes-box">
+            </div>
 
         <div class="input-chat">
-            <input type="text" id="mensajeInput" placeholder="Escribe un mensaje...">
+            <i class="fas fa-paperclip btn-action" title="Adjuntar"></i>
+            <div class="input-field">
+                <input type="text" id="mensajeInput" placeholder="Escribe un mensaje...">
+                <i class="far fa-smile btn-action" style="color:#888"></i>
+            </div>
             <button class="btn-send" onclick="enviarMensaje()">
                 <i class="fas fa-paper-plane"></i>
             </button>
@@ -108,44 +123,52 @@
 </div>
 
 <script>
-    let chatKey = '';
+    let currentKey = '';
 
     function abrirChat(nombre, key) {
-        chatKey = key;
+        currentKey = key;
         document.getElementById('nombreChat').innerText = nombre;
         document.getElementById('chatModal').style.display = 'flex';
-        cargarMensajes();
+        actualizarMensajes();
     }
 
     function cerrarChat() {
         document.getElementById('chatModal').style.display = 'none';
     }
 
-    function cargarMensajes() {
+    function actualizarMensajes() {
         const box = document.getElementById('mensajes-box');
-        const msgs = JSON.parse(localStorage.getItem(chatKey)) || [];
-        box.innerHTML = msgs.map(m => `
+        const data = JSON.parse(localStorage.getItem(currentKey)) || [];
+        
+        box.innerHTML = data.map(m => `
             <div class="msg ${m.emisor}">${m.texto}</div>
         `).join('');
+        
         box.scrollTop = box.scrollHeight;
     }
 
     function enviarMensaje() {
         const input = document.getElementById('mensajeInput');
-        if(!input.value.trim()) return;
+        const texto = input.value.trim();
+        if(!texto) return;
 
-        const msgs = JSON.parse(localStorage.getItem(chatKey)) || [];
-        msgs.push({ emisor: 'pro', texto: input.value });
-        localStorage.setItem(chatKey, JSON.stringify(msgs));
+        const data = JSON.parse(localStorage.getItem(currentKey)) || [];
+        data.push({ emisor: 'pro', texto: texto });
+        localStorage.setItem(currentKey, JSON.stringify(data));
         
         input.value = '';
-        cargarMensajes();
+        actualizarMensajes();
     }
 
-    // Permitir enviar con Enter
     document.getElementById('mensajeInput').addEventListener('keypress', (e) => {
         if(e.key === 'Enter') enviarMensaje();
     });
+
+    // Cerrar modal si se hace clic fuera de la caja blanca
+    window.onclick = function(event) {
+        const modal = document.getElementById('chatModal');
+        if (event.target == modal) cerrarChat();
+    }
 </script>
 
 </body>
