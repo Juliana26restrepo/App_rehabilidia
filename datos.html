@@ -7,7 +7,28 @@
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --m-green: #366B2B; --silver: #CEE5D6; }
         body { font-family: sans-serif; margin: 0; background: var(--silver); color: var(--p-blue); }
-        header { background: var(--p-blue); color: white; padding: 15px; text-align: center; font-weight: bold; }
+        
+        /* HEADER CORREGIDO CON BOTÓN DE VOLVER INTEGRADO */
+        header { 
+            background: var(--p-blue); 
+            color: white; 
+            padding: 15px; 
+            text-align: center; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+        }
+        .btn-retroceder { 
+            position: absolute; 
+            left: 15px; 
+            color: white; 
+            text-decoration: none; 
+            font-size: 1.5rem; 
+            line-height: 1;
+        }
+
         .container { max-width: 500px; margin: auto; padding: 15px; }
         .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; background: #abc; cursor: pointer; }
@@ -18,7 +39,12 @@
     </style>
 </head>
 <body>
-<header>CENTRAL DE DATOS</header>
+
+<header>
+    <a href="perfil_paciente.html" class="btn-retroceder">❮</a>
+    CENTRAL DE DATOS
+</header>
+
 <div class="container">
     <div class="tabs">
         <button id="bt1" class="tab-btn active" onclick="ver('d')">Diario</button>
@@ -45,37 +71,37 @@
 
     window.onload = function() {
         try {
-            const historial = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
-            const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+            // Leemos de las claves compartidas para que el profesional también lo vea
+            const historial = JSON.parse(localStorage.getItem('diario_juan')) || JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
+            const sesiones = JSON.parse(localStorage.getItem('sesiones_juan')) || JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
             
             // Cargar Lista Diario
             const ld = document.getElementById('listD');
             if(historial.length > 0) {
-                // Gráfica
                 new Chart(document.getElementById('graf'), {
                     type: 'line',
                     data: {
                         labels: historial.map(r => r.fecha.split(',')[0]),
-                        datasets: [{ label: 'Energía', data: historial.map(r => r.energia), borderColor: '#307B8E' }]
+                        datasets: [{ label: 'Energía', data: historial.map(r => r.energia), borderColor: '#307B8E', fill: false }]
                     }
                 });
-                // Lista
-                historial.reverse().forEach(r => {
-                    ld.innerHTML += `<div class="item"><b>${r.fecha}</b><br>Ánimo: ${r.emocion}<br>Sintomas: ${r.sintomas || 'Ninguno'}<br><i>${r.nota || ''}</i></div>`;
+                [...historial].reverse().forEach(r => {
+                    const s = Array.isArray(r.sintomas) ? r.sintomas.join(', ') : (r.sintomas || 'Ninguno');
+                    ld.innerHTML += `<div class="item"><b>${r.fecha}</b><br>Ánimo: ${r.emocion}<br>Sintomas: ${s}<br><i>${r.nota || ''}</i></div>`;
                 });
             } else { ld.innerHTML = "No hay datos en el diario."; }
 
             // Cargar Lista Sesiones
             const ls = document.getElementById('listS');
             if(sesiones.length > 0) {
-                sesiones.reverse().forEach(s => {
-                    ls.innerHTML += `<div class="item"><b>${s.fecha}</b><br>${s.categoria}: ${s.puntaje} (${s.rendimiento}%)</div>`;
+                [...sesiones].reverse().forEach(s => {
+                    const desc = s.categoria ? `${s.categoria}: ${s.puntaje}` : `Nivel: ${s.nivel}`;
+                    ls.innerHTML += `<div class="item"><b>${s.fecha}</b><br>${desc}</div>`;
                 });
             } else { ls.innerHTML = "No hay ejercicios hechos."; }
 
         } catch (e) {
-            console.error("Error cargando datos:", e);
-            alert("Hubo un error con los datos guardados. Intenta borrar el historial.");
+            console.error("Error:", e);
         }
     }
 </script>
