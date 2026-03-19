@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesión 2: Rutinas - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --m-green: #366B2B; --silver: #CEE5D6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #000; }
+        
+        /* Escenario de fondo */
+        #escenario {
+            width: 100vw; height: 100vh;
+            background-image: url('fondo_baño.jpg'); 
+            background-size: cover; background-position: center;
+            position: relative; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Guía del Coterapeuta mejorado */
+        #guia {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.95); padding: 15px; border-radius: 20px;
+            border: 4px solid var(--t-blue); width: 85%; max-width: 450px;
+            display: flex; align-items: center; gap: 15px; z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; line-height: 1.2; }
+
+        /* Contenedor de objetos */
+        #objetos-container { position: relative; width: 90%; height: 65%; margin-top: 80px; }
+        
+        .objeto {
+            position: absolute; width: 110px; height: 110px;
+            cursor: pointer; transition: transform 0.2s, filter 0.3s;
+            filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.4));
+            object-fit: contain;
+        }
+        
+        .objeto:hover { transform: scale(1.05); }
+        .objeto.seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2); transform: scale(1.15); border: 2px solid gold; border-radius: 10px; }
+        
+        .btn-volver { position: absolute; bottom: 20px; left: 20px; padding: 12px 25px; background: var(--p-blue); color: white; border-radius: 15px; text-decoration: none; z-index: 20; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+<div id="escenario">
+    <div id="guia">
+        <img src="COTERAPEUTA.JPG" alt="Guía">
+        <p id="texto-instruccion">Preparando tu rutina de hoy...</p>
+    </div>
+
+    <div id="objetos-container"></div>
+    
+    <a href="index.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Menú</a>
+</div>
+
+<script>
+    // Definición de Rutinas basadas en los 20 estímulos
+    const rutinas = [
+        { id: 1, nombre: "Dientes", correctos: [1, 2], instruccion: "Juan, selecciona el cepillo y la crema dental para lavar tus dientes." },
+        { id: 2, nombre: "Manos", correctos: [3, 4], instruccion: "Juan, busca el jabón y la toalla para lavar tus manos." },
+        { id: 3, nombre: "Cabello", correctos: [5, 6], instruccion: "Juan, elige el peine y el fijador para arreglar tu cabello." },
+        { id: 4, nombre: "Afeitado", correctos: [7, 8], instruccion: "Juan, selecciona la máquina y la espuma para afeitarte."
+
 
