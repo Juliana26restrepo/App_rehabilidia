@@ -28,17 +28,17 @@
 </head>
 <body>
 <header>
-    <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
     <span style="font-weight: bold;">SEGUIMIENTO DIARIO</span>
 </header>
 <div class="container">
     <div class="card">
         <h3>1. ¿Cómo te sientes hoy?</h3>
         <div class="emociones">
-            <button class="emocion-btn" onclick="seleccionar(this)">😊<span>Excelente</span></button>
-            <button class="emocion-btn" onclick="seleccionar(this)">😐<span>Bien</span></button>
-            <button class="emocion-btn" onclick="seleccionar(this)">😔<span>Bajo</span></button>
-            <button class="emocion-btn" onclick="seleccionar(this)">😫<span>Mal</span></button>
+            <button class="emocion-btn" data-valor="4" onclick="seleccionar(this)">😊<span>Excelente</span></button>
+            <button class="emocion-btn" data-valor="3" onclick="seleccionar(this)">😐<span>Bien</span></button>
+            <button class="emocion-btn" data-valor="2" onclick="seleccionar(this)">😔<span>Bajo</span></button>
+            <button class="emocion-btn" data-valor="1" onclick="seleccionar(this)">😫<span>Mal</span></button>
         </div>
     </div>
     <div class="card">
@@ -75,25 +75,31 @@
     }
 
     function finalizarRegistro() {
-        const emocionActiva = document.querySelector('.emocion-btn.active span')?.innerText || "Normal";
+        const btnActivo = document.querySelector('.emocion-btn.active');
+        const emocionTexto = btnActivo?.querySelector('span').innerText || "Bien";
+        const emocionValor = btnActivo?.getAttribute('data-valor') || "3"; // Valor numérico para la gráfica
         const nivelEnergia = document.getElementById('rangoEnergia').value;
         const sintomas = Array.from(document.querySelectorAll('#listaSintomas input:checked')).map(cb => cb.value);
         const nota = document.getElementById('nota').value;
 
+        // Objeto unificado para el puente de datos
         const nuevoRegistro = {
-            fecha: new Date().toLocaleString(),
-            emocion: emocionActiva,
-            energia: nivelEnergia,
+            fecha: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
+            fullFecha: new Date().toLocaleString(),
+            emocion: emocionTexto,
+            emocionValor: parseInt(emocionValor),
+            energia: parseInt(nivelEnergia),
             sintomas: sintomas,
             nota: nota
         };
 
-        let historial = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
+        // Guardamos en la clave compartida 'diario_juan'
+        let historial = JSON.parse(localStorage.getItem('diario_juan')) || [];
         historial.push(nuevoRegistro);
-        localStorage.setItem('historial_rehabilitidia', JSON.stringify(historial));
+        localStorage.setItem('diario_juan', JSON.stringify(historial));
 
-        alert("¡Guardado correctamente!");
-        window.location.href = "index.html";
+        alert("¡Registro diario guardado para el profesional!");
+        window.location.href = "perfil_paciente.html";
     }
 </script>
 </body>
