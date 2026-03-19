@@ -42,4 +42,170 @@
         #guia {
             position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
             background: rgba(255,255,255,0.98); padding: 15px; border-radius: 20px;
-            border: 4px solid var(--t-blue); width: 85%; max-width: 500
+            border: 4px solid var(--t-blue); width: 85%; max-width: 500px;
+            display: flex; align-items: center; gap: 15px; z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
+
+        /* Estilo de los objetos de aseo GRANDES */
+        .objeto {
+            position: absolute; 
+            width: 125px; height: 125px;
+            cursor: pointer; 
+            transition: 0.3s;
+            filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
+            object-fit: contain;
+        }
+        
+        .seleccionado { 
+            filter: drop-shadow(0px 0px 25px gold) brightness(1.2) !important; 
+            transform: scale(1.1); 
+            border: 4px solid gold; 
+            border-radius: 15px; 
+            pointer-events: none; 
+        }
+
+        /* Indicador de movimiento lateral */
+        .flecha-indicadora {
+            position: fixed; bottom: 30px; right: 30px;
+            background: rgba(16, 58, 87, 0.8); color: white;
+            padding: 12px 20px; border-radius: 30px; animation: moveRight 1.5s infinite;
+            font-size: 0.9rem; z-index: 90; font-weight: bold;
+        }
+        @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+    </style>
+</head>
+<body>
+
+<div id="guia">
+    <img src="COTERAPEUTA.JPG" alt="Guía">
+    <p id="texto-instruccion">Juan, vamos a empezar...</p>
+</div>
+
+<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza para buscar</div>
+
+<div id="pantalla-juego">
+    <div id="escenario-ancho">
+        <div id="objetos-container"></div>
+    </div>
+</div>
+
+<script>
+    // Pool de objetos reales (IDs 1 al 10 coinciden con tus imágenes .png subidas)
+    const poolObjetos = [
+        { id: 1, nombre: "el cepillo" }, { id: 2, nombre: "la crema" },
+        { id: 3, nombre: "el jabón" }, { id: 4, nombre: "la toalla" },
+        { id: 5, nombre: "el peine" }, { id: 6, nombre: "el fijador" },
+        { id: 7, nombre: "la máquina" }, { id: 8, nombre: "la espuma" },
+        { id: 9, nombre: "el champú" }, { id: 10, nombre: "la esponja" }
+    ];
+
+    let faseActual = 1; // Control de progresión automática (2, 4, 6 objetos)
+    let seleccionados = [];
+    let objetivosActuales = [];
+
+    function hablar(mensaje) {
+        window.speechSynthesis.cancel();
+        const voz = new SpeechSynthesisUtterance(mensaje);
+        voz.lang = 'es-ES';
+        voz.rate = 0.85;
+        window.speechSynthesis.speak(voz);
+    }
+
+    function iniciarFase() {
+        const container = document.getElementById('objetos-container');
+        container.innerHTML = "";
+        seleccionados = [];
+        
+        let metaFase = faseActual * 2; // Cantidad progresiva de objetos a buscar
+
+        // Mezclar y elegir objetivos variados del pool real
+        let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
+        objetivosActuales = copiaPool.slice(0, metaFase);
+
+        let nombresBuscados = objetivosActuales.map(o => o.nombre).join(", ");
+        let instruccion = `Juan, por favor busca ${nombresBuscados}.`;
+        
+        document.getElementById('texto-instruccion').innerText = instruccion;
+        hablar(instruccion);
+
+        // Crear lista de elementos (objetivos + distractores)
+        let itemsParaPantalla = [];
+        
+        // 1. Añadir los objetos correctos etiquetados
+        objetivosActuales.forEach(obj => {
+            itemsParaPantalla.push({id: obj.id, correcto: true});
+        });
+        
+        // 2. Añadir distractores (aseo11 al 20) asegurando que no se repitan
+        let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
+        // Siempre añadimos 8 distractores para mantener el nivel de atención sostenida
+        for(let i=0; i<8; i++) {
+            itemsParaPantalla.push({id: distractores[i], correcto: false});
+        }
+
+        // Mezclar las posiciones finales de todos los objetos
+        itemsParaPantalla.sort(() => Math.random() - 0.5);
+
+        // Dibujar los objetos en una rejilla amplia sobre el fondo panorámico
+        itemsParaPantalla.forEach((item, index) => {
+            const img = document.createElement('img');
+            // Carga la imagen correspondiente (asegurando minúsculas aseoX.png)
+            img.src = `aseo${item.id}.png`; 
+            img.className = 'objeto';
+            
+            // Rejilla amplia de 7 columnas para evitar sobremontaje en los 300vw
+            const col = index % 7;
+            const row = Math.floor(index / 7);
+            
+            // Posicionamiento calculado para distribuir a lo largo del fondo panorámico
+            img.style.left = (col * 40 + 20) + "vw"; 
+            img.style.top = (row * 35 + 30) + "vh";
+
+            img.onclick = () => {
+                if(item.correcto) {
+                    if(!seleccionados.includes(item.id)) {
+                        img.classList.add('seleccionado');
+                        seleccionados.push(item.id);
+                        hablar("¡Muy bien!");
+                        // Al encontrar todos los objetivos de la fase, pasamos automáticamente de nivel
+                        if(seleccionados.length === metaFase) pasarSiguienteNivel();
+                    }
+                } else {
+                    // Feedback auditivo para error
+                    hablar("Ese no es, busca con cuidado.");
+                    // Efecto visual de error
+                    img.style.opacity = "0.5";
+                    setTimeout(() => img.style.opacity = "1", 500);
+                }
+            };
+            container.appendChild(img);
+        });
+    }
+
+    function pasarSiguienteNivel() {
+        if(faseActual < 3) {
+            faseActual++;
+            setTimeout(() => {
+                // Volver al inicio del pasillo para que Juan reinicie la exploración
+                document.getElementById('pantalla-juego').scrollLeft = 0;
+                iniciarFase();
+            }, 2000);
+        } else {
+            // Feedback final al completar las 3 fases
+            hablar("¡Excelente Juan! Has terminado toda tu rutina de aseo.");
+            // Regresar automáticamente a la pantalla de sesiones
+            setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
+        }
+    }
+
+    // Al cargar la página, siempre iniciamos la experiencia desde la Fase 1
+    window.onload = () => {
+        faseActual = 1;
+        iniciarFase();
+    };
+</script>
+</body>
+</html>
