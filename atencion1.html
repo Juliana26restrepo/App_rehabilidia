@@ -22,7 +22,8 @@
         }
 
         #escenario-ancho {
-            width: 300vw; height: 100vh;
+            width: 300vw; /* Tres veces el ancho de la pantalla */
+            height: 100vh;
             background-image: url('habitacion_animada.png'); 
             background-size: 100% 100%; background-repeat: no-repeat;
             position: relative; flex-shrink: 0;
@@ -38,7 +39,8 @@
         #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
 
         .objeto {
-            position: absolute; width: 140px; height: 140px;
+            position: absolute; 
+            width: 130px; height: 130px; /* Tamaño grande y claro */
             cursor: pointer; transition: 0.3s;
             filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
             object-fit: contain;
@@ -49,6 +51,14 @@
             transform: scale(1.2); border: 4px solid gold; border-radius: 15px; 
             pointer-events: none; 
         }
+
+        .flecha-indicadora {
+            position: fixed; bottom: 30px; right: 30px;
+            background: rgba(16, 58, 87, 0.8); color: white;
+            padding: 12px 20px; border-radius: 30px; animation: moveRight 1.5s infinite;
+            font-size: 0.9rem; z-index: 90; font-weight: bold;
+        }
+        @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
@@ -63,6 +73,8 @@
     <p id="texto-instruccion">Juan, por favor toca para empezar.</p>
 </div>
 
+<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza para buscar</div>
+
 <div id="pantalla-juego">
     <div id="escenario-ancho">
         <div id="objetos-container"></div>
@@ -70,7 +82,6 @@
 </div>
 
 <script>
-    // MAPEO REAL SEGÚN TU LISTA
     const poolNombres = {
         1: "el reloj", 2: "las gafas", 3: "el celular", 4: "el libro", 
         5: "el vaso", 6: "las llaves", 7: "la lámpara", 8: "la gorra",
@@ -97,23 +108,16 @@
         const container = document.getElementById('objetos-container');
         container.innerHTML = "";
         
-        // Seleccionamos un objetivo del 1 al 10
         objetivoId = Math.floor(Math.random() * 10) + 1;
-        
         let instruccion = `Juan, por favor busca ${poolNombres[objetivoId]}.`;
         document.getElementById('texto-instruccion').innerText = instruccion;
         hablar(instruccion);
 
-        // Ajuste de distractores por nivel
         let numDistractores = faseActual === 1 ? 4 : (faseActual === 2 ? 8 : 14);
-        
         let items = [{id: objetivoId, correcto: true}];
         
-        // Pool de distractores (11 al 20)
         let poolDist = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
-        
         for(let i=0; i < numDistractores; i++) {
-            // Si necesitamos más de 10 distractores (Nivel 3), repetimos algunos que no sean el objetivo
             if(i < 10) {
                 items.push({id: poolDist[i], correcto: false});
             } else {
@@ -124,14 +128,24 @@
 
         items.sort(() => Math.random() - 0.5);
 
-        items.forEach((item) => {
+        // IMPLEMENTACIÓN DE LA CUADRÍCULA ESTRICTA
+        const columnas = 10;
+        const anchoColumna = 300 / columnas; // vw
+        const altoFila = 35; // vh
+
+        items.forEach((item, index) => {
             const img = document.createElement('img');
             img.src = `obj${item.id}.png`; 
             img.className = 'objeto';
             
-            // Distribución aleatoria en el fondo panorámico
-            img.style.left = Math.floor(Math.random() * 250) + 20 + "vw";
-            img.style.top = Math.floor(Math.random() * 60) + 20 + "vh";
+            // Calculamos columna y fila basadas en el índice del objeto
+            const col = index % columnas;
+            const fila = Math.floor(index / columnas);
+            
+            // Posicionamiento preciso en el centro de la celda de la cuadrícula
+            // Usamos vw y vh para garantizar que queden dentro de pantalla y alineados
+            img.style.left = (col * anchoColumna + anchoColumna / 2) - 6.5 + "vw"; // -6.5vw aproxima el centro del objeto (130px)
+            img.style.top = (fila * altoFila + 25) + "vh"; // 25vh es el margen superior para la guía
 
             img.onclick = () => {
                 if(item.id === objetivoId) {
@@ -140,8 +154,6 @@
                     setTimeout(pasarSiguienteNivel, 2000);
                 } else {
                     hablar("Ese no es, sigue buscando.");
-                    img.style.opacity = "0.5";
-                    setTimeout(() => img.style.opacity = "1", 500);
                 }
             };
             container.appendChild(img);
@@ -154,11 +166,10 @@
             document.getElementById('pantalla-juego').scrollLeft = 0;
             iniciarFase();
         } else {
-            hablar("Excelente Juan, terminamos la sesión de hoy.");
+            hablar("Excelente Juan, has completado la sesión.");
             setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3000);
         }
     }
 </script>
 </body>
 </html>
-
