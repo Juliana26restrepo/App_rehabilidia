@@ -56,13 +56,16 @@
         }
         .btn-cerrar { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #999; }
         
-        /* ESTILO TIPO FICHA MÉDICA */
         .seccion-hc { border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px; }
         .seccion-hc h2 { font-size: 1.1rem; color: var(--t-blue); text-transform: uppercase; margin-bottom: 10px; }
         .grid-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; }
         .label { font-weight: bold; color: var(--p-blue); }
         
         .alerta-medica { background: #fff3e0; border: 1px solid #ffe0b2; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem; color: #e65100; }
+        
+        /* Estilos para la lista del protocolo */
+        .lista-protocolo { margin: 10px 0; padding-left: 20px; }
+        .lista-protocolo li { margin-bottom: 8px; font-size: 0.95rem; }
     </style>
 </head>
 <body>
@@ -89,7 +92,7 @@
         <span class="btn-cerrar" onclick="cerrarHistoria()">&times;</span>
         
         <center>
-            <img src="COTERAPEUTA.JPG" style="width: 60px; height: 60px; border-radius: 50%;">
+            <img src="COTERAPEUTA.JPG" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--t-blue);">
             <h1 style="margin: 10px 0; color: var(--p-blue);">Historia Clínica Neuropsicológica</h1>
             <p style="font-size: 0.8rem; color: #888;">REHABILIDIA - Protocolo de Atención Post-Trauma</p>
         </center>
@@ -132,16 +135,18 @@
         </div>
 
         <div class="seccion-hc">
-            <h2>Plan de Intervención</h2>
-            <p>Se establece protocolo de 12 sesiones de estimulación cognitiva mediante REHABILIDIA, enfocadas en:</p>
-            <ol>
-                <li>Entrenamiento en rastreo visual.</li>
-                <li>Control de impulsos mediante tareas de selección de objetos.</li>
-                <li>Aumento progresivo de la tolerancia a la carga cognitiva.</li>
-            </ol>
+            <h2>Plan de Intervención (Protocolo REHABILIDIA)</h2>
+            <p>Se implementa el esquema general de intervención neuropsicológica estructurado bajo las especificaciones del protocolo:</p>
+            <ul class="lista-protocolo">
+                <li><strong>Módulos:</strong> Seis (6) módulos principales de entrenamiento enfocados en Atención, Memoria y Funciones Ejecutivas.</li>
+                <li><strong>Estructura:</strong> 10 niveles de entrenamiento por módulo, con 3 rangos de dificultad (Bajo, Medio, Alto).</li>
+                <li><strong>Intensidad:</strong> Tres (3) sesiones semanales con una duración aproximada de 30 minutos cada una.</li>
+                <li><strong>Seguimiento:</strong> Ajuste de objetivos y revisión de avances cada 15 días mediante sesión presencial de 90 minutos.</li>
+            </ul>
+            <p><em>* El paciente cumple con criterios de estabilidad clínica y habilidades de lecto-escritura requeridas para el uso de la plataforma digital.</em></p>
         </div>
 
-        <button onclick="window.print()" style="background: var(--p-blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%;">
+        <button onclick="window.print()" style="background: var(--p-blue); color: white; border: none; padding: 15px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px;">
             <i class="fas fa-print"></i> Descargar / Imprimir Historia Clínica
         </button>
     </div>
@@ -150,7 +155,7 @@
 <script>
     function abrirHistoria() {
         document.getElementById('modalHC').style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Evita scroll atrás
+        document.body.style.overflow = 'hidden'; 
     }
 
     function cerrarHistoria() {
