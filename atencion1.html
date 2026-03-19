@@ -6,30 +6,25 @@
     <title>Sesión 1: Habitación - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-crema: #FDF5E6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: var(--bg-crema); }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #FDF5E6; }
 
         #overlay-inicio {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(16, 58, 87, 0.95); z-index: 200;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; text-align: center; cursor: pointer; padding: 20px;
+            color: white; text-align: center; cursor: pointer;
         }
 
         #pantalla-juego {
-            width: 100vw; height: 100vh;
-            overflow-x: scroll; overflow-y: hidden;
-            display: flex; scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
+            width: 100vw; height: 100vh; overflow-x: scroll; overflow-y: hidden;
+            display: flex; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
         }
 
         #escenario-ancho {
-            width: 300vw; 
-            height: 100vh;
+            width: 300vw; height: 100vh;
             background-image: url('habitacion_animada.png'); 
-            background-size: 100% 100%; 
-            background-repeat: no-repeat;
-            background-position: center;
+            background-size: 100% 100%; background-repeat: no-repeat;
             position: relative; flex-shrink: 0;
         }
 
@@ -54,30 +49,18 @@
             transform: scale(1.1); border: 4px solid gold; border-radius: 15px; 
             pointer-events: none; 
         }
-
-        .flecha-indicadora {
-            position: fixed; bottom: 30px; right: 30px;
-            background: rgba(16, 58, 87, 0.8); color: white;
-            padding: 12px 20px; border-radius: 30px; animation: moveRight 1.5s infinite;
-            font-size: 0.9rem; z-index: 90; font-weight: bold;
-        }
-        @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
 
 <div id="overlay-inicio" onclick="comenzarSesion()">
-    <i class="fas fa-play-circle" style="font-size: 5rem; margin-bottom: 20px;"></i>
-    <h1>Toca para empezar la sesión</h1>
-    <p>Juan, vamos a buscar cosas en tu habitación...</p>
+    <h1>Toca para empezar Sesión 1</h1>
 </div>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
-    <p id="texto-instruccion">Juan, por favor toca la pantalla para iniciar.</p>
+    <p id="texto-instruccion">Juan, toca para empezar.</p>
 </div>
-
-<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza para buscar</div>
 
 <div id="pantalla-juego">
     <div id="escenario-ancho">
@@ -86,20 +69,15 @@
 </div>
 
 <script>
-    const poolObjetosHabitacion = [
-        { id: 1, nombre: "la lámpara" }, { id: 2, nombre: "la almohada" },
-        { id: 3, nombre: "el libro" }, { id: 4, nombre: "la planta" },
-        { id: 5, nombre: "el despertador" }, { id: 6, nombre: "el ordenador" },
-        { id: 7, nombre: "la silla" }, { id: 8, nombre: "la mochila" },
-        { id: 9, nombre: "el cuadro" }, { id: 10, nombre: "el peluche" }
-    ];
+    const poolNombres = {
+        1: "la lámpara", 2: "la almohada", 3: "el libro", 4: "la planta", 5: "el despertador",
+        6: "el ordenador", 7: "la silla", 8: "la mochila", 9: "el cuadro", 10: "el peluche"
+    };
 
     let faseActual = 1; 
-    let seleccionados = [];
-    let objetivosActuales = [];
+    let objetivoId = 0;
 
     function hablar(mensaje) {
-        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         const voz = new SpeechSynthesisUtterance(mensaje);
         voz.lang = 'es-ES';
@@ -109,56 +87,55 @@
 
     function comenzarSesion() {
         document.getElementById('overlay-inicio').style.display = 'none';
-        hablar("Muy bien Juan. Vamos a explorar tu habitación. ¡Presta mucha atención!");
-        setTimeout(iniciarFase, 1000);
+        iniciarFase();
     }
 
     function iniciarFase() {
         const container = document.getElementById('objetos-container');
         container.innerHTML = "";
-        seleccionados = [];
         
-        let metaFase = faseActual * 2; 
-        let copiaPool = [...poolObjetosHabitacion].sort(() => Math.random() - 0.5);
-        objetivosActuales = copiaPool.slice(0, metaFase);
-
-        let nombresBuscados = objetivosActuales.map(o => o.nombre).join(", ");
-        let instruccion = `Juan, por favor busca ${nombresBuscados}.`;
-        
+        // 1. Elegimos UN solo objetivo aleatorio (del 1 al 10)
+        objetivoId = Math.floor(Math.random() * 10) + 1;
+        let instruccion = `Juan, por favor busca ${poolNombres[objetivoId]}.`;
         document.getElementById('texto-instruccion').innerText = instruccion;
         hablar(instruccion);
 
-        let itemsParaPantalla = [];
-        objetivosActuales.forEach(obj => itemsParaPantalla.push({id: obj.id, correcto: true}));
+        // 2. Definimos cantidad de distractores según nivel
+        let numDistractores = faseActual === 1 ? 4 : (faseActual === 2 ? 8 : 14);
         
-        let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
-        for(let i=0; i<8; i++) {
-            itemsParaPantalla.push({id: distractores[i], correcto: false});
+        let items = [{id: objetivoId, correcto: true}];
+        
+        // 3. Llenamos con distractores (obj 11 al 20)
+        let poolDist = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
+        for(let i=0; i < numDistractores; i++) {
+            // Si se acaban los 11-20, usamos otros del 1-10 que no sean el objetivo
+            if(poolDist[i]) {
+                items.push({id: poolDist[i], correcto: false});
+            } else {
+                let randomExtra = Math.floor(Math.random() * 10) + 1;
+                if(randomExtra !== objetivoId) items.push({id: randomExtra, correcto: false});
+            }
         }
 
-        itemsParaPantalla.sort(() => Math.random() - 0.5);
+        // Mezclar posiciones
+        items.sort(() => Math.random() - 0.5);
 
-        itemsParaPantalla.forEach((item, index) => {
+        items.forEach((item, index) => {
             const img = document.createElement('img');
             img.src = `obj${item.id}.png`; 
             img.className = 'objeto';
             
-            const col = index % 8;
-            const row = Math.floor(index / 8);
-            
-            img.style.left = (col * 35 + 15) + "vw"; 
-            img.style.top = (row * 35 + 30) + "vh";
+            // Distribución aleatoria por el escenario de 300vw
+            img.style.left = Math.floor(Math.random() * 250) + 20 + "vw";
+            img.style.top = Math.floor(Math.random() * 60) + 20 + "vh";
 
             img.onclick = () => {
-                if(item.correcto) {
-                    if(!seleccionados.includes(item.id)) {
-                        img.classList.add('seleccionado');
-                        seleccionados.push(item.id);
-                        hablar("¡Muy bien!");
-                        if(seleccionados.length === metaFase) pasarSiguienteNivel();
-                    }
+                if(item.id === objetivoId) {
+                    img.classList.add('seleccionado');
+                    hablar("¡Muy bien hecho!");
+                    setTimeout(pasarSiguienteNivel, 2000);
                 } else {
-                    hablar("Ese no es, busca con cuidado.");
+                    hablar("Ese no es, sigue buscando.");
                 }
             };
             container.appendChild(img);
@@ -168,13 +145,11 @@
     function pasarSiguienteNivel() {
         if(faseActual < 3) {
             faseActual++;
-            setTimeout(() => {
-                document.getElementById('pantalla-juego').scrollLeft = 0;
-                iniciarFase();
-            }, 2000);
+            document.getElementById('pantalla-juego').scrollLeft = 0;
+            iniciarFase();
         } else {
-            hablar("¡Excelente Juan! Sesión terminada.");
-            setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
+            hablar("Excelente Juan, terminamos por hoy.");
+            setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3000);
         }
     }
 </script>
