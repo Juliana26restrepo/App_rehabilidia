@@ -56,11 +56,11 @@
     </div>
 
 <script>
-    // Aquí defines qué sesiones ya están creadas (true = abierta, false = candado)
+    // Configuración de sesiones activas
     const estadoSesiones = {
         1: true,
-        2: true,  // ¡Activada!
-        3: false, // Se activará cuando terminemos la S3
+        2: true,  // SESIÓN 2 ACTIVADA
+        3: false, 
         4: false, 5: false, 6: false, 7: false, 8: false, 9: false, 10: false
     };
 
@@ -90,14 +90,19 @@
     }
 
     function toggleNiveles(num, abierta) {
-        if (!abierta) return; // Si está bloqueada no hace nada
+        if (!abierta) return; 
 
         const contenedorNiveles = document.getElementById(`niveles-${num}`);
         const icono = document.getElementById(`icono-${num}`);
         
-        // Cerrar otros que estén abiertos (opcional, para orden)
+        // Cerrar otros niveles abiertos para mantener orden
         document.querySelectorAll('.niveles-container').forEach(el => {
-            if(el.id !== `niveles-${num}`) el.style.display = 'none';
+            if(el.id !== `niveles-${num}`) {
+                el.style.display = 'none';
+                const idOtro = el.id.split('-')[1];
+                const iconoOtro = document.getElementById(`icono-${idOtro}`);
+                if(iconoOtro) iconoOtro.classList.replace("fa-chevron-up", "fa-chevron-down");
+            }
         });
 
         if (contenedorNiveles.style.display === "block") {
@@ -110,7 +115,6 @@
     }
 
     function irA(sesion, dificultad) {
-        // Esto redirige a atencion1.html, atencion2.html, etc.
         window.location.href = `atencion${sesion}.html?nivel=${dificultad}`;
     }
 </script>
