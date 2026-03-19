@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesión 2: Rutinas - REHABILIDIA</title>
+    <title>Sesión 2: Progresiva - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; }
@@ -11,32 +11,35 @@
         
         #escenario {
             width: 100vw; height: 100vh;
-            /* Usando el nombre nuevo que pusiste en GitHub */
-          background-image: url('./fondo_bano.jpg?v=1');
+            background-image: url('fondo_bano.jpg'); 
             background-size: cover; background-position: center;
             position: relative; display: flex; align-items: center; justify-content: center;
         }
 
         #guia {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.95); padding: 15px; border-radius: 20px;
-            border: 4px solid var(--t-blue); width: 85%; max-width: 450px;
+            background: rgba(255,255,255,0.95); padding: 12px; border-radius: 20px;
+            border: 4px solid var(--t-blue); width: 80%; max-width: 450px;
             display: flex; align-items: center; gap: 15px; z-index: 10;
         }
-        #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
-        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
+        #guia img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--t-blue); }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1rem; }
 
-        #objetos-container { position: relative; width: 90%; height: 65%; margin-top: 80px; }
+        #objetos-container { position: relative; width: 95%; height: 75%; margin-top: 60px; }
         
         .objeto {
-            position: absolute; width: 100px; height: 100px;
-            cursor: pointer; transition: transform 0.2s;
-            filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.4));
+            position: absolute; width: 85px; height: 85px;
+            cursor: pointer; transition: 0.3s;
+            filter: drop-shadow(3px 5px 5px rgba(0,0,0,0.3));
             object-fit: contain;
         }
-        .objeto.seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2); transform: scale(1.1); border: 2px solid gold; border-radius: 10px; }
+        .seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2) !important; transform: scale(1.1); border: 3px solid gold; border-radius: 10px; pointer-events: none; }
         
-        .btn-volver { position: absolute; bottom: 20px; left: 20px; padding: 12px 25px; background: var(--p-blue); color: white; border-radius: 15px; text-decoration: none; z-index: 20; font-weight: bold; }
+        .contador-rutinas {
+            position: absolute; top: 110px; right: 20px;
+            background: var(--p-blue); color: white; padding: 5px 15px;
+            border-radius: 10px; font-weight: bold; font-size: 0.8rem; z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -44,82 +47,117 @@
 <div id="escenario">
     <div id="guia">
         <img src="COTERAPEUTA.JPG" alt="Guía">
-        <p id="texto-instruccion">Cargando rutina...</p>
+        <p id="texto-instruccion">Cargando nivel...</p>
     </div>
+    <div class="contador-rutinas" id="progreso">Objetivos: 0 / 0</div>
     <div id="objetos-container"></div>
-    <a href="atencion_sesiones.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
 </div>
 
 <script>
-    const rutinas = [
-        { nombre: "Dientes", correctos: [1, 2], instruccion: "Juan, selecciona el cepillo y la crema dental para lavar tus dientes." },
-        { nombre: "Manos", correctos: [3, 4], instruccion: "Juan, busca el jabón y la toalla para lavar tus manos." },
-        { nombre: "Cabello", correctos: [5, 6], instruccion: "Juan, elige el peine y el fijador para arreglar tu cabello." },
-        { nombre: "Afeitado", correctos: [7, 8], instruccion: "Juan, selecciona la máquina y la espuma para afeitarte." },
-        { nombre: "Baño", correctos: [9, 10], instruccion: "Juan, busca el champú y la esponja para tu baño." }
+    const urlParams = new URLSearchParams(window.location.search);
+    const nivelActual = urlParams.get('nivel') || 'bajo';
+
+    const poolObjetos = [
+        { id: 1, nombre: "cepillo" }, { id: 2, nombre: "crema" },
+        { id: 3, nombre: "jabón" }, { id: 4, nombre: "toalla" },
+        { id: 5, nombre: "peine" }, { id: 6, nombre: "fijador" },
+        { id: 7, nombre: "máquina" }, { id: 8, nombre: "espuma" },
+        { id: 9, nombre: "champú" }, { id: 10, nombre: "esponja" }
     ];
 
-    let rutinaActual = rutinas[Math.floor(Math.random() * rutinas.length)];
     let seleccionados = [];
+    let objetivosDelNivel = [];
+    let cantidadObjetivos = 2; // Bajo por defecto
+
+    if(nivelActual === 'medio') cantidadObjetivos = 4;
+    if(nivelActual === 'alto') cantidadObjetivos = 6;
 
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
         const voz = new SpeechSynthesisUtterance(mensaje);
         voz.lang = 'es-ES';
-        voz.rate = 0.85;
+        voz.rate = 0.9;
         window.speechSynthesis.speak(voz);
     }
 
-    function iniciarJuego() {
+    function iniciarNivel() {
         const container = document.getElementById('objetos-container');
-        document.getElementById('texto-instruccion').innerText = rutinaActual.instruccion;
-        setTimeout(() => { hablar(rutinaActual.instruccion); }, 500);
+        container.innerHTML = "";
+        seleccionados = [];
 
-        let idsParaMostrar = [...rutinaActual.correctos];
-        let distractores = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+        // 1. Seleccionar los objetos correctos según la dificultad
+        let copiaPool = [...poolObjetos];
+        copiaPool.sort(() => Math.random() - 0.5);
+        objetivosDelNivel = copiaPool.slice(0, cantidadObjetivos);
+
+        // 2. Crear instrucción dinámica
+        let nombresBuscados = objetivosDelNivel.map(o => o.nombre).join(", ");
+        let instruccion = `Juan, por favor busca los siguientes elementos: ${nombresBuscados}.`;
+        
+        document.getElementById('texto-instruccion').innerText = instruccion;
+        document.getElementById('progreso').innerText = `Encontrados: 0 / ${cantidadObjetivos}`;
+        hablar(instruccion);
+
+        // 3. Mezclar con distractores (aseo11 a aseo20)
+        let idsFinales = objetivosDelNivel.map(o => o.id);
+        let distractores = [11,12,13,14,15,16,17,18,19,20];
         distractores.sort(() => Math.random() - 0.5);
-        for(let i=0; i<8; i++) { idsParaMostrar.push(distractores[i]); }
-        idsParaMostrar.sort(() => Math.random() - 0.5);
+        
+        // Añadimos 8 distractores siempre para que haya ruido visual
+        for(let i=0; i<8; i++) { idsFinales.push(distractores[i]); }
+        idsFinales.sort(() => Math.random() - 0.5);
 
-        idsParaMostrar.forEach((id, index) => {
+        // 4. Dibujar en pantalla
+        idsFinales.forEach((id, index) => {
             const img = document.createElement('img');
-            // VERIFICA QUE ESTÉ ASÍ: .png en minúscula
             img.src = `aseo${id}.png`; 
             img.className = 'objeto';
             
             const col = index % 5;
-            const row = Math.floor(index / 5);
+            const row = Math.floor(index / 3);
             img.style.left = (col * 18 + 2) + "%";
-            img.style.top = (row * 40 + 5) + "%";
+            img.style.top = (row * 22 + 5) + "%";
 
             img.onclick = () => {
-                if(seleccionados.includes(id)) return;
-                if(rutinaActual.correctos.includes(id)) {
-                    img.style.filter = "drop-shadow(0px 0px 15px gold) brightness(1.2)";
-                    img.style.transform = "scale(1.1)";
-                    seleccionados.push(id);
-                    hablar("Muy bien.");
-                    if(seleccionados.length === 2) finalizar();
+                if(objetivosDelNivel.some(obj => obj.id === id)) {
+                    if(!seleccionados.includes(id)) {
+                        img.classList.add('seleccionado');
+                        seleccionados.push(id);
+                        document.getElementById('progreso').innerText = `Encontrados: ${seleccionados.length} / ${cantidadObjetivos}`;
+                        hablar("Muy bien, lo encontraste.");
+                        
+                        if(seleccionados.length === cantidadObjetivos) {
+                            finalizarSesion();
+                        }
+                    }
                 } else {
-                    hablar("Ese no pertenece a la rutina.");
-                    img.style.opacity = "0.4";
-                    setTimeout(() => { img.style.opacity = "1"; }, 800);
+                    hablar("Ese no es uno de los objetos que buscamos.");
+                    img.style.opacity = "0.5";
+                    setTimeout(() => img.style.opacity = "1", 500);
                 }
             };
             container.appendChild(img);
         });
     }
 
-    function finalizar() {
-        hablar("¡Excelente Juan! Has completado la rutina.");
-        const data = { fecha: new Date().toLocaleString(), categoria: "Atención S2", puntaje: "Completado", rendimiento: 100 };
-        let sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        sesiones.push(data);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(sesiones));
-        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
+    function finalizarSesion() {
+        hablar(`¡Excelente Juan! Encontraste los ${cantidadObjetivos} objetos correctamente. Sesión terminada.`);
+        
+        const data = { 
+            fecha: new Date().toLocaleString(), 
+            categoria: "Atención S2", 
+            nivel: nivelActual,
+            aciertos: cantidadObjetivos 
+        };
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(data);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 4000);
     }
 
-    window.onload = iniciarJuego;
+    window.onload = iniciarNivel;
 </script>
 </body>
 </html>
+
