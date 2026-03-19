@@ -35,8 +35,23 @@
         <a-camera look-controls></a-camera>
         <a-entity id="contenedor-objetos"></a-entity>
     </a-scene>
-<script src="logica_rehabilitacion.js"></script>
+
+    <script src="logica_rehabilitacion.js"></script>
+    
     <script>
+        // --- FUNCIÓN DE GUARDADO DE SESIONES ---
+        function guardarResultadoSesion(categoria, aciertos, total) {
+            const nuevaSesion = {
+                fecha: new Date().toLocaleString(),
+                categoria: categoria,
+                puntaje: `${aciertos}/${total}`,
+                rendimiento: Math.round((aciertos / total) * 100)
+            };
+            let historialSesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+            historialSesiones.push(nuevaSesion);
+            localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historialSesiones));
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const nivelActual = urlParams.get('nivel') || 'bajo';
         
@@ -64,13 +79,10 @@
 
         const contenedor = document.getElementById('contenedor-objetos');
 
-        // --- SOLUCIÓN DEFINITIVA: ÁNGULOS ÚNICOS ---
-        // Repartimos 360 grados entre los 20 posibles objetos para que NUNCA coincidan en el mismo eje vertical
         const angulosDisponibles = [];
         for(let i = 0; i < 20; i++) {
             angulosDisponibles.push((i * (360 / 20)) * (Math.PI / 180));
         }
-        // Barajamos los ángulos
         angulosDisponibles.sort(() => Math.random() - 0.5);
 
         function crearObjeto(id, esObjetivo, index) {
@@ -78,11 +90,8 @@
             entidad.setAttribute('src', 'obj' + id + '.png');
             entidad.setAttribute('class', 'clickable');
             
-            // Usamos un ángulo único para este objeto
             const angulo = angulosDisponibles[index];
             const radio = 4.5;
-            
-            // Variamos la altura según el índice para que no todos estén a la misma altura visual
             const altura = (index % 4) * 0.6 + 0.4; 
 
             entidad.setAttribute('position', {
@@ -98,8 +107,11 @@
                 if (esObjetivo) {
                     avatar.src = "COTERAPEUTA_FELIZ.JPG";
                     const sig = config[nivelActual].siguiente;
+                    
                     if(sig === 'final') {
                         hablar("¡Excelente Juan! Lo lograste.");
+                        // Guardamos la sesión al completar los 3 niveles (3 de 3 aciertos)
+                        guardarResultadoSesion("Atención", 3, 3);
                         setTimeout(() => window.location.href = 'atencion_sesiones.html', 3000);
                     } else {
                         hablar("¡Muy bien! Vamos al siguiente nivel.");
@@ -114,7 +126,6 @@
             contenedor.appendChild(entidad);
         }
 
-        // Generar objetivo y distractores
         crearObjeto(idObjetivo, true, 0);
 
         let creados = 1;
@@ -128,8 +139,6 @@
             }
         }
     </script>
-
-    <script src="logica_rehabilitacion.js"></script>
-
 </body>
 </html>
+
