@@ -2,146 +2,82 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas - REHABILIDIA</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
-            --light-silver: #CEE5D6; --white: #ffffff;
-        }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
-        header { background-color: var(--prussian-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
-        .btn-volver { color: white; text-decoration: none; }
-        
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; padding-bottom: 60px; }
-        
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #cbded1; color: var(--prussian-blue); font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { background: var(--teal-blue); color: white; }
-
-        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        h3 { margin-top: 0; color: var(--teal-blue); font-size: 1.1rem; }
-
-        .registro-item { border-bottom: 1px solid #eee; padding: 12px 0; font-size: 0.9rem; position: relative; }
-        .registro-item:last-child { border-bottom: none; }
-        .fecha-label { font-weight: bold; color: #666; font-size: 0.75rem; display: block; margin-bottom: 4px; }
-        
-        .badge-rendimiento { background: var(--mughal-green); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; float: right; }
-        .sintomas-tag { color: #d9534f; font-size: 0.85rem; font-weight: bold; margin-top: 4px; display: block; }
-        
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --m-green: #366B2B; --silver: #CEE5D6; }
+        body { font-family: sans-serif; margin: 0; background: var(--silver); color: var(--p-blue); }
+        header { background: var(--p-blue); color: white; padding: 15px; text-align: center; font-weight: bold; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; background: #abc; cursor: pointer; }
+        .tab-btn.active { background: var(--t-blue); color: white; }
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 0.9rem; }
         .hidden { display: none; }
-        .sin-datos { text-align: center; color: #888; padding: 20px; }
     </style>
 </head>
 <body>
-
-<header>
-    <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">CENTRAL DE DATOS</span>
-</header>
-
+<header>CENTRAL DE DATOS</header>
 <div class="container">
     <div class="tabs">
-        <button id="tab-diario" class="tab-btn active" onclick="verTab('diario')">Registro Diario</button>
-        <button id="tab-sesiones" class="tab-btn" onclick="verTab('sesiones')">Registro Sesiones</button>
+        <button id="bt1" class="tab-btn active" onclick="ver('d')">Diario</button>
+        <button id="bt2" class="tab-btn" onclick="ver('s')">Sesiones</button>
     </div>
 
-    <div id="seccion-diario">
-        <div class="card">
-            <h3>Evolución de Energía</h3>
-            <canvas id="graficaEnergia" style="width: 100%; height: 200px;"></canvas>
-        </div>
-
-        <div class="card">
-            <h3>Historial de Notas</h3>
-            <div id="lista-diario"></div>
-        </div>
+    <div id="sd">
+        <div class="card"><h3>Energía</h3><canvas id="graf"></canvas></div>
+        <div class="card"><h3>Historial Diario</h3><div id="listD"></div></div>
     </div>
 
-    <div id="seccion-sesiones" class="hidden">
-        <div class="card">
-            <h3>Desempeño en Ejercicios</h3>
-            <div id="lista-sesiones"></div>
-        </div>
+    <div id="ss" class="hidden">
+        <div class="card"><h3>Ejercicios</h3><div id="listS"></div></div>
     </div>
 </div>
 
 <script>
-    function verTab(tipo) {
-        document.getElementById('seccion-diario').classList.toggle('hidden', tipo !== 'diario');
-        document.getElementById('seccion-sesiones').classList.toggle('hidden', tipo !== 'sesiones');
-        document.getElementById('tab-diario').classList.toggle('active', tipo === 'diario');
-        document.getElementById('tab-sesiones').classList.toggle('active', tipo === 'sesiones');
+    function ver(t) {
+        document.getElementById('sd').classList.toggle('hidden', t !== 'd');
+        document.getElementById('ss').classList.toggle('hidden', t !== 's');
+        document.getElementById('bt1').classList.toggle('active', t === 'd');
+        document.getElementById('bt2').classList.toggle('active', t === 's');
     }
 
-    function inicializarApp() {
-        // --- 1. CARGAR DATOS DEL DIARIO ---
-        const historialDiario = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
-        const listaDiario = document.getElementById('lista-diario');
+    window.onload = function() {
+        try {
+            const historial = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
+            const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+            
+            // Cargar Lista Diario
+            const ld = document.getElementById('listD');
+            if(historial.length > 0) {
+                // Gráfica
+                new Chart(document.getElementById('graf'), {
+                    type: 'line',
+                    data: {
+                        labels: historial.map(r => r.fecha.split(',')[0]),
+                        datasets: [{ label: 'Energía', data: historial.map(r => r.energia), borderColor: '#307B8E' }]
+                    }
+                });
+                // Lista
+                historial.reverse().forEach(r => {
+                    ld.innerHTML += `<div class="item"><b>${r.fecha}</b><br>Ánimo: ${r.emocion}<br>Sintomas: ${r.sintomas || 'Ninguno'}<br><i>${r.nota || ''}</i></div>`;
+                });
+            } else { ld.innerHTML = "No hay datos en el diario."; }
 
-        if (historialDiario.length > 0) {
-            // Dibujar Gráfica solo si hay datos
-            const ctx = document.getElementById('graficaEnergia').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: historialDiario.map(r => r.fecha.split(',')[0]),
-                    datasets: [{
-                        label: 'Energía',
-                        data: historialDiario.map(r => r.energia),
-                        borderColor: '#307B8E',
-                        backgroundColor: 'rgba(48, 123, 142, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { scales: { y: { min: 1, max: 10 } } }
-            });
+            // Cargar Lista Sesiones
+            const ls = document.getElementById('listS');
+            if(sesiones.length > 0) {
+                sesiones.reverse().forEach(s => {
+                    ls.innerHTML += `<div class="item"><b>${s.fecha}</b><br>${s.categoria}: ${s.puntaje} (${s.rendimiento}%)</div>`;
+                });
+            } else { ls.innerHTML = "No hay ejercicios hechos."; }
 
-            // Listar registros
-            let htmlDiario = "";
-            historialDiario.slice().reverse().forEach(reg => {
-                const sintomas = reg.sintomas && reg.sintomas.length > 0 ? reg.sintomas.join(", ") : "Ninguno";
-                htmlDiario += `
-                    <div class="registro-item">
-                        <span class="fecha-label">${reg.fecha}</span>
-                        <div><strong>Ánimo:</strong> ${reg.emocion} | <strong>Energía:</strong> ${reg.energia}/10</div>
-                        <span class="sintomas-tag">⚠️ Síntomas: ${sintomas}</span>
-                        <div style="color: #555; font-style: italic; margin-top:5px;">"${reg.nota || ''}"</div>
-                    </div>`;
-            });
-            listaDiario.innerHTML = htmlDiario;
-        } else {
-            listaDiario.innerHTML = "<div class='sin-datos'>No hay registros diarios.</div>";
-        }
-
-        // --- 2. CARGAR DATOS DE SESIONES ---
-        const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        const listaSesiones = document.getElementById('lista-sesiones');
-
-        if (sesiones.length > 0) {
-            let htmlSesiones = "";
-            sesiones.slice().reverse().forEach(s => {
-                htmlSesiones += `
-                    <div class="registro-item">
-                        <span class="badge-rendimiento">${s.rendimiento}%</span>
-                        <span class="fecha-label">${s.fecha}</span>
-                        <div><strong>Área:</strong> ${s.categoria}</div>
-                        <div style="color: #555;">Puntaje: ${s.puntaje}</div>
-                    </div>`;
-            });
-            listaSesiones.innerHTML = htmlSesiones;
-        } else {
-            listaSesiones.innerHTML = "<div class='sin-datos'>Aún no hay ejercicios completados.</div>";
+        } catch (e) {
+            console.error("Error cargando datos:", e);
+            alert("Hubo un error con los datos guardados. Intenta borrar el historial.");
         }
     }
-
-    // Ejecutar cuando todo cargue
-    window.onload = inicializarApp;
 </script>
-
 </body>
 </html>
-
