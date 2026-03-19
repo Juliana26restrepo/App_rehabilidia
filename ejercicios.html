@@ -12,13 +12,28 @@
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
         
-        /* Header corregido según tu imagen */
-        header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; }
-        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; }
+        /* Header corregido: Ahora con botón que NO sale al selector de perfiles */
+        header { 
+            background-color: var(--prussian-blue); 
+            color: var(--white); 
+            padding: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+        }
+        .btn-volver { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 1.2rem; 
+            display: flex; 
+            align-items: center; 
+        }
 
         .container { padding: 30px 20px; max-width: 600px; margin: auto; }
 
-        /* Estilo fiel a tu imagen 1000215140.png */
         .modulo-card {
             background: white; 
             border-radius: 15px; 
@@ -34,7 +49,6 @@
         }
         .modulo-card:active { transform: scale(0.98); }
 
-        /* Bordes laterales de colores */
         .border-atencion { border-left: 10px solid var(--teal-blue); }
         .border-memoria { border-left: 10px solid var(--mughal-green); }
         .border-ejecutivas { border-left: 10px solid #5D9CB3; }
@@ -53,14 +67,15 @@
 </head>
 <body>
  <header>
-    <a href="index.html" class="btn-volver">← Volver</a>
+    <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-chevron-left"></i> &nbsp; Volver</a>
+    <span style="font-weight: bold;">MÓDULOS DE ENTRENAMIENTO</span>
 </header>
 
 <div class="container">
 
     <div class="modulo-card border-atencion" onclick="location.href='atencion_sesiones.html'">
-    <span><span class="emoji">🧠</span> MÓDULO 1: ATENCIÓN (10 Sesiones)</span>
-</div>
+        <span><span class="emoji">🧠</span> MÓDULO 1: ATENCIÓN (10 Sesiones)</span>
+    </div>
 
     <div class="modulo-card border-memoria" onclick="location.href='memoria1.html'">
         <span><span class="emoji">🧠</span> MÓDULO 2: MEMORIA (10 Ejercicios)</span>
