@@ -83,7 +83,7 @@
 
         idsParaMostrar.forEach((id, index) => {
             const img = document.createElement('img');
-            // Usamos .png en minúscula como se ve en tu GitHub
+            // VERIFICA QUE ESTÉ ASÍ: .png en minúscula
             img.src = `aseo${id}.png`; 
             img.className = 'objeto';
             
@@ -95,7 +95,8 @@
             img.onclick = () => {
                 if(seleccionados.includes(id)) return;
                 if(rutinaActual.correctos.includes(id)) {
-                    img.classList.add('seleccionado');
+                    img.style.filter = "drop-shadow(0px 0px 15px gold) brightness(1.2)";
+                    img.style.transform = "scale(1.1)";
                     seleccionados.push(id);
                     hablar("Muy bien.");
                     if(seleccionados.length === 2) finalizar();
