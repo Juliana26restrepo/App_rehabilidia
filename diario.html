@@ -6,10 +6,7 @@
     <title>Diario Clínico - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B;
-            --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff;
-        }
+        :root { --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B; --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
         header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
@@ -34,7 +31,6 @@
     <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
     <span style="font-weight: bold;">SEGUIMIENTO DIARIO</span>
 </header>
-
 <div class="container">
     <div class="card">
         <h3>1. ¿Cómo te sientes hoy?</h3>
@@ -45,14 +41,12 @@
             <button class="emocion-btn" onclick="seleccionar(this)">😫<span>Mal</span></button>
         </div>
     </div>
-
     <div class="card">
         <h3>2. Nivel de energía / Fatiga</h3>
-        <div class="labels-energia"><span>Baja (Muy cansado)</span><span>Alta (Activo)</span></div>
+        <div class="labels-energia"><span>Baja</span><span>Alta</span></div>
         <input type="range" class="energia-range" min="1" max="10" value="5" id="rangoEnergia">
         <div id="valorEnergia" style="text-align: center; font-weight: bold; color: var(--teal-blue);">Nivel: 5</div>
     </div>
-
     <div class="card">
         <h3>3. ¿Has sentido hoy...?</h3>
         <div class="sintomas-grid" id="listaSintomas">
@@ -64,21 +58,16 @@
             <label class="sintoma-item"><input type="checkbox" value="Ruido molesto"> Ruido molesto</label>
         </div>
     </div>
-
     <div class="card">
         <h3>4. Notas del paciente</h3>
-        <textarea id="nota" rows="4" placeholder="Escribe aquí tus observaciones del día..."></textarea>
+        <textarea id="nota" rows="4" placeholder="Escribe aquí tus observaciones..."></textarea>
         <br><br>
-        <button class="btn-guardar" onclick="finalizarRegistro()">
-            <i class="fas fa-cloud-upload-alt"></i> GUARDAR REGISTRO CLÍNICO
-        </button>
+        <button class="btn-guardar" onclick="finalizarRegistro()">GUARDAR REGISTRO</button>
     </div>
 </div>
-
 <script>
     const range = document.getElementById('rangoEnergia');
-    const valorLabel = document.getElementById('valorEnergia');
-    range.oninput = function() { valorLabel.innerHTML = "Nivel: " + this.value; }
+    range.oninput = function() { document.getElementById('valorEnergia').innerHTML = "Nivel: " + this.value; }
 
     function seleccionar(btn) {
         document.querySelectorAll('.emocion-btn').forEach(b => b.classList.remove('active'));
@@ -86,28 +75,27 @@
     }
 
     function finalizarRegistro() {
-        const emocionActiva = document.querySelector('.emocion-btn.active span')?.innerText || "No especificado";
+        const emocionActiva = document.querySelector('.emocion-btn.active span')?.innerText || "Normal";
         const nivelEnergia = document.getElementById('rangoEnergia').value;
-        const checkboxes = document.querySelectorAll('#listaSintomas input[type="checkbox"]:checked');
-        const sintomasSeleccionados = Array.from(checkboxes).map(cb => cb.value);
-        const notaPaciente = document.getElementById('nota').value;
+        const sintomas = Array.from(document.querySelectorAll('#listaSintomas input:checked')).map(cb => cb.value);
+        const nota = document.getElementById('nota').value;
 
         const nuevoRegistro = {
             fecha: new Date().toLocaleString(),
             emocion: emocionActiva,
             energia: nivelEnergia,
-            sintomas: sintomasSeleccionados, 
-            nota: notaPaciente
+            sintomas: sintomas,
+            nota: nota
         };
 
         let historial = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
         historial.push(nuevoRegistro);
         localStorage.setItem('historial_rehabilitidia', JSON.stringify(historial));
 
-        alert("¡Registro guardado con éxito!");
+        alert("¡Guardado correctamente!");
         window.location.href = "index.html";
     }
 </script>
-<script src="logica_rehabilitacion.js"></script>
 </body>
 </html>
+
