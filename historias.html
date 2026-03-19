@@ -1,1 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historias Clínicas - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        
+        header { background: var(--p-blue); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; }
+
+        .container { padding: 20px; max-width: 900px; margin: auto; }
+        h1 { color: var(--p-blue); }
+
+        /* LISTA DE PACIENTES */
+        .paciente-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-left: 6px solid var(--t-blue);
+        }
+        .paciente-item:hover { transform: scale(1.02); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .paciente-info-basica h3 { margin: 0; color: var(--p-blue); }
+        .paciente-info-basica p { margin: 5px 0 0; color: #666; font-size: 0.9rem; }
+
+        /* MODAL / DOCUMENTO DE HISTORIA CLÍNICA */
+        .modal-historia {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        .documento {
+            background: white;
+            width: 90%;
+            max-width: 750px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            line-height: 1.6;
+        }
+        .btn-cerrar { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #999; }
+        
+        /* ESTILO TIPO FICHA MÉDICA */
+        .seccion-hc { border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px; }
+        .seccion-hc h2 { font-size: 1.1rem; color: var(--t-blue); text-transform: uppercase; margin-bottom: 10px; }
+        .grid-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; }
+        .label { font-weight: bold; color: var(--p-blue); }
+        
+        .alerta-medica { background: #fff3e0; border: 1px solid #ffe0b2; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem; color: #e65100; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div><strong>REHABILIDIA</strong> | Historias Clínicas</div>
+    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
+</header>
+
+<div class="container">
+    <h1>Pacientes Registrados</h1>
+    
+    <div class="paciente-item" onclick="abrirHistoria()">
+        <div class="paciente-info-basica">
+            <h3>Juan Pérez</h3>
+            <p>ID: 10293847 | DX: TEC Moderado | Edad: 26 años</p>
+        </div>
+        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
+    </div>
+</div>
+
+<div id="modalHC" class="modal-historia">
+    <div class="documento">
+        <span class="btn-cerrar" onclick="cerrarHistoria()">&times;</span>
+        
+        <center>
+            <img src="COTERAPEUTA.JPG" style="width: 60px; height: 60px; border-radius: 50%;">
+            <h1 style="margin: 10px 0; color: var(--p-blue);">Historia Clínica Neuropsicológica</h1>
+            <p style="font-size: 0.8rem; color: #888;">REHABILIDIA - Protocolo de Atención Post-Trauma</p>
+        </center>
+
+        <div class="seccion-hc">
+            <h2>Datos de Identificación</h2>
+            <div class="grid-datos">
+                <div><span class="label">Nombre:</span> Juan Pérez</div>
+                <div><span class="label">Edad:</span> 26 años</div>
+                <div><span class="label">Fecha de Nacimiento:</span> 12/05/1999</div>
+                <div><span class="label">Escolaridad:</span> Universitaria (En curso)</div>
+                <div><span class="label">Ocupación:</span> Estudiante de Ingeniería</div>
+                <div><span class="label">Lateralidad:</span> Diestro</div>
+            </div>
+        </div>
+
+        <div class="seccion-hc">
+            <h2>Motivo de Consulta e Historia del Trauma</h2>
+            <p>Paciente masculino de 26 años remitido tras presentar <strong>Traumatismo Encéfalo Craneano (TEC) Moderado</strong> secundario a accidente de tránsito (motocicleta). Presentó pérdida de conciencia de 45 minutos y amnesia postraumática de 2 horas. El ingreso a rehabilitación busca fortalecer procesos de atención selectiva y sostenida para reintegro académico.</p>
+        </div>
+
+        <div class="seccion-hc">
+            <h2>Diagnóstico Clínico (DX)</h2>
+            <div class="grid-datos">
+                <div><span class="label">CIE-10:</span> S06.5 (Hemorragia subdural traumática)</div>
+                <div><span class="label">Severidad:</span> Moderado (Escala de Glasgow inicial: 11/15)</div>
+            </div>
+            <div class="alerta-medica">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Nota:</strong> Presencia de fatiga cognitiva rápida y cefaleas tensionales post-esfuerzo.
+            </div>
+        </div>
+
+        <div class="seccion-hc">
+            <h2>Perfil Neuropsicológico Inicial</h2>
+            <ul>
+                <li><strong>Atención:</strong> Alteración en la velocidad de procesamiento y atención selectiva ante distractores.</li>
+                <li><strong>Memoria:</strong> Preservada para hechos remotos, fallas leves en la codificación de información nueva.</li>
+                <li><strong>Funciones Ejecutivas:</strong> Dificultad moderada en la planeación y flexibilidad mental.</li>
+            </ul>
+        </div>
+
+        <div class="seccion-hc">
+            <h2>Plan de Intervención</h2>
+            <p>Se establece protocolo de 12 sesiones de estimulación cognitiva mediante REHABILIDIA, enfocadas en:</p>
+            <ol>
+                <li>Entrenamiento en rastreo visual.</li>
+                <li>Control de impulsos mediante tareas de selección de objetos.</li>
+                <li>Aumento progresivo de la tolerancia a la carga cognitiva.</li>
+            </ol>
+        </div>
+
+        <button onclick="window.print()" style="background: var(--p-blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%;">
+            <i class="fas fa-print"></i> Descargar / Imprimir Historia Clínica
+        </button>
+    </div>
+</div>
+
+<script>
+    function abrirHistoria() {
+        document.getElementById('modalHC').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Evita scroll atrás
+    }
+
+    function cerrarHistoria() {
+        document.getElementById('modalHC').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+</script>
+
+</body>
+</html>
 
