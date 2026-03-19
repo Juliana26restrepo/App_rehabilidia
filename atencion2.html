@@ -7,7 +7,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #B0E0E6; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #B0E0E6; 
+        }
 
         #pantalla-juego {
             width: 100vw; height: 100vh;
@@ -17,7 +23,7 @@
         }
 
         #escenario-ancho {
-            width: 250vw; /* Baño ancho para explorar */
+            width: 250vw; /* Baño muy ancho para que no se amontonen */
             height: 100vh;
             background-image: url('fondo_bano.jpg'); 
             background-size: cover; background-position: center;
@@ -33,12 +39,14 @@
         #guia img { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
         #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
 
+        /* TAMAÑO SENIOR: Grande y claro */
         .objeto {
-            position: absolute; width: 130px; height: 130px;
+            position: absolute; width: 140px; height: 140px;
             cursor: pointer; transition: 0.3s;
             filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
             object-fit: contain;
         }
+        
         .seleccionado { 
             filter: drop-shadow(0px 0px 25px gold) brightness(1.2) !important; 
             transform: scale(1.1); border: 4px solid gold; border-radius: 15px; 
@@ -58,7 +66,7 @@
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
-    <p id="texto-instruccion">Juan, presta atención...</p>
+    <p id="texto-instruccion">Cargando...</p>
 </div>
 
 <div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Mueve para buscar</div>
@@ -96,37 +104,37 @@
         container.innerHTML = "";
         seleccionados = [];
         
-        // La meta sube automáticamente: 2 -> 4 -> 6
+        // Dificultad automática: 2 -> 4 -> 6 objetivos
         metaFase = faseActual * 2;
 
         let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
         objetivosActuales = copiaPool.slice(0, metaFase);
 
-        // Instrucción directa sin mencionar niveles
         let nombresBuscados = objetivosActuales.map(o => o.nombre).join(", ");
         let instruccion = `Juan, por favor busca ${nombresBuscados}.`;
         
         document.getElementById('texto-instruccion').innerText = instruccion;
         hablar(instruccion);
 
-        // Crear set de imágenes (objetivos + distractores)
+        // Mezclar objetivos con distractores (aseo11 a aseo20)
         let totalIds = objetivosActuales.map(o => o.id);
         let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
-        for(let i=0; i<8; i++) { totalIds.push(distractores[i]); }
+        for(let i=0; i<10; i++) { totalIds.push(distractores[i]); }
         totalIds.sort(() => Math.random() - 0.5);
 
-        // REJILLA MEJORADA (12 espacios amplios en 250vw)
+        // REJILLA TOTAL (8 columnas distribuidas en 250vw)
         totalIds.forEach((id, index) => {
             const img = document.createElement('img');
+            // CORRECCIÓN CLAVE: Usamos .png en minúsculas para coincidir con GitHub
             img.src = `aseo${id}.png`; 
             img.className = 'objeto';
             
-            // Distribución en 6 columnas y 2 filas a lo largo de 250vw
-            const col = index % 6;
-            const row = Math.floor(index / 6);
+            // Rejilla amplia para que NO se amontonen nunca
+            const col = index % 8;
+            const row = Math.floor(index / 8);
             
-            img.style.left = (col * 40 + 15) + "vw"; 
-            img.style.top = (row * 35 + 28) + "vh";
+            img.style.left = (col * 30 + 10) + "vw"; 
+            img.style.top = (row * 35 + 30) + "vh";
 
             img.onclick = () => {
                 if(objetivosActuales.some(obj => obj.id === id)) {
@@ -137,7 +145,7 @@
                         if(seleccionados.length === metaFase) pasarSiguienteNivel();
                     }
                 } else {
-                    hablar("Ese no es, sigue buscando.");
+                    hablar("Ese no es, busca con cuidado.");
                 }
             };
             container.appendChild(img);
@@ -149,7 +157,7 @@
             faseActual++;
             setTimeout(iniciarFase, 2000);
         } else {
-            hablar("¡Excelente Juan! Has terminado tu rutina de hoy.");
+            hablar("¡Excelente Juan! Has terminado toda tu rutina.");
             setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
         }
     }
