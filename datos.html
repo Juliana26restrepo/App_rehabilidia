@@ -17,7 +17,6 @@
         
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; padding-bottom: 60px; }
         
-        /* Pestañas */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #cbded1; color: var(--prussian-blue); font-weight: bold; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: var(--teal-blue); color: white; }
@@ -25,13 +24,15 @@
         .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         h3 { margin-top: 0; color: var(--teal-blue); font-size: 1.1rem; }
 
-        .registro-item { border-bottom: 1px solid #eee; padding: 12px 0; font-size: 0.9rem; }
+        .registro-item { border-bottom: 1px solid #eee; padding: 12px 0; font-size: 0.9rem; position: relative; }
         .registro-item:last-child { border-bottom: none; }
-        .fecha-label { font-weight: bold; color: #666; font-size: 0.75rem; margin-bottom: 4px; display: block; }
+        .fecha-label { font-weight: bold; color: #666; font-size: 0.75rem; display: block; margin-bottom: 4px; }
         
         .badge-rendimiento { background: var(--mughal-green); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; float: right; }
+        .sintomas-tag { color: #d9534f; font-size: 0.85rem; font-weight: bold; margin-top: 4px; display: block; }
         
         .hidden { display: none; }
+        .sin-datos { text-align: center; color: #888; padding: 20px; }
     </style>
 </head>
 <body>
@@ -43,14 +44,14 @@
 
 <div class="container">
     <div class="tabs">
-        <button id="btn-tab-diario" class="tab-btn active" onclick="verTab('diario')">Registro Diario</button>
-        <button id="btn-tab-sesiones" class="tab-btn" onclick="verTab('sesiones')">Registro Sesiones</button>
+        <button id="tab-diario" class="tab-btn active" onclick="verTab('diario')">Registro Diario</button>
+        <button id="tab-sesiones" class="tab-btn" onclick="verTab('sesiones')">Registro Sesiones</button>
     </div>
 
     <div id="seccion-diario">
         <div class="card">
             <h3>Evolución de Energía</h3>
-            <canvas id="graficaEnergia"></canvas>
+            <canvas id="graficaEnergia" style="width: 100%; height: 200px;"></canvas>
         </div>
 
         <div class="card">
@@ -61,4 +62,86 @@
 
     <div id="seccion-sesiones" class="hidden">
         <div class="card">
-            <h3>Desempeño en
+            <h3>Desempeño en Ejercicios</h3>
+            <div id="lista-sesiones"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function verTab(tipo) {
+        document.getElementById('seccion-diario').classList.toggle('hidden', tipo !== 'diario');
+        document.getElementById('seccion-sesiones').classList.toggle('hidden', tipo !== 'sesiones');
+        document.getElementById('tab-diario').classList.toggle('active', tipo === 'diario');
+        document.getElementById('tab-sesiones').classList.toggle('active', tipo === 'sesiones');
+    }
+
+    function inicializarApp() {
+        // --- 1. CARGAR DATOS DEL DIARIO ---
+        const historialDiario = JSON.parse(localStorage.getItem('historial_rehabilitidia')) || [];
+        const listaDiario = document.getElementById('lista-diario');
+
+        if (historialDiario.length > 0) {
+            // Dibujar Gráfica solo si hay datos
+            const ctx = document.getElementById('graficaEnergia').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historialDiario.map(r => r.fecha.split(',')[0]),
+                    datasets: [{
+                        label: 'Energía',
+                        data: historialDiario.map(r => r.energia),
+                        borderColor: '#307B8E',
+                        backgroundColor: 'rgba(48, 123, 142, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { scales: { y: { min: 1, max: 10 } } }
+            });
+
+            // Listar registros
+            let htmlDiario = "";
+            historialDiario.slice().reverse().forEach(reg => {
+                const sintomas = reg.sintomas && reg.sintomas.length > 0 ? reg.sintomas.join(", ") : "Ninguno";
+                htmlDiario += `
+                    <div class="registro-item">
+                        <span class="fecha-label">${reg.fecha}</span>
+                        <div><strong>Ánimo:</strong> ${reg.emocion} | <strong>Energía:</strong> ${reg.energia}/10</div>
+                        <span class="sintomas-tag">⚠️ Síntomas: ${sintomas}</span>
+                        <div style="color: #555; font-style: italic; margin-top:5px;">"${reg.nota || ''}"</div>
+                    </div>`;
+            });
+            listaDiario.innerHTML = htmlDiario;
+        } else {
+            listaDiario.innerHTML = "<div class='sin-datos'>No hay registros diarios.</div>";
+        }
+
+        // --- 2. CARGAR DATOS DE SESIONES ---
+        const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        const listaSesiones = document.getElementById('lista-sesiones');
+
+        if (sesiones.length > 0) {
+            let htmlSesiones = "";
+            sesiones.slice().reverse().forEach(s => {
+                htmlSesiones += `
+                    <div class="registro-item">
+                        <span class="badge-rendimiento">${s.rendimiento}%</span>
+                        <span class="fecha-label">${s.fecha}</span>
+                        <div><strong>Área:</strong> ${s.categoria}</div>
+                        <div style="color: #555;">Puntaje: ${s.puntaje}</div>
+                    </div>`;
+            });
+            listaSesiones.innerHTML = htmlSesiones;
+        } else {
+            listaSesiones.innerHTML = "<div class='sin-datos'>Aún no hay ejercicios completados.</div>";
+        }
+    }
+
+    // Ejecutar cuando todo cargue
+    window.onload = inicializarApp;
+</script>
+
+</body>
+</html>
+
