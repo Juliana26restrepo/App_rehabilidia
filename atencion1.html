@@ -13,8 +13,9 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(16, 58, 87, 0.95); z-index: 200;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; text-align: center; cursor: pointer;
+            color: white; text-align: center; cursor: pointer; padding: 20px;
         }
+        #overlay-inicio h1 { font-size: 1.8rem; }
 
         #pantalla-juego {
             width: 100vw; height: 100vh; overflow-x: scroll; overflow-y: hidden;
@@ -22,7 +23,7 @@
         }
 
         #escenario-ancho {
-            width: 300vw; /* Tres veces el ancho de la pantalla */
+            width: 300vw; /* Tres veces el ancho de pantalla para explorar */
             height: 100vh;
             background-image: url('habitacion_animada.png'); 
             background-size: 100% 100%; background-repeat: no-repeat;
@@ -30,33 +31,45 @@
         }
 
         #guia {
-            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.98); padding: 15px; border-radius: 20px;
-            border: 4px solid var(--t-blue); width: 85%; max-width: 500px;
-            display: flex; align-items: center; gap: 15px; z-index: 100;
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.98); padding: 10px; border-radius: 15px;
+            border: 3px solid var(--t-blue); width: 90%; max-width: 400px;
+            display: flex; align-items: center; gap: 10px; z-index: 100;
         }
-        #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
-        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
+        #guia img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--t-blue); object-fit: cover; }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 0.9rem; }
 
+        /* TAMAÑO BASE DE OBJETOS (Para Tablets/PC) */
         .objeto {
             position: absolute; 
-            width: 130px; height: 130px; /* Tamaño grande y claro */
+            width: 120px; height: 120px; 
             cursor: pointer; transition: 0.3s;
             filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
             object-fit: contain;
         }
+
+        /* AJUSTES ESPECÍFICOS PARA CELULARES (Pantallas de menos de 600px de ancho) */
+        @media (max-width: 600px) {
+            .objeto {
+                width: 70px; height: 70px; /* Objetos mucho más pequeños en celular */
+            }
+            #guia { padding: 8px; top: 5px; }
+            #guia img { width: 40px; height: 40px; }
+            #texto-instruccion { font-size: 0.8rem; }
+            #overlay-inicio h1 { font-size: 1.4rem; }
+        }
         
         .seleccionado { 
-            filter: drop-shadow(0px 0px 25px gold) brightness(1.2) !important; 
-            transform: scale(1.2); border: 4px solid gold; border-radius: 15px; 
+            filter: drop-shadow(0px 0px 20px gold) brightness(1.2) !important; 
+            transform: scale(1.1); border: 3px solid gold; border-radius: 10px; 
             pointer-events: none; 
         }
 
         .flecha-indicadora {
-            position: fixed; bottom: 30px; right: 30px;
+            position: fixed; bottom: 20px; right: 20px;
             background: rgba(16, 58, 87, 0.8); color: white;
-            padding: 12px 20px; border-radius: 30px; animation: moveRight 1.5s infinite;
-            font-size: 0.9rem; z-index: 90; font-weight: bold;
+            padding: 8px 15px; border-radius: 20px; animation: moveRight 1.5s infinite;
+            font-size: 0.8rem; z-index: 90; font-weight: bold;
         }
         @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
     </style>
@@ -64,8 +77,9 @@
 <body>
 
 <div id="overlay-inicio" onclick="comenzarSesion()">
-    <i class="fas fa-play-circle" style="font-size: 4rem; margin-bottom: 10px;"></i>
-    <h1>Tocar para iniciar Sesión 1</h1>
+    <i class="fas fa-play-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+    <h1>Tocar para iniciar</h1>
+    <p>Sesión 1: Habitación</p>
 </div>
 
 <div id="guia">
@@ -73,7 +87,7 @@
     <p id="texto-instruccion">Juan, por favor toca para empezar.</p>
 </div>
 
-<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza para buscar</div>
+<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza</div>
 
 <div id="pantalla-juego">
     <div id="escenario-ancho">
@@ -118,34 +132,38 @@
         
         let poolDist = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
         for(let i=0; i < numDistractores; i++) {
-            if(i < 10) {
-                items.push({id: poolDist[i], correcto: false});
-            } else {
-                let randomExtra = Math.floor(Math.random() * 10) + 1;
-                if(randomExtra !== objetivoId) items.push({id: randomExtra, correcto: false});
-            }
+            if(i < 10) items.push({id: poolDist[i], correcto: false});
+            else items.push({id: Math.floor(Math.random()*10)+1, correcto: false});
         }
-
         items.sort(() => Math.random() - 0.5);
 
-        // IMPLEMENTACIÓN DE LA CUADRÍCULA ESTRICTA
-        const columnas = 10;
-        const anchoColumna = 300 / columnas; // vw
-        const altoFila = 35; // vh
+        // LÓGICA DE CUADRÍCULA RESPONSIVA
+        const esCelular = window.innerWidth <= 600;
+        
+        // En celular usamos una cuadrícula más densa verticalmente (4 filas, 5 columnas) 
+        // para aprovechar el espacio alto y estrecho de cada "pantalla" del 300vw.
+        const columnas = esCelular ? 5 : 8; 
+        const filas = esCelular ? 4 : 2;
+        
+        // Calculamos separación basada en el ancho panorámico total (300vw)
+        const separacionH = 300 / columnas; // vw
+        const separacionV = esCelular ? 18 : 35; // vh (Más juntas en celular)
+        const offsetSuperior = esCelular ? 20 : 25; // vh (Margen para la guía)
 
         items.forEach((item, index) => {
             const img = document.createElement('img');
             img.src = `obj${item.id}.png`; 
             img.className = 'objeto';
             
-            // Calculamos columna y fila basadas en el índice del objeto
+            // Calculamos columna y fila
             const col = index % columnas;
             const fila = Math.floor(index / columnas);
             
-            // Posicionamiento preciso en el centro de la celda de la cuadrícula
-            // Usamos vw y vh para garantizar que queden dentro de pantalla y alineados
-            img.style.left = (col * anchoColumna + anchoColumna / 2) - 6.5 + "vw"; // -6.5vw aproxima el centro del objeto (130px)
-            img.style.top = (fila * altoFila + 25) + "vh"; // 25vh es el margen superior para la guía
+            // Posicionamiento preciso en vw y vh
+            // Centramos el objeto restando la mitad de su tamaño aproximado en vw
+            const correccionCentro = esCelular ? 5 : 6; // Aproximación de la mitad del objeto en vw
+            img.style.left = (col * separacionH + separacionH / 2) - correccionCentro + "vw"; 
+            img.style.top = (fila * separacionV + offsetSuperior) + "vh";
 
             img.onclick = () => {
                 if(item.id === objetivoId) {
