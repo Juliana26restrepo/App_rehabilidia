@@ -40,4 +40,154 @@
         .chat-header { background: var(--p-blue); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
         
         /* CAJA DE MENSAJES */
-        #mensajes-box { flex: 1; padding: 1
+        #mensajes-box { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+        
+        .msg { 
+            max-width: 80%; padding: 8px 12px; font-size: 0.95rem; border-radius: 8px; 
+            position: relative; margin-bottom: 4px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); 
+            line-height: 1.3;
+        }
+        /* Estilo Pro (Derecha) */
+        .msg.pro { 
+            align-self: flex-end; background: #dcf8c6; color: #303030; 
+            border-top-right-radius: 0; 
+        }
+        /* Estilo Paciente (Izquierda) */
+        .msg.paciente { 
+            align-self: flex-start; background: white; color: #303030; 
+            border-top-left-radius: 0; 
+        }
+        .msg-info { font-size: 0.65rem; color: #888; text-align: right; margin-top: 4px; display: block; }
+
+        /* AREA DE ENTRADA WHATSAPP STYLE */
+        .input-area { 
+            padding: 10px; display: flex; align-items: center; gap: 8px; background: transparent; 
+        }
+        .input-wrapper { 
+            flex: 1; background: white; border-radius: 25px; display: flex; 
+            align-items: center; padding: 5px 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        #mensajeInput { 
+            flex: 1; border: none; padding: 10px 0; outline: none; font-size: 1rem; 
+        }
+        .btn-send { 
+            background: var(--t-blue); color: white; border: none; 
+            width: 45px; height: 45px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-arrow-left"></i></a>
+    <span style="font-weight: bold; margin-left: 10px;">WhatsApp Médico</span>
+</header>
+
+<div class="main-container">
+    <div id="lista-chats">
+        <div class="chat-item" onclick="abrirChat('Juan Pérez', 'chat_rehabilitidia_juan')">
+            <div class="avatar" style="background: #307B8E;">JP</div>
+            <div class="chat-details">
+                <h4>Juan Pérez</h4>
+                <p id="preview-msg">Haz clic para escribirle a Juan...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="ventana-chat">
+        <div class="chat-header">
+            <i class="fas fa-arrow-left" style="cursor:pointer;" onclick="cerrarChat()"></i>
+            <div class="avatar" style="width: 35px; height: 35px; font-size: 0.9rem; background: #103A57;">JP</div>
+            <div style="flex:1">
+                <div style="font-weight: bold; font-size: 0.95rem;" id="chat-nombre">Juan Pérez</div>
+                <div style="font-size: 0.7rem; opacity: 0.9;">en línea</div>
+            </div>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        
+        <div id="mensajes-box">
+            </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <i class="far fa-smile" style="color: #888; margin-right: 10px; font-size: 1.2rem;"></i>
+                <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                <i class="fas fa-paperclip" style="color: #888; margin-left: 10px; transform: rotate(45deg);"></i>
+            </div>
+            <button class="btn-send" onclick="enviarMensaje()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chatActivo = '';
+
+    function abrirChat(nombre, key) {
+        chatActivo = key;
+        document.getElementById('chat-nombre').innerText = nombre;
+        document.getElementById('ventana-chat').classList.add('active');
+        cargarChat();
+    }
+
+    function cerrarChat() {
+        document.getElementById('ventana-chat').classList.remove('active');
+        chatActivo = '';
+    }
+
+    function cargarChat() {
+        if(!chatActivo) return;
+        const box = document.getElementById('mensajes-box');
+        const msgs = JSON.parse(localStorage.getItem(chatActivo)) || [];
+        
+        box.innerHTML = msgs.map(m => {
+            const hora = m.hora || '12:00';
+            return `
+                <div class="msg ${m.emisor}">
+                    ${m.texto}
+                    <span class="msg-info">${hora} ${m.emisor === 'pro' ? '<i class="fas fa-check-double" style="color:#4fc3f7"></i>' : ''}</span>
+                </div>
+            `;
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function enviarMensaje() {
+        const input = document.getElementById('mensajeInput');
+        if(!input.value.trim()) return;
+
+        const msgs = JSON.parse(localStorage.getItem(chatActivo)) || [];
+        const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        msgs.push({ 
+            emisor: 'pro', 
+            texto: input.value, 
+            hora: horaActual 
+        });
+
+        localStorage.setItem(chatActivo, JSON.stringify(msgs));
+        
+        // Actualizar preview en la lista
+        document.getElementById('preview-msg').innerText = input.value;
+        
+        input.value = '';
+        cargarChat();
+    }
+
+    document.getElementById('mensajeInput').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') enviarMensaje();
+    });
+
+    // Carga inicial de previews
+    window.onload = () => {
+        const m = JSON.parse(localStorage.getItem('chat_rehabilitidia_juan')) || [];
+        if(m.length > 0) document.getElementById('preview-msg').innerText = m[m.length-1].texto;
+    }
+</script>
+
+</body>
+</html>
+
