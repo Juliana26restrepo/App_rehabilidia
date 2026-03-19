@@ -3,95 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 2: Exploración - REHABILIDIA</title>
+    <title>Sesión 2: Exploración Progresiva</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; }
-        
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            overflow: hidden; 
-            background-color: #B0E0E6; 
-        }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #B0E0E6; }
 
-        /* Área visible del juego */
+        /* Contenedor con scroll manual para Juan */
         #pantalla-juego {
-            width: 100vw;
-            height: 100vh;
-            overflow-x: auto; /* Permite que Juan mueva el contenido lateralmente */
-            overflow-y: hidden;
-            display: flex;
-            cursor: grab;
-            scroll-behavior: smooth;
+            width: 100vw; height: 100vh;
+            overflow-x: scroll; overflow-y: hidden;
+            display: flex; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
-        #pantalla-juego:active { cursor: grabbing; }
-
-        /* El escenario real es más ancho que la pantalla (150%) */
         #escenario-ancho {
-            width: 150vw; 
+            width: 250vw; /* Baño bien ancho para explorar */
             height: 100vh;
             background-image: url('fondo_bano.jpg'); 
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            flex-shrink: 0;
+            background-size: cover; background-position: center;
+            position: relative; flex-shrink: 0;
         }
 
         #guia {
-            position: fixed; /* Se queda quieto mientras Juan mueve el fondo */
-            top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.95); padding: 12px; border-radius: 20px;
-            border: 4px solid var(--t-blue); width: 80%; max-width: 450px;
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.98); padding: 15px; border-radius: 20px;
+            border: 4px solid var(--t-blue); width: 85%; max-width: 500px;
             display: flex; align-items: center; gap: 15px; z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        #guia img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--t-blue); }
-        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1rem; }
+        #guia img { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--t-blue); }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
 
-        .contador-rutinas {
-            position: fixed; top: 110px; right: 20px;
-            background: var(--p-blue); color: white; padding: 5px 15px;
-            border-radius: 10px; font-weight: bold; font-size: 0.8rem; z-index: 100;
+        .info-panel {
+            position: fixed; top: 125px; right: 20px;
+            background: var(--p-blue); color: white; padding: 8px 20px;
+            border-radius: 12px; font-weight: bold; z-index: 100;
         }
 
+        /* OBJETOS MÁS GRANDES Y CLAROS */
         .objeto {
-            position: absolute; width: 90px; height: 90px;
+            position: absolute; width: 140px; height: 140px;
             cursor: pointer; transition: 0.3s;
-            filter: drop-shadow(3px 5px 5px rgba(0,0,0,0.3));
+            filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.4));
             object-fit: contain;
         }
-        .seleccionado { filter: drop-shadow(0px 0px 20px gold) brightness(1.2) !important; transform: scale(1.1); border: 3px solid gold; border-radius: 10px; pointer-events: none; }
-
-        /* Indicador visual de que hay más a los lados */
-        .flecha-ayuda {
-            position: fixed; bottom: 50%; right: 10px; color: white;
-            font-size: 2rem; animation: bounce 2s infinite; z-index: 90;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        .seleccionado { 
+            filter: drop-shadow(0px 0px 25px gold) brightness(1.2) !important; 
+            transform: scale(1.2); border: 4px solid gold; border-radius: 15px; 
+            pointer-events: none; 
         }
-        @keyframes bounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+
+        .flecha-indicadora {
+            position: fixed; bottom: 30px; right: 30px;
+            background: rgba(16, 58, 87, 0.7); color: white;
+            padding: 15px; border-radius: 50%; animation: moveRight 1.5s infinite;
+            font-size: 1.5rem; z-index: 90;
+        }
+        @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(15px); } }
     </style>
 </head>
 <body>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
-    <p id="texto-instruccion">Cargando...</p>
+    <p id="texto-instruccion">Cargando desafío...</p>
 </div>
-<div class="contador-rutinas" id="progreso">Objetivos: 0 / 0</div>
 
-<div class="flecha-ayuda"><i class="fas fa-chevron-right"></i></div>
+<div class="info-panel" id="progreso-texto">Nivel: Bajo | Encontrados: 0 / 2</div>
+
+<div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Mueve el baño</div>
 
 <div id="pantalla-juego">
-    <div id="escenario-ancho">
+    <div id="escenario-ancho" id="contenedor-items">
         <div id="objetos-container"></div>
     </div>
 </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const nivelActual = urlParams.get('nivel') || 'bajo';
-
     const poolObjetos = [
         { id: 1, nombre: "cepillo" }, { id: 2, nombre: "crema" },
         { id: 3, nombre: "jabón" }, { id: 4, nombre: "toalla" },
@@ -100,55 +89,67 @@
         { id: 9, nombre: "champú" }, { id: 10, nombre: "esponja" }
     ];
 
+    let faseActual = 1; // 1: Bajo, 2: Medio, 3: Alto
     let seleccionados = [];
-    let objetivosDelNivel = [];
-    let cantidadObjetivos = (nivelActual === 'alto') ? 6 : (nivelActual === 'medio' ? 4 : 2);
+    let objetivosActuales = [];
+    let metaFase = 2;
 
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
         const voz = new SpeechSynthesisUtterance(mensaje);
         voz.lang = 'es-ES';
-        voz.rate = 0.9;
+        voz.rate = 0.85;
         window.speechSynthesis.speak(voz);
     }
 
-    function iniciarNivel() {
+    function iniciarFase() {
         const container = document.getElementById('objetos-container');
         container.innerHTML = "";
+        seleccionados = [];
         
-        // Selección de objetivos
-        let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
-        objetivosDelNivel = copiaPool.slice(0, cantidadObjetivos);
+        // Determinar meta según la fase
+        if(faseActual === 1) metaFase = 2;
+        else if(faseActual === 2) metaFase = 4;
+        else metaFase = 6;
 
-        let instruccion = `Juan, mueve el baño hacia los lados y busca: ${objetivosDelNivel.map(o => o.nombre).join(", ")}.`;
+        const nombreFase = faseActual === 1 ? "Bajo" : (faseActual === 2 ? "Medio" : "Alto");
+        
+        // Seleccionar objetivos únicos
+        let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
+        objetivosActuales = copiaPool.slice(0, metaFase);
+
+        let instruccion = `Fase ${nombreFase}. Juan, busca: ${objetivosActuales.map(o => o.nombre).join(", ")}.`;
         document.getElementById('texto-instruccion').innerText = instruccion;
-        document.getElementById('progreso').innerText = `Encontrados: 0 / ${cantidadObjetivos}`;
+        actualizarUI();
         hablar(instruccion);
 
-        // Mezclar con distractores
-        let idsFinales = objetivosDelNivel.map(o => o.id);
+        // Crear lista total (objetivos + distractores)
+        let totalIds = objetivosActuales.map(o => o.id);
         let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
-        for(let i=0; i<10; i++) { idsFinales.push(distractores[i]); }
-        idsFinales.sort(() => Math.random() - 0.5);
+        for(let i=0; i<10; i++) { totalIds.push(distractores[i]); }
+        totalIds.sort(() => Math.random() - 0.5);
 
-        // Colocar objetos a lo largo de los 150vw
-        idsFinales.forEach((id, index) => {
+        // Ubicar en rejilla para que no se monten
+        totalIds.forEach((id, index) => {
             const img = document.createElement('img');
             img.src = `aseo${id}.png`; 
             img.className = 'objeto';
             
-            // Espaciado a lo largo del fondo ancho
-            img.style.left = (Math.random() * 130 + 5) + "vw"; 
-            img.style.top = (Math.random() * 50 + 25) + "vh";
+            // Rejilla: 8 columnas a lo largo de 250vw
+            const col = index % 8;
+            const row = Math.floor(index / 8);
+            
+            img.style.left = (col * 30 + 10) + "vw"; 
+            img.style.top = (row * 30 + 25) + "vh";
 
             img.onclick = () => {
-                if(objetivosDelNivel.some(obj => obj.id === id)) {
+                if(objetivosActuales.some(obj => obj.id === id)) {
                     if(!seleccionados.includes(id)) {
                         img.classList.add('seleccionado');
                         seleccionados.push(id);
-                        document.getElementById('progreso').innerText = `Encontrados: ${seleccionados.length} / ${cantidadObjetivos}`;
-                        hablar("¡Lo encontraste!");
-                        if(seleccionados.length === cantidadObjetivos) finalizarSesion();
+                        actualizarUI();
+                        hablar("¡Bien!");
+                        if(seleccionados.length === metaFase) pasarSiguienteNivel();
                     }
                 } else {
                     hablar("Ese no es.");
@@ -158,31 +159,24 @@
         });
     }
 
-    function finalizarSesion() {
-        hablar("¡Excelente trabajo Juan! Has encontrado todo.");
-        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
+    function actualizarUI() {
+        const nombreFase = faseActual === 1 ? "Bajo" : (faseActual === 2 ? "Medio" : "Alto");
+        document.getElementById('progreso-texto').innerText = `Nivel: ${nombreFase} | Encontrados: ${seleccionados.length} / ${metaFase}`;
     }
 
-    window.onload = iniciarNivel;
+    function pasarSiguienteNivel() {
+        if(faseActual < 3) {
+            faseActual++;
+            hablar("¡Excelente! Ahora el reto es más grande.");
+            setTimeout(iniciarFase, 2500);
+        } else {
+            hablar("¡Increíble Juan! Has completado todos los niveles.");
+            setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 4000);
+        }
+    }
 
-    // Lógica para que Juan pueda arrastrar con el dedo/mouse
-    const slider = document.getElementById('pantalla-juego');
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-
-    slider.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
-    slider.addEventListener('mouseleave', () => { isDown = false; });
-    slider.addEventListener('mouseup', () => { isDown = false; });
-    slider.addEventListener('mousemove', (e) => {
-        if(!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2;
-        slider.scrollLeft = scrollLeft - walk;
-    });
+    window.onload = iniciarFase;
 </script>
 </body>
 </html>
-
 
