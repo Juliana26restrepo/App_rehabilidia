@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 1: Exploración de Habitación - REHABILIDIA</title>
+    <title>Sesión 1: Habitación - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-crema: #FDF5E6; }
-        
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: var(--bg-crema); }
 
-        /* Pantalla de inicio para activar sonido */
         #overlay-inicio {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(16, 58, 87, 0.95); z-index: 200;
@@ -26,9 +24,9 @@
         }
 
         #escenario-ancho {
-            width: 300vw; /* Escenario panorámico */
+            width: 300vw; 
             height: 100vh;
-            background-image: url('habitacion_panoramica.png'); 
+            background-image: url('habitacion_animada.png'); 
             background-size: 100% 100%; 
             background-repeat: no-repeat;
             background-position: center;
@@ -88,7 +86,6 @@
 </div>
 
 <script>
-    // Pool de objetos (obj1.png a obj10.png)
     const poolObjetosHabitacion = [
         { id: 1, nombre: "la lámpara" }, { id: 2, nombre: "la almohada" },
         { id: 3, nombre: "el libro" }, { id: 4, nombre: "la planta" },
@@ -121,7 +118,7 @@
         container.innerHTML = "";
         seleccionados = [];
         
-        let metaFase = faseActual * 2; // 2 -> 4 -> 6
+        let metaFase = faseActual * 2; 
         let copiaPool = [...poolObjetosHabitacion].sort(() => Math.random() - 0.5);
         objetivosActuales = copiaPool.slice(0, metaFase);
 
@@ -132,10 +129,8 @@
         hablar(instruccion);
 
         let itemsParaPantalla = [];
-        // Objetos correctos
         objetivosActuales.forEach(obj => itemsParaPantalla.push({id: obj.id, correcto: true}));
         
-        // Distractores (obj11 al obj20)
         let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
         for(let i=0; i<8; i++) {
             itemsParaPantalla.push({id: distractores[i], correcto: false});
@@ -178,11 +173,12 @@
                 iniciarFase();
             }, 2000);
         } else {
-            hablar("¡Excelente Juan! Has terminado. ¡Sesión terminada!");
+            hablar("¡Excelente Juan! Sesión terminada.");
             setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
         }
     }
 </script>
 </body>
 </html>
+
 
