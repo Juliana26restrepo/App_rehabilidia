@@ -11,8 +11,20 @@
             --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff;
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
-        header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
-        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
+        
+        /* Header corregido para navegación interna */
+        header { 
+            background-color: var(--prussian-blue); 
+            color: var(--white); 
+            padding: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; }
         
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
         
@@ -21,7 +33,6 @@
 
         .video-card { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
         
-        /* Ajuste para Shorts de YouTube */
         .video-wrapper { position: relative; padding-bottom: 177.77%; height: 0; overflow: hidden; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
@@ -33,7 +44,7 @@
 <body>
 
 <header>
-    <a href="index.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
     <span style="font-weight: bold;">BIBLIOTECA PSICOEDUCATIVA</span>
 </header>
 
@@ -80,4 +91,3 @@
     
 </body>
 </html>
-
