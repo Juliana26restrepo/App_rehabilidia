@@ -7,12 +7,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #B0E0E6; }
         
-        /* Ajustado al nombre real con tilde que tienes en GitHub */
         #escenario {
             width: 100vw; height: 100vh;
-            background-image: url('fondo_baño.jpg'); 
+            /* Usando el nombre nuevo que pusiste en GitHub */
+            background-image: url('fondo_bano.jpg'); 
             background-size: cover; background-position: center;
             position: relative; display: flex; align-items: center; justify-content: center;
         }
@@ -29,11 +29,12 @@
         #objetos-container { position: relative; width: 90%; height: 65%; margin-top: 80px; }
         
         .objeto {
-            position: absolute; width: 110px; height: 110px;
+            position: absolute; width: 100px; height: 100px;
             cursor: pointer; transition: transform 0.2s;
             filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.4));
+            object-fit: contain;
         }
-        .objeto.seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2); transform: scale(1.15); border: 2px solid gold; border-radius: 10px; }
+        .objeto.seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2); transform: scale(1.1); border: 2px solid gold; border-radius: 10px; }
         
         .btn-volver { position: absolute; bottom: 20px; left: 20px; padding: 12px 25px; background: var(--p-blue); color: white; border-radius: 15px; text-decoration: none; z-index: 20; font-weight: bold; }
     </style>
@@ -43,7 +44,7 @@
 <div id="escenario">
     <div id="guia">
         <img src="COTERAPEUTA.JPG" alt="Guía">
-        <p id="texto-instruccion">Preparando rutina...</p>
+        <p id="texto-instruccion">Cargando rutina...</p>
     </div>
     <div id="objetos-container"></div>
     <a href="atencion_sesiones.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
@@ -82,14 +83,14 @@
 
         idsParaMostrar.forEach((id, index) => {
             const img = document.createElement('img');
-            // Ajustado a .png minúscula según tu lista de archivos
+            // Usamos .png en minúscula como se ve en tu GitHub
             img.src = `aseo${id}.png`; 
             img.className = 'objeto';
             
             const col = index % 5;
             const row = Math.floor(index / 5);
-            img.style.left = (col * 18 + Math.random() * 5) + "%";
-            img.style.top = (row * 45 + Math.random() * 5) + "%";
+            img.style.left = (col * 18 + 2) + "%";
+            img.style.top = (row * 40 + 5) + "%";
 
             img.onclick = () => {
                 if(seleccionados.includes(id)) return;
@@ -99,8 +100,8 @@
                     hablar("Muy bien.");
                     if(seleccionados.length === 2) finalizar();
                 } else {
-                    hablar("Ese no es.");
-                    img.style.opacity = "0.5";
+                    hablar("Ese no pertenece a la rutina.");
+                    img.style.opacity = "0.4";
                     setTimeout(() => { img.style.opacity = "1"; }, 800);
                 }
             };
@@ -114,11 +115,10 @@
         let sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         sesiones.push(data);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(sesiones));
-        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 4000);
+        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
     }
 
     window.onload = iniciarJuego;
 </script>
 </body>
 </html>
-
