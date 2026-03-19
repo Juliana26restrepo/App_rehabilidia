@@ -2,55 +2,90 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesión 2: Progresiva - REHABILIDIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sesión 2: Exploración - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #B0E0E6; }
         
-        #escenario {
-            width: 100vw; height: 100vh;
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #B0E0E6; 
+        }
+
+        /* Área visible del juego */
+        #pantalla-juego {
+            width: 100vw;
+            height: 100vh;
+            overflow-x: auto; /* Permite que Juan mueva el contenido lateralmente */
+            overflow-y: hidden;
+            display: flex;
+            cursor: grab;
+            scroll-behavior: smooth;
+        }
+
+        #pantalla-juego:active { cursor: grabbing; }
+
+        /* El escenario real es más ancho que la pantalla (150%) */
+        #escenario-ancho {
+            width: 150vw; 
+            height: 100vh;
             background-image: url('fondo_bano.jpg'); 
-            background-size: cover; background-position: center;
-            position: relative; display: flex; align-items: center; justify-content: center;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            flex-shrink: 0;
         }
 
         #guia {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            position: fixed; /* Se queda quieto mientras Juan mueve el fondo */
+            top: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(255,255,255,0.95); padding: 12px; border-radius: 20px;
             border: 4px solid var(--t-blue); width: 80%; max-width: 450px;
-            display: flex; align-items: center; gap: 15px; z-index: 10;
+            display: flex; align-items: center; gap: 15px; z-index: 100;
         }
         #guia img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--t-blue); }
         #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1rem; }
 
-        #objetos-container { position: relative; width: 95%; height: 75%; margin-top: 60px; }
-        
+        .contador-rutinas {
+            position: fixed; top: 110px; right: 20px;
+            background: var(--p-blue); color: white; padding: 5px 15px;
+            border-radius: 10px; font-weight: bold; font-size: 0.8rem; z-index: 100;
+        }
+
         .objeto {
-            position: absolute; width: 85px; height: 85px;
+            position: absolute; width: 90px; height: 90px;
             cursor: pointer; transition: 0.3s;
             filter: drop-shadow(3px 5px 5px rgba(0,0,0,0.3));
             object-fit: contain;
         }
-        .seleccionado { filter: drop-shadow(0px 0px 15px gold) brightness(1.2) !important; transform: scale(1.1); border: 3px solid gold; border-radius: 10px; pointer-events: none; }
-        
-        .contador-rutinas {
-            position: absolute; top: 110px; right: 20px;
-            background: var(--p-blue); color: white; padding: 5px 15px;
-            border-radius: 10px; font-weight: bold; font-size: 0.8rem; z-index: 10;
+        .seleccionado { filter: drop-shadow(0px 0px 20px gold) brightness(1.2) !important; transform: scale(1.1); border: 3px solid gold; border-radius: 10px; pointer-events: none; }
+
+        /* Indicador visual de que hay más a los lados */
+        .flecha-ayuda {
+            position: fixed; bottom: 50%; right: 10px; color: white;
+            font-size: 2rem; animation: bounce 2s infinite; z-index: 90;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
+        @keyframes bounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
 
-<div id="escenario">
-    <div id="guia">
-        <img src="COTERAPEUTA.JPG" alt="Guía">
-        <p id="texto-instruccion">Cargando nivel...</p>
+<div id="guia">
+    <img src="COTERAPEUTA.JPG" alt="Guía">
+    <p id="texto-instruccion">Cargando...</p>
+</div>
+<div class="contador-rutinas" id="progreso">Objetivos: 0 / 0</div>
+
+<div class="flecha-ayuda"><i class="fas fa-chevron-right"></i></div>
+
+<div id="pantalla-juego">
+    <div id="escenario-ancho">
+        <div id="objetos-container"></div>
     </div>
-    <div class="contador-rutinas" id="progreso">Objetivos: 0 / 0</div>
-    <div id="objetos-container"></div>
 </div>
 
 <script>
@@ -67,10 +102,7 @@
 
     let seleccionados = [];
     let objetivosDelNivel = [];
-    let cantidadObjetivos = 2; // Bajo por defecto
-
-    if(nivelActual === 'medio') cantidadObjetivos = 4;
-    if(nivelActual === 'alto') cantidadObjetivos = 6;
+    let cantidadObjetivos = (nivelActual === 'alto') ? 6 : (nivelActual === 'medio' ? 4 : 2);
 
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
@@ -83,40 +115,31 @@
     function iniciarNivel() {
         const container = document.getElementById('objetos-container');
         container.innerHTML = "";
-        seleccionados = [];
-
-        // 1. Seleccionar los objetos correctos según la dificultad
-        let copiaPool = [...poolObjetos];
-        copiaPool.sort(() => Math.random() - 0.5);
+        
+        // Selección de objetivos
+        let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
         objetivosDelNivel = copiaPool.slice(0, cantidadObjetivos);
 
-        // 2. Crear instrucción dinámica
-        let nombresBuscados = objetivosDelNivel.map(o => o.nombre).join(", ");
-        let instruccion = `Juan, por favor busca los siguientes elementos: ${nombresBuscados}.`;
-        
+        let instruccion = `Juan, mueve el baño hacia los lados y busca: ${objetivosDelNivel.map(o => o.nombre).join(", ")}.`;
         document.getElementById('texto-instruccion').innerText = instruccion;
         document.getElementById('progreso').innerText = `Encontrados: 0 / ${cantidadObjetivos}`;
         hablar(instruccion);
 
-        // 3. Mezclar con distractores (aseo11 a aseo20)
+        // Mezclar con distractores
         let idsFinales = objetivosDelNivel.map(o => o.id);
-        let distractores = [11,12,13,14,15,16,17,18,19,20];
-        distractores.sort(() => Math.random() - 0.5);
-        
-        // Añadimos 8 distractores siempre para que haya ruido visual
-        for(let i=0; i<8; i++) { idsFinales.push(distractores[i]); }
+        let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
+        for(let i=0; i<10; i++) { idsFinales.push(distractores[i]); }
         idsFinales.sort(() => Math.random() - 0.5);
 
-        // 4. Dibujar en pantalla
+        // Colocar objetos a lo largo de los 150vw
         idsFinales.forEach((id, index) => {
             const img = document.createElement('img');
             img.src = `aseo${id}.png`; 
             img.className = 'objeto';
             
-            const col = index % 5;
-            const row = Math.floor(index / 3);
-            img.style.left = (col * 18 + 2) + "%";
-            img.style.top = (row * 22 + 5) + "%";
+            // Espaciado a lo largo del fondo ancho
+            img.style.left = (Math.random() * 130 + 5) + "vw"; 
+            img.style.top = (Math.random() * 50 + 25) + "vh";
 
             img.onclick = () => {
                 if(objetivosDelNivel.some(obj => obj.id === id)) {
@@ -124,16 +147,11 @@
                         img.classList.add('seleccionado');
                         seleccionados.push(id);
                         document.getElementById('progreso').innerText = `Encontrados: ${seleccionados.length} / ${cantidadObjetivos}`;
-                        hablar("Muy bien, lo encontraste.");
-                        
-                        if(seleccionados.length === cantidadObjetivos) {
-                            finalizarSesion();
-                        }
+                        hablar("¡Lo encontraste!");
+                        if(seleccionados.length === cantidadObjetivos) finalizarSesion();
                     }
                 } else {
-                    hablar("Ese no es uno de los objetos que buscamos.");
-                    img.style.opacity = "0.5";
-                    setTimeout(() => img.style.opacity = "1", 500);
+                    hablar("Ese no es.");
                 }
             };
             container.appendChild(img);
@@ -141,23 +159,30 @@
     }
 
     function finalizarSesion() {
-        hablar(`¡Excelente Juan! Encontraste los ${cantidadObjetivos} objetos correctamente. Sesión terminada.`);
-        
-        const data = { 
-            fecha: new Date().toLocaleString(), 
-            categoria: "Atención S2", 
-            nivel: nivelActual,
-            aciertos: cantidadObjetivos 
-        };
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        historial.push(data);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 4000);
+        hablar("¡Excelente trabajo Juan! Has encontrado todo.");
+        setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
     }
 
     window.onload = iniciarNivel;
+
+    // Lógica para que Juan pueda arrastrar con el dedo/mouse
+    const slider = document.getElementById('pantalla-juego');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
+    slider.addEventListener('mouseleave', () => { isDown = false; });
+    slider.addEventListener('mouseup', () => { isDown = false; });
+    slider.addEventListener('mousemove', (e) => {
+        if(!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2;
+        slider.scrollLeft = scrollLeft - walk;
+    });
 </script>
 </body>
 </html>
+
 
