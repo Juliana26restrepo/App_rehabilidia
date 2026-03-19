@@ -38,7 +38,7 @@
         #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
 
         .objeto {
-            position: absolute; width: 130px; height: 130px;
+            position: absolute; width: 140px; height: 140px;
             cursor: pointer; transition: 0.3s;
             filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
             object-fit: contain;
@@ -46,7 +46,7 @@
         
         .seleccionado { 
             filter: drop-shadow(0px 0px 25px gold) brightness(1.2) !important; 
-            transform: scale(1.1); border: 4px solid gold; border-radius: 15px; 
+            transform: scale(1.2); border: 4px solid gold; border-radius: 15px; 
             pointer-events: none; 
         }
     </style>
@@ -54,12 +54,13 @@
 <body>
 
 <div id="overlay-inicio" onclick="comenzarSesion()">
-    <h1>Toca para empezar Sesión 1</h1>
+    <i class="fas fa-play-circle" style="font-size: 4rem; margin-bottom: 10px;"></i>
+    <h1>Tocar para iniciar Sesión 1</h1>
 </div>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
-    <p id="texto-instruccion">Juan, toca para empezar.</p>
+    <p id="texto-instruccion">Juan, por favor toca para empezar.</p>
 </div>
 
 <div id="pantalla-juego">
@@ -69,9 +70,11 @@
 </div>
 
 <script>
+    // MAPEO REAL SEGÚN TU LISTA
     const poolNombres = {
-        1: "la lámpara", 2: "la almohada", 3: "el libro", 4: "la planta", 5: "el despertador",
-        6: "el ordenador", 7: "la silla", 8: "la mochila", 9: "el cuadro", 10: "el peluche"
+        1: "el reloj", 2: "las gafas", 3: "el celular", 4: "el libro", 
+        5: "el vaso", 6: "las llaves", 7: "la lámpara", 8: "la gorra",
+        9: "el peine", 10: "la botella"
     };
 
     let faseActual = 1; 
@@ -94,22 +97,24 @@
         const container = document.getElementById('objetos-container');
         container.innerHTML = "";
         
-        // 1. Elegimos UN solo objetivo aleatorio (del 1 al 10)
+        // Seleccionamos un objetivo del 1 al 10
         objetivoId = Math.floor(Math.random() * 10) + 1;
+        
         let instruccion = `Juan, por favor busca ${poolNombres[objetivoId]}.`;
         document.getElementById('texto-instruccion').innerText = instruccion;
         hablar(instruccion);
 
-        // 2. Definimos cantidad de distractores según nivel
+        // Ajuste de distractores por nivel
         let numDistractores = faseActual === 1 ? 4 : (faseActual === 2 ? 8 : 14);
         
         let items = [{id: objetivoId, correcto: true}];
         
-        // 3. Llenamos con distractores (obj 11 al 20)
+        // Pool de distractores (11 al 20)
         let poolDist = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
+        
         for(let i=0; i < numDistractores; i++) {
-            // Si se acaban los 11-20, usamos otros del 1-10 que no sean el objetivo
-            if(poolDist[i]) {
+            // Si necesitamos más de 10 distractores (Nivel 3), repetimos algunos que no sean el objetivo
+            if(i < 10) {
                 items.push({id: poolDist[i], correcto: false});
             } else {
                 let randomExtra = Math.floor(Math.random() * 10) + 1;
@@ -117,15 +122,14 @@
             }
         }
 
-        // Mezclar posiciones
         items.sort(() => Math.random() - 0.5);
 
-        items.forEach((item, index) => {
+        items.forEach((item) => {
             const img = document.createElement('img');
             img.src = `obj${item.id}.png`; 
             img.className = 'objeto';
             
-            // Distribución aleatoria por el escenario de 300vw
+            // Distribución aleatoria en el fondo panorámico
             img.style.left = Math.floor(Math.random() * 250) + 20 + "vw";
             img.style.top = Math.floor(Math.random() * 60) + 20 + "vh";
 
@@ -136,6 +140,8 @@
                     setTimeout(pasarSiguienteNivel, 2000);
                 } else {
                     hablar("Ese no es, sigue buscando.");
+                    img.style.opacity = "0.5";
+                    setTimeout(() => img.style.opacity = "1", 500);
                 }
             };
             container.appendChild(img);
@@ -148,12 +154,11 @@
             document.getElementById('pantalla-juego').scrollLeft = 0;
             iniciarFase();
         } else {
-            hablar("Excelente Juan, terminamos por hoy.");
+            hablar("Excelente Juan, terminamos la sesión de hoy.");
             setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3000);
         }
     }
 </script>
 </body>
 </html>
-
 
