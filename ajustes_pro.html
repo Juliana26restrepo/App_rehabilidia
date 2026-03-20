@@ -16,7 +16,8 @@
             background: var(--p-blue); color: white; padding: 20px; 
             display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100;
         }
-        .btn-back { color: white; text-decoration: none; font-size: 1.4rem; cursor: pointer; border: none; background: none; padding: 5px; }
+        /* Estilo para el enlace de volver */
+        .btn-back { color: white; text-decoration: none; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
 
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; padding-bottom: 50px; }
 
@@ -79,9 +80,9 @@
 <body>
 
 <header>
-    <button onclick="window.history.back()" class="btn-back">
+    <a href="perfil_neuropsicologo.html" class="btn-back">
         <i class="fas fa-arrow-left"></i>
-    </button>
+    </a>
     <h2 style="margin:0; font-size:1.1rem; letter-spacing: 0.5px;">Configuración Profesional</h2>
 </header>
 
@@ -115,31 +116,4 @@
         <div class="menu-item" onclick="alert('Abriendo calendario de turnos...')">
             <i class="fas fa-calendar-alt"></i>
             <span class="label">Horarios de Disponibilidad</span>
-            <i class="fas fa-chevron-right" style="color:#d1d1d1; font-size:0.8rem;"></i>
-        </div>
-        <div class="menu-item" onclick="alert('Cargando opciones de seguridad...')">
-            <i class="fas fa-user-shield"></i>
-            <span class="label">Centro de Privacidad</span>
-            <i class="fas fa-chevron-right" style="color:#d1d1d1; font-size:0.8rem;"></i>
-        </div>
-    </div>
-
-    <div class="menu-group">
-        <div class="menu-item" onclick="alert('Ayuda y Soporte técnico')">
-            <i class="fas fa-headset"></i>
-            <span class="label">Soporte REHABILIDIA</span>
-            <i class="fas fa-chevron-right" style="color:#d1d1d1; font-size:0.8rem;"></i>
-        </div>
-    </div>
-
-    <a href="login.html" class="btn-logout">Cerrar Sesión Profesional</a>
-    
-    <div class="footer-info">
-        <strong>REHABILIDIA Pro v3.2.0</strong><br>
-        ID de Licencia: RH-8829-2026<br>
-        Sistema de salud verificado
-    </div>
-</div>
-
-</body>
-</html>
+            <i class="
