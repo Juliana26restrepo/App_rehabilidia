@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración Profesional - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9;
+            --white: #ffffff; --gray: #6c757d;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--p-blue); }
+        
+        header { 
+            background: var(--p-blue); color: white; padding: 20px; 
+            display: flex; align-items: center; gap: 15px; 
+        }
+        .btn-back { color: white; text-decoration: none; font-size: 1.2rem; }
+
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; pb: 50px; }
+
+        /* PERFIL CARD */
+        .profile-section {
+            background: white; border-radius: 20px; padding: 30px;
+            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .profile-img {
+            width: 100px; height: 100px; background: var(--t-blue);
+            border-radius: 50%; margin: 0 auto 15px; display: flex;
+            align-items: center; justify-content: center; color: white;
+            font-size: 2.5rem; position: relative; border: 4px solid var(--pas-blue);
+        }
+        .edit-badge {
+            position: absolute; bottom: 0; right: 0; background: var(--p-blue);
+            width: 30px; height: 30px; border-radius: 50%; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; border: 2px solid white;
+        }
+
+        /* OPCIONES */
+        .menu-group { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .menu-item {
+            display: flex; align-items: center; padding: 18px 20px;
+            text-decoration: none; color: var(--p-blue); border-bottom: 1px solid #f0f0f0;
+            transition: 0.3s;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { background: #f8f9fa; }
+        .menu-item i { width: 30px; font-size: 1.2rem; color: var(--t-blue); }
+        .menu-item .label { flex: 1; font-weight: 500; }
+        .menu-item .arrow { color: #ccc; font-size: 0.9rem; }
+
+        /* SWITCH TOGGLE */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 14px; width: 14px;
+            left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--t-blue); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .btn-logout {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            border: 2px solid #ff4d4d; color: #ff4d4d; text-align: center;
+            text-decoration: none; font-weight: bold; margin-top: 30px; transition: 0.3s;
+        }
+        .btn-logout:hover { background: #ff4d4d; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="panel_profesional.html" class="btn-back"><i class="fas fa-chevron-left"></i></a>
+    <h2 style="margin:0; font-size:1.2rem;">Configuración</h2>
+</header>
+
+<div class="container">
+    <div class="profile-section">
+        <div class="profile-img">
+            <i class="fas fa-user-md"></i>
+            <div class="edit-badge"><i class="fas fa-camera"></i></div>
+        </div>
+        <h3 style="margin:10px 0 5px;">Dra. Elena Valderrama</h3>
+        <p style="margin:0; color:var(--gray); font-size:0.9rem;">Fisioterapeuta Especialista</p>
+    </div>
+
+    <div class="menu-group">
+        <div class="menu-item">
+            <i class="fas fa-bell"></i>
+            <span class="label">Notificaciones de chat</span>
+            <label class="switch">
+                <input type="checked" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <a href="#" class="menu-item" onclick="alert('Editar Firma Digital')">
+            <i class="fas fa-signature"></i>
+            <span class="label">Firma Digital (PDFs)</span>
+            <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+        </a>
+    </div>
+
+    <div class="menu-group">
+        <a href="#" class="menu-item" onclick="alert('Configurar Horarios')">
+            <i class="fas fa-calendar-alt"></i>
+            <span class="label">Mi Disponibilidad</span>
+            <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+        </a>
+        <a href="#" class="menu-item" onclick="alert('Cambiar Contraseña')">
+            <i class="fas fa-lock"></i>
+            <span class="label">Seguridad y Acceso</span>
+            <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+        </a>
+    </div>
+
+    <div class="menu-group">
+        <a href="#" class="menu-item" onclick="alert('Centro de Ayuda')">
+            <i class="fas fa-question-circle"></i>
+            <span class="label">Ayuda y Soporte</span>
+            <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+        </a>
+    </div>
+
+    <a href="login.html" class="btn-logout">Cerrar Sesión</a>
+    
+    <p style="text-align:center; color:#aaa; font-size:0.75rem; margin-top:20px;">
+        REHABILIDIA v3.2.0 <br> Licencia Profesional Activa
+    </p>
+</div>
+
+</body>
+</html>
 
