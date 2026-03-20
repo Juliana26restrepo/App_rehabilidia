@@ -3,113 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Atención 3 - REHABILIDIA</title>
+    <title>Sesión 3: Atención - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --green: #2ecc71; --red: #e74c3c; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
-        #game-container {
-            position: relative; width: 100vw; height: 100vh;
-            background: url('img/fondo_habitacion3.jpg') no-repeat center center;
-            background-size: cover; display: none;
-        }
-
-        /* METAS MÁS GRANDES Y ORGANIZADAS */
-        .contenedor-metas {
-            position: absolute; top: 38%; left: 50%;
-            transform: translateX(-50%);
-            display: flex; gap: 40px; z-index: 5;
-            width: 95%; justify-content: center;
-        }
-        .drop-zone {
-            width: 220px; height: 250px; 
-            border: 5px dashed rgba(255,255,255,0.6);
-            border-radius: 25px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; background: rgba(255,255,255,0.2);
-            transition: all 0.3s;
-        }
-        .drop-zone img { width: 160px; pointer-events: none; }
-        .drop-zone span { color: white; font-weight: bold; font-size: 22px; margin-top: 10px; text-shadow: 2px 2px 5px #000; }
-
-        /* CUADRÍCULA SEGURA (OBJETOS DENTRO) */
-        #area-suelo-segura {
-            position: absolute; bottom: 5%; left: 5%;
-            width: 90%; height: 28%;
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            grid-template-rows: repeat(2, 1fr);
-            gap: 15px; z-index: 10;
-            padding: 10px; box-sizing: border-box;
-        }
-        .celda { display: flex; align-items: center; justify-content: center; position: relative; }
-        .draggable {
-            width: 95px; height: 95px; 
-            cursor: grab; touch-action: none;
-            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
-        }
-
-        /* COTERAPEUTA ESTILO EJERCICIO 2 */
-        #coterapeuta-box {
-            position: absolute; bottom: 15px; left: 20px;
-            display: flex; align-items: flex-end; z-index: 100;
-        }
-        #avatar-guia { 
-            width: 170px; border-radius: 20px; border: 4px solid white; 
-            background: white; transition: transform 0.2s;
-        }
-        #bocadillo {
-            background: white; border-radius: 20px; padding: 18px;
-            margin-bottom: 110px; margin-left: -20px; max-width: 260px;
-            font-size: 1.1rem; font-weight: bold; color: var(--p-blue);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5); display: none;
-            position: relative;
-        }
-        #bocadillo::after {
-            content: ''; position: absolute; left: 20px; bottom: -15px;
-            border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 15px solid white;
-        }
-
-        #mosca { position: absolute; width: 70px; z-index: 200; display: none; pointer-events: none; }
-
+        /* PANTALLA DE INICIO (Activación de voz) */
         #overlay-inicio {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(16, 58, 87, 0.98); z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: white; text-align: center;
         }
+
+        /* CONTENEDOR CON SCROLL HORIZONTAL */
+        #game-viewport {
+            position: relative; width: 100vw; height: 100vh;
+            overflow-x: auto; /* PERMITIR MOVER LA PANTALLA DERECHA/IZQUIERDA */
+            overflow-y: hidden;
+            display: none;
+        }
+
+        /* MUNDO EXTENDIDO PARA SCROLL (200% de ancho) */
+        #game-world {
+            position: relative; width: 200vw; height: 100vh;
+            background: url('img/fondo_habitacion3.jpg') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* METAS DISTRIBUIDAS A LO LARGO DEL SCROLL */
+        .contenedor-metas {
+            position: absolute; top: 38%; width: 100%;
+            display: flex; justify-content: space-around; padding: 0 100px;
+            box-sizing: border-box; z-index: 5;
+        }
+        .drop-zone {
+            width: 250px; height: 250px; /* TAMAÑO MÁS GRANDE */
+            border: 5px dashed rgba(255,255,255,0.7);
+            border-radius: 30px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .drop-zone img { width: 160px; pointer-events: none; }
+        .drop-zone span { color: white; font-weight: bold; font-size: 24px; margin-top: 10px; text-shadow: 2px 2px 5px #000; }
+
+        /* CUADRÍCULA SEGURA (Mismos márgenes para evitar recortes) */
+        #area-suelo-segura {
+            position: absolute; bottom: 5%; left: 5vw;
+            width: 90vw; height: 30%;
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px; z-index: 10;
+        }
+        .celda { display: flex; align-items: center; justify-content: center; position: relative; }
+        .draggable {
+            width: 100px; height: 100px; /* Tamaño ideal */
+            cursor: grab; touch-action: none;
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.6));
+        }
+
+        /* COTERAPEUTA ESTILO EJERCICIO 2 (Fijo y Bocadillo arriba) */
+        #coterapeuta-container {
+            position: fixed; bottom: 20px; left: 20px;
+            display: flex; align-items: flex-end; z-index: 1000;
+        }
+        #avatar-guia { width: 180px; border-radius: 20px; border: 4px solid white; background: white; }
+        #bocadillo {
+            background: white; border-radius: 20px; padding: 15px 20px;
+            margin-bottom: 110px; margin-left: -15px; max-width: 250px;
+            font-size: 1.1rem; font-weight: bold; color: var(--p-blue);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5); display: none;
+        }
+
+        /* MOSCA (Nivel 3) */
+        #mosca { position: absolute; width: 70px; z-index: 200; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div id="overlay-inicio">
-    <img src="COTERAPEUTA.JPG" style="width: 220px; border-radius: 50%; border: 6px solid white; margin-bottom: 25px;">
+    <img src="COTERAPEUTA.JPG" style="width: 200px; border-radius: 50%; border: 6px solid white; margin-bottom: 20px;">
     <h1>Sesión 3: Atención</h1>
-    <button style="padding: 25px 60px; background: var(--green); color: white; border: none; border-radius: 60px; font-size: 2.2rem; font-weight: bold;" 
-            onclick="iniciarJuego()">¡COMENZAR!</button>
+    <button style="padding: 20px 60px; background: var(--green); color: white; border: none; border-radius: 50px; font-size: 2.2rem; font-weight: bold; cursor: pointer;" 
+            onclick="iniciarEjercicio()">¡COMENZAR!</button>
 </div>
 
-<header style="position: absolute; top: 0; width: 100%; padding: 20px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1000;">
-    <a href="perfil_paciente.html" style="color:white; text-decoration:none; font-size: 1.3rem;"><i class="fas fa-arrow-left"></i> Volver</a>
-    <div id="hits-display" style="font-size: 1.8rem; font-weight: bold;">ACIERTO: 0/3</div>
+<header style="position: fixed; top: 0; width: 100%; padding: 20px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1100;">
+    <a href="perfil_paciente.html" style="color:white; text-decoration:none;"><i class="fas fa-arrow-left"></i> Volver</a>
+    <div id="hits-display" style="font-size: 1.6rem; font-weight: bold;">ACIERTO: 0/3</div>
 </header>
 
-<div id="game-container">
-    <img src="img/D_mosca.png" id="mosca">
-    
-    <div class="contenedor-metas">
-        <div class="drop-zone" data-type="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
-        <div class="drop-zone" data-type="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
-        <div class="drop-zone" data-type="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
-    </div>
+<div id="game-viewport">
+    <div id="game-world">
+        <img src="img/D_mosca.png" id="mosca">
+        
+        <div class="contenedor-metas">
+            <div class="drop-zone" data-type="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
+            <div class="drop-zone" data-type="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
+            <div class="drop-zone" data-type="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
+        </div>
 
-    <div id="area-suelo-segura"></div>
-
-    <div id="coterapeuta-box">
-        <div id="bocadillo"></div>
-        <img src="COTERAPEUTA.JPG" id="avatar-guia">
+        <div id="area-suelo-segura"></div>
     </div>
+</div>
+
+<div id="coterapeuta-container">
+    <div id="bocadillo"></div>
+    <img src="COTERAPEUTA.JPG" id="avatar-guia">
 </div>
 
 <script>
@@ -117,20 +119,22 @@
     let aciertos = 0;
     const config = { 1: {items: 1, dist: 0}, 2: {items: 2, dist: 3}, 3: {items: 3, dist: 1} };
 
+    // FUNCIÓN DE VOZ SIN ARCHIVO (SÍNTESIS) Y BOCADILLO
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
         msg.rate = 1.0;
         window.speechSynthesis.speak(msg);
-        const boc = document.getElementById('bocadillo');
-        boc.innerText = mensaje; boc.style.display = 'block';
-        setTimeout(() => boc.style.display = 'none', 5500);
+        const bocadillo = document.getElementById('bocadillo');
+        bocadillo.innerText = mensaje;
+        bocadillo.style.display = 'block';
+        setTimeout(() => { bocadillo.style.display = 'none'; }, 6000);
     }
 
-    function iniciarJuego() {
+    function iniciarEjercicio() {
         document.getElementById('overlay-inicio').style.display = 'none';
-        document.getElementById('game-container').style.display = 'block';
+        document.getElementById('game-viewport').style.display = 'block';
         hablar("¡Hola! Vamos a organizar. Pon la ropa en el armario, los libros en el estante y la basura en el cesto.");
         generarNivel();
     }
@@ -139,8 +143,8 @@
         const grid = document.getElementById('area-suelo-segura');
         grid.innerHTML = "";
         aciertos = 0;
-        const totalAciertos = config[nivel].items * 3;
-        document.getElementById('hits-display').innerText = `ACIERTO: 0/${totalAciertos}`;
+        const total = config[nivel].items * 3;
+        document.getElementById('hits-display').innerText = `ACIERTO: 0/${total}`;
 
         let pool = [];
         ['R', 'L', 'B'].forEach(t => {
@@ -148,7 +152,6 @@
             for(let i=0; i<config[nivel].items; i++) pool.push({tipo: t, img: `${t}${nums[i]}`});
         });
         for(let i=0; i<config[nivel].dist; i++) pool.push({tipo: 'D', img: `D${Math.floor(Math.random()*5)+1}`});
-
         pool.sort(() => Math.random() - 0.5);
 
         for(let i=0; i<10; i++) {
@@ -167,11 +170,15 @@
         if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
     }
 
+    // ARRASTRE MEJORADO (Funciona bien con scroll horizontal)
     function makeDraggable(el) {
+        let offsetX, offsetY;
         const start = (e) => {
             const ev = e.touches ? e.touches[0] : e;
             el.style.position = 'fixed';
             el.style.zIndex = 1000;
+            offsetX = ev.clientX - el.offsetLeft;
+            offsetY = ev.clientY - el.offsetTop;
             move(e);
             document.addEventListener('touchmove', move, {passive: false});
             document.addEventListener('touchend', end);
@@ -179,8 +186,8 @@
         const move = (e) => {
             e.preventDefault();
             const ev = e.touches ? e.touches[0] : e;
-            el.style.left = (ev.clientX - 50) + "px";
-            el.style.top = (ev.clientY - 50) + "px";
+            el.style.left = (ev.clientX - offsetX) + "px";
+            el.style.top = (ev.clientY - offsetY) + "px";
         };
         const end = (e) => {
             document.removeEventListener('touchmove', move);
@@ -188,6 +195,7 @@
             const ev = e.changedTouches[0];
             verificar(el, ev);
         };
+        el.addEventListener('mousedown', start);
         el.addEventListener('touchstart', start, {passive: false});
     }
 
@@ -197,6 +205,7 @@
 
         metas.forEach(m => {
             const r = m.getBoundingClientRect();
+            // Comprobación de colisión precisa
             if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
                 if(el.dataset.tipo === m.dataset.type) {
                     el.style.display = "none"; aciertos++;
@@ -204,12 +213,13 @@
                     hablar("¡Muy bien!"); cambiarAvatar("COTERAPEUTA_FELIZ.JPG");
                     acertoMeta = true;
                 } else if(el.dataset.tipo !== 'D') {
-                    hablar("Ese no va ahí, inténtalo de nuevo."); cambiarAvatar("COTERAPEUTA_PENSATIVO.JPG");
+                    hablar("Ese no va ahí."); cambiarAvatar("COTERAPEUTA_PENSATIVO.JPG");
                 }
             }
         });
 
         if(!acertoMeta) {
+            // Devolver suavemente a su celda original
             el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0';
         }
 
@@ -217,28 +227,28 @@
             setTimeout(() => {
                 if(nivel < 3) {
                     nivel++;
-                    hablar("¡Vas muy bien! Ahora sigamos organizando la habitación.");
+                    hablar("¡Vas muy bien! Ahora sigamos.");
                     generarNivel();
                 } else {
-                    hablar("¡Excelente! Has terminado el ejercicio.");
+                    hablar("¡Excelente! Has terminado.");
                     setTimeout(() => window.location.href="perfil_paciente.html", 3500);
                 }
             }, 1000);
         }
     }
 
+    // CAMBIAR IMAGEN DEL AVATAR ( Feedback Visual)
+    function cambiarAvatar(src) {
+        const a = document.getElementById('avatar-guia');
+        a.src = src; setTimeout(() => { a.src = "COTERAPEUTA.JPG"; }, 2000);
+    }
+
     function moverMosca() {
         if(nivel !== 3) return;
         const m = document.getElementById('mosca');
-        m.style.left = (Math.random() * 80 + 10) + "vw";
+        m.style.left = (Math.random() * 180 + 10) + "vw"; // Mover por todo el mundo extendido
         m.style.top = (Math.random() * 70 + 10) + "vh";
-        setTimeout(moverMosca, 1200);
-    }
-
-    function cambiarAvatar(src) {
-        const a = document.getElementById('avatar-guia');
-        a.src = src; a.style.transform = "scale(1.1)";
-        setTimeout(() => { a.src = "COTERAPEUTA.JPG"; a.style.transform = "scale(1)"; }, 2000);
+        setTimeout(moverMosca, 1000);
     }
 </script>
 </body>
