@@ -14,59 +14,63 @@
             background-size: cover; z-index: 1;
         }
 
+        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; z-index: 3000; box-sizing: border-box; }
+
         /* COTERAPEUTA */
         #guia-box {
-            position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; background: white;
             border: 4px solid var(--t-blue); border-radius: 50px;
-            padding: 8px 20px; width: 70%; max-width: 500px; z-index: 1000;
+            padding: 10px 20px; width: 85%; max-width: 650px; z-index: 1000;
         }
-        #avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--t-blue); margin-right: 15px; }
-        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #avatar { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
-        /* POSICIONAMIENTO DE METAS (SIN SOBREPONER) */
+        /* METAS DISTRIBUIDAS */
         .meta {
-            position: absolute; width: 180px; height: 220px;
-            border: 3px dashed rgba(255,255,255,0.5); border-radius: 20px;
-            background: rgba(255,255,255,0.1); display: flex; flex-direction: column;
+            position: absolute; width: 200px; height: 260px;
+            border: 4px dashed rgba(255,255,255,0.7); border-radius: 25px;
+            background: rgba(255,255,255,0.2); display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 10;
         }
-        .meta img { width: 100px; pointer-events: none; }
-        .meta span { color: white; font-weight: bold; font-size: 0.9rem; margin-top: 5px; text-shadow: 2px 2px 4px #000; }
+        .meta img { width: 130px; pointer-events: none; }
+        .meta span { color: white; font-weight: bold; font-size: 1.2rem; margin-top: 8px; text-shadow: 2px 2px 4px #000; }
 
-        #target-armario { top: 150px; left: 30px; }
-        #target-cesto { bottom: 30px; left: 30px; }
-        #target-estante { top: 50%; left: 240px; transform: translateY(-50%); }
+        #meta-R { top: 180px; left: 40px; } /* Armario Arriba */
+        #meta-B { bottom: 40px; left: 40px; } /* Cesto Abajo */
+        #meta-L { top: 50%; left: 280px; transform: translateY(-50%); } /* Estante Medio-Derecha */
 
-        /* ÁREA DE ESTÍMULOS A LA DERECHA */
-        #col-objetos {
-            position: absolute; top: 150px; right: 40px; bottom: 40px;
+        /* OBJETOS A LA DERECHA */
+        #contenedor-objetos {
+            position: absolute; top: 180px; right: 40px; bottom: 40px;
             width: 250px; display: grid; grid-template-columns: 1fr 1fr;
-            gap: 15px; align-content: start; z-index: 20;
+            gap: 20px; align-content: start; z-index: 20;
         }
-        .draggable { width: 90px; height: 90px; cursor: grab; touch-action: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+        .draggable { width: 110px; height: 110px; cursor: grab; touch-action: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); z-index: 25; }
 
-        header { position: fixed; top: 0; width: 100%; padding: 10px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; z-index: 1100; box-sizing: border-box; }
+        #mosca { position: absolute; width: 65px; z-index: 5000; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <header>
     <div style="font-weight:bold;">Sesión 3 - Atención</div>
-    <div id="puntos" style="font-size: 1.2rem; font-weight: bold;">ACIERTO: 0/3</div>
+    <div id="puntos" style="font-size: 1.4rem; font-weight: bold;">ACIERTO: 0/3</div>
 </header>
 
 <div id="game-container">
+    <img src="img/D_mosca.png" id="mosca">
+    
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Organiza la habitación.</p>
+        <p id="texto-guia">Cargando...</p>
     </div>
 
-    <div class="meta" data-tipo="R" id="target-armario"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
-    <div class="meta" data-tipo="B" id="target-cesto"><img src="img/meta_cesto.png"><span>CESTO</span></div>
-    <div class="meta" data-tipo="L" id="target-estante"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
+    <div class="meta" data-tipo="R" id="meta-R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
+    <div class="meta" data-tipo="L" id="meta-L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
+    <div class="meta" data-tipo="B" id="meta-B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
 
-    <div id="col-objetos"></div>
+    <div id="contenedor-objetos"></div>
 </div>
 
 <script>
@@ -81,47 +85,58 @@
         document.getElementById('texto-guia').innerText = msg;
         const img = document.getElementById('avatar');
         img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
+        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2500);
     }
 
     function cargarNivel() {
-        const contenedor = document.getElementById('col-objetos');
-        contenedor.innerHTML = ""; aciertos = 0;
+        const div = document.getElementById('contenedor-objetos');
+        div.innerHTML = ""; aciertos = 0;
         let pool = [];
 
         ['R', 'L', 'B'].forEach(t => {
             for(let i=0; i<config[nivel]; i++) pool.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
         });
 
-        if(nivel >= 2) {
-            let nD = (nivel === 2) ? 3 : 1;
-            for(let i=0; i<nD; i++) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
-        }
+        if(nivel === 2) for(let i=0; i<3; i++) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
+        if(nivel === 3) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
 
         pool.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
             img.src = `img/${item.img}`; img.className = 'draggable'; img.dataset.t = item.t;
             activarDrag(img);
-            contenedor.appendChild(img);
+            div.appendChild(img);
         });
 
         document.getElementById('puntos').innerText = `ACIERTO: 0/${config[nivel]*3}`;
+        
+        const instruccion = "Ordena la habitación: pon la ropa en el armario, los libros en el estante y la basura en el cesto.";
+        hablar(instruccion);
+        
+        if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
     }
 
     function activarDrag(el) {
         el.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
-            el.style.position = 'fixed'; el.style.zIndex = 5000;
+            const startX = touch.clientX - el.offsetLeft;
+            const startY = touch.clientY - el.offsetTop;
+            
+            el.style.position = 'fixed';
+            el.style.zIndex = 10000;
+
             const mover = (me) => {
                 me.preventDefault();
                 const mt = me.touches[0];
-                el.style.left = (mt.clientX - 45) + 'px';
-                el.style.top = (mt.clientY - 45) + 'px';
+                el.style.left = (mt.clientX - 55) + 'px';
+                el.style.top = (mt.clientY - 55) + 'px';
             };
+
             const soltar = (se) => {
                 document.removeEventListener('touchmove', mover);
                 document.removeEventListener('touchend', soltar);
                 verificar(el, se.changedTouches[0]);
             };
+
             document.addEventListener('touchmove', mover, {passive: false});
             document.addEventListener('touchend', soltar);
         });
@@ -130,35 +145,45 @@
     function verificar(el, pos) {
         const metas = document.querySelectorAll('.meta');
         let acerto = false;
-        const total = config[nivel] * 3;
+        const centroX = pos.clientX;
+        const centroY = pos.clientY;
 
         metas.forEach(m => {
             const r = m.getBoundingClientRect();
-            // Detección de colisión mejorada
-            if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
+            // DETECCIÓN MATEMÁTICA PURA
+            if(centroX > r.left && centroX < r.right && centroY > r.top && centroY < r.bottom) {
                 if(el.dataset.t === m.dataset.tipo) {
                     el.style.display = 'none'; aciertos++; acerto = true;
-                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${total}`;
-                    hablar("¡Muy bien!", "FELIZ");
+                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
+                    hablar("¡Excelente!", "FELIZ");
                 } else if(el.dataset.t !== 'D') {
-                    hablar("Ahí no va.", "PENSATIVO");
+                    hablar("Ese no va ahí.", "PENSATIVO");
+                } else {
+                    hablar("Ese es un distractor.", "PENSATIVO");
                 }
             }
         });
 
         if(!acerto) {
-            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 20;
+            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 25;
         }
 
-        if(aciertos === total) {
+        if(aciertos === config[nivel]*3) {
             setTimeout(() => {
-                if(nivel < 3) { nivel++; hablar("¡Nivel superado!"); cargarNivel(); }
-                else { hablar("¡Excelente! Has terminado."); }
-            }, 1000);
+                if(nivel < 3) { nivel++; cargarNivel(); }
+                else { hablar("¡Felicidades! Has terminado el ejercicio."); }
+            }, 1500);
         }
     }
 
-    window.onload = () => { cargarNivel(); hablar("Organiza la habitación."); };
+    function moverMosca() {
+        if(nivel !== 3) return;
+        const m = document.getElementById('mosca');
+        m.style.left = Math.random() * 85 + "vw"; m.style.top = Math.random() * 80 + "vh";
+        setTimeout(moverMosca, 1000);
+    }
+
+    window.onload = cargarNivel;
 </script>
 </body>
 </html>
