@@ -8,7 +8,6 @@
         :root { --p-blue: #103A57; --t-blue: #307B8E; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
-        /* DISEÑO FIJADO SEGÚN IMAGEN 1000216423.png */
         #viewport {
             width: 100vw; height: 100vh;
             overflow-x: auto; overflow-y: hidden;
@@ -55,7 +54,7 @@
 <body>
 
 <header>
-    <div style="font-weight:bold;">Volver</div>
+    <div style="font-weight:bold;">Sesión 3</div>
     <div id="puntos" style="font-size: 1.4rem; font-weight: bold;">ACIERTO: 0/3</div>
 </header>
 
@@ -74,7 +73,7 @@
 
 <div id="guia-container">
     <img src="COTERAPEUTA.JPG" id="avatar">
-    <p id="texto">Ordena la habitación: ropa al armario, libros al estante y basura al cesto.</p>
+    <p id="texto">Ordena la habitación.</p>
 </div>
 
 <script>
@@ -89,37 +88,28 @@
         document.getElementById('texto').innerText = msg;
         const img = document.getElementById('avatar');
         img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
-        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2500);
+        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2000);
     }
 
     function cargarNivel() {
         const contenedor = document.getElementById('objetos-suelo');
         contenedor.innerHTML = ""; aciertos = 0;
         let lista = [];
-        
-        // Estímulos Diana
         ['R', 'L', 'B'].forEach(t => {
             for(let i=0; i<config[nivel]; i++) lista.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
         });
-
-        // DISTRACTORES (Nivel 2 y 3)
         if(nivel >= 2) {
             let cantD = (nivel === 2) ? 3 : 1;
             for(let i=0; i<cantD; i++) lista.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
         }
-
         lista.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
             img.src = `img/${item.img}`; img.className = 'objeto'; img.dataset.t = item.t;
             activarArrastre(img);
             contenedor.appendChild(img);
         });
-        
         document.getElementById('puntos').innerText = `ACIERTO: 0/${config[nivel]*3}`;
-        
-        // MOSCA (Solo Nivel 3)
         if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
-        else { document.getElementById('mosca').style.display = 'none'; }
     }
 
     function activarArrastre(el) {
@@ -142,22 +132,30 @@
         });
     }
 
+    // CORRECCIÓN CRÍTICA: COMPENSACIÓN DE SCROLL
     function chequear(el, pos) {
         const metas = document.querySelectorAll('.meta');
         let acertoMeta = false;
+        
+        // Sumamos el scroll horizontal a la posición X del dedo
+        const scrollX = document.getElementById('viewport').scrollLeft;
+        const xReal = pos.clientX + scrollX;
+        const yReal = pos.clientY;
 
         metas.forEach(meta => {
-            const r = meta.getBoundingClientRect();
-            // Verificamos si el dedo (pos) está dentro de los límites de la meta
-            if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
+            //offsetLeft y offsetTop nos dan la posición REAL dentro del mundo
+            const mX = meta.offsetLeft;
+            const mY = meta.offsetTop;
+            const mW = meta.offsetWidth;
+            const mH = meta.offsetHeight;
+
+            if(xReal > mX && xReal < (mX + mW) && yReal > mY && yReal < (mY + mH)) {
                 if(el.dataset.t === meta.dataset.tipo) {
                     el.style.display = 'none'; aciertos++; acertoMeta = true;
                     document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
                     hablar("¡Muy bien!", "FELIZ");
                 } else if(el.dataset.t !== 'D') {
                     hablar("Ese no va ahí.", "PENSATIVO");
-                } else {
-                    hablar("Eso no va en ningún lado.", "PENSATIVO");
                 }
             }
         });
@@ -169,8 +167,8 @@
         if(aciertos === config[nivel]*3) {
             setTimeout(() => {
                 if(nivel < 3) { nivel++; hablar("¡Nivel superado!"); cargarNivel(); }
-                else { hablar("¡Excelente! Has terminado todos los niveles."); }
-            }, 1500);
+                else { hablar("¡Excelente! Has terminado."); }
+            }, 1000);
         }
     }
 
@@ -186,4 +184,3 @@
 </script>
 </body>
 </html>
-
