@@ -14,7 +14,6 @@
         
         #game-container {
             position: relative; width: 100vw; height: 100vh;
-            /* RUTA AJUSTADA A TU CARPETA IMG */
             background: url('img/fondo_habitacion3.jpg') no-repeat center center;
             background-size: cover;
         }
@@ -52,9 +51,31 @@
             font-weight: bold; font-size: 1.4rem; display: none; z-index: 100;
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
+
+        /* --- ESTILOS DEL COTERAPEUTA --- */
+        #coterapeuta-box {
+            position: absolute; bottom: 10px; left: 10px;
+            display: flex; align-items: flex-end; z-index: 20;
+            pointer-events: none; animation: slideIn 1s ease-out;
+        }
+        #avatar-guia { width: 130px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); }
+        #bocadillo {
+            background: white; border-radius: 15px; padding: 12px;
+            margin-bottom: 60px; margin-left: -10px; max-width: 180px;
+            font-size: 0.85rem; font-weight: bold; color: var(--p-blue);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative;
+        }
+        #bocadillo::after {
+            content: ''; position: absolute; left: -10px; bottom: 10px;
+            border-top: 10px solid transparent; border-bottom: 10px solid transparent;
+            border-right: 10px solid white;
+        }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     </style>
 </head>
 <body>
+
+<audio id="audio-guia" src="audio/instruccion_atencion3.mp3"></audio>
 
 <header>
     <a href="perfil_paciente.html" style="color:white; text-decoration:none;"><i class="fas fa-arrow-left"></i> Salir</a>
@@ -78,6 +99,11 @@
 
     <div id="objects-layer"></div>
     <img src="img/D_mosca.png" id="mosca" style="position:absolute; width:45px; display:none; z-index:9; pointer-events: none;">
+
+    <div id="coterapeuta-box">
+        <img src="img/coterapeuta.png" id="avatar-guia">
+        <div id="bocadillo">¡Hola! Ayúdame a ordenar. Ropa al armario, libros al estante y basura al cesto.</div>
+    </div>
 </div>
 
 <div id="feedback"></div>
@@ -86,7 +112,7 @@
     let nivel = 1;
     let aciertos = 0;
     const feedback = document.getElementById('feedback');
-    const path = "img/"; // RUTA ACTUALIZADA A TU NUEVA ESTRUCTURA
+    const path = "img/";
 
     const config = {
         1: { name: "BAJO", items: 1, dist: 0 },
@@ -102,7 +128,6 @@
         document.getElementById('total-needed').innerText = c.items * 3;
         document.getElementById('objects-layer').innerHTML = "";
         
-        // Crear estímulos Diana (R, L, B)
         ['R','L','B'].forEach(tipo => {
             let elegidos = [];
             for(let i=0; i<c.items; i++) {
@@ -113,18 +138,29 @@
             }
         });
 
-        // Crear Distractores (D)
         for(let i=1; i<=c.dist; i++) {
             createObj(`D${i}`, 'D');
         }
 
-        // Mosca en nivel alto
         const mosca = document.getElementById('mosca');
         if(nivel === 3) {
             mosca.style.display = 'block';
             moverMosca();
         } else {
             mosca.style.display = 'none';
+        }
+
+        // --- LÓGICA DE AUDIO E INSTRUCCIONES ---
+        if(nivel === 1) {
+            const sound = document.getElementById('audio-guia');
+            // Intentar reproducir (fallará si no hay interacción previa, pero se activa al primer toque)
+            sound.play().catch(() => {
+                console.log("Esperando interacción para audio");
+            });
+            // Ocultar bocadillo después de 8 segundos
+            setTimeout(() => {
+                document.getElementById('bocadillo').style.display = 'none';
+            }, 8000);
         }
     }
 
@@ -133,11 +169,8 @@
         img.src = `${path}${name}.png`; 
         img.className = 'draggable';
         img.dataset.tipo = tipo;
-        
-        // Aparecen en el área central para no pisar las metas
         img.style.left = (Math.random() * 40 + 30) + "%";
         img.style.top = (Math.random() * 30 + 35) + "%";
-        
         setupDrag(img);
         document.getElementById('objects-layer').appendChild(img);
     }
@@ -148,13 +181,16 @@
         el.ontouchstart = dragStart;
 
         function dragStart(e) {
+            // Activar audio en el primer movimiento si el navegador lo bloqueó al inicio
+            document.getElementById('audio-guia').play();
+            
             x1 = e.clientX || e.touches[0].clientX;
             y1 = e.clientY || e.touches[0].clientY;
             document.onmousemove = dragMove;
             document.ontouchmove = dragMove;
             document.onmouseup = dragEnd;
             document.ontouchend = dragEnd;
-            el.style.zIndex = 100; // Traer al frente al arrastrar
+            el.style.zIndex = 100;
         }
 
         function dragMove(e) {
@@ -179,23 +215,16 @@
     function checkDrop(obj) {
         const r = obj.getBoundingClientRect();
         const metas = document.querySelectorAll('.drop-zone');
-        let acerto = false;
-
         metas.forEach(m => {
             const mr = m.getBoundingClientRect();
-            // Colisión simple
             if (r.left < mr.right && r.right > mr.left && r.top < mr.bottom && r.bottom > mr.top) {
                 if(obj.dataset.tipo === m.dataset.type) {
                     obj.style.display = "none";
                     aciertos++;
                     document.getElementById('hits').innerText = aciertos;
                     showFeedback("¡Muy bien!", "#2ecc71");
-                    acerto = true;
-                    if(aciertos == config[nivel].items * 3) {
-                        setTimeout(nextLevel, 600);
-                    }
+                    if(aciertos == config[nivel].items * 3) setTimeout(nextLevel, 600);
                 } else {
-                    // Si falla, rebota al centro
                     obj.style.top = "50%";
                     obj.style.left = "50%";
                     showFeedback("¡Ahí no va!", "#e74c3c");
