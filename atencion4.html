@@ -3,66 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Atención 4 - Preparar la Mesa</title>
+    <title>Atención 4 - Preparar la Mesa (Horizontal)</title>
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
+        /* Contenedor principal que forzará la orientación horizontal */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #000; 
+            overflow: hidden; 
+            touch-action: none; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Si el dispositivo está en vertical (portrait), rotamos el juego */
+        @media screen and (orientation: portrait) {
+            #game-wrapper {
+                transform: rotate(90deg);
+                transform-origin: center;
+                width: 100vh; /* El ancho del juego será la altura de la pantalla */
+                height: 100vw; /* La altura del juego será el ancho de la pantalla */
+                position: absolute;
+            }
+        }
+
+        /* Si el dispositivo ya está en horizontal (landscape), no rotamos */
+        @media screen and (orientation: landscape) {
+            #game-wrapper {
+                width: 100vw;
+                height: 100vh;
+                position: relative;
+            }
+        }
+
         #game-container {
-            position: relative; width: 100vw; height: 100vh;
+            width: 100%;
+            height: 100%;
             background: url('img4/fondo_mesa.jpg') no-repeat center center;
-            background-size: cover; z-index: 1;
+            /* Usamos contain para que se vea la mesa completa a lo ancho en horizontal */
+            background-size: contain; 
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
         }
 
-        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; z-index: 3000; box-sizing: border-box; }
+        header { 
+            position: absolute; 
+            top: 0; 
+            width: 100%; 
+            padding: 10px 15px; 
+            background: rgba(16, 58, 87, 0.9); 
+            color: white; 
+            display: flex; 
+            justify-content: space-between; 
+            z-index: 3000; 
+            box-sizing: border-box; 
+            font-size: 0.9rem;
+        }
 
-        /* COTERAPEUTA */
+        /* COTERAPEUTA - AJUSTADO PARA VISTA ROTADA */
         #guia-box {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-            display: flex; align-items: center; background: white;
-            border: 4px solid var(--t-blue); border-radius: 50px;
-            padding: 10px 20px; width: 85%; max-width: 650px; z-index: 1000;
+            position: absolute; 
+            top: 50px; /* Bajado un poco para no tapar el header rotado */
+            left: 50%; 
+            transform: translateX(-50%);
+            display: flex; 
+            align-items: center; 
+            background: white;
+            border: 3px solid var(--t-blue); 
+            border-radius: 40px;
+            padding: 8px 15px; 
+            width: 80%; 
+            max-width: 550px; 
+            z-index: 1000;
         }
-        #avatar { width: 65px; height: 65px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
-        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
+        #avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--t-blue); margin-right: 10px; }
+        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
 
-        /* METAS INVISIBLES EN LA MESA */
-        .meta-invisible { position: absolute; z-index: 5; }
+        /* METAS INVISIBLES EN LA MESA - RECALCULADAS PARA HORIZONTAL */
+        .meta-invisible { 
+            position: absolute; 
+            z-index: 5; 
+            /* border: 2px dashed red; /* Descomenta para depurar posiciones */
+        }
 
-        /* CONTENEDOR DE OBJETOS (DERECHA) */
+        /* CONTENEDOR DE OBJETOS (AHORA ABAJO, ESTILO BARRA DE HERRAMIENTAS) */
         #contenedor-objetos {
-            position: absolute; top: 160px; right: 20px; bottom: 20px;
-            width: 140px; display: flex; flex-direction: column;
-            gap: 15px; align-items: center; z-index: 20;
-            background: rgba(255,255,255,0.2); border-radius: 20px; padding: 15px;
+            position: absolute; 
+            bottom: 10px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%; 
+            height: 90px;
+            display: flex; 
+            flex-direction: row; /* Elementos en fila */
+            gap: 15px; 
+            align-items: center; 
+            justify-content: center;
+            z-index: 20;
+            background: rgba(255,255,255,0.3); 
+            border-radius: 15px; 
+            padding: 10px;
+            box-sizing: border-box;
         }
-        .draggable { width: 100px; height: 100px; cursor: grab; touch-action: none; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+        .draggable { 
+            width: 70px; /* Reducido tamaño base */
+            height: 70px; 
+            cursor: grab; 
+            touch-action: none; 
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)); 
+        }
         
-        /* ESTILO PARA OBJETOS COLOCADOS */
-        .colocado { position: absolute !important; pointer-events: none; z-index: 10; width: 150px; height: 150px; transform: translate(-50%, -50%); }
+        /* ESTILO PARA OBJETOS COLOCADOS EN LA MESA - ESCALADO REALISTA */
+        .colocado-p { position: absolute !important; pointer-events: none; z-index: 10; width: 160px; height: 160px; transform: translate(-50%, -50%); } /* Plato */
+        .colocado-v { position: absolute !important; pointer-events: none; z-index: 11; width: 60px; height: 60px; transform: translate(-50%, -50%); }  /* Vaso */
+        .colocado-t { position: absolute !important; pointer-events: none; z-index: 11; width: 50px; height: 130px; transform: translate(-50%, -50%); } /* Tenedor */
+        .colocado-c { position: absolute !important; pointer-events: none; z-index: 11; width: 50px; height: 130px; transform: translate(-50%, -50%); } /* Cuchillo */
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-weight:bold;">Sesión 4 - Preparar la Mesa</div>
-    <div id="puntos" style="font-size: 1.3rem; font-weight: bold;">PASO: 1/4</div>
-</header>
+<div id="game-wrapper">
+    <div id="game-container">
+        <header>
+            <div style="font-weight:bold;">Sesión 4 - Preparar la Mesa (Horizontal)</div>
+            <div id="puntos" style="font-size: 1.1rem; font-weight: bold;">PASO: 1/4</div>
+        </header>
 
-<div id="game-container">
-    <div id="guia-box">
-        <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
+        <div id="guia-box">
+            <img src="COTERAPEUTA.JPG" id="avatar">
+            <p id="texto-guia">Cargando...</p>
+        </div>
+
+        <div id="target-p" class="meta-invisible" style="width: 180px; height: 180px; top: 55%; left: 50%; transform: translate(-50%, -50%);"></div> <div id="target-v" class="meta-invisible" style="width: 80px; height: 80px; top: 38%; left: 62%;"></div> <div id="target-t" class="meta-invisible" style="width: 70px; height: 150px; top: 48%; left: 38%;"></div> <div id="target-c" class="meta-invisible" style="width: 70px; height: 150px; top: 48%; left: 60%;"></div> <div id="contenedor-objetos"></div>
     </div>
-
-    <div id="target-p" class="meta-invisible" style="width: 250px; height: 250px; top: 55%; left: 50%; transform: translate(-50%, -50%);"></div> <div id="target-v" class="meta-invisible" style="width: 120px; height: 120px; top: 35%; left: 65%;"></div> <div id="target-t" class="meta-invisible" style="width: 100px; height: 180px; top: 45%; left: 30%;"></div> <div id="target-c" class="meta-invisible" style="width: 100px; height: 180px; top: 45%; left: 62%;"></div> <div id="contenedor-objetos"></div>
 </div>
 
 <script>
     let nivel = 1; 
     let pasoActual = 0;
     const secuencia = ['p', 'v', 't', 'c']; 
-    const nombresPasos = ["el plato en el centro", "el vaso arriba a la derecha", "el tenedor a la izquierda", "el cuchillo a la derecha"];
+    const nombresPasos = ["el plato en el centro de la mesa", "el vaso arriba a la derecha del plato", "el tenedor a la izquierda", "el cuchillo a la derecha del plato"];
 
     function hablar(msg, emocion = 'NORMAL') {
         window.speechSynthesis.cancel();
@@ -82,37 +168,47 @@
 
         // Cargamos 1 de cada tipo de la secuencia (p, v, t, c) desde img4/
         secuencia.forEach(tipo => {
-            items.push({tipo: tipo, img: `${tipo}${Math.floor(Math.random()*3)+1}.png`});
+            // Ajuste de tamaño específico inicial en el contenedor
+            let cssSize = tipo === 'p' ? '70px' : (tipo === 'v' ? '50px' : '60px');
+            items.push({tipo: tipo, img: `${tipo}${Math.floor(Math.random()*3)+1}.png`, size: cssSize});
         });
 
         // Añadir distractores (d1, d2...) según nivel
         if(nivel > 1) {
-            let numD = (nivel === 2) ? 2 : 4;
-            for(let i=1; i<=numD; i++) items.push({tipo: 'd', img: `d${i}.png`});
+            let numD = (nivel === 2) ? 2 : 3; // Reducido num distractores por espacio horizontal
+            for(let i=1; i<=numD; i++) items.push({tipo: 'd', img: `d${i}.png`, size: '60px'});
         }
 
         items.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
             img.src = `img4/${item.img}`; 
             img.className = 'draggable'; 
+            img.style.width = item.size; // Aplicar tamaño inicial ajustado
+            img.style.height = item.size;
             img.dataset.tipo = item.tipo;
             activarDrag(img);
             div.appendChild(img);
         });
 
         document.getElementById('puntos').innerText = `PASO: 1/4`;
-        hablar("¡Hola! Vamos a preparar la mesa. Primero, coloca el plato en el centro.");
+        hablar("¡Hola! Vamos a preparar la mesa en su nueva posición. Primero, coloca el plato en el centro.");
     }
 
     function activarDrag(el) {
         el.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
-            el.style.position = 'fixed'; el.style.zIndex = 5000;
+            el.style.position = 'fixed'; 
+            el.style.zIndex = 5000;
+            // Guardar tamaño original para restaurar si falla
+            el.dataset.oldWidth = el.style.width;
+            el.dataset.oldHeight = el.style.height;
+
             const mover = (me) => {
                 me.preventDefault();
                 const mt = me.touches[0];
-                el.style.left = (mt.clientX - 50) + 'px';
-                el.style.top = (mt.clientY - 50) + 'px';
+                // Centrar el objeto bajo el dedo, ajustando por la posible rotación del wrapper
+                el.style.left = (mt.clientX - el.offsetWidth/2) + 'px';
+                el.style.top = (mt.clientY - el.offsetHeight/2) + 'px';
             };
             const soltar = (se) => {
                 document.removeEventListener('touchmove', mover);
@@ -129,12 +225,22 @@
         const metaElem = document.getElementById(`target-${tipoMeta}`);
         const r = metaElem.getBoundingClientRect();
 
+        // Usamos las coordenadas del toque (pos.clientX/Y) directamente contra el rect de la meta
         const enMeta = (pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom);
 
         if (enMeta && el.dataset.tipo === tipoMeta) {
-            el.className = 'colocado';
-            el.style.left = (r.left + r.width/2) + 'px';
-            el.style.top = (r.top + r.height/2) + 'px';
+            // ACIERTO - Aplicar clase de escalado realista final (colocado-p, colocado-v, etc.)
+            el.className = `colocado-${tipoMeta}`;
+            el.style.width = ''; // Limpiar tamaños manuales para usar los de la clase CSS
+            el.style.height = '';
+            
+            // Posicionar centrado en la meta (usando coordenadas relativas al contenedor del juego)
+            // Necesitamos calcular la posición relativa dentro de #game-container, no la absoluta de pantalla
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+            
+            el.style.left = (r.left + r.width/2 - containerRect.left) + 'px';
+            el.style.top = (r.top + r.height/2 - containerRect.top) + 'px';
+            
             document.getElementById('game-container').appendChild(el);
             
             pasoActual++;
@@ -142,25 +248,32 @@
                 document.getElementById('puntos').innerText = `PASO: ${pasoActual + 1}/4`;
                 hablar(`¡Muy bien! Ahora coloca ${nombresPasos[pasoActual]}.`, "FELIZ");
             } else {
-                hablar("¡Excelente! La mesa está lista. Tu capacidad para enfocarte está avanzando.", "FELIZ");
+                hablar("¡Excelente! La mesa horizontal está lista. Tu capacidad para enfocarte está avanzando.", "FELIZ");
                 setTimeout(() => { 
                     if(nivel < 3) { 
                         nivel++; 
                         // Limpiar mesa para el siguiente nivel
-                        document.querySelectorAll('.colocado').forEach(c => c.remove());
+                        document.querySelectorAll('[class^="colocado-"]').forEach(c => c.remove());
                         cargarNivel(); 
                     } else { 
-                        hablar("Has completado todos los niveles. ¡Gran trabajo!"); 
+                        hablar("Has completado todos los niveles de la mesa horizontal. ¡Gran trabajo!"); 
                     }
                 }, 4000);
             }
         } else {
+            // ERROR O FUERA DE ORDEN
             if (el.dataset.tipo === 'd') {
                 hablar("Ese objeto no va en la mesa.", "PENSATIVO");
             } else if (el.dataset.tipo !== tipoMeta) {
                 hablar(`Ese no es el orden correcto. Pon primero ${nombresPasos[pasoActual]}.`, "PENSATIVO");
             }
-            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 20;
+            // Restaurar estado inicial en la barra inferior
+            el.style.position = 'relative'; 
+            el.style.left = '0'; 
+            el.style.top = '0'; 
+            el.style.zIndex = 20;
+            el.style.width = el.dataset.oldWidth;
+            el.style.height = el.dataset.oldHeight;
         }
     }
 
