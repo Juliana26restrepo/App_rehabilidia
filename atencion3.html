@@ -8,72 +8,70 @@
         :root { --p-blue: #103A57; --t-blue: #307B8E; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
-        #viewport {
-            width: 100vw; height: 100vh;
-            overflow-x: auto; overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        #mundo {
-            width: 180vw; height: 100vh;
+        /* FONDO FIJO (SIN SCROLL) */
+        #game-container {
+            position: relative; width: 100vw; height: 100vh;
             background: url('img/fondo_habitacion3.jpg') no-repeat center center;
-            background-size: cover; position: relative;
+            background-size: cover;
         }
 
+        /* COTERAPEUTA ESTILO EJERCICIO 2 */
         #guia-container {
-            position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; background: white;
             border: 4px solid var(--t-blue); border-radius: 50px;
             padding: 10px 25px; width: 85%; max-width: 650px; z-index: 1000;
         }
-        #avatar { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
-        #texto { font-size: 1.2rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
+        #texto { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
+        /* METAS DISTRIBUIDAS EN PANTALLA FIJA */
         .metas-wrapper {
-            position: absolute; top: 35%; width: 100%;
-            display: flex; justify-content: space-around; padding: 0 50px;
+            position: absolute; top: 32%; width: 100%;
+            display: flex; justify-content: space-evenly; padding: 0 10px; box-sizing: border-box;
         }
         .meta {
-            width: 250px; height: 350px; border: 4px dashed rgba(255,255,255,0.6);
-            border-radius: 30px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; background: rgba(255,255,255,0.1);
+            width: 30%; max-width: 250px; height: 320px; 
+            border: 4px dashed rgba(255,255,255,0.6);
+            border-radius: 25px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: rgba(255,255,255,0.15);
         }
-        .meta img { width: 160px; pointer-events: none; }
-        .meta span { color: white; font-weight: bold; font-size: 1.4rem; margin-top: 10px; text-shadow: 2px 2px 4px #000; }
+        .meta img { width: 70%; pointer-events: none; }
+        .meta span { color: white; font-weight: bold; font-size: 1.2rem; margin-top: 10px; text-shadow: 2px 2px 4px #000; }
 
+        /* OBJETOS EN EL SUELO */
         #objetos-suelo {
-            position: fixed; bottom: 5%; left: 0; width: 100%; height: 20%;
-            display: flex; justify-content: center; gap: 25px; align-items: center; z-index: 500;
+            position: absolute; bottom: 5%; left: 0; width: 100%; height: 20%;
+            display: flex; justify-content: center; gap: 20px; align-items: center; z-index: 500;
         }
-        .objeto { width: 110px; height: 110px; cursor: grab; touch-action: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .objeto { width: 100px; height: 100px; cursor: grab; touch-action: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
 
-        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1100; }
-        #mosca { position: absolute; width: 65px; z-index: 600; display: none; pointer-events: none; }
+        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1100; box-sizing: border-box; }
+        #mosca { position: absolute; width: 60px; z-index: 600; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight:bold;">Sesión 3</div>
+    <div style="font-weight:bold;">Sesión 3 - Atención</div>
     <div id="puntos" style="font-size: 1.4rem; font-weight: bold;">ACIERTO: 0/3</div>
 </header>
 
-<div id="viewport">
-    <div id="mundo">
-        <img src="img/D_mosca.png" id="mosca">
-        <div class="metas-wrapper">
-            <div class="meta" data-tipo="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
-            <div class="meta" data-tipo="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
-            <div class="meta" data-tipo="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
-        </div>
+<div id="game-container">
+    <img src="img/D_mosca.png" id="mosca">
+    
+    <div id="guia-container">
+        <img src="COTERAPEUTA.JPG" id="avatar">
+        <p id="texto">Ordena la habitación: ropa al armario, libros al estante y basura al cesto.</p>
     </div>
-</div>
 
-<div id="objetos-suelo"></div>
+    <div class="metas-wrapper">
+        <div class="meta" data-tipo="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
+        <div class="meta" data-tipo="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
+        <div class="meta" data-tipo="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
+    </div>
 
-<div id="guia-container">
-    <img src="COTERAPEUTA.JPG" id="avatar">
-    <p id="texto">Ordena la habitación.</p>
+    <div id="objetos-suelo"></div>
 </div>
 
 <script>
@@ -88,39 +86,45 @@
         document.getElementById('texto').innerText = msg;
         const img = document.getElementById('avatar');
         img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
-        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2000);
+        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2500);
     }
 
     function cargarNivel() {
         const contenedor = document.getElementById('objetos-suelo');
         contenedor.innerHTML = ""; aciertos = 0;
         let lista = [];
+        
         ['R', 'L', 'B'].forEach(t => {
             for(let i=0; i<config[nivel]; i++) lista.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
         });
+
         if(nivel >= 2) {
             let cantD = (nivel === 2) ? 3 : 1;
             for(let i=0; i<cantD; i++) lista.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
         }
+
         lista.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
             img.src = `img/${item.img}`; img.className = 'objeto'; img.dataset.t = item.t;
             activarArrastre(img);
             contenedor.appendChild(img);
         });
+        
         document.getElementById('puntos').innerText = `ACIERTO: 0/${config[nivel]*3}`;
+        
         if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
+        else { document.getElementById('mosca').style.display = 'none'; }
     }
 
     function activarArrastre(el) {
         el.addEventListener('touchstart', (e) => {
-            const t = e.touches[0];
+            const touch = e.touches[0];
             el.style.position = 'fixed'; el.style.zIndex = 2000;
             const mover = (me) => {
                 me.preventDefault();
                 const mt = me.touches[0];
-                el.style.left = (mt.clientX - 55) + 'px';
-                el.style.top = (mt.clientY - 55) + 'px';
+                el.style.left = (mt.clientX - 50) + 'px';
+                el.style.top = (mt.clientY - 50) + 'px';
             };
             const soltar = (se) => {
                 document.removeEventListener('touchmove', mover);
@@ -132,24 +136,13 @@
         });
     }
 
-    // CORRECCIÓN CRÍTICA: COMPENSACIÓN DE SCROLL
     function chequear(el, pos) {
         const metas = document.querySelectorAll('.meta');
         let acertoMeta = false;
-        
-        // Sumamos el scroll horizontal a la posición X del dedo
-        const scrollX = document.getElementById('viewport').scrollLeft;
-        const xReal = pos.clientX + scrollX;
-        const yReal = pos.clientY;
 
         metas.forEach(meta => {
-            //offsetLeft y offsetTop nos dan la posición REAL dentro del mundo
-            const mX = meta.offsetLeft;
-            const mY = meta.offsetTop;
-            const mW = meta.offsetWidth;
-            const mH = meta.offsetHeight;
-
-            if(xReal > mX && xReal < (mX + mW) && yReal > mY && yReal < (mY + mH)) {
+            const r = meta.getBoundingClientRect();
+            if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
                 if(el.dataset.t === meta.dataset.tipo) {
                     el.style.display = 'none'; aciertos++; acertoMeta = true;
                     document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
@@ -167,7 +160,7 @@
         if(aciertos === config[nivel]*3) {
             setTimeout(() => {
                 if(nivel < 3) { nivel++; hablar("¡Nivel superado!"); cargarNivel(); }
-                else { hablar("¡Excelente! Has terminado."); }
+                else { hablar("¡Felicidades! Terminaste el ejercicio."); }
             }, 1000);
         }
     }
@@ -175,7 +168,7 @@
     function moverMosca() {
         if(nivel !== 3) return;
         const m = document.getElementById('mosca');
-        m.style.left = Math.random() * 160 + "vw";
+        m.style.left = Math.random() * 90 + "vw";
         m.style.top = Math.random() * 80 + "vh";
         setTimeout(moverMosca, 1000);
     }
@@ -184,3 +177,4 @@
 </script>
 </body>
 </html>
+
