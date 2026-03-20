@@ -8,73 +8,65 @@
         :root { --p-blue: #103A57; --t-blue: #307B8E; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
-        /* FONDO ESTÁTICO */
         #game-container {
             position: relative; width: 100vw; height: 100vh;
             background: url('img/fondo_habitacion3.jpg') no-repeat center center;
-            background-size: cover; display: flex; z-index: 1;
+            background-size: cover; z-index: 1;
         }
 
-        /* COTERAPEUTA FIJO ARRIBA */
+        /* COTERAPEUTA */
         #guia-box {
-            position: absolute; top: 65px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; background: white;
             border: 4px solid var(--t-blue); border-radius: 50px;
-            padding: 10px 25px; width: 80%; max-width: 600px; z-index: 1000;
+            padding: 8px 20px; width: 70%; max-width: 500px; z-index: 1000;
         }
-        #avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
-        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--t-blue); margin-right: 15px; }
+        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
-        /* COLUMNA IZQUIERDA: METAS */
-        #col-metas {
-            width: 35%; height: 100%; padding: 160px 10px 20px 20px;
-            display: flex; flex-direction: column; justify-content: space-around;
-            box-sizing: border-box; z-index: 5;
-        }
+        /* POSICIONAMIENTO DE METAS (SIN SOBREPONER) */
         .meta {
-            width: 100%; height: 30%; border: 4px dashed rgba(255,255,255,0.6);
-            border-radius: 20px; background: rgba(255,255,255,0.15);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; width: 180px; height: 220px;
+            border: 3px dashed rgba(255,255,255,0.5); border-radius: 20px;
+            background: rgba(255,255,255,0.1); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10;
         }
-        .meta img { width: 45%; pointer-events: none; }
-        .meta span { color: white; font-weight: bold; font-size: 1.1rem; text-shadow: 2px 2px 4px #000; }
+        .meta img { width: 100px; pointer-events: none; }
+        .meta span { color: white; font-weight: bold; font-size: 0.9rem; margin-top: 5px; text-shadow: 2px 2px 4px #000; }
 
-        /* COLUMNA DERECHA: ESTÍMULOS EN GRID */
-        #col-estimulos {
-            width: 65%; height: 100%; padding: 160px 20px 20px 10px;
-            display: grid; grid-template-columns: repeat(3, 1fr); 
-            grid-template-rows: repeat(4, 1fr); gap: 10px;
-            box-sizing: border-box; z-index: 5;
+        #target-armario { top: 150px; left: 30px; }
+        #target-cesto { bottom: 30px; left: 30px; }
+        #target-estante { top: 50%; left: 240px; transform: translateY(-50%); }
+
+        /* ÁREA DE ESTÍMULOS A LA DERECHA */
+        #col-objetos {
+            position: absolute; top: 150px; right: 40px; bottom: 40px;
+            width: 250px; display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; align-content: start; z-index: 20;
         }
-        .celda { display: flex; align-items: center; justify-content: center; }
-        .draggable { width: 90px; height: 90px; cursor: grab; touch-action: none; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.7)); }
+        .draggable { width: 90px; height: 90px; cursor: grab; touch-action: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
 
-        header { position: fixed; top: 0; width: 100%; padding: 12px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1100; box-sizing: border-box; }
-        #mosca { position: absolute; width: 55px; z-index: 2000; display: none; pointer-events: none; }
+        header { position: fixed; top: 0; width: 100%; padding: 10px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; z-index: 1100; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <header>
     <div style="font-weight:bold;">Sesión 3 - Atención</div>
-    <div id="puntos" style="font-size: 1.3rem; font-weight: bold;">ACIERTO: 0/3</div>
+    <div id="puntos" style="font-size: 1.2rem; font-weight: bold;">ACIERTO: 0/3</div>
 </header>
 
 <div id="game-container">
-    <img src="img/D_mosca.png" id="mosca">
-    
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Ordena los objetos en su lugar.</p>
+        <p id="texto-guia">Organiza la habitación.</p>
     </div>
 
-    <div id="col-metas">
-        <div class="meta" data-tipo="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
-        <div class="meta" data-tipo="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
-        <div class="meta" data-tipo="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
-    </div>
+    <div class="meta" data-tipo="R" id="target-armario"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
+    <div class="meta" data-tipo="B" id="target-cesto"><img src="img/meta_cesto.png"><span>CESTO</span></div>
+    <div class="meta" data-tipo="L" id="target-estante"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
 
-    <div id="col-estimulos"></div>
+    <div id="col-objetos"></div>
 </div>
 
 <script>
@@ -92,35 +84,33 @@
     }
 
     function cargarNivel() {
-        const grid = document.getElementById('col-estimulos');
-        grid.innerHTML = ""; aciertos = 0;
+        const contenedor = document.getElementById('col-objetos');
+        contenedor.innerHTML = ""; aciertos = 0;
         let pool = [];
 
         ['R', 'L', 'B'].forEach(t => {
             for(let i=0; i<config[nivel]; i++) pool.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
         });
 
-        if(nivel === 2) for(let i=0; i<3; i++) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
-        if(nivel === 3) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
+        if(nivel >= 2) {
+            let nD = (nivel === 2) ? 3 : 1;
+            for(let i=0; i<nD; i++) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
+        }
 
         pool.sort(() => Math.random() - 0.5).forEach(item => {
-            const celda = document.createElement('div');
-            celda.className = 'celda';
             const img = document.createElement('img');
             img.src = `img/${item.img}`; img.className = 'draggable'; img.dataset.t = item.t;
             activarDrag(img);
-            celda.appendChild(img);
-            grid.appendChild(celda);
+            contenedor.appendChild(img);
         });
 
         document.getElementById('puntos').innerText = `ACIERTO: 0/${config[nivel]*3}`;
-        if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
     }
 
     function activarDrag(el) {
         el.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
-            el.style.position = 'fixed'; el.style.zIndex = 3000;
+            el.style.position = 'fixed'; el.style.zIndex = 5000;
             const mover = (me) => {
                 me.preventDefault();
                 const mt = me.touches[0];
@@ -130,44 +120,42 @@
             const soltar = (se) => {
                 document.removeEventListener('touchmove', mover);
                 document.removeEventListener('touchend', soltar);
-                validar(el, se.changedTouches[0]);
+                verificar(el, se.changedTouches[0]);
             };
             document.addEventListener('touchmove', mover, {passive: false});
             document.addEventListener('touchend', soltar);
         });
     }
 
-    function validar(el, pos) {
+    function verificar(el, pos) {
         const metas = document.querySelectorAll('.meta');
         let acerto = false;
+        const total = config[nivel] * 3;
+
         metas.forEach(m => {
             const r = m.getBoundingClientRect();
+            // Detección de colisión mejorada
             if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
                 if(el.dataset.t === m.dataset.tipo) {
                     el.style.display = 'none'; aciertos++; acerto = true;
-                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
+                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${total}`;
                     hablar("¡Muy bien!", "FELIZ");
                 } else if(el.dataset.t !== 'D') {
                     hablar("Ahí no va.", "PENSATIVO");
                 }
             }
         });
+
         if(!acerto) {
-            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0';
+            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 20;
         }
-        if(aciertos === config[nivel]*3) {
+
+        if(aciertos === total) {
             setTimeout(() => {
                 if(nivel < 3) { nivel++; hablar("¡Nivel superado!"); cargarNivel(); }
                 else { hablar("¡Excelente! Has terminado."); }
             }, 1000);
         }
-    }
-
-    function moverMosca() {
-        if(nivel !== 3) return;
-        const m = document.getElementById('mosca');
-        m.style.left = Math.random() * 80 + "vw"; m.style.top = Math.random() * 80 + "vh";
-        setTimeout(moverMosca, 1000);
     }
 
     window.onload = () => { cargarNivel(); hablar("Organiza la habitación."); };
