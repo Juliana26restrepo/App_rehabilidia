@@ -9,6 +9,7 @@
         :root {
             --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9;
             --white: #ffffff; --gray: #6c757d; --pas-blue: #A9D3C5;
+            --danger: #ff5e5e;
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--p-blue); -webkit-tap-highlight-color: transparent; }
         
@@ -16,43 +17,44 @@
             background: var(--p-blue); color: white; padding: 20px; 
             display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100;
         }
-        /* Estilo para el enlace de volver */
         .btn-back { color: white; text-decoration: none; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
 
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; padding-bottom: 50px; }
 
         /* PERFIL CARD */
         .profile-section {
-            background: white; border-radius: 25px; padding: 30px;
+            background: white; border-radius: 25px; padding: 25px;
             text-align: center; box-shadow: 0 10px 25px rgba(16, 58, 87, 0.05);
             margin-bottom: 25px;
         }
         .profile-img {
-            width: 90px; height: 90px; background: var(--t-blue);
-            border-radius: 50%; margin: 0 auto 15px; display: flex;
+            width: 85px; height: 85px; background: var(--t-blue);
+            border-radius: 50%; margin: 0 auto 12px; display: flex;
             align-items: center; justify-content: center; color: white;
-            font-size: 2.2rem; position: relative; border: 4px solid var(--pas-blue);
+            font-size: 2rem; position: relative; border: 4px solid var(--pas-blue);
         }
         .edit-badge {
             position: absolute; bottom: 0; right: 0; background: var(--p-blue);
-            width: 28px; height: 28px; border-radius: 50%; font-size: 0.8rem;
+            width: 26px; height: 26px; border-radius: 50%; font-size: 0.75rem;
             display: flex; align-items: center; justify-content: center; border: 2px solid white;
         }
 
+        h4 { margin: 20px 0 10px 10px; font-size: 0.85rem; text-transform: uppercase; color: var(--gray); letter-spacing: 1px; }
+
         /* GRUPOS DE MENÚ */
-        .menu-group { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .menu-group { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .menu-item {
-            display: flex; align-items: center; padding: 18px 20px;
+            display: flex; align-items: center; padding: 16px 20px;
             text-decoration: none; color: var(--p-blue); border-bottom: 1px solid #f5f5f5;
             transition: 0.2s; cursor: pointer;
         }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:active { background: #f0f4f7; }
-        .menu-item i:first-child { width: 35px; font-size: 1.2rem; color: var(--t-blue); }
+        .menu-item i:first-child { width: 35px; font-size: 1.1rem; color: var(--t-blue); }
         .menu-item .label { flex: 1; font-weight: 500; font-size: 0.95rem; }
 
         /* SWITCH TOGGLE */
-        .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
@@ -63,18 +65,17 @@
             left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
         }
         input:checked + .slider { background-color: var(--t-blue); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
 
-        /* BOTÓN LOGOUT */
         .btn-logout {
             display: block; width: 100%; padding: 16px; border-radius: 18px;
-            border: 2px solid #ff5e5e; color: #ff5e5e; text-align: center;
+            border: 2px solid var(--danger); color: var(--danger); text-align: center;
             text-decoration: none; font-weight: bold; margin-top: 30px; 
             transition: 0.3s; box-sizing: border-box; background: transparent;
         }
-        .btn-logout:active { background: #ff5e5e; color: white; }
+        .btn-logout:active { background: var(--danger); color: white; }
 
-        .footer-info { text-align: center; color: #abb8c3; font-size: 0.75rem; margin-top: 30px; line-height: 1.5; }
+        .footer-info { text-align: center; color: #abb8c3; font-size: 0.7rem; margin-top: 30px; }
     </style>
 </head>
 <body>
@@ -83,7 +84,7 @@
     <a href="perfil_neuropsicologo.html" class="btn-back">
         <i class="fas fa-arrow-left"></i>
     </a>
-    <h2 style="margin:0; font-size:1.1rem; letter-spacing: 0.5px;">Configuración Profesional</h2>
+    <h2 style="margin:0; font-size:1.1rem;">Configuración Profesional</h2>
 </header>
 
 <div class="container">
@@ -92,28 +93,65 @@
             <i class="fas fa-user-md"></i>
             <div class="edit-badge"><i class="fas fa-camera"></i></div>
         </div>
-        <h3 style="margin:0; font-size: 1.3rem;">Dra. Elena Valderrama</h3>
-        <p style="margin:5px 0 0; color:var(--gray); font-size:0.9rem; font-weight: 500;">Neuropsicóloga</p>
+        <h3 style="margin:0; font-size: 1.2rem;">Dra. Elena Valderrama</h3>
+        <p style="margin:5px 0 0; color:var(--gray); font-size:0.85rem;">Neuropsicóloga</p>
     </div>
 
+    <h4>Preferencias</h4>
     <div class="menu-group">
         <div class="menu-item">
             <i class="fas fa-bell"></i>
             <span class="label">Notificaciones en tiempo real</span>
-            <label class="switch">
-                <input type="checkbox" checked>
-                <span class="slider"></span>
-            </label>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
         </div>
-        <div class="menu-item" onclick="alert('Accediendo a firma digital...')">
-            <i class="fas fa-signature"></i>
-            <span class="label">Gestionar Firma Digital</span>
-            <i class="fas fa-chevron-right" style="color:#d1d1d1; font-size:0.8rem;"></i>
+        <div class="menu-item" onclick="alert('Configuración de Chats...')">
+            <i class="fas fa-comments"></i>
+            <span class="label">Ajustes de Chat</span>
+            <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8rem;"></i>
         </div>
     </div>
 
+    <h4>Privacidad y Documentos</h4>
     <div class="menu-group">
-        <div class="menu-item" onclick="alert('Abriendo calendario de turnos...')">
+        <div class="menu-item" onclick="alert('Abriendo Privacidad...')">
+            <i class="fas fa-user-shield"></i>
+            <span class="label">Centro de Privacidad</span>
+            <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8rem;"></i>
+        </div>
+        <div class="menu-item" onclick="alert('Cargando Firma Digital...')">
+            <i class="fas fa-signature"></i>
+            <span class="label">Gestionar Firma Digital</span>
+            <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8rem;"></i>
+        </div>
+    </div>
+
+    <h4>Seguridad y Cuenta</h4>
+    <div class="menu-group">
+        <div class="menu-item" onclick="alert('Seguridad de la cuenta...')">
+            <i class="fas fa-lock"></i>
+            <span class="label">Seguridad (2FA y Claves)</span>
+            <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8rem;"></i>
+        </div>
+        <div class="menu-item" onclick="alert('Información de cuenta...')">
+            <i class="fas fa-user-circle"></i>
+            <span class="label">Información de la Cuenta</span>
+            <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8rem;"></i>
+        </div>
+        <div class="menu-item" onclick="alert('Horarios...')">
             <i class="fas fa-calendar-alt"></i>
             <span class="label">Horarios de Disponibilidad</span>
-            <i class="
+            <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8rem;"></i>
+        </div>
+    </div>
+
+    <a href="login.html" class="btn-logout">Cerrar Sesión Profesional</a>
+    
+    <div class="footer-info">
+        <strong>REHABILIDIA Pro v3.2.0</strong><br>
+        ID Licencia: RH-8829-2026 | Medellín, Colombia
+    </div>
+</div>
+
+</body>
+</html>
+
