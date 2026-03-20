@@ -4,125 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Atención 3 - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-blue: #103A57; --green: #2ecc71; --red: #e74c3c; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; }
         
-        /* 1. SCROLL HORIZONTAL ACTIVO */
-        #game-viewport {
-            width: 100vw; height: 100vh;
-            overflow-x: auto; overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        #game-world {
-            width: 180vw; height: 100vh; /* Mundo ancho para mover la cámara */
+        #game-container {
+            position: relative; width: 100vw; height: 100vh;
             background: url('img/fondo_habitacion3.jpg') no-repeat center center;
-            background-size: cover; position: relative;
+            background-size: cover;
         }
 
-        /* 2. METAS GIGANTES */
+        /* COTERAPEUTA ESTILO EJERCICIO 2 (BOCADILLO AZUL ARRIBA) */
+        #coterapeuta-top {
+            position: absolute; top: 80px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; align-items: center;
+            background: white; border: 3px solid #307B8E;
+            border-radius: 50px; padding: 10px 30px;
+            width: 80%; max-width: 600px; z-index: 1000;
+        }
+        #avatar-circulo {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 3px solid #307B8E; margin-right: 20px;
+            background: white; object-fit: cover;
+        }
+        #texto-guia { font-size: 1.2rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+
+        /* METAS ORGANIZADAS */
         .contenedor-metas {
-            position: absolute; top: 30%; width: 100%;
-            display: flex; justify-content: space-around; padding: 0 50px;
+            position: absolute; top: 35%; width: 100%;
+            display: flex; justify-content: space-around; padding: 0 20px;
+            box-sizing: border-box;
         }
         .drop-zone {
-            width: 280px; height: 320px; /* Tamaño máximo para tablet */
-            border: 6px dashed rgba(255,255,255,0.5);
-            border-radius: 30px; display: flex; flex-direction: column;
+            width: 220px; height: 260px;
+            border: 4px dashed rgba(255,255,255,0.5);
+            border-radius: 20px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; background: rgba(255,255,255,0.1);
         }
-        .drop-zone img { width: 180px; }
-        .drop-zone span { color: white; font-weight: bold; font-size: 26px; margin-top: 15px; text-shadow: 2px 2px 4px #000; }
+        .drop-zone img { width: 140px; }
+        .drop-zone span { color: white; font-weight: bold; font-size: 1.2rem; margin-top: 10px; text-shadow: 2px 2px 4px #000; }
 
-        /* 3. ÁREA DE OBJETOS (Para que no se salgan) */
-        #area-objetos {
-            position: fixed; bottom: 5%; left: 5%; width: 90%; height: 25%;
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
-            z-index: 10; pointer-events: none;
+        /* ZONA DE OBJETOS (PARA QUE SE VEAN) */
+        #zona-suelo {
+            position: absolute; bottom: 5%; left: 0; width: 100%; height: 20%;
+            display: flex; justify-content: center; gap: 20px; align-items: center;
         }
-        .celda { display: flex; align-items: center; justify-content: center; }
-        .draggable { width: 100px; height: 100px; cursor: grab; pointer-events: auto; touch-action: none; }
+        .draggable { width: 110px; height: 110px; cursor: grab; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); touch-action: none; }
 
-        /* 4. COTERAPEUTA FIJO (Estilo Ejercicio 2) */
-        #coterapeuta-box {
-            position: fixed; bottom: 20px; left: 20px;
-            display: flex; align-items: flex-end; z-index: 1000;
-        }
-        #avatar-guia { width: 180px; border-radius: 20px; border: 4px solid white; background: white; }
-        #bocadillo {
-            background: white; border-radius: 20px; padding: 15px 20px;
-            margin-bottom: 120px; margin-left: -30px; max-width: 250px;
-            font-size: 1.1rem; font-weight: bold; color: var(--p-blue);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); display: none; position: relative;
-        }
-
-        #hits-display { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 10px; font-size: 1.5rem; z-index: 1100; }
+        header { position: absolute; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1100; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div id="hits-display">ACIERTO: 0/3</div>
+<header>
+    <a href="perfil_paciente.html" style="color:white; text-decoration:none;"><i class="fas fa-arrow-left"></i> Volver</a>
+    <div id="hits-display" style="font-size: 1.4rem; font-weight: bold;">ACIERTO: 0/3</div>
+</header>
 
-<div id="game-viewport">
-    <div id="game-world">
-        <div class="contenedor-metas">
-            <div class="drop-zone" data-type="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
-            <div class="drop-zone" data-type="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
-            <div class="drop-zone" data-type="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
-        </div>
+<div id="game-container">
+    <div id="coterapeuta-top">
+        <img src="COTERAPEUTA.JPG" id="avatar-circulo">
+        <p id="texto-guia">¡Hola! Vamos a ordenar la habitación.</p>
     </div>
-</div>
 
-<div id="area-objetos"></div>
+    <div class="contenedor-metas">
+        <div class="drop-zone" data-type="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
+        <div class="drop-zone" data-type="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
+        <div class="drop-zone" data-type="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
+    </div>
 
-<div id="coterapeuta-box">
-    <div id="bocadillo"></div>
-    <img src="COTERAPEUTA.JPG" id="avatar-guia">
+    <div id="zona-suelo"></div>
 </div>
 
 <script>
     let nivel = 1; let aciertos = 0;
-    const config = { 1: 1, 2: 2, 3: 3 };
+    const itemsNivel = { 1: 1, 2: 2, 3: 3 };
 
-    function hablar(msg) {
+    function hablar(mensaje, emocion = 'NORMAL') {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(msg);
-        utterance.lang = 'es-ES';
-        window.speechSynthesis.speak(utterance);
-        const b = document.getElementById('bocadillo');
-        b.innerText = msg; b.style.display = 'block';
-        setTimeout(() => b.style.display = 'none', 5000);
+        const msg = new SpeechSynthesisUtterance(mensaje);
+        msg.lang = 'es-ES';
+        window.speechSynthesis.speak(msg);
+        
+        document.getElementById('texto-guia').innerText = mensaje;
+        const img = document.getElementById('avatar-circulo');
+        
+        if(emocion === 'FELIZ') img.src = "COTERAPEUTA_FELIZ.JPG";
+        else if(emocion === 'PENSATIVO') img.src = "COTERAPEUTA_PENSATIVO.JPG";
+        else img.src = "COTERAPEUTA.JPG";
+
+        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2500);
     }
 
-    function generarNivel() {
-        const area = document.getElementById('area-objetos');
-        area.innerHTML = ""; aciertos = 0;
+    function generarObjetos() {
+        const suelo = document.getElementById('zona-suelo');
+        suelo.innerHTML = ""; aciertos = 0;
         let pool = [];
-        ['R', 'L', 'B'].forEach(t => {
-            for(let i=0; i<config[nivel]; i++) pool.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}`});
+        ['R', 'L', 'B'].forEach(tipo => {
+            for(let i=0; i<itemsNivel[nivel]; i++) {
+                pool.push({tipo: tipo, img: `${tipo}${Math.floor(Math.random()*5)+1}.png`});
+            }
         });
-        pool.sort(() => Math.random() - 0.5);
-        pool.forEach(obj => {
-            const div = document.createElement('div');
-            div.className = "celda";
+        pool.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
-            img.src = `img/${obj.img}.png`; img.className = "draggable"; img.dataset.tipo = obj.t;
+            img.src = `img/${item.img}`;
+            img.className = 'draggable';
+            img.dataset.tipo = item.tipo;
             makeDraggable(img);
-            div.appendChild(img);
-            area.appendChild(div);
+            suelo.appendChild(img);
         });
+        document.getElementById('hits-display').innerText = `ACIERTO: 0/${itemsNivel[nivel]*3}`;
     }
 
     function makeDraggable(el) {
-        let x, y;
-        el.ontouchstart = (e) => {
+        let startX, startY;
+        el.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
             el.style.position = 'fixed';
             el.style.zIndex = 2000;
             const move = (me) => {
-                const touch = me.touches[0];
-                el.style.left = (touch.clientX - 50) + 'px';
-                el.style.top = (touch.clientY - 50) + 'px';
+                me.preventDefault();
+                const t = me.touches[0];
+                el.style.left = (t.clientX - 55) + 'px';
+                el.style.top = (t.clientY - 55) + 'px';
             };
             const end = (ee) => {
                 document.removeEventListener('touchmove', move);
@@ -131,38 +137,34 @@
             };
             document.addEventListener('touchmove', move, {passive: false});
             document.addEventListener('touchend', end);
-        };
+        });
     }
 
     function verificar(el, pos) {
         const metas = document.querySelectorAll('.drop-zone');
         let acerto = false;
         metas.forEach(m => {
-            const rect = m.getBoundingClientRect();
-            if(pos.clientX > rect.left && pos.clientX < rect.right && pos.clientY > rect.top && pos.clientY < rect.bottom) {
+            const r = m.getBoundingClientRect();
+            if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
                 if(el.dataset.tipo === m.dataset.type) {
                     el.style.display = 'none'; aciertos++; acerto = true;
-                    document.getElementById('hits-display').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
-                    hablar("¡Excelente!");
-                    document.getElementById('avatar-guia').src = "COTERAPEUTA_FELIZ.JPG";
-                    setTimeout(() => document.getElementById('avatar-guia').src = "COTERAPEUTA.JPG", 2000);
+                    document.getElementById('hits-display').innerText = `ACIERTO: ${aciertos}/${itemsNivel[nivel]*3}`;
+                    hablar("¡Muy bien hecho!", "FELIZ");
                 }
             }
         });
         if(!acerto) {
             el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0';
-            hablar("Ese no va ahí");
-            document.getElementById('avatar-guia').src = "COTERAPEUTA_PENSATIVO.JPG";
-            setTimeout(() => document.getElementById('avatar-guia').src = "COTERAPEUTA.JPG", 2000);
+            hablar("Ese no va ahí.", "PENSATIVO");
         }
-        if(aciertos === config[nivel]*3) {
+        if(aciertos === itemsNivel[nivel]*3) {
             nivel++;
-            if(nivel <= 3) setTimeout(generarNivel, 2000);
-            else hablar("¡Has terminado el ejercicio!");
+            if(nivel <= 3) setTimeout(generarObjetos, 2000);
+            else { hablar("¡Felicidades! Terminaste."); setTimeout(()=>window.location.href="perfil_paciente.html",3000); }
         }
     }
 
-    window.onload = () => { hablar("¡Hola! Vamos a ordenar la habitación."); generarNivel(); };
+    window.onload = () => { generarObjetos(); hablar("¡Hola! Pon la ropa en el armario, libros al estante y basura al cesto."); };
 </script>
 </body>
 </html>
