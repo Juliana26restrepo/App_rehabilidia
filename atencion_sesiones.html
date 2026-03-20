@@ -1,68 +1,12 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesiones de Atención - REHABILIDIA</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; --m-green: #366B2B;
-        }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--silver); color: var(--p-blue); }
-        header { background-color: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; }
-        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; margin-right: 15px; }
-        
-        .container { padding: 20px; max-width: 500px; margin: auto; }
-
-        .sesion-wrapper { margin-bottom: 15px; }
-
-        .sesion-card {
-            background: white; border-radius: 15px; padding: 18px 25px;
-            display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 10px solid var(--t-blue); transition: 0.3s;
-        }
-        .sesion-card.bloqueada { border-left-color: #95a5a6; opacity: 0.7; cursor: not-allowed; }
-        .sesion-card span { font-weight: bold; font-size: 1rem; color: #333; }
-
-        .niveles-container {
-            display: none; background: rgba(255,255,255,0.6); 
-            border-radius: 0 0 15px 15px; padding: 15px; border: 1px solid #ddd;
-            border-top: none; animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .btn-nivel {
-            display: block; width: 100%; padding: 12px; margin-bottom: 8px;
-            border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
-            text-align: center; text-decoration: none; font-size: 0.9rem; transition: 0.2s;
-        }
-        .btn-nivel:active { transform: scale(0.96); }
-        .n-bajo { background-color: var(--m-green); color: white; }
-        .n-medio { background-color: #E67E22; color: white; }
-        .n-alto { background-color: #C0392B; color: white; }
-    </style>
-</head>
-<body>
-
-<header>
-    <a href="ejercicios.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">SESIONES DE ATENCIÓN</span>
-</header>
-
-<div class="container" id="lista-sesiones">
-    </div>
-
 <script>
     // Configuración de sesiones activas
-    // ACTUALIZACIÓN: SESIÓN 3 AHORA ESTÁ EN 'true'
+    // ACTUALIZACIÓN: SESIÓN 4 DESBLOQUEADA
     const estadoSesiones = {
         1: true,
         2: true, 
-        3: true,  // ¡DESBLOQUEADA!
-        4: false, 5: false, 6: false, 7: false, 8: false, 9: false, 10: false
+        3: true,  
+        4: true,  // <-- ¡Cambiado a true para desbloquear!
+        5: false, 6: false, 7: false, 8: false, 9: false, 10: false
     };
 
     const contenedor = document.getElementById('lista-sesiones');
@@ -73,15 +17,19 @@
         for (let i = 1; i <= 10; i++) {
             const estaAbierta = estadoSesiones[i];
             
+            // Usamos un operador ternario para definir el icono y el estado de la tarjeta
+            const iconoClase = estaAbierta ? 'fa-chevron-down' : 'fa-lock';
+            const cardClase = estaAbierta ? '' : 'bloqueada';
+            const iconoColor = estaAbierta ? 'var(--t-blue)' : '#999';
+
             const htmlSesion = `
                 <div class="sesion-wrapper">
-                    <div class="sesion-card ${estaAbierta ? '' : 'bloqueada'}" onclick="toggleNiveles(${i}, ${estaAbierta})">
+                    <div class="sesion-card ${cardClase}" onclick="toggleNiveles(${i}, ${estaAbierta})">
                         <span>SESIÓN ${i}</span>
-                        <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'}" 
-                           style="color: ${estaAbierta ? 'var(--t-blue)' : '#999'};"></i>
+                        <i id="icono-${i}" class="fas ${iconoClase}" style="color: ${iconoColor};"></i>
                     </div>
                     ${estaAbierta ? `
-                    <div id="niveles-${i}" class="niveles-container">
+                    <div id="niveles-${i}" class="niveles-container" style="display: none;">
                         <p style="font-size: 0.8rem; margin-bottom: 10px; text-align: center; color: #555;">Selecciona la dificultad:</p>
                         <button class="btn-nivel n-bajo" onclick="irA(${i}, 'bajo')">NIVEL BAJO</button>
                         <button class="btn-nivel n-medio" onclick="irA(${i}, 'medio')">NIVEL MEDIO</button>
@@ -100,7 +48,7 @@
         const contenedorNiveles = document.getElementById(`niveles-${num}`);
         const icono = document.getElementById(`icono-${num}`);
         
-        // Cerrar otros niveles abiertos
+        // Cerrar otros niveles abiertos para mantener la interfaz limpia
         document.querySelectorAll('.niveles-container').forEach(el => {
             if(el.id !== `niveles-${num}`) {
                 el.style.display = 'none';
@@ -122,7 +70,7 @@
     }
 
     function irA(sesion, dificultad) {
-        // Esto redirigirá a atencion3.html, atencion2.html, etc.
+        // Redirige a atencion4.html con el parámetro de dificultad
         window.location.href = `atencion${sesion}.html?nivel=${dificultad}`;
     }
 
@@ -130,5 +78,3 @@
     cargarSesiones();
 </script>
 
-</body>
-</html>
