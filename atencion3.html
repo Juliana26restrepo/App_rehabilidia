@@ -14,7 +14,6 @@
             background-size: cover;
         }
 
-        /* CABECERA */
         header { 
             position: absolute; top: 0; width: 100%; padding: 15px 25px; 
             background: rgba(16, 58, 87, 0.9); color: white; 
@@ -22,7 +21,7 @@
             z-index: 1100; box-sizing: border-box; 
         }
 
-        /* COTERAPEUTA ESTILO EJERCICIO 2 (BOCADILLO AZUL) */
+        /* COTERAPEUTA DISEÑO EJERCICIO 2 */
         #coterapeuta-box {
             position: absolute; top: 85px; left: 50%;
             transform: translateX(-50%);
@@ -30,130 +29,91 @@
             background: white; border: 4px solid var(--t-blue);
             border-radius: 60px; padding: 10px 25px;
             width: 85%; max-width: 700px; z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         #avatar-circulo {
-            width: 90px; height: 90px; border-radius: 50%;
+            width: 80px; height: 80px; border-radius: 50%;
             border: 3px solid var(--t-blue); margin-right: 20px;
             background: white; object-fit: cover; flex-shrink: 0;
         }
-        #texto-guia { font-size: 1.3rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
+        #texto-guia { font-size: 1.2rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
-        /* METAS */
+        /* METAS MÁS BAJAS Y AMPLIAS PARA MEJOR DETECCIÓN */
         .contenedor-metas {
-            position: absolute; top: 35%; width: 100%;
-            display: flex; justify-content: space-around; padding: 0 20px; box-sizing: border-box;
+            position: absolute; top: 42%; /* Ajustado para alinear con muebles */
+            width: 100%; display: flex; justify-content: space-around; 
+            padding: 0 10px; box-sizing: border-box;
         }
         .drop-zone {
-            width: 230px; height: 260px;
-            border: 4px dashed rgba(255,255,255,0.6);
-            border-radius: 25px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; background: rgba(255,255,255,0.15);
+            width: 260px; height: 280px; /* Área de detección más grande */
+            border: 3px dashed rgba(255,255,255,0.4);
+            border-radius: 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: rgba(255,255,255,0.1);
         }
-        .drop-zone img { width: 150px; pointer-events: none; }
-        .drop-zone span { color: white; font-weight: bold; font-size: 1.3rem; margin-top: 10px; text-shadow: 2px 2px 4px #000; }
+        .drop-zone img { width: 160px; opacity: 0.8; }
+        .drop-zone span { color: white; font-weight: bold; font-size: 1.4rem; text-shadow: 2px 2px 4px #000; }
 
-        /* ZONA DE OBJETOS (SIMPRE VISIBLES ABAJO) */
         #zona-suelo {
-            position: absolute; bottom: 5%; width: 100%; height: 22%;
-            display: flex; justify-content: center; gap: 30px; align-items: center;
-            padding: 0 20px; box-sizing: border-box;
+            position: absolute; bottom: 5%; width: 100%; height: 20%;
+            display: flex; justify-content: center; gap: 25px; align-items: center;
         }
-        .draggable { 
-            width: 115px; height: 115px; cursor: grab; 
-            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6)); 
-            touch-action: none; z-index: 10;
-        }
+        .draggable { width: 110px; height: 110px; cursor: grab; touch-action: none; z-index: 10; }
 
-        /* MOSCA */
-        #mosca {
-            position: absolute; width: 70px; z-index: 500;
-            display: none; pointer-events: none;
-            transition: all 0.5s ease-in-out;
-        }
+        #mosca { position: absolute; width: 60px; z-index: 500; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="perfil_paciente.html" style="color:white; text-decoration:none; font-size: 1.2rem;">Volver</a>
-    <div id="hits-display" style="font-size: 1.5rem; font-weight: bold;">ACIERTO: 0/3</div>
+    <a href="perfil_paciente.html" style="color:white; text-decoration:none;">Volver</a>
+    <div id="hits-display" style="font-size: 1.4rem; font-weight: bold;">ACIERTO: 0/3</div>
 </header>
 
 <div id="game-container">
     <img src="img/D_mosca.png" id="mosca">
-
     <div id="coterapeuta-box">
         <img src="COTERAPEUTA.JPG" id="avatar-circulo">
-        <p id="texto-guia">¡Cargando ejercicio!</p>
+        <p id="texto-guia">¡Hola! Vamos a empezar.</p>
     </div>
-
     <div class="contenedor-metas">
         <div class="drop-zone" data-type="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
         <div class="drop-zone" data-type="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
         <div class="drop-zone" data-type="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
     </div>
-
     <div id="zona-suelo"></div>
 </div>
 
 <script>
-    let nivel = 1; let aciertos = 0;
+    let nivel = 1, aciertos = 0;
     const itemsNivel = { 1: 1, 2: 2, 3: 3 };
-    const distractoresNivel = { 1: 0, 2: 3, 3: 1 }; // Configuración de distractores
 
-    // FUNCIÓN DE VOZ ACTIVA
     function hablar(mensaje, emocion = 'NORMAL') {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
         window.speechSynthesis.speak(msg);
-        
         document.getElementById('texto-guia').innerText = mensaje;
         const img = document.getElementById('avatar-circulo');
-        
-        if(emocion === 'FELIZ') img.src = "COTERAPEUTA_FELIZ.JPG";
-        else if(emocion === 'PENSATIVO') img.src = "COTERAPEUTA_PENSATIVO.JPG";
-        else img.src = "COTERAPEUTA.JPG";
-
-        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2500);
+        img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
+        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2000);
     }
 
     function generarObjetos() {
         const suelo = document.getElementById('zona-suelo');
         suelo.innerHTML = ""; aciertos = 0;
         let pool = [];
-        
-        // Objetos Diana (Ropa, Libros, Basura)
-        ['R', 'L', 'B'].forEach(tipo => {
-            for(let i=0; i<itemsNivel[nivel]; i++) {
-                pool.push({tipo: tipo, img: `${tipo}${Math.floor(Math.random()*5)+1}.png`});
-            }
+        ['R', 'L', 'B'].forEach(t => {
+            for(let i=0; i<itemsNivel[nivel]; i++) pool.push({tipo: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
         });
-
-        // Objetos Distractores (solo en Nivel 2 y 3)
-        for(let i=0; i<distractoresNivel[nivel]; i++) {
-            pool.push({tipo: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
+        if(nivel > 1) { // Distractores
+            for(let i=0; i<(nivel === 2 ? 3 : 1); i++) pool.push({tipo: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
         }
-
         pool.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
-            img.src = `img/${item.img}`;
-            img.className = 'draggable';
-            img.dataset.tipo = item.tipo;
-            makeDraggable(img);
-            suelo.appendChild(img);
+            img.src = `img/${item.img}`; img.className = 'draggable'; img.dataset.tipo = item.tipo;
+            makeDraggable(img); suelo.appendChild(img);
         });
         document.getElementById('hits-display').innerText = `ACIERTO: 0/${itemsNivel[nivel]*3}`;
-
-        // Control de la Mosca (solo Nivel 3)
-        if(nivel === 3) {
-            document.getElementById('mosca').style.display = 'block';
-            moverMosca();
-        } else {
-            document.getElementById('mosca').style.display = 'none';
-        }
+        if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
     }
 
     function makeDraggable(el) {
@@ -164,8 +124,8 @@
             const move = (me) => {
                 me.preventDefault();
                 const t = me.touches[0];
-                el.style.left = (t.clientX - 60) + 'px';
-                el.style.top = (t.clientY - 60) + 'px';
+                el.style.left = (t.clientX - 55) + 'px';
+                el.style.top = (t.clientY - 55) + 'px';
             };
             const end = (ee) => {
                 document.removeEventListener('touchmove', move);
@@ -182,58 +142,38 @@
         let acerto = false;
         metas.forEach(m => {
             const r = m.getBoundingClientRect();
+            // Área de detección expandida para tablet
             if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
-                // Comprobar si el objeto es Diana y coincide con la meta
                 if(el.dataset.tipo === m.dataset.type) {
                     el.style.display = 'none'; aciertos++; acerto = true;
                     document.getElementById('hits-display').innerText = `ACIERTO: ${aciertos}/${itemsNivel[nivel]*3}`;
-                    hablar("¡Muy bien hecho!", "FELIZ");
-                } 
-                // Si es Diana pero en meta incorrecta
-                else if (el.dataset.tipo !== 'D') {
-                    hablar("Ese no va ahí, inténtalo de nuevo.", "PENSATIVO");
+                    hablar("¡Muy bien!", "FELIZ");
+                } else if (el.dataset.tipo !== 'D') {
+                    hablar("Ahí no va eso.", "PENSATIVO");
                 }
-                // Si es distractor, la voz se activa en el 'if(!acertoMeta)'
             }
         });
-        
-        // Si no se soltó en ninguna meta o es un distractor
         if(!acerto) {
-            // Si es un distractor y se soltó en una meta
-            if(el.dataset.tipo === 'D' && pos.clientX > window.innerWidth/4 && pos.clientY > window.innerHeight/3){
-                 hablar("Ese objeto no sirve para nada aquí.", "PENSATIVO");
-            }
             el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0';
         }
-
         if(aciertos === itemsNivel[nivel]*3) {
             setTimeout(() => {
-                nivel++;
-                if(nivel <= 3) {
-                    hablar("¡Nivel superado! Vamos al siguiente.");
-                    generarObjetos();
-                } else {
-                    hablar("¡Excelente trabajo! Hemos terminado.");
-                    setTimeout(() => window.location.href="perfil_paciente.html", 3000);
-                }
-            }, 1500);
+                if(nivel < 3) { nivel++; hablar("¡Siguiente nivel!"); generarObjetos(); }
+                else { hablar("¡Terminamos!"); setTimeout(()=>window.location.href="perfil_paciente.html", 2000); }
+            }, 1000);
         }
     }
 
-    // LÓGICA DE MOVIMIENTO DE LA MOSCA
     function moverMosca() {
         if(nivel !== 3) return;
         const m = document.getElementById('mosca');
-        m.style.left = Math.random() * (window.innerWidth - 70) + "px";
-        m.style.top = Math.random() * (window.innerHeight - 70) + "px";
-        setTimeout(moverMosca, 800);
+        m.style.left = Math.random() * 80 + "vw"; m.style.top = Math.random() * 80 + "vh";
+        setTimeout(moverMosca, 1000);
     }
 
-    window.onload = () => { 
-        generarObjetos(); 
-        hablar("¡Hola! Vamos a ordenar. Pon la ropa en el armario, los libros en el estante y la basura en el cesto."); 
-    };
+    window.onload = () => { generarObjetos(); hablar("Ordena la habitación: ropa al armario, libros al estante y basura al cesto."); };
 </script>
 </body>
 </html>
+
 
