@@ -19,6 +19,7 @@
             gap: 15px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        /* MODAL POP-UP */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
@@ -37,7 +38,7 @@
             display: flex; align-items: center; gap: 10px; flex-shrink: 0;
         }
 
-        /* MENU ADJUNTOS ARRIBA */
+        /* MENÚ DE ADJUNTOS ARRIBA */
         .clip-pop { 
             position: absolute; top: 55px; right: 15px; background: white; 
             border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
@@ -53,6 +54,7 @@
         .msg.paciente { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 2px; }
         .msg.pro { align-self: flex-start; background: #e0e0e0; color: #333; border-bottom-left-radius: 2px; }
 
+        /* BARRA DE ESCRIBIR CON MICRÓFONO */
         .input-area { 
             position: absolute; bottom: 0; left: 0; width: 100%; 
             background: white; padding: 10px 15px; border-top: 1px solid #eee;
@@ -62,7 +64,10 @@
         .input-pill { flex: 1; background: #f0f2f5; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; }
         #mensajeInput { flex: 1; border: none; background: transparent; outline: none; }
         
-        .btn-send { background: var(--t-blue); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+        .icon-btn { color: #888; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .icon-btn:hover { color: var(--t-blue); }
+
+        .btn-send { background: var(--t-blue); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -89,7 +94,7 @@
                 <div style="width:35px; height:35px; background:var(--t-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem;"><i class="fas fa-user-md"></i></div>
                 <strong id="chatNombre">Especialista</strong>
             </div>
-            <div style="display:flex; gap:15px; color:var(--p-blue); cursor:pointer;">
+            <div style="display:flex; gap:15px; color:var(--p-blue); cursor:pointer; align-items:center;">
                 <i class="fas fa-paperclip" onclick="toggleClip(event)"></i>
                 <i class="fas fa-times" onclick="cerrarChat()" style="color:#aaa;"></i>
             </div>
@@ -97,13 +102,13 @@
 
         <div id="clipMenu" class="clip-pop">
             <div class="clip-item" onclick="alert('Abriendo Cámara...')"><i class="fas fa-camera"></i> Foto / Cámara</div>
-            <div class="clip-item" onclick="alert('Buscando Documentos...')"><i class="fas fa-file-pdf"></i> Tareas / Archivos</div>
+            <div class="clip-item" onclick="alert('Buscando Documentos...')"><i class="fas fa-file-pdf"></i> Archivos / Tareas</div>
         </div>
 
         <div id="mensajes-box"></div>
 
         <div class="input-area">
-            <i class="fas fa-microphone" style="color:#888; cursor:pointer; font-size: 1.2rem;" onclick="alert('Grabando audio...')"></i>
+            <i class="fas fa-microphone icon-btn" onclick="alert('Grabando audio...')"></i>
             <div class="input-pill">
                 <input type="text" id="mensajeInput" placeholder="Escribe a tu doctora..." autocomplete="off">
             </div>
@@ -156,7 +161,7 @@
         cargarChat();
     }
 
-    // Auto-refresco para recibir mensajes de la doctora
+    // Auto-refresco cada 2 segundos para ver respuestas de la doctora
     setInterval(() => {
         if (document.getElementById('chatModal').style.display === 'flex') {
             cargarChat();
@@ -167,8 +172,10 @@
         if(e.key === 'Enter') enviarMensaje();
     });
 
+    // Cerrar menú si se hace clic fuera
     document.addEventListener('click', () => {
-        document.getElementById('clipMenu').classList.remove('active');
+        const menu = document.getElementById('clipMenu');
+        if(menu) menu.classList.remove('active');
     });
 </script>
 
