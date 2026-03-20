@@ -169,6 +169,16 @@
     document.addEventListener('click', () => {
         document.getElementById('clipMenu').classList.remove('active');
     });
+    // Revisa mensajes nuevos cada 2 segundos automáticamente
+setInterval(() => {
+    // Solo actualiza si el chat está abierto (puedes ajustar el ID según tu HTML)
+    const modal = document.getElementById('chatModal') || document.getElementById('mChat');
+    if (modal && modal.style.display === 'flex') {
+        // Llama a tu función de cargar mensajes (cargarM o actualizarChat)
+        if (typeof cargarM === "function") cargarM();
+        if (typeof actualizarChat === "function") actualizarChat();
+    }
+}, 2000);
 </script>
 
 </body>
