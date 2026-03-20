@@ -5,49 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Atención 3 - REHABILIDIA</title>
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --green: #2ecc71; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
-        /* FONDO FIJO (SIN SCROLL) */
+        /* ESCENARIO FIJO (COMO EN TU IMAGEN 1000216430.png) */
         #game-container {
             position: relative; width: 100vw; height: 100vh;
             background: url('img/fondo_habitacion3.jpg') no-repeat center center;
-            background-size: cover;
+            background-size: cover; z-index: 1;
         }
 
-        /* COTERAPEUTA ESTILO EJERCICIO 2 */
-        #guia-container {
-            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+        /* COTERAPEUTA ESTILO EJERCICIO 2 (FIJO ARRIBA) */
+        #guia-box {
+            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; background: white;
             border: 4px solid var(--t-blue); border-radius: 50px;
             padding: 10px 25px; width: 85%; max-width: 650px; z-index: 1000;
         }
-        #avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
-        #texto { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
-        /* METAS DISTRIBUIDAS EN PANTALLA FIJA */
-        .metas-wrapper {
-            position: absolute; top: 32%; width: 100%;
-            display: flex; justify-content: space-evenly; padding: 0 10px; box-sizing: border-box;
+        /* METAS GRANDES Y BIEN ALINEADAS */
+        .contenedor-metas {
+            position: absolute; top: 35%; width: 100%;
+            display: flex; justify-content: space-evenly; z-index: 5;
         }
         .meta {
-            width: 30%; max-width: 250px; height: 320px; 
-            border: 4px dashed rgba(255,255,255,0.6);
-            border-radius: 25px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; background: rgba(255,255,255,0.15);
+            width: 230px; height: 300px; border: 4px dashed rgba(255,255,255,0.7);
+            border-radius: 25px; background: rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .meta img { width: 70%; pointer-events: none; }
-        .meta span { color: white; font-weight: bold; font-size: 1.2rem; margin-top: 10px; text-shadow: 2px 2px 4px #000; }
+        .meta img { width: 150px; pointer-events: none; opacity: 0.9; }
+        .meta span { color: white; font-weight: bold; font-size: 1.3rem; margin-top: 10px; text-shadow: 2px 2px 4px #000; }
 
-        /* OBJETOS EN EL SUELO */
+        /* ZONA DE OBJETOS - AHORA CON Z-INDEX ALTO PARA QUE SE VEAN SIEMPRE */
         #objetos-suelo {
-            position: absolute; bottom: 5%; left: 0; width: 100%; height: 20%;
-            display: flex; justify-content: center; gap: 20px; align-items: center; z-index: 500;
+            position: absolute; bottom: 5%; width: 100%; height: 120px;
+            display: flex; justify-content: center; gap: 20px; align-items: center; z-index: 2000;
         }
-        .objeto { width: 100px; height: 100px; cursor: grab; touch-action: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .objeto { 
+            width: 100px; height: 100px; cursor: grab; touch-action: none; 
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8));
+            z-index: 2100;
+        }
 
-        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 1100; box-sizing: border-box; }
-        #mosca { position: absolute; width: 60px; z-index: 600; display: none; pointer-events: none; }
+        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; align-items: center; z-index: 3000; }
+        #mosca { position: absolute; width: 60px; z-index: 2500; display: none; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -60,15 +63,15 @@
 <div id="game-container">
     <img src="img/D_mosca.png" id="mosca">
     
-    <div id="guia-container">
+    <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto">Ordena la habitación: ropa al armario, libros al estante y basura al cesto.</p>
+        <p id="texto-guia">Cargando...</p>
     </div>
 
-    <div class="metas-wrapper">
-        <div class="meta" data-tipo="R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
-        <div class="meta" data-tipo="L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
-        <div class="meta" data-tipo="B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
+    <div class="contenedor-metas">
+        <div class="meta" data-tipo="R" id="meta-R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
+        <div class="meta" data-tipo="L" id="meta-L"><img src="img/meta_estante.png"><span>ESTANTE</span></div>
+        <div class="meta" data-tipo="B" id="meta-B"><img src="img/meta_cesto.png"><span>CESTO</span></div>
     </div>
 
     <div id="objetos-suelo"></div>
@@ -76,91 +79,101 @@
 
 <script>
     let nivel = 1; let aciertos = 0;
-    const config = { 1: 1, 2: 2, 3: 3 };
+    const itemsPorNivel = { 1: 1, 2: 2, 3: 3 };
 
     function hablar(msg, emocion = 'NORMAL') {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(msg);
         u.lang = 'es-ES';
         window.speechSynthesis.speak(u);
-        document.getElementById('texto').innerText = msg;
+        document.getElementById('texto-guia').innerText = msg;
         const img = document.getElementById('avatar');
         img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
-        if(emocion !== 'NORMAL') setTimeout(() => img.src = "COTERAPEUTA.JPG", 2500);
     }
 
-    function cargarNivel() {
-        const contenedor = document.getElementById('objetos-suelo');
-        contenedor.innerHTML = ""; aciertos = 0;
-        let lista = [];
-        
-        ['R', 'L', 'B'].forEach(t => {
-            for(let i=0; i<config[nivel]; i++) lista.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
+    function cargarJuego() {
+        const suelo = document.getElementById('objetos-suelo');
+        suelo.innerHTML = ""; aciertos = 0;
+        let pool = [];
+
+        // Objetos Diana
+        ['R', 'L', 'B'].forEach(tipo => {
+            for(let i=0; i<itemsPorNivel[nivel]; i++) {
+                pool.push({tipo: tipo, img: `${tipo}${Math.floor(Math.random()*5)+1}.png`});
+            }
         });
 
+        // Distractores (Nivel 2 y 3)
         if(nivel >= 2) {
-            let cantD = (nivel === 2) ? 3 : 1;
-            for(let i=0; i<cantD; i++) lista.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
+            let nD = (nivel === 2) ? 3 : 1;
+            for(let i=0; i<nD; i++) pool.push({tipo: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
         }
 
-        lista.sort(() => Math.random() - 0.5).forEach(item => {
+        pool.sort(() => Math.random() - 0.5).forEach(obj => {
             const img = document.createElement('img');
-            img.src = `img/${item.img}`; img.className = 'objeto'; img.dataset.t = item.t;
-            activarArrastre(img);
-            contenedor.appendChild(img);
+            img.src = `img/${obj.img}`; img.className = 'objeto'; img.dataset.tipo = obj.tipo;
+            configurarDrag(img);
+            suelo.appendChild(img);
         });
-        
-        document.getElementById('puntos').innerText = `ACIERTO: 0/${config[nivel]*3}`;
+
+        document.getElementById('puntos').innerText = `ACIERTO: 0/${itemsPorNivel[nivel]*3}`;
         
         if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
         else { document.getElementById('mosca').style.display = 'none'; }
     }
 
-    function activarArrastre(el) {
+    function configurarDrag(el) {
         el.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
-            el.style.position = 'fixed'; el.style.zIndex = 2000;
+            el.style.position = 'fixed';
+            el.style.zIndex = 5000; // Asegura que esté por encima de todo al moverlo
+            
             const mover = (me) => {
                 me.preventDefault();
                 const mt = me.touches[0];
                 el.style.left = (mt.clientX - 50) + 'px';
                 el.style.top = (mt.clientY - 50) + 'px';
             };
+
             const soltar = (se) => {
                 document.removeEventListener('touchmove', mover);
                 document.removeEventListener('touchend', soltar);
-                chequear(el, se.changedTouches[0]);
+                validar(el, se.changedTouches[0]);
             };
+
             document.addEventListener('touchmove', mover, {passive: false});
             document.addEventListener('touchend', soltar);
         });
     }
 
-    function chequear(el, pos) {
+    function validar(el, pos) {
         const metas = document.querySelectorAll('.meta');
-        let acertoMeta = false;
+        let acerto = false;
 
         metas.forEach(meta => {
-            const r = meta.getBoundingClientRect();
-            if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
-                if(el.dataset.t === meta.dataset.tipo) {
-                    el.style.display = 'none'; aciertos++; acertoMeta = true;
-                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
+            const rect = meta.getBoundingClientRect();
+            // Verificación de colisión simple y robusta
+            if(pos.clientX > rect.left && pos.clientX < rect.right && pos.clientY > rect.top && pos.clientY < rect.bottom) {
+                if(el.dataset.tipo === meta.dataset.tipo) {
+                    el.style.display = 'none'; aciertos++; acerto = true;
+                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${itemsPorNivel[nivel]*3}`;
                     hablar("¡Muy bien!", "FELIZ");
-                } else if(el.dataset.t !== 'D') {
-                    hablar("Ese no va ahí.", "PENSATIVO");
+                } else if(el.dataset.tipo !== 'D') {
+                    hablar("Ese objeto no va ahí.", "PENSATIVO");
+                } else {
+                    hablar("Ese objeto es basura, no lo guardes.", "PENSATIVO");
                 }
             }
         });
 
-        if(!acertoMeta) {
-            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0';
+        if(!acerto) {
+            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 2100;
         }
 
-        if(aciertos === config[nivel]*3) {
+        if(aciertos === itemsPorNivel[nivel]*3) {
             setTimeout(() => {
-                if(nivel < 3) { nivel++; hablar("¡Nivel superado!"); cargarNivel(); }
-                else { hablar("¡Felicidades! Terminaste el ejercicio."); }
+                if(nivel < 3) { nivel++; hablar("¡Nivel superado! Sigamos."); cargarJuego(); }
+                else { hablar("¡Excelente trabajo! Has terminado el ejercicio."); }
             }, 1000);
         }
     }
@@ -168,13 +181,15 @@
     function moverMosca() {
         if(nivel !== 3) return;
         const m = document.getElementById('mosca');
-        m.style.left = Math.random() * 90 + "vw";
+        m.style.left = Math.random() * 85 + "vw";
         m.style.top = Math.random() * 80 + "vh";
-        setTimeout(moverMosca, 1000);
+        setTimeout(moverMosca, 1200);
     }
 
-    window.onload = () => { cargarNivel(); hablar("Ordena la habitación: ropa al armario, libros al estante y basura al cesto."); };
+    window.onload = () => { 
+        cargarJuego(); 
+        hablar("Ordena la habitación: ropa al armario, libros al estante y basura al cesto.");
+    };
 </script>
 </body>
 </html>
-
