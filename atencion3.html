@@ -1,1 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sesión 3: Atención - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9;
+            --white: #ffffff; --green: #2ecc71; --red: #e74c3c;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #222; overflow: hidden; touch-action: none; }
+        
+        #game-container {
+            position: relative; width: 100vw; height: 100vh;
+            /* RUTA AJUSTADA A TU CARPETA IMG */
+            background: url('img/fondo_habitacion3.jpg') no-repeat center center;
+            background-size: cover;
+        }
+
+        header {
+            position: absolute; top: 0; width: 100%; padding: 15px;
+            background: rgba(16, 58, 87, 0.9); color: white;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+            box-sizing: border-box;
+        }
+
+        .drop-zone {
+            position: absolute; border: 2px dashed rgba(255,255,255,0.4);
+            border-radius: 15px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; transition: 0.3s;
+            background: rgba(255,255,255,0.05);
+        }
+        .drop-zone img { width: 70%; pointer-events: none; opacity: 0.9; }
+
+        /* Posiciones estratégicas */
+        #zona-armario { bottom: 10%; left: 5%; width: 25%; height: 55%; }
+        #zona-estante { top: 20%; right: 5%; width: 22%; height: 35%; }
+        #zona-cesto { bottom: 8%; right: 10%; width: 18%; height: 28%; }
+
+        .draggable {
+            position: absolute; width: 85px; height: 85px;
+            cursor: grab; z-index: 5; touch-action: none;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+            object-fit: contain;
+        }
+
+        #feedback {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; border-radius: 50px; color: white;
+            font-weight: bold; font-size: 1.4rem; display: none; z-index: 100;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="perfil_paciente.html" style="color:white; text-decoration:none;"><i class="fas fa-arrow-left"></i> Salir</a>
+    <div style="font-weight:bold; letter-spacing: 1px;">NIVEL: <span id="current-level">BAJO</span></div>
+    <div><i class="fas fa-check-circle"></i> <span id="hits">0</span>/<span id="total-needed">3</span></div>
+</header>
+
+<div id="game-container">
+    <div id="zona-armario" class="drop-zone" data-type="R">
+        <img src="img/meta_armario.png">
+        <span style="color:white; font-size:11px; font-weight: bold; margin-top:5px;">ARMARIO</span>
+    </div>
+    <div id="zona-estante" class="drop-zone" data-type="L">
+        <img src="img/meta_estante.png">
+        <span style="color:white; font-size:11px; font-weight: bold; margin-top:5px;">ESTANTE</span>
+    </div>
+    <div id="zona-cesto" class="drop-zone" data-type="B">
+        <img src="img/meta_cesto.png">
+        <span style="color:white; font-size:11px; font-weight: bold; margin-top:5px;">CESTO</span>
+    </div>
+
+    <div id="objects-layer"></div>
+    <img src="img/D_mosca.png" id="mosca" style="position:absolute; width:45px; display:none; z-index:9; pointer-events: none;">
+</div>
+
+<div id="feedback"></div>
+
+<script>
+    let nivel = 1;
+    let aciertos = 0;
+    const feedback = document.getElementById('feedback');
+    const path = "img/"; // RUTA ACTUALIZADA A TU NUEVA ESTRUCTURA
+
+    const config = {
+        1: { name: "BAJO", items: 1, dist: 0 },
+        2: { name: "MEDIO", items: 2, dist: 2 },
+        3: { name: "ALTO", items: 3, dist: 4 }
+    };
+
+    function init() {
+        aciertos = 0;
+        const c = config[nivel];
+        document.getElementById('current-level').innerText = c.name;
+        document.getElementById('hits').innerText = "0";
+        document.getElementById('total-needed').innerText = c.items * 3;
+        document.getElementById('objects-layer').innerHTML = "";
+        
+        // Crear estímulos Diana (R, L, B)
+        ['R','L','B'].forEach(tipo => {
+            let elegidos = [];
+            for(let i=0; i<c.items; i++) {
+                let num;
+                do { num = Math.floor(Math.random() * 5) + 1; } while(elegidos.includes(num));
+                elegidos.push(num);
+                createObj(`${tipo}${num}`, tipo);
+            }
+        });
+
+        // Crear Distractores (D)
+        for(let i=1; i<=c.dist; i++) {
+            createObj(`D${i}`, 'D');
+        }
+
+        // Mosca en nivel alto
+        const mosca = document.getElementById('mosca');
+        if(nivel === 3) {
+            mosca.style.display = 'block';
+            moverMosca();
+        } else {
+            mosca.style.display = 'none';
+        }
+    }
+
+    function createObj(name, tipo) {
+        const img = document.createElement('img');
+        img.src = `${path}${name}.png`; 
+        img.className = 'draggable';
+        img.dataset.tipo = tipo;
+        
+        // Aparecen en el área central para no pisar las metas
+        img.style.left = (Math.random() * 40 + 30) + "%";
+        img.style.top = (Math.random() * 30 + 35) + "%";
+        
+        setupDrag(img);
+        document.getElementById('objects-layer').appendChild(img);
+    }
+
+    function setupDrag(el) {
+        let x1=0, y1=0;
+        el.onmousedown = dragStart;
+        el.ontouchstart = dragStart;
+
+        function dragStart(e) {
+            x1 = e.clientX || e.touches[0].clientX;
+            y1 = e.clientY || e.touches[0].clientY;
+            document.onmousemove = dragMove;
+            document.ontouchmove = dragMove;
+            document.onmouseup = dragEnd;
+            document.ontouchend = dragEnd;
+            el.style.zIndex = 100; // Traer al frente al arrastrar
+        }
+
+        function dragMove(e) {
+            let cx = e.clientX || e.touches[0].clientX;
+            let cy = e.clientY || e.touches[0].clientY;
+            let dx = x1 - cx;
+            let dy = y1 - cy;
+            x1 = cx;
+            y1 = cy;
+            el.style.top = (el.offsetTop - dy) + "px";
+            el.style.left = (el.offsetLeft - dx) + "px";
+        }
+
+        function dragEnd() {
+            document.onmousemove = null;
+            document.ontouchmove = null;
+            el.style.zIndex = 5;
+            checkDrop(el);
+        }
+    }
+
+    function checkDrop(obj) {
+        const r = obj.getBoundingClientRect();
+        const metas = document.querySelectorAll('.drop-zone');
+        let acerto = false;
+
+        metas.forEach(m => {
+            const mr = m.getBoundingClientRect();
+            // Colisión simple
+            if (r.left < mr.right && r.right > mr.left && r.top < mr.bottom && r.bottom > mr.top) {
+                if(obj.dataset.tipo === m.dataset.type) {
+                    obj.style.display = "none";
+                    aciertos++;
+                    document.getElementById('hits').innerText = aciertos;
+                    showFeedback("¡Muy bien!", "#2ecc71");
+                    acerto = true;
+                    if(aciertos == config[nivel].items * 3) {
+                        setTimeout(nextLevel, 600);
+                    }
+                } else {
+                    // Si falla, rebota al centro
+                    obj.style.top = "50%";
+                    obj.style.left = "50%";
+                    showFeedback("¡Ahí no va!", "#e74c3c");
+                }
+            }
+        });
+    }
+
+    function showFeedback(t, c) {
+        feedback.innerText = t;
+        feedback.style.backgroundColor = c;
+        feedback.style.display = "block";
+        setTimeout(()=> feedback.style.display="none", 1000);
+    }
+
+    function nextLevel() {
+        if(nivel < 3) {
+            nivel++;
+            alert("¡Nivel completado! Prepárate para el nivel " + config[nivel].name);
+            init();
+        } else {
+            alert("¡Excelente trabajo! Has terminado la Sesión 3.");
+            window.location.href = "perfil_paciente.html";
+        }
+    }
+
+    function moverMosca() {
+        const m = document.getElementById('mosca');
+        if(nivel === 3) {
+            m.style.transition = "all 1.5s ease-in-out";
+            m.style.left = Math.random() * 80 + "%";
+            m.style.top = Math.random() * 80 + "%";
+            setTimeout(moverMosca, 1500);
+        }
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
 
