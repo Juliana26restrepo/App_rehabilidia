@@ -57,36 +57,41 @@
 
 <script>
     // Configuración de sesiones activas
+    // ACTUALIZACIÓN: SESIÓN 3 AHORA ESTÁ EN 'true'
     const estadoSesiones = {
         1: true,
-        2: true,  // SESIÓN 2 ACTIVADA
-        3: false, 
+        2: true, 
+        3: true,  // ¡DESBLOQUEADA!
         4: false, 5: false, 6: false, 7: false, 8: false, 9: false, 10: false
     };
 
     const contenedor = document.getElementById('lista-sesiones');
 
-    for (let i = 1; i <= 10; i++) {
-        const estaAbierta = estadoSesiones[i];
-        
-        const htmlSesion = `
-            <div class="sesion-wrapper">
-                <div class="sesion-card ${estaAbierta ? '' : 'bloqueada'}" onclick="toggleNiveles(${i}, ${estaAbierta})">
-                    <span>SESIÓN ${i}</span>
-                    <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'}" 
-                       style="color: ${estaAbierta ? 'var(--t-blue)' : '#999'};"></i>
+    // Generar la lista dinámicamente
+    function cargarSesiones() {
+        contenedor.innerHTML = "";
+        for (let i = 1; i <= 10; i++) {
+            const estaAbierta = estadoSesiones[i];
+            
+            const htmlSesion = `
+                <div class="sesion-wrapper">
+                    <div class="sesion-card ${estaAbierta ? '' : 'bloqueada'}" onclick="toggleNiveles(${i}, ${estaAbierta})">
+                        <span>SESIÓN ${i}</span>
+                        <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'}" 
+                           style="color: ${estaAbierta ? 'var(--t-blue)' : '#999'};"></i>
+                    </div>
+                    ${estaAbierta ? `
+                    <div id="niveles-${i}" class="niveles-container">
+                        <p style="font-size: 0.8rem; margin-bottom: 10px; text-align: center; color: #555;">Selecciona la dificultad:</p>
+                        <button class="btn-nivel n-bajo" onclick="irA(${i}, 'bajo')">NIVEL BAJO</button>
+                        <button class="btn-nivel n-medio" onclick="irA(${i}, 'medio')">NIVEL MEDIO</button>
+                        <button class="btn-nivel n-alto" onclick="irA(${i}, 'alto')">NIVEL ALTO</button>
+                    </div>
+                    ` : ''}
                 </div>
-                ${estaAbierta ? `
-                <div id="niveles-${i}" class="niveles-container">
-                    <p style="font-size: 0.8rem; margin-bottom: 10px; text-align: center; color: #555;">Selecciona la dificultad:</p>
-                    <button class="btn-nivel n-bajo" onclick="irA(${i}, 'bajo')">NIVEL BAJO</button>
-                    <button class="btn-nivel n-medio" onclick="irA(${i}, 'medio')">NIVEL MEDIO</button>
-                    <button class="btn-nivel n-alto" onclick="irA(${i}, 'alto')">NIVEL ALTO</button>
-                </div>
-                ` : ''}
-            </div>
-        `;
-        contenedor.innerHTML += htmlSesion;
+            `;
+            contenedor.innerHTML += htmlSesion;
+        }
     }
 
     function toggleNiveles(num, abierta) {
@@ -95,13 +100,15 @@
         const contenedorNiveles = document.getElementById(`niveles-${num}`);
         const icono = document.getElementById(`icono-${num}`);
         
-        // Cerrar otros niveles abiertos para mantener orden
+        // Cerrar otros niveles abiertos
         document.querySelectorAll('.niveles-container').forEach(el => {
             if(el.id !== `niveles-${num}`) {
                 el.style.display = 'none';
                 const idOtro = el.id.split('-')[1];
                 const iconoOtro = document.getElementById(`icono-${idOtro}`);
-                if(iconoOtro) iconoOtro.classList.replace("fa-chevron-up", "fa-chevron-down");
+                if(iconoOtro && iconoOtro.classList.contains("fa-chevron-up")) {
+                    iconoOtro.classList.replace("fa-chevron-up", "fa-chevron-down");
+                }
             }
         });
 
@@ -115,10 +122,13 @@
     }
 
     function irA(sesion, dificultad) {
+        // Esto redirigirá a atencion3.html, atencion2.html, etc.
         window.location.href = `atencion${sesion}.html?nivel=${dificultad}`;
     }
+
+    // Ejecutar al cargar
+    cargarSesiones();
 </script>
 
 </body>
 </html>
-
