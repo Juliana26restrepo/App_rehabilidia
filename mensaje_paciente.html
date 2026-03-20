@@ -10,18 +10,15 @@
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
 
-        /* HEADER PACIENTE */
         header { background: var(--t-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
 
-        /* LISTA DE PROFESIONALES */
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .card-pro { 
             background: white; padding: 15px; border-radius: 12px; display: flex; align-items: center; 
             gap: 15px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* OVERLAY Y MODAL (POP-UP) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
@@ -35,24 +32,27 @@
 
         @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* HEADER DEL CHAT */
         .chat-header { 
             padding: 12px 15px; background: white; border-bottom: 1px solid #eee;
             display: flex; align-items: center; gap: 10px; flex-shrink: 0;
         }
 
-        .action-icons { display: flex; gap: 15px; color: var(--p-blue); cursor: pointer; }
+        /* MENU ADJUNTOS ARRIBA */
+        .clip-pop { 
+            position: absolute; top: 55px; right: 15px; background: white; 
+            border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            display: none; flex-direction: column; z-index: 100; border: 1px solid #f0f0f0;
+        }
+        .clip-pop.active { display: flex; }
+        .clip-item { padding: 12px 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--p-blue); }
+        .clip-item:hover { background: #f8f9fa; }
 
-        /* MENSAJES (Colores invertidos para el paciente) */
         #mensajes-box { flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px; }
         
         .msg { max-width: 80%; padding: 10px; border-radius: 12px; font-size: 0.9rem; }
-        /* Juan (Paciente) ahora es el emisor: Azul Prusiano */
         .msg.paciente { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 2px; }
-        /* Tú (Profesional) eres el receptor: Gris/Verde */
         .msg.pro { align-self: flex-start; background: #e0e0e0; color: #333; border-bottom-left-radius: 2px; }
 
-        /* BARRA DE ENTRADA */
         .input-area { 
             position: absolute; bottom: 0; left: 0; width: 100%; 
             background: white; padding: 10px 15px; border-top: 1px solid #eee;
@@ -63,11 +63,6 @@
         #mensajeInput { flex: 1; border: none; background: transparent; outline: none; }
         
         .btn-send { background: var(--t-blue); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
-
-        /* MENU ADJUNTOS */
-        .clip-pop { position: absolute; top: 55px; right: 15px; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: none; flex-direction: column; z-index: 100; }
-        .clip-pop.active { display: flex; }
-        .clip-item { padding: 12px 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
 <body>
@@ -78,11 +73,11 @@
 </header>
 
 <div class="container">
-    <div class="card-pro" onclick="abrirChat('Dr. Neuropsicólogo', 'chat_rehabilitidia_juan')">
+    <div class="card-pro" onclick="abrirChat('Dra. Valderrama', 'chat_rehabilitidia_juan')">
         <div style="width:50px; height:50px; background:var(--p-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;"><i class="fas fa-user-md"></i></div>
         <div>
-            <strong>Dr. Neuropsicólogo</strong>
-            <p style="margin:5px 0 0; font-size:0.8rem; color:#888;">Especialista asignado</p>
+            <strong>Dra. Valderrama</strong>
+            <p style="margin:5px 0 0; font-size:0.8rem; color:#888;">Especialista asignada</p>
         </div>
     </div>
 </div>
@@ -94,23 +89,23 @@
                 <div style="width:35px; height:35px; background:var(--t-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem;"><i class="fas fa-user-md"></i></div>
                 <strong id="chatNombre">Especialista</strong>
             </div>
-            <div class="action-icons">
+            <div style="display:flex; gap:15px; color:var(--p-blue); cursor:pointer;">
                 <i class="fas fa-paperclip" onclick="toggleClip(event)"></i>
                 <i class="fas fa-times" onclick="cerrarChat()" style="color:#aaa;"></i>
             </div>
         </div>
 
         <div id="clipMenu" class="clip-pop">
-            <div class="clip-item" onclick="alert('Cámara')"><i class="fas fa-camera"></i> Foto</div>
-            <div class="clip-item" onclick="alert('Documentos')"><i class="fas fa-file-pdf"></i> Tareas/Resultados</div>
+            <div class="clip-item" onclick="alert('Abriendo Cámara...')"><i class="fas fa-camera"></i> Foto / Cámara</div>
+            <div class="clip-item" onclick="alert('Buscando Documentos...')"><i class="fas fa-file-pdf"></i> Tareas / Archivos</div>
         </div>
 
         <div id="mensajes-box"></div>
 
         <div class="input-area">
-            <i class="fas fa-microphone" style="color:#888; cursor:pointer;" onclick="alert('Grabando...')"></i>
+            <i class="fas fa-microphone" style="color:#888; cursor:pointer; font-size: 1.2rem;" onclick="alert('Grabando audio...')"></i>
             <div class="input-pill">
-                <input type="text" id="mensajeInput" placeholder="Escribe a tu doctor..." autocomplete="off">
+                <input type="text" id="mensajeInput" placeholder="Escribe a tu doctora..." autocomplete="off">
             </div>
             <button class="btn-send" onclick="enviarMensaje()">
                 <i class="fas fa-paper-plane"></i>
@@ -154,13 +149,19 @@
         if(!input.value.trim()) return;
 
         const data = JSON.parse(localStorage.getItem(chatKey)) || [];
-        // Aquí el emisor es 'paciente'
         data.push({ emisor: 'paciente', texto: input.value });
         localStorage.setItem(chatKey, JSON.stringify(data));
         
         input.value = '';
         cargarChat();
     }
+
+    // Auto-refresco para recibir mensajes de la doctora
+    setInterval(() => {
+        if (document.getElementById('chatModal').style.display === 'flex') {
+            cargarChat();
+        }
+    }, 2000);
 
     document.getElementById('mensajeInput').addEventListener('keypress', (e) => {
         if(e.key === 'Enter') enviarMensaje();
@@ -173,4 +174,3 @@
 
 </body>
 </html>
-
