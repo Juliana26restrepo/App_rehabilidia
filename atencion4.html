@@ -3,162 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Atención 4 - Mesa Horizontal Corregida</title>
+    <title>Sesión 4 - Rehabilitación Cognitiva</title>
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f0f0f0; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
         
-        /* Eliminamos cualquier intento de rotación masiva */
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; background: #000; 
-            overflow: hidden; touch-action: none;
-            height: 100vh; width: 100vw;
-            display: flex; justify-content: center; align-items: center;
+        /* Contenedor tipo boceto */
+        #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; padding-top: 20px; box-sizing: border-box; }
+
+        header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; position: fixed; top: 0; z-index: 100; }
+
+        /* Caja del Coterapeuta según dibujo */
+        #guia-box { 
+            width: 80%; max-width: 700px; background: white; border: 3px solid var(--t-blue); 
+            border-radius: 15px; padding: 10px; display: flex; align-items: center; margin-top: 50px; 
+            min-height: 80px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #avatar { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+
+        /* Área de Juego: Mesa y Panel de Objetos */
+        #game-area { display: flex; width: 95%; justify-content: space-around; align-items: center; margin-top: 20px; }
+
+        #mesa-container { 
+            width: 600px; height: 350px; background: url('img4/fondo_mesa.jpg') no-repeat center; 
+            background-size: contain; position: relative; border: 2px solid #ccc; border-radius: 20px;
         }
 
-        #game-container {
-            width: 100%; height: 100%;
-            /* EL TRUCO: Usamos 'contain' para que la mesa vertical se ajuste a la altura de la pantalla y deje espacio a los lados, o 'cover' para que llene todo. Probemos 'cover' primero para que se vea horizontal. */
-            background: url('img4/fondo_mesa.jpg') no-repeat center center;
-            background-size: cover; 
-            position: relative; z-index: 1; overflow: hidden;
+        /* Puntos Guía en la mesa */
+        .punto-guia { 
+            position: absolute; width: 40px; height: 40px; border: 3px dashed rgba(48, 123, 142, 0.5); 
+            border-radius: 50%; transform: translate(-50%, -50%); z-index: 5;
         }
 
-        header { 
-            position: absolute; top: 0; width: 100%; padding: 10px 15px; 
-            background: rgba(16, 58, 87, 0.9); color: white; 
-            display: flex; justify-content: space-between; z-index: 3000; box-sizing: border-box;
+        /* Panel de Objetos según dibujo */
+        #panel-objetos { 
+            width: 150px; height: 400px; background: white; border: 2px solid var(--t-blue); 
+            border-radius: 15px; display: flex; flex-direction: column; align-items: center; 
+            padding: 15px; gap: 15px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         }
+        .draggable { width: 60px; height: 60px; cursor: grab; z-index: 50; }
 
-        /* COTERAPEUTA - VOLVEMOS A POSICIÓN NORMAL ABAJO */
-        #guia-box {
-            position: absolute; 
-            bottom: 20px; /* Lo movemos abajo para que no tape la mesa */
-            left: 50%; 
-            transform: translateX(-50%);
-            display: flex; align-items: center; background: white;
-            border: 3px solid var(--t-blue); border-radius: 40px;
-            padding: 8px 15px; width: 80%; max-width: 550px; z-index: 1000;
-        }
-        #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; }
-        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
-
-        /* METAS INVISIBLES EN LA MESA */
-        .meta-invisible { position: absolute; z-index: 5; /* border: 2px dashed red; */ }
-
-        /* CONTENEDOR DE OBJETOS (REGRESA A LA DERECHA, TAMAÑO NORMAL) */
-        #contenedor-objetos {
-            position: absolute; top: 80px; right: 20px; width: 110px; 
-            display: flex; flex-direction: column; gap: 15px; align-items: center; 
-            z-index: 20; background: rgba(255,255,255,0.3); border-radius: 15px; padding: 15px;
-        }
-        .draggable { width: 70px; height: 70px; cursor: grab; touch-action: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)); position: relative; z-index: 21; }
-        
-        /* ESTILO PARA OBJETOS COLOCADOS EN LA MESA */
-        .colocado-p { position: absolute !important; pointer-events: none; z-index: 10; width: 160px; height: 160px; transform: translate(-50%, -50%); } 
-        .colocado-v { position: absolute !important; pointer-events: none; z-index: 11; width: 60px; height: 60px; transform: translate(-50%, -50%); } 
-        .colocado-t { position: absolute !important; pointer-events: none; z-index: 11; width: 50px; height: 130px; transform: translate(-50%, -50%); } 
-        .colocado-c { position: absolute !important; pointer-events: none; z-index: 11; width: 50px; height: 130px; transform: translate(-50%, -50%); } 
+        /* Clases de colocación */
+        .colocado { position: absolute !important; transform: translate(-50%, -50%) !important; pointer-events: none; }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <header>
-        <div style="font-weight:bold;">Sesión 4 - Preparar la Mesa</div>
-        <div id="puntos" style="font-size: 1.1rem; font-weight: bold;">PASO: 1/4</div>
-    </header>
+<header>
+    <div id="nivel-text">NIVEL: 1</div>
+    <div id="progreso-text">PLATOS: 0/6</div>
+</header>
 
-    <div id="target-p" class="meta-invisible" style="width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div> <div id="target-v" class="meta-invisible" style="width: 90px; height: 90px; top: 30%; left: 60%;"></div> <div id="target-t" class="meta-invisible" style="width: 70px; height: 160px; top: 45%; left: 35%;"></div> <div id="target-c" class="meta-invisible" style="width: 70px; height: 160px; top: 45%; left: 58%;"></div> <div id="contenedor-objetos"></div>
-
+<div id="main-stage">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
+        <p id="texto-guia">Cargando instrucciones...</p>
+    </div>
+
+    <div id="game-area">
+        <div id="mesa-container" id="mesa">
+            </div>
+
+        <div id="panel-objetos" id="inventario">
+            </div>
     </div>
 </div>
 
 <script>
-    let nivel = 1; let pasoActual = 0;
-    const secuencia = ['p', 'v', 't', 'c']; 
-    const nombresPasos = ["el plato", "el vaso", "el tenedor", "el cuchillo"];
+    let nivelActual = 1;
+    let aciertosNivel = 0;
+    const totalPuestos = 6;
+    
+    // Coordenadas de los 6 puestos (x, y en porcentaje)
+    const puestos = [
+        {x: 20, y: 30}, {x: 50, y: 30}, {x: 80, y: 30},
+        {x: 20, y: 70}, {x: 50, y: 70}, {x: 80, y: 70}
+    ];
 
-    function hablar(msg, emocion = 'NORMAL') {
+    const configNiveles = {
+        1: { tipo: 'p', nombre: "platos", instruccion: "Coloca los 6 platos en los puntos marcados." },
+        2: { tipo: 'v', nombre: "vasos", instruccion: "¡Muy bien! Ahora coloca los 6 vasos arriba de cada plato." },
+        3: { tipo: 't', nombre: "tenedores", instruccion: "Excelente. Por último, pon los 6 tenedores a la izquierda." }
+    };
+
+    function hablar(msg) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(msg);
         u.lang = 'es-ES';
         window.speechSynthesis.speak(u);
         document.getElementById('texto-guia').innerText = msg;
-        const img = document.getElementById('avatar');
-        img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
     }
 
-    function cargarNivel() {
-        const div = document.getElementById('contenedor-objetos');
-        div.innerHTML = ""; pasoActual = 0;
-        let items = [];
-        secuencia.forEach(tipo => {
-            items.push({tipo: tipo, img: `${tipo}${Math.floor(Math.random()*3)+1}.png`});
+    function iniciarNivel() {
+        aciertosNivel = 0;
+        const mesa = document.getElementById('mesa-container');
+        const panel = document.getElementById('panel-objetos');
+        const config = configNiveles[nivelActual];
+        
+        document.getElementById('nivel-text').innerText = `NIVEL: ${nivelActual}`;
+        document.getElementById('progreso-text').innerText = `${config.nombre.toUpperCase()}: 0/6`;
+        
+        // Limpiar
+        mesa.querySelectorAll('.punto-guia').forEach(p => p.remove());
+        panel.innerHTML = "";
+
+        // Crear Puntos Guía
+        puestos.forEach((p, index) => {
+            const punto = document.createElement('div');
+            punto.className = 'punto-guia';
+            punto.id = `meta-${index}`;
+            punto.style.left = p.x + "%";
+            punto.style.top = p.y + "%";
+            mesa.appendChild(punto);
+
+            // Crear Objeto en panel
+            const obj = document.createElement('img');
+            obj.src = `img4/${config.tipo}1.png`; // Usa la variante 1
+            obj.className = 'draggable';
+            obj.dataset.tipo = config.tipo;
+            activarDrag(obj);
+            panel.appendChild(obj);
         });
-        if(nivel > 1) {
-            for(let i=1; i<=2; i++) items.push({tipo: 'd', img: `d${i}.png`});
-        }
-        items.sort(() => Math.random() - 0.5).forEach(item => {
-            const img = document.createElement('img');
-            img.src = `img4/${item.img}`; img.className = 'draggable'; 
-            img.dataset.tipo = item.tipo;
-            activarDrag(img);
-            div.appendChild(img);
-        });
-        document.getElementById('puntos').innerText = `PASO: 1/4`;
-        hablar("¡Hola! Primero, coloca el plato en el centro.");
+
+        hablar(config.instruccion);
     }
 
     function activarDrag(el) {
-        el.addEventListener('touchstart', (e) => {
-            el.style.position = 'fixed'; el.style.zIndex = 5000;
+        el.ontouchstart = (e) => {
+            const startX = el.offsetLeft;
+            const startY = el.offsetTop;
+            el.style.position = 'fixed';
+            el.style.zIndex = 1000;
+
             const mover = (me) => {
-                const mt = me.touches[0];
-                el.style.left = (mt.clientX - 35) + 'px';
-                el.style.top = (mt.clientY - 35) + 'px';
+                const t = me.touches[0];
+                el.style.left = (t.clientX - 30) + 'px';
+                el.style.top = (t.clientY - 30) + 'px';
             };
+
             const soltar = (se) => {
                 document.removeEventListener('touchmove', mover);
                 document.removeEventListener('touchend', soltar);
-                verificar(el, se.changedTouches[0]);
+                
+                const touch = se.changedTouches[0];
+                let exito = false;
+
+                document.querySelectorAll('.punto-guia').forEach(meta => {
+                    const rect = meta.getBoundingClientRect();
+                    if (touch.clientX > rect.left && touch.clientX < rect.right && 
+                        touch.clientY > rect.top && touch.clientY < rect.bottom && !meta.dataset.ocupado) {
+                        
+                        // ACIERTO
+                        exito = true;
+                        meta.dataset.ocupado = "true";
+                        meta.style.border = "none";
+                        el.className = 'colocado';
+                        el.style.left = (rect.left + rect.width/2) + 'px';
+                        el.style.top = (rect.top + rect.height/2) + 'px';
+                        document.body.appendChild(el);
+                        
+                        aciertosNivel++;
+                        document.getElementById('progreso-text').innerText = `${configNiveles[nivelActual].nombre.toUpperCase()}: ${aciertosNivel}/6`;
+                        
+                        if (aciertosNivel === 6) {
+                            hablar("¡Excelente trabajo! Has completado este grupo.");
+                            setTimeout(siguienteNivel, 2000);
+                        } else {
+                            hablar("¡Bien hecho!", "FELIZ");
+                        }
+                    }
+                });
+
+                if (!exito) {
+                    hablar("Ese no es el lugar, intenta de nuevo.");
+                    el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0';
+                }
             };
+
             document.addEventListener('touchmove', mover);
             document.addEventListener('touchend', soltar);
-        });
+        };
     }
 
-    function verificar(el, pos) {
-        const tipoMeta = secuencia[pasoActual];
-        const metaElem = document.getElementById(`target-${tipoMeta}`);
-        const r = metaElem.getBoundingClientRect();
-        const enMeta = (pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom);
-
-        if (enMeta && el.dataset.tipo === tipoMeta) {
-            el.className = `colocado-${tipoMeta}`;
-            el.style.left = (r.left + r.width/2) + 'px';
-            el.style.top = (r.top + r.height/2) + 'px';
-            el.style.position = 'absolute';
-            document.getElementById('game-container').appendChild(el);
-            pasoActual++;
-            if (pasoActual < secuencia.length) {
-                document.getElementById('puntos').innerText = `PASO: ${pasoActual + 1}/4`;
-                hablar(`Bien. Ahora coloca ${nombresPasos[pasoActual]}.`);
-            } else {
-                hablar("¡Excelente! Mesa lista.");
-                setTimeout(() => { 
-                    if(nivel < 3) { nivel++; document.querySelectorAll('[class^="colocado-"]').forEach(c => c.remove()); cargarNivel(); }
-                    else hablar("Fin de la sesión.");
-                }, 4000);
-            }
+    function siguienteNivel() {
+        if (nivelActual < 3) {
+            nivelActual++;
+            // Limpiar objetos colocados
+            document.querySelectorAll('.colocado').forEach(c => c.remove());
+            iniciarNivel();
         } else {
-            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 21;
+            hablar("Felicidades, has preparado la mesa perfectamente para los seis invitados.");
         }
     }
-    window.onload = cargarNivel;
+
+    window.onload = iniciarNivel;
 </script>
 </body>
 </html>
+
