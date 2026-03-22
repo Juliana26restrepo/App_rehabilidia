@@ -46,6 +46,8 @@
     let nivelActual = 1, aciertosNivel = 0, audioIniciado = false;
     const audioPerro = new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg");
     const audioPito = new Audio("https://actions.google.com/sounds/v1/alarms/digital_beeper.ogg");
+    // Nuevo distractor auditivo: Sirena
+    const audioSirena = new Audio("https://actions.google.com/sounds/v1/emergency/emergency_siren_short_burst.ogg");
 
     const coords = {
         p: [{x:35,y:38},{x:50,y:38},{x:65,y:38},{x:35,y:65},{x:50,y:65},{x:65,y:65}],
@@ -79,7 +81,8 @@
         const mesa = document.getElementById('mesa-container');
         const panel = document.getElementById('panel-objetos');
         panel.innerHTML = ""; mesa.querySelectorAll('.punto-guia').forEach(p => p.remove());
-        aciertosNivel = 0; audioPerro.pause(); audioPito.pause();
+        aciertosNivel = 0; 
+        audioPerro.pause(); audioPito.pause(); audioSirena.pause();
 
         let items = [];
         if(nivelActual === 1) {
@@ -94,17 +97,16 @@
         }
         else if(nivelActual === 3) {
             audioPito.loop = true; audioPito.play();
+            // Activar Sirena en nivel 3
+            audioSirena.loop = true; audioSirena.play();
+            audioSirena.volume = 0.2; // Volumen ajustado para no tapar la voz
+
             document.getElementById('mosca').style.display = 'block';
             document.getElementById('mosca').style.animation = "volar 4s infinite linear";
             hablar("Nivel final: coloca los tenedores. Hay muchos distractores ahora.");
             
-            // 6 Tenedores Correctos
             for(let i=0; i<6; i++) items.push(crearObjeto('t1.png', 't'));
-            
-            // Distractores no relacionados (d1-d6)
             for(let i=1; i<=6; i++) items.push(crearObjeto(`d${i}.png`, 'dist', true));
-            
-            // Distractores relacionados adicionales (Varios Cuchillos y Servilletas)
             for(let i=0; i<3; i++) {
                 items.push(crearObjeto('s1.png', 'dist', true));
                 items.push(crearObjeto('c1.png', 'dist', true));
@@ -159,7 +161,11 @@
 
     function siguienteNivel() {
         if (nivelActual < 3) { nivelActual++; iniciarNivel(); }
-        else { document.getElementById('mosca').style.display = 'none'; hablar("¡Felicidades, sesión completada!"); }
+        else { 
+            document.getElementById('mosca').style.display = 'none'; 
+            audioSirena.pause(); audioPito.pause();
+            hablar("¡Felicidades, sesión completada!"); 
+        }
     }
 </script>
 </body>
