@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 4 - Audio Corregido</title>
+    <title>Sesión 4 - Feedback y Audio</title>
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
@@ -34,7 +34,7 @@
 <div id="main-stage">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">¡Toca aquí para empezar con sonido!</p>
+        <p id="texto-guia">¡Toca la pantalla para activar el sonido!</p>
     </div>
     <div id="game-area">
         <div id="mesa-container">
@@ -47,19 +47,27 @@
 <script>
     let nivelActual = 1;
     let aciertosNivel = 0;
-    let distractorInterval;
     let audioIniciado = false;
+    
+    // Audios de distractores (enlaces directos y estables)
+    const audioPerro = new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg");
+    const audioPito = new Audio("https://actions.google.com/sounds/v1/alarms/digital_beeper.ogg");
 
-    // Audios con volumen alto
-    const audioPerro = new Audio("https://cdn.pixabay.com/audio/2022/03/24/audio_7306236b2d.mp3");
-    const audioPito = new Audio("https://cdn.pixabay.com/audio/2021/08/04/audio_06d6bc6885.mp3");
+    function hablar(msg) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(msg);
+        u.lang = 'es-ES';
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+        document.getElementById('texto-guia').innerText = msg;
+    }
 
     function desbloquearAudio() {
         if (!audioIniciado) {
             audioIniciado = true;
-            // Reproducir y pausar silenciosamente para ganar permiso del navegador
-            audioPerro.play().then(() => audioPerro.pause());
-            audioPito.play().then(() => audioPito.pause());
+            // Desbloqueo silencioso
+            audioPerro.volume = 0.4;
+            audioPito.volume = 0.3;
             iniciarNivel();
         }
     }
@@ -69,18 +77,25 @@
     const puestosTenedor = [{x:28,y:38},{x:43,y:38},{x:58,y:38},{x:28,y:65},{x:43,y:65},{x:58,y:65}];
 
     const configNiveles = {
-        1: { tipo: 'p', img: 'p1.png', clase: 'colocado-p', coords: puestosPlato, nombre: "platos", msg: "Hola, vamos a preparar la mesa. Primero coloca los platos." },
-        2: { tipo: 'v', img: 'v2.png', clase: 'colocado-v', coords: puestosVaso, nombre: "vasos", msg: "¡Muy bien! Ahora coloca los vasos. No te distraigas con los ruidos." },
-        3: { tipo: 't', img: 't1.png', clase: 'colocado-t', coords: puestosTenedor, nombre: "tenedores", msg: "Nivel difícil: pon los tenedores mientras ignoras la mosca y el pito." }
+        1: { tipo: 'p', img: 'p1.png', clase: 'colocado-p', coords: puestosPlato, nombre: "platos", msg: "Primero, vamos a colocar los seis platos sobre la mesa." },
+        2: { tipo: 'v', img: 'v2.png', clase: 'colocado-v', coords: puestosVaso, nombre: "vasos", msg: "Bien hecho. Ahora los vasos. Ignora los ladridos del perro." },
+        3: { tipo: 't', img: 't1.png', clase: 'colocado-t', coords: puestosTenedor, nombre: "tenedores", msg: "Nivel final. Coloca los tenedores sin distraerte con el pito ni la mosca." }
     };
 
-    function hablar(msg) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(msg);
-        u.lang = 'es-ES';
-        u.pitch = 1; u.rate = 0.9;
-        window.speechSynthesis.speak(u);
-        document.getElementById('texto-guia').innerText = msg;
+    function gestionarDistractores() {
+        audioPerro.pause();
+        audioPito.pause();
+        if(nivelActual === 2) {
+            audioPerro.loop = true;
+            audioPerro.play();
+        }
+        if(nivelActual === 3) {
+            audioPito.loop = true;
+            audioPito.play();
+            const m = document.getElementById('mosca');
+            m.style.display = 'block';
+            m.style.animation = "volar 4s infinite linear";
+        }
     }
 
     function iniciarNivel() {
@@ -93,17 +108,8 @@
         document.getElementById('progreso-text').innerText = `${config.nombre.toUpperCase()}: 0/6`;
         mesa.querySelectorAll('.punto-guia').forEach(p => p.remove());
         panel.innerHTML = "";
-        clearInterval(distractorInterval);
 
-        if(nivelActual === 2) {
-            distractorInterval = setInterval(() => { audioPerro.currentTime = 0; audioPerro.play(); }, 3000);
-        }
-        if(nivelActual === 3) {
-            distractorInterval = setInterval(() => { audioPito.currentTime = 0; audioPito.play(); }, 2000);
-            const m = document.getElementById('mosca');
-            m.style.display = 'block';
-            m.style.animation = "volar 4s infinite linear";
-        }
+        gestionarDistractores();
 
         config.coords.forEach((p) => {
             const punto = document.createElement('div');
@@ -142,10 +148,21 @@
                         document.getElementById('mesa-container').appendChild(el);
                         aciertosNivel++;
                         document.getElementById('progreso-text').innerText = `${configNiveles[nivelActual].nombre.toUpperCase()}: ${aciertosNivel}/6`;
-                        if (aciertosNivel === 6) { hablar("¡Logrado!"); setTimeout(siguienteNivel, 1500); }
+                        
+                        // FEEDBACK POSITIVO
+                        if (aciertosNivel === 6) { 
+                            hablar("¡Excelente trabajo! Has completado el grupo."); 
+                            setTimeout(siguienteNivel, 2000); 
+                        } else {
+                            hablar("¡Muy bien!");
+                        }
                     }
                 });
-                if (!exito) { el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; }
+                if (!exito) { 
+                    // FEEDBACK NEGATIVO
+                    hablar("Ese no es el lugar, intenta otra vez.");
+                    el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; 
+                }
             };
             document.addEventListener('touchmove', mover); document.addEventListener('touchend', soltar);
         };
@@ -153,9 +170,13 @@
 
     function siguienteNivel() {
         if (nivelActual < 3) { nivelActual++; iniciarNivel(); }
-        else hablar("¡Sesión finalizada con éxito!");
+        else { 
+            audioPerro.pause(); audioPito.pause();
+            document.getElementById('mosca').style.display = 'none';
+            hablar("Felicidades, has preparado la mesa perfectamente."); 
+        }
     }
 </script>
 </body>
 </html>
-
+  
