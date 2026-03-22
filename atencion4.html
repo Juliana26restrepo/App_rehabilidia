@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 4 - Atención Selectiva</title>
+    <title>Sesión 4 - Atención Selectiva Final</title>
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
@@ -97,9 +97,18 @@
             document.getElementById('mosca').style.display = 'block';
             document.getElementById('mosca').style.animation = "volar 4s infinite linear";
             hablar("Nivel final: coloca los tenedores. Hay muchos distractores ahora.");
+            
+            // 6 Tenedores Correctos
             for(let i=0; i<6; i++) items.push(crearObjeto('t1.png', 't'));
+            
+            // Distractores no relacionados (d1-d6)
             for(let i=1; i<=6; i++) items.push(crearObjeto(`d${i}.png`, 'dist', true));
-            items.push(crearObjeto('s1.png', 'dist', true), crearObjeto('c1.png', 'dist', true));
+            
+            // Distractores relacionados adicionales (Varios Cuchillos y Servilletas)
+            for(let i=0; i<3; i++) {
+                items.push(crearObjeto('s1.png', 'dist', true));
+                items.push(crearObjeto('c1.png', 'dist', true));
+            }
         }
 
         items.sort(() => Math.random() - 0.5).forEach(item => panel.appendChild(item));
