@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 4 - Mesa Proporcional</title>
+    <title>Sesión 4 - Rehabilitación Mesa</title>
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
@@ -15,38 +15,37 @@
             width: 90%; max-width: 900px; background: white; border: 3px solid var(--t-blue); 
             border-radius: 15px; padding: 10px; display: flex; align-items: center; margin-top: 5px; min-height: 60px;
         }
-        #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
         #game-area { display: flex; width: 100%; justify-content: space-evenly; align-items: center; flex-grow: 1; padding: 5px; }
 
-        /* MESA MÁS GRANDE */
+        /* MESA GRANDE PARA VISIBILIDAD */
         #mesa-container { 
-            width: 900px; height: 550px; background: url('img4/fondo_mesa.jpg') no-repeat center; 
+            width: 900px; height: 520px; background: url('img4/fondo_mesa.jpg') no-repeat center; 
             background-size: contain; position: relative; border-radius: 20px;
         }
 
-        /* PUNTOS GUÍA MÁS PEQUEÑOS */
         .punto-guia { 
-            position: absolute; width: 55px; height: 55px; border: 3px dashed rgba(48, 123, 142, 0.5); 
+            position: absolute; width: 60px; height: 60px; border: 3px dashed rgba(48, 123, 142, 0.4); 
             border-radius: 50%; transform: translate(-50%, -50%); z-index: 5;
         }
 
         #panel-objetos { 
-            width: 140px; height: 520px; background: white; border: 2px solid var(--t-blue); 
+            width: 140px; height: 500px; background: white; border: 2px solid var(--t-blue); 
             border-radius: 15px; display: flex; flex-direction: column; align-items: center; 
             padding: 10px; gap: 10px; overflow-y: auto;
         }
-        .draggable { width: 65px; height: 65px; cursor: grab; z-index: 50; }
+        .draggable { width: 70px; height: 70px; cursor: grab; z-index: 50; }
 
-        /* TAMAÑOS REDUCIDOS PARA QUE QUEPA TODO */
-        .colocado-p { position: absolute !important; width: 85px !important; height: 85px !important; transform: translate(-50%, -50%) !important; pointer-events: none; z-index: 10; }
-        .colocado-v { position: absolute !important; width: 40px !important; height: 40px !important; transform: translate(-50%, -50%) !important; pointer-events: none; z-index: 15; }
-        .colocado-t { position: absolute !important; width: 30px !important; height: 75px !important; transform: translate(-50%, -50%) !important; pointer-events: none; z-index: 15; }
+        /* TAMAÑOS PROPORCIONALES (Corregido para que quepa todo) */
+        .colocado-p { position: absolute !important; width: 95px !important; height: 95px !important; transform: translate(-50%, -50%) !important; pointer-events: none; z-index: 10; }
+        .colocado-v { position: absolute !important; width: 45px !important; height: 45px !important; transform: translate(-50%, -50%) !important; pointer-events: none; z-index: 15; }
+        .colocado-t { position: absolute !important; width: 35px !important; height: 90px !important; transform: translate(-50%, -50%) !important; pointer-events: none; z-index: 15; }
 
-        #mosca { position: absolute; width: 50px; z-index: 2000; display: none; pointer-events: none; }
+        #mosca { position: absolute; width: 55px; z-index: 2000; display: none; pointer-events: none; }
         @keyframes volarMosca {
-            0% { top: 15%; left: 15%; } 25% { top: 75%; left: 85%; } 50% { top: 35%; left: 40%; } 75% { top: 85%; left: 15%; } 100% { top: 15%; left: 15%; }
+            0% { top: 10%; left: 10%; } 33% { top: 60%; left: 80%; } 66% { top: 80%; left: 20%; } 100% { top: 10%; left: 10%; }
         }
     </style>
 </head>
@@ -60,7 +59,7 @@
 <div id="main-stage">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">¡Cargando!</p>
+        <p id="texto-guia">¡Hola! Vamos a preparar la mesa.</p>
     </div>
 
     <div id="game-area">
@@ -77,30 +76,31 @@
     let intervaloPerro;
     const audioPerro = new Audio("https://www.myinstants.com/media/sounds/dog-bark.mp3");
 
-    // Coordenadas ajustadas para objetos más pequeños
+    // Coordenadas calibradas sobre la mesa
     const puestosPlato = [
         {x: 35, y: 38}, {x: 50, y: 38}, {x: 65, y: 38},
-        {x: 35, y: 65}, {x: 50, y: 65}, {x: 65, y: 65}
+        {x: 35, y: 68}, {x: 50, y: 68}, {x: 65, y: 68}
     ];
     const puestosVaso = [
-        {x: 40, y: 30}, {x: 55, y: 30}, {x: 70, y: 30},
-        {x: 40, y: 57}, {x: 55, y: 57}, {x: 70, y: 57}
+        {x: 41, y: 30}, {x: 56, y: 30}, {x: 71, y: 30},
+        {x: 41, y: 60}, {x: 56, y: 60}, {x: 71, y: 60}
     ];
     const puestosTenedor = [
-        {x: 29, y: 38}, {x: 44, y: 38}, {x: 59, y: 38},
-        {x: 29, y: 65}, {x: 44, y: 65}, {x: 59, y: 65}
+        {x: 28, y: 38}, {x: 43, y: 38}, {x: 58, y: 38},
+        {x: 28, y: 68}, {x: 43, y: 68}, {x: 58, y: 68}
     ];
 
     const configNiveles = {
-        1: { tipo: 'p', clase: 'colocado-p', coords: puestosPlato, nombre: "platos" },
-        2: { tipo: 'v', clase: 'colocado-v', coords: puestosVaso, nombre: "vasos" },
-        3: { tipo: 't', clase: 'colocado-t', coords: puestosTenedor, nombre: "tenedores" }
+        1: { tipo: 'p', imagen: 'p1.png', clase: 'colocado-p', coords: puestosPlato, nombre: "platos", msg: "Coloca los 6 platos en los puntos marcados." },
+        2: { tipo: 'v', imagen: 'v1.png', clase: 'colocado-v', coords: puestosVaso, nombre: "vasos", msg: "¡Bien! Ahora pon los vasos arriba de cada plato. Ignora los ladridos." },
+        3: { tipo: 't', imagen: 't1.png', clase: 'colocado-t', coords: puestosTenedor, nombre: "tenedores", msg: "Por último, los tenedores a la izquierda. ¡Cuidado con la mosca!" }
     };
 
     function hablar(msg) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(msg);
         u.lang = 'es-ES';
+        u.rate = 0.9;
         window.speechSynthesis.speak(u);
         document.getElementById('texto-guia').innerText = msg;
     }
@@ -117,21 +117,17 @@
         mesa.querySelectorAll('.punto-guia').forEach(p => p.remove());
         panel.innerHTML = "";
 
-        // Ladrido más rápido en Nivel 2 (cada 3 segundos)
+        // PERRO MÁS RÁPIDO (Cada 2.5 segundos en Nivel 2)
         if(nivelActual === 2) {
             if(intervaloPerro) clearInterval(intervaloPerro);
-            intervaloPerro = setInterval(() => audioPerro.play(), 3000);
-            hablar("Ignora los ladridos y coloca los vasos.");
+            intervaloPerro = setInterval(() => audioPerro.play(), 2500);
         }
         
         if(nivelActual === 3) {
-            if(intervaloPerro) clearInterval(intervaloPerro); // Detener perro si prefieres solo mosca
+            if(intervaloPerro) clearInterval(intervaloPerro);
             const m = document.getElementById('mosca');
             m.style.display = 'block';
-            m.style.animation = "volarMosca 4s infinite linear";
-            hablar("¡Cuidado con la mosca! Coloca los tenedores.");
-        } else if (nivelActual === 1) {
-            hablar("Coloca los 6 platos sobre la mesa.");
+            m.style.animation = "volarMosca 3s infinite ease-in-out";
         }
 
         config.coords.forEach((p) => {
@@ -141,11 +137,13 @@
             mesa.appendChild(punto);
 
             const obj = document.createElement('img');
-            obj.src = `img4/${config.tipo}1.png`;
+            obj.src = `img4/${config.imagen}`; // CORRECCIÓN: v1.png, p1.png, t1.png
             obj.className = 'draggable';
             activarDrag(obj);
             panel.appendChild(obj);
         });
+
+        setTimeout(() => hablar(config.msg), 500);
     }
 
     function activarDrag(el) {
@@ -174,7 +172,13 @@
                         aciertosNivel++;
                         document.getElementById('progreso-text').innerText = `${configNiveles[nivelActual].nombre.toUpperCase()}: ${aciertosNivel}/6`;
                         
-                        if (aciertosNivel === 6) { hablar("¡Muy bien!"); setTimeout(siguienteNivel, 1500); }
+                        if (aciertosNivel === 6) { 
+                            hablar("¡Excelente nivel completado!"); 
+                            setTimeout(siguienteNivel, 2000); 
+                        } else {
+                            const felicitaciones = ["¡Muy bien!", "¡Eso es!", "¡Sigue así!", "¡Perfecto!"];
+                            hablar(felicitaciones[Math.floor(Math.random()*felicitaciones.length)]);
+                        }
                     }
                 });
                 if (!exito) { el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; }
@@ -188,7 +192,7 @@
         else { 
             clearInterval(intervaloPerro);
             document.getElementById('mosca').style.display = 'none';
-            hablar("¡Excelente trabajo! La mesa está lista."); 
+            hablar("¡Felicidades! Has completado la sesión con éxito."); 
         }
     }
     window.onload = iniciarNivel;
