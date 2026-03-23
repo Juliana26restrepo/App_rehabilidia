@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 6 - Cocina</title>
+    <title>Sesión 6 - Cocina Final</title>
     <style>
         body { font-family: sans-serif; margin: 0; background: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
         #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; }
@@ -44,10 +44,12 @@
     const frasesCorrecto = ["¡Bien! Ese era", "Correcto", "¡Muy bien!", "Ese es el ingrediente"];
     const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Prueba con otro", "Ese no va en la receta"];
 
+    // --- AUDIOS LOCALES ---
     const sonidosDistractores = {
-        reloj: new Audio("https://actions.google.com/sounds/v1/household/kitchen_timer_ticking.ogg"),
-        licuadora: new Audio("https://actions.google.com/sounds/v1/household/blender_running.ogg"),
-        grito: new Audio("https://actions.google.com/sounds/v1/human_voices/man_short_scream.ogg")
+        reloj: new Audio("img6/reloj.mp3"),
+        licuadora: new Audio("img6/licuadora.mp3"),
+        grito: new Audio("img6/grito.mp3"),
+        moscas: new Audio("img6/moscas.mp3")
     };
     let ruidosIniciados = false;
 
@@ -55,15 +57,13 @@
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
-        msg.volume = 1;
-        msg.rate = 0.9;
-        
-        // Esto fuerza a que la voz suene en Android/iOS
-        window.speechSynthesis.speak(msg);
+        msg.rate = 1.0;
         document.getElementById('texto-guia').innerText = mensaje;
+        window.speechSynthesis.speak(msg);
     }
 
     function gestionarRuidos() {
+        // Resetear sonidos
         Object.values(sonidosDistractores).forEach(s => { s.pause(); s.currentTime = 0; s.loop = true; });
 
         if (nivel === 1) {
@@ -74,18 +74,22 @@
         } else if (nivel === 3) {
             sonidosDistractores.reloj.play();
             sonidosDistractores.licuadora.play();
+            sonidosDistractores.moscas.play();
             if(!window.intGrito) window.intGrito = setInterval(() => { if(nivel === 3) sonidosDistractores.grito.play(); }, 12000);
-            crearMoscas();
+            crearMoscasVisuales();
         }
     }
 
-    function crearMoscas() {
-        for(let i=0; i<3; i++) {
+    function crearMoscasVisuales() {
+        for(let i=0; i<4; i++) {
             const m = document.createElement('img');
             m.src = 'img6/mosca.png'; m.className = 'mosca';
             m.style.left = Math.random()*80+'%'; m.style.top = Math.random()*80+'%';
             document.body.appendChild(m);
-            setInterval(() => { m.style.left = Math.random()*90+'%'; m.style.top = Math.random()*90+'%'; }, 2000);
+            setInterval(() => { 
+                m.style.left = Math.random()*90+'%'; 
+                m.style.top = Math.random()*90+'%'; 
+            }, 1500);
         }
     }
 
@@ -99,15 +103,15 @@
         let pool = [];
         if(nivel === 1) {
             receta = ['pan_blanco.png', 'jamon.png', 'queso.png'];
-            hablar("Hola. Para esta receta busca: Pan blanco, Jamón y Queso.");
+            hablar("Busca: Pan blanco, Jamón y Queso.");
             pool = [...receta, 'manzana.png', 'platano.png'];
         } else if(nivel === 2) {
             receta = ['pan_integral.png', 'pollo.png', 'tomate.png', 'sal.png'];
-            hablar("Nivel 2. Ahora busca: Pan integral, Pollo, Tomate y Sal.");
+            hablar("Busca: Pan integral, Pollo, Tomate y Sal.");
             pool = [...receta, 'jabon.png', 'pila.png'];
         } else {
             receta = ['arepa.png', 'huevo.png', 'atun.png', 'aguacate.png', 'cebolla.png'];
-            hablar("Nivel final. Busca: Arepa, Huevo, Atún, Aguacate y Cebolla.");
+            hablar("Busca: Arepa, Huevo, Atún, Aguacate y Cebolla.");
             pool = [...receta, 'moneda.png', 'fresa.png'];
         }
 
@@ -148,7 +152,7 @@
                     document.getElementById('plato-capa').appendChild(n);
                     el.remove(); aciertos++;
                     if(aciertos === receta.length) {
-                        setTimeout(() => { if(nivel < 3) { nivel++; cargarNivel(); } else hablar("¡Felicidades!"); }, 2000);
+                        setTimeout(() => { if(nivel < 3) { nivel++; cargarNivel(); } else hablar("¡Excelente, terminaste!"); }, 2000);
                     }
                 } else {
                     hablar(frasesIncorrecto[Math.floor(Math.random() * frasesIncorrecto.length)]);
@@ -162,4 +166,3 @@
 </script>
 </body>
 </html>
-
