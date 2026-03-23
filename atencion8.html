@@ -10,253 +10,168 @@
         #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 4px solid #307B8E; }
         #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
         
-        #escenario { flex-grow: 1; display: flex; background: url('img8/habitacion_fondo8.jpg') no-repeat center; background-size: cover; position: relative; gap: 10px; padding: 10px; }
+        #escenario { flex-grow: 1; display: flex; background: url('img8/habitacion_fondo8.jpg') no-repeat center; background-size: cover; position: relative; padding: 10px; gap: 15px; }
         
-        /* Área Izquierda: Armario Interactivo */
-        #contenedor-armario { width: 50%; height: 90%; position: relative; border: 4px solid #0A253A; border-radius: 20px; overflow: hidden; }
-        #armario_img { width: 100%; height: 100%; object-fit: cover; }
+        /* Armario con Puntos de Ubicación */
+        #contenedor-armario { width: 45%; height: 90%; position: relative; border: 4px solid #0A253A; border-radius: 20px; background: rgba(255,255,255,0.2); }
+        #armario_img { width: 100%; height: 100%; object-fit: contain; }
         
-        /* Zonas de Soltado Invisibles (siguiendo el boceto 1, 2, 3) */
-        .zona-drop { position: absolute; left: 0; width: 100%; opacity: 0.3; border: 2px dashed #0A253A; z-index: 5; transition: opacity 0.3s; }
-        .zona-drop.activa { opacity: 0.8; background-color: rgba(48, 123, 142, 0.2); }
-        #zona1 { top: 10%; height: 25%; } /* Zona 1 (Arriba) - Colgar */
-        #zona2 { top: 40%; height: 25%; } /* Zona 2 (Medio) - Estantes */
-        #zona3 { top: 70%; height: 25%; } /* Zona 3 (Abajo) - Suelo */
+        .punto-ubicacion { position: absolute; width: 40px; height: 40px; background: rgba(48, 123, 142, 0.8); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; z-index: 10; }
+        #punto1 { top: 20%; left: 45%; } /* Colgar */
+        #punto2 { top: 50%; left: 45%; } /* Estantes */
+        #punto3 { top: 80%; left: 45%; } /* Suelo */
 
-        /* Área Derecha: Despensa de Prendas */
-        #despensa-prendas { width: 50%; height: 90%; background: rgba(255,255,255,0.85); border: 4px solid #0A253A; border-radius: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 15px; overflow-y: auto; align-content: start; }
+        #despensa-prendas { width: 55%; background: rgba(255,255,255,0.9); border-radius: 20px; border: 3px solid #0A253A; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; overflow-y: auto; }
         
-        .item { width: 100px; height: 100px; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; transition: transform 0.2s; }
-        .item:active { transform: scale(1.1); }
-        .en-armario { width: 60px; height: 60px; object-fit: contain; }
+        .item { width: 80px; height: 80px; object-fit: contain; cursor: grab; touch-action: none; }
 
-        /* Notificación Flotante (Atención Alternante) */
-        #notificacion { display: none; position: fixed; width: 320px; background: #FFD700; border: 5px solid #0A253A; border-radius: 15px; padding: 15px; text-align: center; z-index: 2000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        #notificacion-pregunta { font-weight: bold; margin-bottom: 12px; color: #0A253A; }
-        .notificacion-boton { width: 45%; padding: 10px; margin: 5px; font-size: 1.1rem; border-radius: 8px; border: 2px solid #0A253A; cursor: pointer; color: white; transition: background 0.2s; }
-        #notificacion-opcA { background: #307B8E; }
-        #notificacion-opcB { background: #307B8E; }
+        /* Notificación */
+        #notificacion { display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #FFD700; border: 4px solid #0A253A; border-radius: 15px; padding: 20px; text-align: center; z-index: 2000; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .btn-notif { padding: 10px; margin: 10px 5px; width: 100px; border-radius: 8px; border: 2px solid #0A253A; font-weight: bold; cursor: pointer; }
 
-        /* Modal de Resumen */
-        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
-<body onload="cargarNivel8()">
+<body onload="iniciarJuego()">
 
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
+        <p id="texto-guia">Cargando instrucciones...</p>
     </div>
 </div>
 
 <div id="escenario">
     <div id="contenedor-armario">
         <img src="img8/armario.png" id="armario_img">
-        <div class="zona-drop" id="zona1" data-zona="1"></div>
-        <div class="zona-drop" id="zona2" data-zona="2"></div>
-        <div class="zona-drop" id="zona3" data-zona="3"></div>
+        <div class="punto-ubicacion" id="punto1">1</div>
+        <div class="punto-ubicacion" id="punto2">2</div>
+        <div class="punto-ubicacion" id="punto3">3</div>
     </div>
-
     <div id="despensa-prendas"></div>
 </div>
 
 <div id="notificacion">
-    <p id="notificacion-pregunta"></p>
-    <button class="notificacion-boton" id="notificacion-opcA"></button>
-    <button class="notificacion-boton" id="notificacion-opcB"></button>
+    <p id="pregunta-txt" style="font-weight: bold;"></p>
+    <button class="btn-notif" id="btnA" style="background: #307B8E; color: white;"></button>
+    <button class="btn-notif" id="btnB" style="background: #307B8E; color: white;"></button>
 </div>
 
 <div id="modal-cierre">
     <h2 id="msg-final"></h2>
-    <p id="stats" style="font-size: 1.4rem;"></p>
-    <button onclick="location.reload()" style="padding: 15px 30px; font-size: 1.2rem; cursor: pointer;">Reiniciar Nivel</button>
+    <p id="stats" style="font-size: 1.5rem;"></p>
+    <button onclick="location.reload()" style="padding: 15px; margin-top: 20px; border-radius: 10px; cursor: pointer;">Siguiente Tarea</button>
 </div>
 
 <script>
-    let nivel = 1, aciertosOrganizacion = 0, aciertosLlamadas = 0, llamadasTotales = 0, totalPrendasNivel = 0;
-    let poolPrendas = [];
-    const alarmaSound = new Audio("img8/alarma.mp3");
-    const exitoSound = new Audio("img8/exito.mp3");
-    alarmaSound.volume = 0.5;
-    exitoSound.volume = 0.5;
+    let nivel = 1, aciertos = 0, totalLlamadas = 0, aciertosLlamadas = 0;
+    const audioAlarma = new Audio('img8/alarma.mp3');
+    const audioExito = new Audio('img8/exito.mp3');
 
-    // Base de datos de prendas y sus zonas correctas (1, 2, 3)
-    const dbPrendas = {
-        'chaqueta.png': 1, 'camisa_polo.png': 1, 'camisa_verde.png': 1, 'vestido.png': 1,
-        'pijama.png': 2, 'saco.png': 2, 'sueter.png': 2, 'gafas.png': 2, 'gorro.png': 2, 'bufanda.png': 2,
-        'bota.png': 3, 'pantalones.png': 3, 'pantalones_cortos.png': 3, 'bermudas.png': 3, 'tacones.png': 3, 'zapato1.png': 3,
-        'distractores': ['balon.png', 'cafe.png', 'cepillo.png', 'libro.png', 'martillo.png', 'paraguas.png', 'planta.png', 'sarten.png']
+    const prendas = {
+        1: ['chaqueta.png', 'camisa_polo.png', 'camisa_verde.png', 'vestido.png'],
+        2: ['pijama.png', 'saco.png', 'sueter.png', 'gafas.png', 'gorro.png', 'bufanda.png'],
+        3: ['bota.png', 'pantalones.png', 'pantalones_cortos.png', 'bermudas.png', 'tacones.png', 'zapato1.png']
     };
 
-    const dbLlamadas = [
-        { q: "¿La manzana es una fruta?", a: "Fruta", b: "Verdura", c: 'A' },
-        { q: "¿5 + 3 es igual a 8?", a: "Sí", b: "No", c: 'A' },
-        { q: "¿El perro es un animal?", a: "Animal", b: "Objeto", c: 'A' },
-        { q: "¿Qué se usa para la lluvia?", a: "Paraguas", b: "Gorra", c: 'A' },
-        { q: "¿La suma de 2+2?", a: "5", b: "4", c: 'B' },
-        { q: "¿El sol sale por la mañana?", a: "No", b: "Sí", c: 'B' },
-        { q: "¿Qué día es hoy?", a: "Lunes", b: "Martes", c: 'A' }, // Simplificado para tablets
+    const preguntas = [
+        { q: "¿La vaca hace miau?", a: "Sí", b: "No", c: "B" },
+        { q: "¿El sol es caliente?", a: "Sí", b: "No", c: "A" },
+        { q: "¿Usas zapatos en las manos?", a: "Sí", b: "No", c: "B" }
     ];
 
-    function hablarCoterapeuta(txt) {
+    function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
-        msg.pitch = 1.0; msg.rate = 1.0;
         document.getElementById('texto-guia').innerText = txt;
         window.speechSynthesis.speak(msg);
     }
 
-    function cargarNivel8() {
-        const d = document.getElementById('despensa-prendas');
-        d.innerHTML = "";
-        aciertosOrganizacion = 0; aciertosLlamadas = 0; llamadasTotales = 0;
-        document.getElementById('modal-cierre').style.display = 'none';
-
-        if (nivel === 1) {
-            poolPrendas = ['chaqueta.png', 'camisa_ polo.png', 'pijama.png', 'bota.png']; // 4 prendas básicas
-            totalPrendasNivel = poolPrendas.length;
-            hablarCoterapeuta("Nivel Bajo: Organiza 4 prendas. Arriba: colgar. Medio: doblar. Abajo: calzado.");
-        } else if (nivel === 2) {
-            poolPrendas = ['camisa_verde.png', 'vestido.png', 'saco.png', 'gafas.png', 'gorro.png', 'pantalones.png', 'tacones.png']; // 7 prendas mezcladas
-            totalPrendasNivel = poolPrendas.length;
-            hablarCoterapeuta("Nivel Medio: Organiza 7 prendas. Cuidado con las notificaciones flotantes.");
-        } else {
-            poolPrendas = ['chaqueta.png', 'vestido.png', 'pijama.png', 'sueter.png', 'bufanda.png', 'bota.png', 'pantalones_cortos.png', 'bermudas.png', 'zapato1.png', 'sueter.png']; // 10 prendas avancadas
-            // Añadir distractores masivos
-            poolPrendas = [...poolPrendas, ...dbPrendas.distractores.sort(() => 0.5 - Math.random()).slice(0, 4)];
-            totalPrendasNivel = poolPrendas.length;
-            hablarCoterapeuta("Nivel Alto: Organiza 10 prendas con muchos distractores. ¡No pierdas el control!");
-        }
-
-        poolPrendas.sort(() => Math.random() - 0.5).forEach(img => {
-            const el = document.createElement('img');
-            el.src = `img8/${img}`; el.className = 'item'; el.dataset.id = img;
-            el.ontouchstart = drag8;
-            d.appendChild(el);
-        });
-
-        // La primera notificación flotante ocurre entre 10 y 15 segundos después de iniciar
-        setTimeout(lanzarNotificacion, Math.random() * 5000 + 10000);
+    function iniciarJuego() {
+        hablar("Organiza la ropa en el armario. Usa los puntos 1, 2 y 3 para ubicar cada prenda correctamente.");
+        generarPrendas();
+        setTimeout(lanzarNotificacion, 12000);
     }
 
-    function drag8(e) {
+    function generarPrendas() {
+        const d = document.getElementById('despensa-prendas');
+        let lista = [];
+        // Mezclar algunas prendas de cada categoría
+        for(let i=1; i<=3; i++) {
+            prendas[i].slice(0, 3).forEach(p => lista.push({img: p, zona: i}));
+        }
+        // Mezclar distractores
+        ['balon.png', 'cafe.png', 'martillo.png'].forEach(p => lista.push({img: p, zona: 0}));
+
+        lista.sort(() => Math.random() - 0.5).forEach(p => {
+            const img = document.createElement('img');
+            img.src = `img8/${p.img}`;
+            img.className = 'item';
+            img.dataset.zona = p.zona;
+            img.ontouchstart = drag;
+            d.appendChild(img);
+        });
+    }
+
+    function drag(e) {
         const el = e.target;
         el.style.position = 'fixed';
-        el.style.zIndex = 1000;
         const mover = (me) => {
-            el.style.left = (me.touches[0].clientX - 50) + 'px';
-            el.style.top = (me.touches[0].clientY - 50) + 'px';
-            destacarZonas(el.dataset.id);
+            el.style.left = (me.touches[0].clientX - 40) + 'px';
+            el.style.top = (me.touches[0].clientY - 40) + 'px';
         };
         const soltar = (se) => {
             document.removeEventListener('touchmove', mover);
             document.removeEventListener('touchend', soltar);
-            document.querySelectorAll('.zona-drop').forEach(z => z.classList.remove('activa'));
-            
             const t = se.changedTouches[0];
-            const elemBelow = document.elementFromPoint(t.clientX, t.clientY);
-            const zona = elemBelow ? elemBelow.dataset.zona : null;
-
-            if (zona) {
-                if (dbPrendas[el.dataset.id] == zona) {
-                    aciertosOrganizacion++;
-                    reubicarEnArmario(el, zona);
-                    hablarCoterapeuta("¡Muy bien!");
-                    if (aciertosOrganizacion === totalPrendasNivel) finalizarNivel8();
-                } else if (dbPrendas.distractores.includes(el.dataset.id)) {
-                    hablarCoterapeuta("Ese distractor no va en el armario.");
-                    el.style.position = 'static';
-                } else {
-                    hablarCoterapeuta("No, ese no va ahí.");
-                    el.style.position = 'static';
-                }
-            } else { el.style.position = 'static'; }
+            const zonaDestino = document.elementFromPoint(t.clientX, t.clientY);
+            
+            if(zonaDestino && zonaDestino.id.includes('punto' + el.dataset.zona)) {
+                aciertos++;
+                audioExito.play();
+                hablar("¡Muy bien ubicado!");
+                el.remove();
+                if(aciertos >= 6) finalizar();
+            } else {
+                hablar("Ese no es su lugar, intenta de nuevo.");
+                el.style.position = 'static';
+            }
         };
         document.addEventListener('touchmove', mover);
         document.addEventListener('touchend', soltar);
     }
 
-    function destacarZonas(prenda) {
-        document.querySelectorAll('.zona-drop').forEach(z => z.classList.remove('activa'));
-        if (dbPrendas.distractores.includes(prenda)) return;
-        const zonaDestacada = dbPrendas[prenda];
-        document.getElementById(`zona${zonaDestacada}`).classList.add('activa');
-    }
-
-    function reubicarEnArmario(el, zona) {
-        el.remove();
-        const elFinal = document.createElement('img');
-        elFinal.src = el.src; elFinal.className = 'item en-armario';
-        elFinal.style.position = 'absolute';
-        elFinal.style.top = Math.random() * 80 + '%';
-        elFinal.style.left = Math.random() * 80 + '%';
-        document.getElementById(`zona${zona}`).appendChild(elFinal);
-    }
-
     function lanzarNotificacion() {
-        if (aciertosOrganizacion < totalPrendasNivel) {
-            alarmaSound.play();
-            llamadasTotales++;
-            
-            // Pausar el juego (desactivar prendas)
-            document.getElementById('escenario').style.pointerEvents = "none";
-            
+        if(aciertos < 6) {
+            totalLlamadas++;
+            audioAlarma.play();
             const n = document.getElementById('notificacion');
-            const p = dbLlamadas[Math.floor(Math.random() * dbLlamadas.length)];
-            document.getElementById('notificacion-pregunta').innerText = p.q;
-            document.getElementById('notificacion-opcA').innerText = p.a;
-            document.getElementById('notificacion-opcB').innerText = p.b;
+            const p = preguntas[Math.floor(Math.random() * preguntas.length)];
             
+            document.getElementById('pregunta-txt').innerText = p.q;
+            document.getElementById('btnA').innerText = p.a;
+            document.getElementById('btnB').innerText = p.b;
             n.style.display = 'block';
-            posicionarFlotante(n);
 
-            n.querySelectorAll('.notificacion-boton').forEach(b => {
-                b.onclick = () => {
-                    const respuesta = b.id.slice(-1); // A o B
-                    if (respuesta == p.c) {
-                        aciertosLlamadas++;
-                        exitoSound.play();
-                        hablarCoterapeuta("¡Excelente!");
-                    } else {
-                        hablarCoterapeuta("No, esa no es la respuesta.");
-                    }
-                    cerrarNotificacion();
-                };
-            });
+            const responder = (res) => {
+                if(res === p.c) { aciertosLlamadas++; hablar("Respuesta correcta."); }
+                else { hablar("Respuesta incorrecta."); }
+                n.style.display = 'none';
+                setTimeout(lanzarNotificacion, 15000);
+            };
+
+            document.getElementById('btnA').onclick = () => responder("A");
+            document.getElementById('btnB').onclick = () => responder("B");
         }
     }
 
-    function posicionarFlotante(el) {
-        el.style.top = Math.random() * (window.innerHeight - 320) + 'px';
-        el.style.left = Math.random() * (window.innerWidth - 320) + 'px';
-    }
-
-    function cerrarNotificacion() {
-        document.getElementById('notificacion').style.display = 'none';
-        // Re-activar el juego
-        document.getElementById('escenario').style.pointerEvents = "auto";
-        // Tiempo límite para la próxima notificación depende del nivel
-        let tLimite = nivel === 1 ? 25000 : (nivel === 2 ? 15000 : 8000);
-        if (aciertosOrganizacion < totalPrendasNivel) setTimeout(lanzarNotificacion, Math.random() * tLimite + 5000);
-    }
-
-    function finalizarNivel8() {
-        if (nivel < 3) {
-            nivel++;
-            hablarCoterapeuta(`¡Nivel completado! Prepárate para el Nivel ${nivel}.`);
-            setTimeout(cargarNivel8, 4000);
-        } else {
-            document.getElementById('modal-cierre').style.display = 'flex';
-            document.getElementById('msg-final').innerText = "Excelente, tu capacidad para adaptarte a varias demandas está mejorando.";
-            let perc = Math.round((aciertosOrganizacion / totalPrendasNivel) * 100) || 0;
-            document.getElementById('stats').innerText = `Ropa Organizada: ${perc}% | Llamadas: ${aciertosLlamadas}/${llamadasTotales}`;
-            
-            const finalVOZ = new SpeechSynthesisUtterance("Excelente, tu capacidad para adaptarte a varias demandas está mejorando cada día");
-            finalVOZ.lang = 'es-ES';
-            window.speechSynthesis.speak(finalVOZ);
-        }
+    function finalizar() {
+        document.getElementById('modal-cierre').style.display = 'flex';
+        const msg = "Tu capacidad para adaptarte a varias demandas está mejorando cada día.";
+        document.getElementById('msg-final').innerText = msg;
+        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Notificaciones: ${aciertosLlamadas}/${totalLlamadas}`;
+        hablar(msg);
     }
 </script>
 </body>
