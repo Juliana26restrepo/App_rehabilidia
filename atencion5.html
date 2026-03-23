@@ -11,12 +11,11 @@
         #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; }
         header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; }
 
-        /* Guía del Coterapeuta */
-        #guia-box { width: 90%; max-width: 850px; background: white; border: 3px solid var(--t-blue); border-radius: 15px; padding: 10px; display: flex; align-items: center; margin: 10px 0; min-height: 65px; cursor: pointer; z-index: 100; }
+        #guia-box { width: 90%; max-width: 850px; background: white; border: 3px solid var(--t-blue); border-radius: 15px; padding: 10px; display: flex; align-items: center; margin: 10px 0; min-height: 65px; cursor: pointer; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
         #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
-        /* ZONA DE CESTOS (Superior según prototipo) */
+        /* ZONA DE CESTOS (Superior) */
         #zona-cestos { 
             display: flex; justify-content: space-around; align-items: flex-end; 
             width: 95%; height: 240px; margin-top: 10px; 
@@ -27,7 +26,7 @@
         .cesto img { width: 100%; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
         .cesto b { display: block; color: var(--p-blue); text-transform: uppercase; font-size: 0.85rem; margin-top: 5px; background: rgba(255,255,255,0.7); border-radius: 5px; }
 
-        /* PANEL DE OBJETOS (Inferior según prototipo) */
+        /* PANEL DE OBJETOS (Inferior) */
         #panel-objetos { 
             width: 90%; flex-grow: 1; background: #ffffff; border: 3px dashed var(--t-blue); 
             border-radius: 20px; margin: 15px 0 25px 0; display: flex; flex-wrap: wrap; 
@@ -36,7 +35,6 @@
 
         .prenda { width: 75px; height: 75px; cursor: grab; object-fit: contain; z-index: 100; touch-action: none; }
         
-        /* Distractor Visual Dinámico */
         #mosca-distractora { position: absolute; width: 50px; display: none; z-index: 200; pointer-events: none; }
         @keyframes volar { 0% {top:10%; left:-10%;} 25% {top:70%; left:80%;} 50% {top:30%; left:20%;} 100% {top:10%; left:-10%;} }
     </style>
@@ -64,7 +62,6 @@
 <script>
     let nivelActual = 1, aciertos = 0, totalNivel = 0, audioIniciado = false;
     
-    // Librería de sonidos
     const sonidos = {
         perro: new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg"),
         ambulancia: new Audio("https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg"),
@@ -102,13 +99,15 @@
 
         let listaItems = [];
 
+        // --- TODO CORREGIDO A .PNG SEGÚN REPOSITORIO ---
         if(nivelActual === 1) {
             totalNivel = 6;
             hablar("Clasifica ropa blanca y de color. Ignora los ladridos.");
-            sonidos.perro.loop = true; sonidos.perro.play(); // 1 distractor
+            sonidos.perro.loop = true; sonidos.perro.play(); // 1 Distractor
             
             crearCesto('B', 'cesto_blanco.png', 'Ropa Blanca');
             crearCesto('C', 'cesto_color.png', 'Ropa Color');
+            
             for(let i=1; i<=3; i++) {
                 listaItems.push({img: `b${i}.png`, tipo: 'B'});
                 listaItems.push({img: `color${i}.png`, tipo: 'C'});
@@ -119,24 +118,24 @@
             hablar("Clasifica la ropa. Ignora la ambulancia, el perro y la gente hablando.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
-            sonidos.personas.loop = true; sonidos.personas.play(); // 3 distractores
+            sonidos.personas.loop = true; sonidos.personas.play(); // 3 Distractores
             
             crearCesto('B', 'cesto_blanco.png', 'Ropa Blanca');
             crearCesto('C', 'cesto_color.png', 'Ropa Color');
-            for(let i=1; i<=3; i++) {
-                listaItems.push({img: `b${i+3}.png`, tipo: 'B'});
-                listaItems.push({img: `color${i+3}.png`, tipo: 'C'});
+            
+            for(let i=4; i<=6; i++) {
+                listaItems.push({img: `b${i}.png`, tipo: 'B'});
+                listaItems.push({img: `color${i}.png`, tipo: 'C'});
             }
-            // Añadir distractores visuales
             for(let i=1; i<=3; i++) listaItems.push({img: `dis${i}.png`, tipo: 'D'});
         }
         else if(nivelActual === 3) {
             totalNivel = 9;
-            hablar("Nivel Máximo. Ignora todos los ruidos, incluyendo la lavadora y la mosca.");
+            hablar("Nivel Máximo. Ignora todos los ruidos y la mosca.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
             sonidos.personas.loop = true; sonidos.personas.play();
-            sonidos.lavadora.loop = true; sonidos.lavadora.play(); // 4 distractores
+            sonidos.lavadora.loop = true; sonidos.lavadora.play(); // 4 Distractores
             
             mosca.style.display = 'block';
             mosca.style.animation = "volar 4s infinite linear";
@@ -232,7 +231,7 @@
             iniciarNivel(); 
         } else { 
             pararAudios(); 
-            hablar("¡Excelente! Has terminado la sesión de organización. Concentrarte en lo importante te ayuda a mejorar tu entorno."); 
+            hablar("¡Excelente! Has terminado la sesión de organización."); 
         }
     }
 </script>
