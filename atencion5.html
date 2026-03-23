@@ -1,1 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nivel 5 - Clasificación Terapéutica</title>
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
+        
+        #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; }
+        header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; }
+
+        /* Área de Instrucciones (Avatar) */
+        #guia-box { width: 90%; max-width: 850px; background: white; border: 3px solid var(--t-blue); border-radius: 15px; padding: 10px; display: flex; align-items: center; margin: 10px 0; min-height: 60px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+
+        /* Contenedor de Cestos (Proporcional al dibujo) */
+        #zona-cestos { 
+            display: flex; justify-content: space-around; align-items: flex-end; 
+            width: 95%; height: 220px; margin-top: 20px; 
+            background: url('img5/fondo_lavanderia.png') no-repeat center; background-size: cover;
+            border-bottom: 5px solid #ddd;
+        }
+        .cesto { width: 180px; text-align: center; transition: transform 0.2s; position: relative; }
+        .cesto img { width: 100%; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
+        .cesto b { display: block; margin-top: 5px; color: var(--p-blue); text-transform: uppercase; }
+
+        /* Panel de Objetos (Inferior, según prototipo) */
+        #panel-objetos { 
+            width: 90%; height: 200px; background: white; border: 3px dashed var(--t-blue); 
+            border-radius: 20px; margin-top: 30px; display: flex; flex-wrap: wrap; 
+            justify-content: center; align-content: center; gap: 15px; padding: 15px;
+        }
+
+        .prenda { width: 75px; height: 75px; cursor: grab; object-fit: contain; z-index: 100; touch-action: none; }
+        
+        /* Animaciones */
+        @keyframes sacudir { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        .error { animation: sacudir 0.3s; }
+    </style>
+</head>
+<body onclick="desbloquearAudio()">
+
+<header>
+    <div id="nivel-text">NIVEL: 1</div>
+    <div id="progreso-text">ACIERTOS: 0/6</div>
+</header>
+
+<div id="main-stage">
+    <div id="guia-box">
+        <img src="COTERAPEUTA.JPG" id="avatar">
+        <p id="texto-guia">Toca aquí para iniciar la sesión de clasificación.</p>
+    </div>
+
+    <div id="zona-cestos"></div>
+    <div id="panel-objetos"></div>
+</div>
+
+<script>
+    let nivelActual = 1, aciertos = 0, totalNivel = 0, audioIniciado = false;
+    
+    // Configuración de Sonidos
+    const sonidos = {
+        perro: new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg"),
+        ambulancia: new Audio("https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg"),
+        personas: new Audio("https://actions.google.com/sounds/v1/human_voices/crowd_talking.ogg"),
+        lavadora: new Audio("https://actions.google.com/sounds/v1/household/washing_machine_cycle.ogg"),
+        exito: new Audio("https://actions.google.com/sounds/v1/cartoon/clown_horn.ogg")
+    };
+
+    function hablar(msg) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(msg);
+        u.lang = 'es-ES'; u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+        document.getElementById('texto-guia').innerText = msg;
+    }
+
+    function desbloquearAudio() {
+        if (!audioIniciado) { 
+            audioIniciado = true; 
+            iniciarNivel(); 
+        }
+    }
+
+    function detenerSonidos() {
+        Object.values(sonidos).forEach(s => { s.pause(); s.currentTime = 0; });
+    }
+
+    function iniciarNivel() {
+        const zonaCestos = document.getElementById('zona-cestos');
+        const panel = document.getElementById('panel-objetos');
+        zonaCestos.innerHTML = ""; panel.innerHTML = "";
+        detenerSonidos();
+        aciertos = 0;
+
+        let items = [];
+        
+        // --- NIVEL 1 ---
+        if(nivelActual === 1) {
+            totalNivel = 6;
+            hablar("Nivel 1: Clasifica la ropa blanca y de color. Ignora los ladridos.");
+            sonidos.perro.loop = true; sonidos.perro.play();
+            
+            crearCesto('B', 'cesto_blanco.png', 'Blanca');
+            crearCesto('C', 'cesto_color.png', 'Color');
+
+            for(let i=1; i<=3; i++) {
+                items.push({img: `b${i}.png`, tipo: 'B'});
+                items.push({img: `color${i}.png`, tipo: 'C'});
+            }
+        } 
+        // --- NIVEL 2 ---
+        else if(nivelActual === 2) {
+            totalNivel = 6;
+            hablar("Nivel 2: Clasifica. Hay más ruido ahora, concéntrate solo en la ropa.");
+            sonidos.perro.loop = true; sonidos.perro.play();
+            sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
+            sonidos.personas.loop = true; sonidos.personas.play();
+
+            crearCesto('B', 'cesto_blanco.png', 'Blanca');
+            crearCesto('C', 'cesto_color.png', 'Color');
+
+            for(let i=1; i<=3; i++) {
+                items.push({img: `b${i+3}.png`, tipo: 'B'});
+                items.push({img: `color${i+3}.png`, tipo: 'C'});
+            }
+            // Distractores visuales
+            for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+        }
+        // --- NIVEL 3 ---
+        else if(nivelActual === 3) {
+            totalNivel = 9;
+            hablar("Nivel Final: Clasifica Blanca, Color y Toallas. Ignora todos los ruidos.");
+            sonidos.perro.loop = true; sonidos.perro.play();
+            sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
+            sonidos.personas.loop = true; sonidos.personas.play();
+            sonidos.lavadora.loop = true; sonidos.lavadora.play();
+
+            crearCesto('B', 'cesto_blanco.png', 'Blanca');
+            crearCesto('C', 'cesto_color.png', 'Color');
+            crearCesto('T', 'cesto_toallas.png', 'Toallas');
+
+            for(let i=1; i<=3; i++) {
+                items.push({img: `b${i}.png`, tipo: 'B'});
+                items.push({img: `color${i}.png`, tipo: 'C'});
+                items.push({img: `to${i}.png`, tipo: 'T'});
+            }
+            for(let i=4; i<=8; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+        }
+
+        document.getElementById('nivel-text').innerText = `NIVEL: ${nivelActual}`;
+        actualizarMarcador();
+
+        // Mezclar y mostrar objetos en el panel inferior
+        items.sort(() => Math.random() - 0.5).forEach(item => {
+            const el = document.createElement('img');
+            el.src = `img5/${item.img}`;
+            el.className = 'prenda';
+            el.dataset.tipo = item.tipo;
+            activarDrag(el);
+            panel.appendChild(el);
+        });
+    }
+
+    function crearCesto(tipo, img, texto) {
+        const cesto = document.createElement('div');
+        cesto.className = 'cesto';
+        cesto.id = `target-${tipo}`;
+        cesto.innerHTML = `<img src="img5/${img}"><b>${texto}</b>`;
+        document.getElementById('zona-cestos').appendChild(cesto);
+    }
+
+    function activarDrag(el) {
+        el.ontouchstart = (e) => {
+            const startX = e.touches[0].clientX;
+            const startY = e.touches[0].clientY;
+            const originalParent = el.parentNode;
+
+            el.style.position = 'fixed';
+            el.style.zIndex = 1000;
+
+            const mover = (me) => {
+                let t = me.touches[0];
+                el.style.left = (t.clientX - 40) + 'px';
+                el.style.top = (t.clientY - 40) + 'px';
+            };
+
+            const soltar = (se) => {
+                document.removeEventListener('touchmove', mover);
+                document.removeEventListener('touchend', soltar);
+                
+                let t = se.changedTouches[0];
+                let cestoCorrecto = document.getElementById(`target-${el.dataset.tipo}`);
+                
+                if (el.dataset.tipo === 'D') {
+                    hablar("Eso no es ropa, busca bien.");
+                    reset(); return;
+                }
+
+                if (cestoCorrecto) {
+                    let r = cestoCorrecto.getBoundingClientRect();
+                    if (t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+                        el.remove();
+                        aciertos++;
+                        sonidos.exito.play();
+                        actualizarMarcador();
+                        if (aciertos === totalNivel) setTimeout(siguienteNivel, 1500);
+                        else hablar("¡Muy bien!");
+                        return;
+                    }
+                }
+                
+                hablar("Ponlo en el cesto correcto.");
+                reset();
+            };
+
+            function reset() {
+                el.style.position = 'static';
+                originalParent.appendChild(el);
+            }
+
+            document.addEventListener('touchmove', mover);
+            document.addEventListener('touchend', soltar);
+        };
+    }
+
+    function actualizarMarcador() {
+        document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertos}/${totalNivel}`;
+    }
+
+    function siguienteNivel() {
+        if (nivelActual < 3) {
+            nivelActual++;
+            iniciarNivel();
+        } else {
+            detenerSonidos();
+            hablar("¡Excelente trabajo! Has completado todos los niveles de organización.");
+        }
+    }
+</script>
+</body>
+</html>
 
