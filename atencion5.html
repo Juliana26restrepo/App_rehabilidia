@@ -11,35 +11,35 @@
         #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; }
         header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; }
 
-        #guia-box { width: 90%; max-width: 850px; background: white; border: 3px solid var(--t-blue); border-radius: 15px; padding: 10px; display: flex; align-items: center; margin: 10px 0; min-height: 65px; cursor: pointer; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
-        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #guia-box { width: 90%; max-width: 850px; background: white; border: 3px solid var(--t-blue); border-radius: 15px; padding: 15px; display: flex; align-items: center; margin: 10px 0; min-height: 80px; cursor: pointer; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #avatar { width: 60px; height: 60px; border-radius: 50%; margin-right: 20px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
 
-        /* ZONA DE CESTOS (Superior) */
+        /* ZONA DE CESTOS (Superior según prototipo) */
         #zona-cestos { 
             display: flex; justify-content: space-around; align-items: flex-end; 
-            width: 95%; height: 240px; margin-top: 10px; 
+            width: 95%; height: 260px; margin-top: 10px; 
             background: url('img5/fondo_lavanderia.png') no-repeat center; background-size: cover;
             border-bottom: 4px solid #ddd; position: relative; border-radius: 15px;
         }
-        .cesto { width: 160px; text-align: center; position: relative; padding-bottom: 5px; }
-        .cesto img { width: 100%; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
-        .cesto b { display: block; color: var(--p-blue); text-transform: uppercase; font-size: 0.85rem; margin-top: 5px; background: rgba(255,255,255,0.7); border-radius: 5px; }
+        .cesto { width: 150px; text-align: center; position: relative; padding-bottom: 10px; }
+        .cesto img { width: 100%; pointer-events: none; }
+        .cesto b { display: block; color: var(--p-blue); text-transform: uppercase; font-size: 0.8rem; margin-top: 5px; background: rgba(255,255,255,0.8); border-radius: 4px; }
 
         /* PANEL DE OBJETOS (Inferior) */
         #panel-objetos { 
             width: 90%; flex-grow: 1; background: #ffffff; border: 3px dashed var(--t-blue); 
-            border-radius: 20px; margin: 15px 0 25px 0; display: flex; flex-wrap: wrap; 
-            justify-content: center; align-content: center; gap: 15px; padding: 15px;
+            border-radius: 20px; margin: 20px 0; display: flex; flex-wrap: wrap; 
+            justify-content: center; align-content: center; gap: 15px; padding: 20px;
         }
 
-        .prenda { width: 75px; height: 75px; cursor: grab; object-fit: contain; z-index: 100; touch-action: none; }
+        .prenda { width: 80px; height: 80px; cursor: grab; object-fit: contain; z-index: 1000; touch-action: none; }
         
-        #mosca-distractora { position: absolute; width: 50px; display: none; z-index: 200; pointer-events: none; }
-        @keyframes volar { 0% {top:10%; left:-10%;} 25% {top:70%; left:80%;} 50% {top:30%; left:20%;} 100% {top:10%; left:-10%;} }
+        #mosca { position: absolute; width: 50px; display: none; z-index: 500; pointer-events: none; }
+        @keyframes volar { 0% {top:10%; left:0%;} 50% {top:60%; left:80%;} 100% {top:10%; left:0%;} }
     </style>
 </head>
-<body onclick="desbloquearAudio()">
+<body onclick="iniciarApp()">
 
 <header>
     <div id="nivel-text">NIVEL: 1</div>
@@ -49,189 +49,201 @@
 <div id="main-stage">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">¡Toca aquí para iniciar la Sesión 5!</p>
+        <p id="texto-guia">¡Hola! Soy tu guía. Toca aquí para empezar a clasificar la ropa.</p>
     </div>
 
     <div id="zona-cestos">
-        <img src="img/D_mosca.png" id="mosca-distractora">
+        <img src="img/D_mosca.png" id="mosca">
     </div>
     
     <div id="panel-objetos"></div>
 </div>
 
 <script>
-    let nivelActual = 1, aciertos = 0, totalNivel = 0, audioIniciado = false;
+    let nivelActual = 1, aciertos = 0, totalNivel = 0, appIniciada = false;
     
     const sonidos = {
         perro: new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg"),
         ambulancia: new Audio("https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg"),
         personas: new Audio("https://actions.google.com/sounds/v1/human_voices/crowd_talking.ogg"),
         lavadora: new Audio("https://actions.google.com/sounds/v1/household/washing_machine_cycle.ogg"),
-        bien: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg")
+        exito: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg")
     };
 
-    function hablar(msg) {
+    function hablar(mensaje) {
         window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(msg);
-        u.lang = 'es-ES'; u.rate = 0.9;
-        window.speechSynthesis.speak(u);
-        document.getElementById('texto-guia').innerText = msg;
+        const msg = new SpeechSynthesisUtterance(mensaje);
+        msg.lang = 'es-ES';
+        msg.rate = 0.9;
+        window.speechSynthesis.speak(msg);
+        document.getElementById('texto-guia').innerText = mensaje;
     }
 
-    function desbloquearAudio() {
-        if (!audioIniciado) { audioIniciado = true; iniciarNivel(); }
-    }
-
-    function pararAudios() {
+    function pararSonidos() {
         Object.values(sonidos).forEach(s => { s.pause(); s.currentTime = 0; });
     }
 
-    function iniciarNivel() {
-        const zonaCestos = document.getElementById('zona-cestos');
+    function iniciarApp() {
+        if (!appIniciada) {
+            appIniciada = true;
+            cargarNivel();
+        }
+    }
+
+    function cargarNivel() {
         const panel = document.getElementById('panel-objetos');
-        const mosca = document.getElementById('mosca-distractora');
+        const zonaCestos = document.getElementById('zona-cestos');
+        const mosca = document.getElementById('mosca');
         
-        zonaCestos.querySelectorAll('.cesto').forEach(c => c.remove());
+        // Limpiar pantalla
         panel.innerHTML = "";
-        pararAudios();
+        zonaCestos.querySelectorAll('.cesto').forEach(c => c.remove());
+        pararSonidos();
         aciertos = 0;
         mosca.style.display = 'none';
 
-        let listaItems = [];
+        let items = [];
 
-        // --- TODO CORREGIDO A .PNG SEGÚN REPOSITORIO ---
         if(nivelActual === 1) {
             totalNivel = 6;
-            hablar("Clasifica ropa blanca y de color. Ignora los ladridos.");
-            sonidos.perro.loop = true; sonidos.perro.play(); // 1 Distractor
+            hablar("Nivel 1: Clasifica la ropa blanca y de color. Ignora los ladridos del perro.");
+            sonidos.perro.loop = true; sonidos.perro.play();
             
-            crearCesto('B', 'cesto_blanco.png', 'Ropa Blanca');
-            crearCesto('C', 'cesto_color.png', 'Ropa Color');
+            crearCesto('B', 'cesto_blanco.png', 'Blanca');
+            crearCesto('C', 'cesto_color.png', 'Color');
             
             for(let i=1; i<=3; i++) {
-                listaItems.push({img: `b${i}.png`, tipo: 'B'});
-                listaItems.push({img: `color${i}.png`, tipo: 'C'});
+                items.push({img: `b${i}.png`, tipo: 'B'});
+                items.push({img: `color${i}.png`, tipo: 'C'});
             }
         } 
         else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Clasifica la ropa. Ignora la ambulancia, el perro y la gente hablando.");
-            sonidos.perro.loop = true; sonidos.perro.play();
-            sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
-            sonidos.personas.loop = true; sonidos.personas.play(); // 3 Distractores
-            
-            crearCesto('B', 'cesto_blanco.png', 'Ropa Blanca');
-            crearCesto('C', 'cesto_color.png', 'Ropa Color');
-            
-            for(let i=4; i<=6; i++) {
-                listaItems.push({img: `b${i}.png`, tipo: 'B'});
-                listaItems.push({img: `color${i}.png`, tipo: 'C'});
-            }
-            for(let i=1; i<=3; i++) listaItems.push({img: `dis${i}.png`, tipo: 'D'});
-        }
-        else if(nivelActual === 3) {
-            totalNivel = 9;
-            hablar("Nivel Máximo. Ignora todos los ruidos y la mosca.");
+            hablar("Nivel 2: Ahora hay más ruido. Ignora al perro, la ambulancia y las voces.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
             sonidos.personas.loop = true; sonidos.personas.play();
-            sonidos.lavadora.loop = true; sonidos.lavadora.play(); // 4 Distractores
+            
+            crearCesto('B', 'cesto_blanco.png', 'Blanca');
+            crearCesto('C', 'cesto_color.png', 'Color');
+            
+            for(let i=4; i<=6; i++) {
+                items.push({img: `b${i}.png`, tipo: 'B'});
+                items.push({img: `color${i}.png`, tipo: 'C'});
+            }
+            // Distractores visuales de tu carpeta img5
+            for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+        }
+        else if(nivelActual === 3) {
+            totalNivel = 9;
+            hablar("Nivel 3: Máxima dificultad. Ignora todos los ruidos y la mosca.");
+            sonidos.perro.loop = true; sonidos.perro.play();
+            sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
+            sonidos.personas.loop = true; sonidos.personas.play();
+            sonidos.lavadora.loop = true; sonidos.lavadora.play();
             
             mosca.style.display = 'block';
-            mosca.style.animation = "volar 4s infinite linear";
+            mosca.style.animation = "volar 5s infinite linear";
 
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             crearCesto('T', 'cesto_toallas.png', 'Toallas');
 
             for(let i=1; i<=3; i++) {
-                listaItems.push({img: `b${i}.png`, tipo: 'B'});
-                listaItems.push({img: `color${i}.png`, tipo: 'C'});
-                listaItems.push({img: `to${i}.png`, tipo: 'T'});
+                items.push({img: `b${i}.png`, tipo: 'B'});
+                items.push({img: `color${i}.png`, tipo: 'C'});
+                items.push({img: `to${i}.png`, tipo: 'T'});
             }
-            for(let i=4; i<=8; i++) listaItems.push({img: `dis${i}.png`, tipo: 'D'});
+            for(let i=4; i<=8; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         }
 
         document.getElementById('nivel-text').innerText = `NIVEL: ${nivelActual}`;
-        actualizarPuntaje();
+        actualizarMarcador();
 
-        listaItems.sort(() => Math.random() - 0.5).forEach(item => {
-            const el = document.createElement('img');
-            el.src = `img5/${item.img}`;
-            el.className = 'prenda';
-            el.dataset.tipo = item.tipo;
-            hacerDraggable(el);
-            panel.appendChild(el);
+        // Crear elementos en el panel inferior
+        items.sort(() => Math.random() - 0.5).forEach(item => {
+            const img = document.createElement('img');
+            img.src = `img5/${item.img}`;
+            img.className = 'prenda';
+            img.dataset.tipo = item.tipo;
+            habilitarArrastre(img);
+            panel.appendChild(img);
         });
     }
 
-    function crearCesto(tipo, img, txt) {
+    function crearCesto(tipo, nombreImagen, etiqueta) {
         const div = document.createElement('div');
         div.className = 'cesto';
-        div.id = `target-${tipo}`;
-        div.innerHTML = `<img src="img5/${img}"><b>${txt}</b>`;
+        div.id = `cesto-${tipo}`;
+        div.innerHTML = `<img src="img5/${nombreImagen}"><b>${etiqueta}</b>`;
         document.getElementById('zona-cestos').appendChild(div);
     }
 
-    function hacerDraggable(el) {
+    function habilitarArrastre(el) {
         el.ontouchstart = (e) => {
-            const padreOriginal = el.parentNode;
+            const originalPos = { parent: el.parentNode };
             el.style.position = 'fixed';
-            el.style.zIndex = 1000;
+            el.style.zIndex = 2000;
 
-            const mover = (me) => {
-                let t = me.touches[0];
-                el.style.left = (t.clientX - 35) + 'px';
-                el.style.top = (t.clientY - 35) + 'px';
+            const alMover = (ev) => {
+                const t = ev.touches[0];
+                el.style.left = (t.clientX - 40) + 'px';
+                el.style.top = (t.clientY - 40) + 'px';
             };
 
-            const soltar = (se) => {
-                document.removeEventListener('touchmove', mover);
-                document.removeEventListener('touchend', soltar);
-                let t = se.changedTouches[0];
+            const alSoltar = (ev) => {
+                document.removeEventListener('touchmove', alMover);
+                document.removeEventListener('touchend', alSoltar);
+                const t = ev.changedTouches[0];
                 
+                // Si es un distractor (D)
                 if(el.dataset.tipo === 'D') {
-                    hablar("Eso no es ropa, busca bien.");
-                    volverAlPanel(); return;
+                    hablar("Eso no es ropa, déjalo ahí.");
+                    reset(); return;
                 }
 
-                const target = document.getElementById(`target-${el.dataset.tipo}`);
-                if(target) {
-                    const r = target.getBoundingClientRect();
-                    if(t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+                const cestoDestino = document.getElementById(`cesto-${el.dataset.tipo}`);
+                if(cestoDestino) {
+                    const rect = cestoDestino.getBoundingClientRect();
+                    if(t.clientX > rect.left && t.clientX < rect.right && t.clientY > rect.top && t.clientY < rect.bottom) {
                         el.remove();
                         aciertos++;
-                        sonidos.bien.play();
-                        actualizarPuntaje();
-                        if(aciertos === totalNivel) setTimeout(proximoNivel, 1500);
-                        else hablar("¡Muy bien!");
+                        sonidos.exito.play();
+                        actualizarMarcador();
+                        if(aciertos === totalNivel) {
+                            hablar("¡Excelente! Nivel superado.");
+                            setTimeout(pasarSiguiente, 2000);
+                        } else {
+                            hablar("¡Muy bien!");
+                        }
                         return;
                     }
                 }
-                hablar("Ponlo en el cesto correcto.");
-                volverAlPanel();
+                hablar("Ponlo en el cesto que corresponde.");
+                reset();
             };
 
-            function volverAlPanel() {
+            function reset() {
                 el.style.position = 'static';
-                padreOriginal.appendChild(el);
+                originalPos.parent.appendChild(el);
             }
-            document.addEventListener('touchmove', mover);
-            document.addEventListener('touchend', soltar);
+
+            document.addEventListener('touchmove', alMover);
+            document.addEventListener('touchend', alSoltar);
         };
     }
 
-    function actualizarPuntaje() {
+    function actualizarMarcador() {
         document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertos}/${totalNivel}`;
     }
 
-    function proximoNivel() {
-        if(nivelActual < 3) { 
-            nivelActual++; 
-            iniciarNivel(); 
-        } else { 
-            pararAudios(); 
-            hablar("¡Excelente! Has terminado la sesión de organización."); 
+    function pasarSiguiente() {
+        if(nivelActual < 3) {
+            nivelActual++;
+            cargarNivel();
+        } else {
+            pararSonidos();
+            hablar("¡Felicidades! Has completado toda la sesión de organización.");
         }
     }
 </script>
