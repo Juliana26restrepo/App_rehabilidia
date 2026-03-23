@@ -7,37 +7,35 @@
     <style>
         body { font-family: sans-serif; margin: 0; background: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
         #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 4px solid #307B8E; }
+        #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 3px solid #307B8E; }
         #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
-        
         #escenario { flex-grow: 1; display: flex; background: url('img8/habitacion_fondo8.jpg') no-repeat center; background-size: cover; position: relative; padding: 10px; gap: 15px; }
         
-        /* Armario con Puntos de Ubicación */
+        /* Armario con Puntos de Ubicación siguiendo el boceto */
         #contenedor-armario { width: 45%; height: 90%; position: relative; border: 4px solid #0A253A; border-radius: 20px; background: rgba(255,255,255,0.2); }
         #armario_img { width: 100%; height: 100%; object-fit: contain; }
         
-        .punto-ubicacion { position: absolute; width: 40px; height: 40px; background: rgba(48, 123, 142, 0.8); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; z-index: 10; }
-        #punto1 { top: 20%; left: 45%; } /* Colgar */
-        #punto2 { top: 50%; left: 45%; } /* Estantes */
-        #punto3 { top: 80%; left: 45%; } /* Suelo */
+        .punto-ubicacion { position: absolute; width: 45px; height: 45px; background: rgba(48, 123, 142, 0.9); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; z-index: 10; font-size: 1.2rem; }
+        #punto1 { top: 20%; left: 45%; } /* Zona 1: Colgar */
+        #punto2 { top: 50%; left: 45%; } /* Zona 2: Estantes */
+        #punto3 { top: 80%; left: 45%; } /* Zona 3: Suelo/Zapatos */
 
         #despensa-prendas { width: 55%; background: rgba(255,255,255,0.9); border-radius: 20px; border: 3px solid #0A253A; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; overflow-y: auto; }
-        
         .item { width: 80px; height: 80px; object-fit: contain; cursor: grab; touch-action: none; }
 
-        /* Notificación */
-        #notificacion { display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #FFD700; border: 4px solid #0A253A; border-radius: 15px; padding: 20px; text-align: center; z-index: 2000; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .btn-notif { padding: 10px; margin: 10px 5px; width: 100px; border-radius: 8px; border: 2px solid #0A253A; font-weight: bold; cursor: pointer; }
+        /* Notificación Flotante Estilo Pop-up */
+        #notificacion { display: none; position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 5px solid #0A253A; border-radius: 15px; padding: 20px; text-align: center; z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+        .btn-notif { padding: 12px; margin: 10px 5px; width: 110px; border-radius: 10px; border: 2px solid #0A253A; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
         #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
-<body onload="iniciarJuego()">
+<body onload="iniciarSesion8()">
 
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando instrucciones...</p>
+        <p id="texto-guia">Iniciando sesión de atención...</p>
     </div>
 </div>
 
@@ -52,32 +50,33 @@
 </div>
 
 <div id="notificacion">
-    <p id="pregunta-txt" style="font-weight: bold;"></p>
+    <p id="pregunta-txt" style="font-size: 1.1rem; color: #0A253A;"></p>
     <button class="btn-notif" id="btnA" style="background: #307B8E; color: white;"></button>
     <button class="btn-notif" id="btnB" style="background: #307B8E; color: white;"></button>
 </div>
 
 <div id="modal-cierre">
     <h2 id="msg-final"></h2>
-    <p id="stats" style="font-size: 1.5rem;"></p>
-    <button onclick="location.reload()" style="padding: 15px; margin-top: 20px; border-radius: 10px; cursor: pointer;">Siguiente Tarea</button>
+    <p id="stats" style="font-size: 1.5rem; margin: 20px 0;"></p>
+    <button onclick="location.reload()" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 10px; background: #307B8E; color: white; border: none; cursor: pointer;">Repetir Ejercicio</button>
 </div>
 
 <script>
-    let nivel = 1, aciertos = 0, totalLlamadas = 0, aciertosLlamadas = 0;
-    const audioAlarma = new Audio('img8/alarma.mp3');
-    const audioExito = new Audio('img8/exito.mp3');
+    let aciertos = 0, totalNotif = 0, aciertosNotif = 0;
+    const alarma = new Audio('img8/alarma.mp3');
+    const exito = new Audio('img8/exito.mp3');
 
-    const prendas = {
+    // Categorización según el boceto
+    const categorias = {
         1: ['chaqueta.png', 'camisa_polo.png', 'camisa_verde.png', 'vestido.png'],
         2: ['pijama.png', 'saco.png', 'sueter.png', 'gafas.png', 'gorro.png', 'bufanda.png'],
         3: ['bota.png', 'pantalones.png', 'pantalones_cortos.png', 'bermudas.png', 'tacones.png', 'zapato1.png']
     };
 
-    const preguntas = [
-        { q: "¿La vaca hace miau?", a: "Sí", b: "No", c: "B" },
-        { q: "¿El sol es caliente?", a: "Sí", b: "No", c: "A" },
-        { q: "¿Usas zapatos en las manos?", a: "Sí", b: "No", c: "B" }
+    const trivias = [
+        { q: "¿El cielo es verde?", a: "No", b: "Sí", c: "A" },
+        { q: "¿Usas calcetines en los pies?", a: "Sí", b: "No", c: "A" },
+        { q: "¿2 + 2 es 4?", a: "Verdad", b: "Falso", c: "A" }
     ];
 
     function hablar(txt) {
@@ -88,33 +87,32 @@
         window.speechSynthesis.speak(msg);
     }
 
-    function iniciarJuego() {
-        hablar("Organiza la ropa en el armario. Usa los puntos 1, 2 y 3 para ubicar cada prenda correctamente.");
-        generarPrendas();
-        setTimeout(lanzarNotificacion, 12000);
-    }
-
-    function generarPrendas() {
+    function iniciarSesion8() {
+        hablar("Organiza la ropa en el armario usando los puntos 1, 2 y 3. Atiende las notificaciones cuando aparezcan.");
         const d = document.getElementById('despensa-prendas');
         let lista = [];
-        // Mezclar algunas prendas de cada categoría
-        for(let i=1; i<=3; i++) {
-            prendas[i].slice(0, 3).forEach(p => lista.push({img: p, zona: i}));
-        }
-        // Mezclar distractores
-        ['balon.png', 'cafe.png', 'martillo.png'].forEach(p => lista.push({img: p, zona: 0}));
+        
+        // Cargar estímulos desde la carpeta img8
+        Object.keys(categorias).forEach(zona => {
+            categorias[zona].slice(0, 3).forEach(img => lista.push({src: img, zona: zona}));
+        });
+        
+        // Añadir distractores
+        ['balon.png', 'cafe.png', 'martillo.png'].forEach(img => lista.push({src: img, zona: 0}));
 
         lista.sort(() => Math.random() - 0.5).forEach(p => {
             const img = document.createElement('img');
-            img.src = `img8/${p.img}`;
+            img.src = `img8/${p.src}`;
             img.className = 'item';
             img.dataset.zona = p.zona;
-            img.ontouchstart = drag;
+            img.ontouchstart = drag8;
             d.appendChild(img);
         });
+
+        setTimeout(lanzarNotificacion, 10000);
     }
 
-    function drag(e) {
+    function drag8(e) {
         const el = e.target;
         el.style.position = 'fixed';
         const mover = (me) => {
@@ -125,16 +123,16 @@
             document.removeEventListener('touchmove', mover);
             document.removeEventListener('touchend', soltar);
             const t = se.changedTouches[0];
-            const zonaDestino = document.elementFromPoint(t.clientX, t.clientY);
+            const destino = document.elementFromPoint(t.clientX, t.clientY);
             
-            if(zonaDestino && zonaDestino.id.includes('punto' + el.dataset.zona)) {
+            if(destino && destino.id === 'punto' + el.dataset.zona) {
                 aciertos++;
-                audioExito.play();
-                hablar("¡Muy bien ubicado!");
+                exito.play();
+                hablar("¡Excelente organización!");
                 el.remove();
-                if(aciertos >= 6) finalizar();
+                if(aciertos >= 6) finalizarSesion8();
             } else {
-                hablar("Ese no es su lugar, intenta de nuevo.");
+                hablar("Ese objeto no va en ese punto del armario.");
                 el.style.position = 'static';
             }
         };
@@ -144,21 +142,21 @@
 
     function lanzarNotificacion() {
         if(aciertos < 6) {
-            totalLlamadas++;
-            audioAlarma.play();
+            totalNotif++;
+            alarma.play();
             const n = document.getElementById('notificacion');
-            const p = preguntas[Math.floor(Math.random() * preguntas.length)];
+            const trivia = trivias[Math.floor(Math.random() * trivias.length)];
             
-            document.getElementById('pregunta-txt').innerText = p.q;
-            document.getElementById('btnA').innerText = p.a;
-            document.getElementById('btnB').innerText = p.b;
+            document.getElementById('pregunta-txt').innerText = trivia.q;
+            document.getElementById('btnA').innerText = trivia.a;
+            document.getElementById('btnB').innerText = trivia.b;
             n.style.display = 'block';
 
-            const responder = (res) => {
-                if(res === p.c) { aciertosLlamadas++; hablar("Respuesta correcta."); }
-                else { hablar("Respuesta incorrecta."); }
+            const responder = (v) => {
+                if(v === trivia.c) { aciertosNotif++; hablar("Muy bien, continúa organizando."); }
+                else { hablar("Respuesta incorrecta, concéntrate."); }
                 n.style.display = 'none';
-                setTimeout(lanzarNotificacion, 15000);
+                setTimeout(lanzarNotificacion, 18000);
             };
 
             document.getElementById('btnA').onclick = () => responder("A");
@@ -166,12 +164,13 @@
         }
     }
 
-    function finalizar() {
-        document.getElementById('modal-cierre').style.display = 'flex';
-        const msg = "Tu capacidad para adaptarte a varias demandas está mejorando cada día.";
-        document.getElementById('msg-final').innerText = msg;
-        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Notificaciones: ${aciertosLlamadas}/${totalLlamadas}`;
-        hablar(msg);
+    function finalizarSesion8() {
+        const modal = document.getElementById('modal-cierre');
+        modal.style.display = 'flex';
+        const mensaje = "Tu capacidad para adaptarte a varias demandas está mejorando cada día.";
+        document.getElementById('msg-final').innerText = mensaje;
+        document.getElementById('stats').innerText = `Ropa: ${aciertos}/6 | Notificaciones: ${aciertosNotif}/${totalNotif}`;
+        hablar(mensaje);
     }
 </script>
 </body>
