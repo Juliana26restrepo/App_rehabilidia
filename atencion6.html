@@ -45,6 +45,14 @@
     const frasesCorrecto = ["¡Bien! Ese era", "Correcto", "¡Muy bien!", "Ese es el ingrediente"];
     const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Prueba con otro", "Ese no va en la receta"];
 
+    // --- NUEVO: DISTRACTORES ---
+    const sonidosDistractores = {
+        reloj: new Audio("https://actions.google.com/sounds/v1/household/kitchen_timer_ticking.ogg"),
+        licuadora: new Audio("https://actions.google.com/sounds/v1/household/blender_running.ogg"),
+        grito: new Audio("https://actions.google.com/sounds/v1/human_voices/man_short_scream.ogg")
+    };
+    let ruidosIniciados = false;
+
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(mensaje);
@@ -52,6 +60,30 @@
         msg.rate = 1.0;
         document.getElementById('texto-guia').innerText = mensaje;
         window.speechSynthesis.speak(msg);
+    }
+
+    function gestionarRuidos() {
+        // Detener todo antes de empezar
+        sonidosDistractores.reloj.pause();
+        sonidosDistractores.licuadora.pause();
+        sonidosDistractores.reloj.loop = true;
+        sonidosDistractores.licuadora.loop = true;
+
+        if (nivel === 1) {
+            sonidosDistractores.reloj.play().catch(e => console.log("Esperando interacción"));
+        } else if (nivel === 2) {
+            sonidosDistractores.reloj.play();
+            sonidosDistractores.licuadora.play();
+        } else if (nivel === 3) {
+            sonidosDistractores.reloj.play();
+            sonidosDistractores.licuadora.play();
+            // Grito aleatorio cada 10 segundos
+            if(!window.intervalGrito) {
+                window.intervalGrito = setInterval(() => {
+                    if(nivel === 3) sonidosDistractores.grito.play();
+                }, 10000);
+            }
+        }
     }
 
     function cargarNivel() {
@@ -75,6 +107,9 @@
             pool = [...receta, 'moneda.png', 'fresa.png'];
         }
 
+        // Si ya hubo un toque previo, actualizar ruidos al cambiar de nivel
+        if(ruidosIniciados) gestionarRuidos();
+
         pool.sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
             el.src = `img6/${img}`; el.className = 'item'; el.dataset.id = img;
@@ -84,6 +119,12 @@
     }
 
     function drag(e) {
+        // Activar ruidos al primer toque del usuario
+        if(!ruidosIniciados) {
+            ruidosIniciados = true;
+            gestionarRuidos();
+        }
+
         const el = e.target;
         el.style.position = 'fixed';
         const mover = (me) => {
@@ -126,4 +167,3 @@
 </script>
 </body>
 </html>
-
