@@ -3,148 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 6 - Final</title>
+    <title>Sesión 6 - Cocina</title>
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-blue: #0A253A; }
         body { font-family: sans-serif; margin: 0; background: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Pantalla de inicio para forzar audio */
-        #inicio { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-blue); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
-        #btn-go { background: #4CAF50; border: none; padding: 25px 50px; border-radius: 50px; color: white; font-size: 2rem; font-weight: bold; cursor: pointer; }
-
-        #cabecera { background: var(--bg-blue); padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        #guia-box { background: white; width: 90%; border-radius: 10px; padding: 10px; display: flex; align-items: center; border: 3px solid var(--t-blue); }
-        #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-        
-        #zona-juego { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; position: relative; }
-        .panel { width: 45%; height: 80%; border: 2px solid #ccc; position: relative; border-radius: 15px; background: #fff; }
-        #panel-mesa { background: url('img6/mesa_plato.png') no-repeat center; background-size: cover; }
-        
-        /* Círculo cian de objetivo */
-        #objetivo { width: 150px; height: 150px; border: 5px dashed #00FFFF; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; }
-        
+        #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 4px solid #307B8E; }
+        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; margin: 0; }
+        #zona-juego { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; padding: 10px; }
+        .panel { width: 46%; height: 85%; border: 3px solid #ccc; position: relative; border-radius: 20px; overflow: hidden; }
+        #panel-mesa { background: url('img6/mesa_plato.png') no-repeat center; background-size: cover; display: flex; justify-content: center; align-items: center; }
+        #objetivo { width: 160px; height: 160px; border: 6px dashed #00FFFF; border-radius: 50%; position: absolute; pointer-events: none; }
         .ing-plato { position: absolute; width: 85px; height: 85px; transform: translate(-50%, -50%); z-index: 10; }
-        #panel-ingredientes { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 10px; }
-        .item { width: 90px; height: 90px; touch-action: none; z-index: 100; }
+        #panel-ingredientes { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; }
+        .item { width: 95px; height: 95px; touch-action: none; z-index: 100; cursor: grab; }
     </style>
 </head>
-<body>
-
-<div id="inicio">
-    <button id="btn-go" onclick="comenzar()">¡EMPEZAR SESIÓN!</button>
-    <p>Toca para activar los sonidos</p>
-</div>
+<body onload="cargarNivel()">
 
 <div id="cabecera">
     <div id="guia-box">
-        <img src="COTERAPEUTA.JPG" id="avatar" onerror="this.src='https://via.placeholder.com/60'">
-        <p id="texto-guia">Presiona el botón para iniciar.</p>
+        <img src="COTERAPEUTA.JPG" id="avatar">
+        <p id="texto-guia">Cargando...</p>
     </div>
 </div>
 
 <div id="zona-juego">
     <div class="panel" id="panel-mesa">
         <div id="objetivo"></div>
-        <div id="plato-ingredientes" style="position:relative; width:100%; height:100%;"></div>
+        <div id="plato-capa" style="position:absolute; width:100%; height:100%;"></div>
     </div>
     <div class="panel" id="panel-ingredientes"></div>
 </div>
 
 <script>
     let nivel = 1, aciertos = 0, receta = [];
-    const pos = [{t:'50%',l:'50%'}, {t:'35%',l:'40%'}, {t:'35%',l:'60%'}, {t:'65%',l:'40%'}, {t:'65%',l:'60%'}];
+    // Posiciones en el plato para que no se amontonen
+    const posiciones = [{t:'50%',l:'50%'}, {t:'35%',l:'40%'}, {t:'35%',l:'60%'}, {t:'65%',l:'40%'}, {t:'65%',l:'60%'}];
+    
+    // Listas de frases para que no sea repetitivo
+    const frasesCorrecto = ["¡Bien! Ese era", "Correcto", "¡Muy bien!", "Ese es el ingrediente"];
+    const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Prueba con otro", "Ese no va en la receta"];
 
-    // CARGA DE AUDIOS REALES
-    const sfx = {
-        bien: new Audio("https://actions.google.com/sounds/v1/household/microwave_done.ogg"),
-        mal: new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg"),
-        reloj: new Audio("https://actions.google.com/sounds/v1/household/kitchen_timer_ticking.ogg"),
-        licuadora: new Audio("https://actions.google.com/sounds/v1/household/blender_running.ogg"),
-        grito: new Audio("https://actions.google.com/sounds/v1/human_voices/man_short_scream.ogg")
-    };
-
-    function hablar(txt) {
+    function hablar(mensaje) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(txt);
-        m.lang = 'es-ES';
-        document.getElementById('texto-guia').innerText = txt;
-        window.speechSynthesis.speak(m);
-    }
-
-    function comenzar() {
-        document.getElementById('inicio').style.display = 'none';
-        // Desbloquear todos los canales de audio con el primer toque
-        for (let s in sfx) { sfx[s].play(); sfx[s].pause(); sfx[s].currentTime = 0; }
-        cargarNivel();
+        const msg = new SpeechSynthesisUtterance(mensaje);
+        msg.lang = 'es-ES';
+        msg.rate = 1.0;
+        document.getElementById('texto-guia').innerText = mensaje;
+        window.speechSynthesis.speak(msg);
     }
 
     function cargarNivel() {
         const pI = document.getElementById('panel-ingredientes');
-        document.getElementById('plato-ingredientes').innerHTML = "";
-        pI.innerHTML = ""; aciertos = 0;
-        
-        sfx.reloj.pause(); sfx.licuadora.pause();
-        sfx.reloj.loop = true; sfx.licuadora.loop = true;
+        document.getElementById('plato-capa').innerHTML = "";
+        pI.innerHTML = "";
+        aciertos = 0;
 
+        let pool = [];
         if(nivel === 1) {
             receta = ['pan_blanco.png', 'jamon.png', 'queso.png'];
-            hablar("¡Bienvenido! Para esta receta busca: Pan blanco, Jamón y Queso.");
-            sfx.reloj.play();
+            hablar("Hola. Para esta receta busca: Pan blanco, Jamón y Queso.");
             pool = [...receta, 'manzana.png', 'platano.png'];
         } else if(nivel === 2) {
             receta = ['pan_integral.png', 'pollo.png', 'tomate.png', 'sal.png'];
-            hablar("Nivel 2. Busca los siguientes ingredientes: Pan integral, Pollo, Tomate y Sal.");
-            sfx.reloj.play(); sfx.licuadora.play();
-            pool = [...receta, 'jabon.png', 'pila.png', 'uva.png'];
+            hablar("Nivel 2. Ahora busca: Pan integral, Pollo, Tomate y Sal.");
+            pool = [...receta, 'jabon.png', 'pila.png'];
         } else {
             receta = ['arepa.png', 'huevo.png', 'atun.png', 'aguacate.png', 'cebolla.png'];
-            hablar("Nivel final. Busca por favor: Arepa, Huevo, Atún, Aguacate y Cebolla.");
-            sfx.reloj.play(); sfx.licuadora.play();
-            setInterval(() => { if(nivel === 3) sfx.grito.play(); }, 10000);
-            pool = [...receta, 'fresa.png', 'limon.png', 'esponja.png'];
+            hablar("Nivel final. Busca: Arepa, Huevo, Atún, Aguacate y Cebolla.");
+            pool = [...receta, 'moneda.png', 'fresa.png'];
         }
 
         pool.sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
             el.src = `img6/${img}`; el.className = 'item'; el.dataset.id = img;
-            el.ontouchstart = startDrag;
+            el.ontouchstart = drag;
             pI.appendChild(el);
         });
     }
 
-    function startDrag(e) {
+    function drag(e) {
         const el = e.target;
         el.style.position = 'fixed';
-        const move = (me) => {
+        const mover = (me) => {
             el.style.left = (me.touches[0].clientX - 45) + 'px';
             el.style.top = (me.touches[0].clientY - 45) + 'px';
         };
-        const end = (se) => {
-            document.removeEventListener('touchmove', move);
-            document.removeEventListener('touchend', end);
+        const soltar = (se) => {
+            document.removeEventListener('touchmove', mover);
+            document.removeEventListener('touchend', soltar);
             const t = se.changedTouches[0];
-            const r = document.getElementById('objetivo').getBoundingClientRect();
+            const obj = document.getElementById('objetivo').getBoundingClientRect();
 
-            if(t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+            if(t.clientX > obj.left && t.clientX < obj.right && t.clientY > obj.top && t.clientY < obj.bottom) {
                 if(receta.includes(el.dataset.id)) {
-                    sfx.bien.play(); // SONIDO DE ÉXITO
+                    // Retroalimentación CORRECTA
+                    hablar(frasesCorrecto[Math.floor(Math.random() * frasesCorrecto.length)]);
+                    
                     const n = document.createElement('img');
                     n.src = el.src; n.className = 'ing-plato';
-                    n.style.top = pos[aciertos].t; n.style.left = pos[aciertos].l;
-                    document.getElementById('plato-ingredientes').appendChild(n);
+                    n.style.top = posiciones[aciertos].t; n.style.left = posiciones[aciertos].l;
+                    document.getElementById('plato-capa').appendChild(n);
                     el.remove(); aciertos++;
+                    
                     if(aciertos === receta.length) {
-                        setTimeout(() => { if(nivel < 3) { nivel++; cargarNivel(); } }, 2000);
+                        setTimeout(() => { 
+                            if(nivel < 3) { nivel++; cargarNivel(); }
+                            else { hablar("¡Felicidades! Terminaste toda la actividad."); }
+                        }, 2000);
                     }
                 } else {
-                    sfx.mal.play(); // SONIDO DE ERROR
+                    // Retroalimentación INCORRECTA
+                    hablar(frasesIncorrecto[Math.floor(Math.random() * frasesIncorrecto.length)]);
                     el.style.position = 'static';
                 }
             } else { el.style.position = 'static'; }
         };
-        document.addEventListener('touchmove', move);
-        document.addEventListener('touchend', end);
+        document.addEventListener('touchmove', mover);
+        document.addEventListener('touchend', soltar);
     }
 </script>
 </body>
 </html>
+
