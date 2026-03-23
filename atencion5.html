@@ -15,29 +15,37 @@
         #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
         #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
 
-        /* ZONA SUPERIOR: FONDO Y CESTOS */
+        /* ZONA SUPERIOR: FONDO Y CESTOS MEJORADOS */
         #zona-cestos { 
             display: flex; justify-content: space-around; align-items: flex-end; 
-            width: 95%; height: 240px; 
-            background: url('Img5/fondo_lavanderia.png') no-repeat center; 
+            width: 95%; height: 260px; 
+            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('Img5/fondo_lavanderia.png') no-repeat center; 
             background-size: cover; border-bottom: 4px solid #ddd; position: relative; border-radius: 15px;
-            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .cesto { width: 140px; text-align: center; position: relative; padding-bottom: 15px; }
-        .cesto img { width: 100%; filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.3)); }
-        .cesto b { display: block; color: var(--p-blue); text-transform: uppercase; font-size: 0.75rem; margin-top: 5px; background: rgba(255,255,255,0.85); border-radius: 4px; padding: 2px; }
+        
+        .cesto { width: 150px; text-align: center; position: relative; padding-bottom: 20px; transition: transform 0.3s; }
+        /* Brillo para que el cesto resalte sobre el fondo */
+        .cesto img { 
+            width: 100%; 
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); 
+        }
+        .cesto b { 
+            display: inline-block; color: white; text-transform: uppercase; font-size: 0.85rem; 
+            margin-top: 8px; background: var(--p-blue); border-radius: 20px; padding: 4px 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
 
-        /* ZONA INFERIOR: PANEL DE ESTÍMULOS MÁS COMPACTO */
+        /* PANEL INFERIOR: MÁS TRANSPARENTE Y VISIBLE */
         #panel-objetos { 
-            width: 85%; height: 160px; background: rgba(255, 255, 255, 0.7); 
-            border: 3px dashed var(--t-blue); border-radius: 15px; 
-            margin: 10px 0 15px 0; display: flex; flex-wrap: wrap; 
-            justify-content: center; align-content: center; gap: 12px; padding: 10px;
-            backdrop-filter: blur(5px);
+            width: 88%; height: 150px; background: rgba(255, 255, 255, 0.6); 
+            border: 3px dashed var(--t-blue); border-radius: 20px; 
+            margin: 15px 0; display: flex; flex-wrap: wrap; 
+            justify-content: center; align-content: center; gap: 15px; padding: 10px;
+            backdrop-filter: blur(8px);
         }
 
-        .prenda { width: 65px; height: 65px; cursor: grab; object-fit: contain; z-index: 1000; touch-action: none; transition: transform 0.2s; }
-        .prenda:active { transform: scale(1.1); }
+        .prenda { width: 70px; height: 70px; cursor: grab; object-fit: contain; z-index: 1000; touch-action: none; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
         
         #mosca { position: absolute; width: 45px; display: none; z-index: 500; pointer-events: none; }
         @keyframes volar { 0% {top:10%; left:5%;} 50% {top:60%; left:85%;} 100% {top:10%; left:5%;} }
@@ -53,7 +61,7 @@
 <div id="main-stage">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar" onerror="this.src='https://via.placeholder.com/60'">
-        <p id="texto-guia">¡Hola! Toca aquí para empezar la clasificación.</p>
+        <p id="texto-guia">¡Hola! Toca aquí para empezar.</p>
     </div>
 
     <div id="zona-cestos">
@@ -83,7 +91,7 @@
     }
 
     function feedbackPositivo() {
-        const frases = ["¡Muy bien!", "¡Excelente!", "¡Eso es!", "¡Buen trabajo!", "¡Sigue así!"];
+        const frases = ["¡Eso es!", "¡Excelente!", "¡Muy bien hecho!", "¡Vas por buen camino!"];
         hablar(frases[Math.floor(Math.random() * frases.length)]);
     }
 
@@ -109,7 +117,7 @@
 
         if(nivelActual === 1) {
             totalNivel = 6;
-            hablar("Clasifica ropa blanca y de color. Ignora los ladridos.");
+            hablar("Nivel 1: Clasifica ropa blanca y de color. Ignora los ladridos.");
             sonidos.perro.loop = true; sonidos.perro.play();
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
@@ -120,7 +128,7 @@
         } 
         else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Nivel 2. Ignora los ruidos ambientales.");
+            hablar("Nivel 2: Ignora la ambulancia y las voces.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
             sonidos.personas.loop = true; sonidos.personas.play();
@@ -134,7 +142,7 @@
         }
         else if(nivelActual === 3) {
             totalNivel = 9;
-            hablar("Nivel final. Mantén la concentración máxima.");
+            hablar("Nivel final: Máxima concentración. Ignora la mosca.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
             sonidos.personas.loop = true; sonidos.personas.play();
@@ -181,8 +189,8 @@
 
             const move = (me) => {
                 let t = me.touches[0];
-                el.style.left = (t.clientX - 32) + 'px';
-                el.style.top = (t.clientY - 32) + 'px';
+                el.style.left = (t.clientX - 35) + 'px';
+                el.style.top = (t.clientY - 35) + 'px';
             };
 
             const end = (se) => {
@@ -191,7 +199,7 @@
                 let t = se.changedTouches[0];
                 
                 if(el.dataset.tipo === 'D') {
-                    hablar("Eso no es ropa, es un distractor.");
+                    hablar("Cuidado, eso es un distractor.");
                     reset(); return;
                 }
 
@@ -204,16 +212,16 @@
                         sonidos.exito.play();
                         document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertos}/${totalNivel}`;
                         if(aciertos === totalNivel) {
-                            hablar("¡Nivel completado! ¡Gran concentración!");
+                            hablar("¡Increíble! Nivel completado.");
                             setTimeout(() => {
                                 if(nivelActual < 3) { nivelActual++; cargarNivel(); }
-                                else { pararAudios(); hablar("Has terminado la Sesión 5 con éxito."); }
+                                else { pararAudios(); hablar("Sesión 5 terminada. ¡Eres un experto!"); }
                             }, 2500);
                         } else { feedbackPositivo(); }
                         return;
                     }
                 }
-                hablar("Esa prenda no va en ese cesto.");
+                hablar("Esa no va ahí.");
                 reset();
             };
 
