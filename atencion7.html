@@ -1,1 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nivel 7 - Atención Alternante</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
+        #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 4px solid #307B8E; }
+        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
+        
+        #escenario { flex-grow: 1; display: flex; background: url('img7/mesa.png') no-repeat center; background-size: cover; position: relative; }
+        
+        #zona-preparacion { width: 70%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 60px; }
+        #bowl { width: 300px; z-index: 5; transition: all 0.3s; }
+        #plato-final { width: 300px; display: none; z-index: 6; }
+
+        #interfaz-derecha { width: 30%; background: rgba(255,255,255,0.85); display: flex; flex-direction: column; border-left: 4px solid #0A253A; }
+        #seccion-celular { height: 35%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 2px solid #ccc; text-align: center; }
+        #celular { width: 90px; cursor: pointer; transition: 0.2s; }
+        
+        #despensa { height: 65%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; overflow-y: auto; align-content: start; }
+        
+        .item { width: 85px; height: 85px; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; }
+        .vibrar { animation: shake 0.2s infinite; filter: drop-shadow(0 0 15px red); }
+        @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } }
+
+        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body onload="cargarNivel()">
+
+<div id="cabecera">
+    <div id="guia-box">
+        <img src="COTERAPEUTA.JPG" id="avatar">
+        <p id="texto-guia">Cargando cocina...</p>
+    </div>
+</div>
+
+<div id="escenario">
+    <div id="zona-preparacion">
+        <img src="img7/bowl.png" id="bowl">
+        <img src="img7/omelette.png" id="plato-final">
+    </div>
+
+    <div id="interfaz-derecha">
+        <div id="seccion-celular">
+            <p id="status-cel" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 5px;">TELÉFONO EN ESPERA</p>
+            <img src="img7/celular.png" id="celular" onclick="contestar()">
+        </div>
+        <div id="despensa"></div>
+    </div>
+</div>
+
+<div id="modal-cierre">
+    <h2 id="msg-final"></h2>
+    <p id="stats" style="font-size: 1.5rem;"></p>
+    <button onclick="location.reload()" style="padding: 15px 30px; font-size: 1.2rem; margin-top: 20px; cursor: pointer;">Siguiente Paciente</button>
+</div>
+
+<script>
+    let nivel = 1, aciertos = 0, llamadasOK = 0, llamadasTotales = 0;
+    let receta = [], llamadaActiva = false;
+    const ringtone = new Audio("img7/ringtone.mp3");
+
+    function hablar(txt) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(txt);
+        msg.lang = 'es-ES';
+        msg.rate = 0.9;
+        document.getElementById('texto-guia').innerText = txt;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function cargarNivel() {
+        const d = document.getElementById('despensa');
+        const bowl = document.getElementById('bowl');
+        const platoFinal = document.getElementById('plato-final');
+        d.innerHTML = "";
+        bowl.style.display = "block";
+        platoFinal.style.display = "none";
+        aciertos = 0;
+
+        let pool = [];
+        const frutasDistractor = ['uva.png', 'sandia.png', 'mango.png', 'perejil.png', 'miel.png'];
+
+        if(nivel === 1) {
+            receta = ['huevo_crudo.png', 'sal.png', 'tomate.png', 'cebolla.png'];
+            platoFinal.src = "img7/omelette.png";
+            hablar("Nivel Bajo: Preparemos un Omelette. Arrastra al bowl: huevo, sal, tomate y cebolla.");
+            pool = [...receta, 'fresa.png', 'banano.png'];
+        } else if(nivel === 2) {
+            receta = ['avena_cruda.png', 'arandano.png', 'fresa.png', 'leche.png', 'banano.png', 'azucar_morena.png'];
+            platoFinal.src = "img7/avena.png";
+            hablar("Nivel Medio: Preparemos Avena. Agrega avena, arándanos, fresas, leche, banano y azúcar morena.");
+            pool = [...receta, 'perejil.png', 'huevo_crudo.png', 'miel.png'];
+        } else {
+            receta = ['huevo_crudo.png', 'sal.png', 'azucar_morena.png', 'chocolate.png', 'harina.png'];
+            platoFinal.src = "img7/omelette.png"; // Se puede usar como marcador de éxito
+            hablar("Nivel Alto: Torta de chocolate. Busca huevo, sal, azúcar morena, chocolate y harina.");
+            pool = [...receta, ...frutasDistractor, 'cebolla.png', 'leche.png'];
+        }
+
+        pool.sort(() => Math.random() - 0.5).forEach(img => {
+            const el = document.createElement('img');
+            el.src = `img7/${img}`; el.className = 'item'; el.dataset.id = img;
+            el.ontouchstart = drag;
+            d.appendChild(el);
+        });
+
+        // La primera llamada ocurre entre 5 y 10 segundos después de iniciar
+        setTimeout(lanzarLlamada, Math.random() * 5000 + 5000);
+    }
+
+    function lanzarLlamada() {
+        if(aciertos < receta.length) {
+            llamadaActiva = true;
+            llamadasTotales++;
+            document.getElementById('celular').classList.add('vibrar');
+            document.getElementById('status-cel').innerText = "¡LLAMADA ENTRANTE!";
+            document.getElementById('status-cel').style.color = "red";
+            ringtone.play();
+
+            // Tiempo límite para contestar según nivel
+            let tLimite = nivel === 1 ? 7000 : (nivel === 2 ? 5000 : 3500);
+            
+            setTimeout(() => {
+                if(llamadaActiva) {
+                    llamadaActiva = false;
+                    pararLlamada("Llamada perdida");
+                    document.getElementById('status-cel').style.color = "black";
+                    if(aciertos < receta.length) setTimeout(lanzarLlamada, 10000);
+                }
+            }, tLimite);
+        }
+    }
+
+    function contestar() {
+        if(llamadaActiva) {
+            llamadaActiva = false;
+            llamadasOK++;
+            pararLlamada("En llamada...");
+            document.getElementById('status-cel').style.color = "green";
+            hablar("Hola, gracias por atender. Sigue con la receta.");
+            setTimeout(() => {
+                document.getElementById('status-cel').innerText = "TELÉFONO EN ESPERA";
+                document.getElementById('status-cel').style.color = "black";
+                if(aciertos < receta.length) setTimeout(lanzarLlamada, 12000);
+            }, 3000);
+        }
+    }
+
+    function pararLlamada(txt) {
+        document.getElementById('celular').classList.remove('vibrar');
+        document.getElementById('status-cel').innerText = txt;
+        ringtone.pause(); ringtone.currentTime = 0;
+    }
+
+    function drag(e) {
+        const el = e.target;
+        el.style.position = 'fixed';
+        const mover = (me) => {
+            el.style.left = (me.touches[0].clientX - 40) + 'px';
+            el.style.top = (me.touches[0].clientY - 40) + 'px';
+        };
+        const soltar = (se) => {
+            document.removeEventListener('touchmove', mover);
+            document.removeEventListener('touchend', soltar);
+            const t = se.changedTouches[0];
+            const bowlRect = document.getElementById('bowl').getBoundingClientRect();
+
+            if(t.clientX > bowlRect.left && t.clientX < bowlRect.right && t.clientY > bowlRect.top && t.clientY < bowlRect.bottom) {
+                if(receta.includes(el.dataset.id)) {
+                    aciertos++;
+                    el.remove();
+                    if(aciertos === receta.length) {
+                        document.getElementById('bowl').style.display = "none";
+                        document.getElementById('plato-final').style.display = "block";
+                        hablar("¡Mezcla completada con éxito!");
+                        setTimeout(() => {
+                            if(nivel < 3) { nivel++; cargarNivel(); }
+                            else { finalizarTodo(); }
+                        }, 4000);
+                    }
+                } else {
+                    hablar("Ese no es un ingrediente de la receta.");
+                    el.style.position = 'static';
+                }
+            } else { el.style.position = 'static'; }
+        };
+        document.addEventListener('touchmove', mover);
+        document.addEventListener('touchend', soltar);
+    }
+
+    function finalizarTodo() {
+        document.getElementById('modal-cierre').style.display = 'flex';
+        document.getElementById('msg-final').innerText = "Excelente, lograste cambiar de tarea sin perder el control de la situación";
+        let porcentaje = Math.round((llamadasOK / llamadasTotales) * 100);
+        document.getElementById('stats').innerText = `Llamadas atendidas: ${porcentaje}%`;
+        
+        const finalVOZ = new SpeechSynthesisUtterance("Excelente, lograste cambiar de tarea sin perder el control de la situación");
+        finalVOZ.lang = 'es-ES';
+        window.speechSynthesis.speak(finalVOZ);
+    }
+</script>
+</body>
+</html>
 
