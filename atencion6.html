@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sesión 6 - Atención en la Cocina</title>
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
+        
+        #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; }
+        header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; z-index: 10; }
+
+        #guia-box { width: 90%; max-width: 800px; background: white; border: 3px solid var(--t-blue); border-radius: 15px; padding: 12px; display: flex; align-items: center; margin: 10px 0; min-height: 80px; cursor: pointer; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #avatar { width: 60px; height: 60px; border-radius: 50%; margin-right: 20px; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+
+        /* ESCENARIO DE COCINA */
+        #escenario { 
+            width: 95%; height: 280px; 
+            background: url('img6/mesa_plato.png') no-repeat center; 
+            background-size: cover; border-radius: 20px; position: relative;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15); border: 4px solid white;
+        }
+
+        #zona-meta { 
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,0.2); border: 4px dashed rgba(255,255,255,0.6);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* DESPENSA DE ESTÍMULOS */
+        #despensa { 
+            width: 92%; flex-grow: 1; background: rgba(255,255,255,0.9); 
+            border-radius: 20px 20px 0 0; margin-top: 15px; display: flex; 
+            flex-wrap: wrap; justify-content: center; align-content: center; 
+            gap: 12px; padding: 15px; backdrop-filter: blur(5px);
+            border-top: 5px solid var(--t-blue); overflow-y: auto;
+        }
+
+        .ingrediente { width: 70px; height: 70px; cursor: grab; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); touch-action: none; transition: transform 0.2s; }
+        .ingrediente:active { transform: scale(1.1); }
+    </style>
+</head>
+<body onclick="iniciarCocina()">
+
+<header>
+    <div id="nivel-text">NIVEL: 1</div>
+    <div id="progreso-text">RECETA: 0/3</div>
+</header>
+
+<div id="main-stage">
+    <div id="guia-box">
+        <img src="COTERAPEUTA.JPG" id="avatar" onerror="this.src='https://via.placeholder.com/60'">
+        <p id="texto-guia">¡Hola! Toca aquí para iniciar la Sesión de Cocina.</p>
+    </div>
+
+    <div id="escenario">
+        <div id="zona-meta"></div>
+    </div>
+    
+    <div id="despensa"></div>
+</div>
+
+<script>
+    let nivelActual = 1, aciertos = 0, totalObjetivos = 0, iniciado = false;
+    let recetaActual = [];
+
+    const sonidos = {
+        exito: new Audio("https://actions.google.com/sounds/v1/household/microwave_done.ogg"),
+        error: new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg"),
+        radio: new Audio("https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg"),
+        telefono: new Audio("https://actions.google.com/sounds/v1/office/phone_ringing.ogg")
+    };
+
+    const banco = {
+        bases: ['pan_blanco.png', 'pan_integral.png', 'arepa.png'],
+        rellenos: ['jamon.png', 'queso.png', 'huevo.png', 'atun.png', 'salami.png', 'pollo.png'],
+        vegetales: ['tomate.png', 'lechuga.png', 'cebolla.png', 'pepino.png', 'aguacate.png'],
+        distractores: ['manzana.png', 'platano.png', 'fresa.png', 'uva.png', 'jabon.png', 'esponja.png', 'pila.png', 'moneda.png', 'terrone_azucar.png', 'bicarbonato.png', 'sal.png']
+    };
+
+    function hablar(txt) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(txt);
+        msg.lang = 'es-ES'; msg.rate = 0.95;
+        window.speechSynthesis.speak(msg);
+        document.getElementById('texto-guia').innerText = txt;
+    }
+
+    function iniciarCocina() {
+        if (!iniciado) { iniciado = true; cargarNivel(); }
+    }
+
+    function cargarNivel() {
+        const despensa = document.getElementById('despensa');
+        despensa.innerHTML = "";
+        aciertos = 0;
+        pararAudios();
+
+        let poolVisual = [];
+        recetaActual = [];
+
+        if(nivelActual === 1) {
+            totalObjetivos = 3;
+            // Aleatorización para evitar aprendizaje
+            recetaActual.push(banco.bases[Math.floor(Math.random()*3)]);
+            recetaActual.push(banco.rellenos[Math.floor(Math.random()*3)]);
+            recetaActual.push(banco.rellenos[Math.floor(Math.random()*3 + 3)]);
+            
+            hablar("Prepara la receta básica. Necesito que pongas en el plato los 3 ingredientes correctos.");
+            poolVisual = [...recetaActual, banco.distractores[0], banco.distractores[1], banco.distractores[2]];
+        }
+        else if(nivelActual === 2) {
+            totalObjetivos = 4;
+            recetaActual.push(banco.bases[1], banco.rellenos[0], banco.vegetales[0], 'sal.png');
+            hablar("Nivel medio. Identifica los ingredientes, cuidado con los que se parecen.");
+            poolVisual = [...recetaActual, 'terrone_azucar.png', 'bicarbonato.png', 'jabon.png', 'esponja.png'];
+        }
+        else if(nivelActual === 3) {
+            totalObjetivos = 5;
+            sonidos.radio.loop = true; sonidos.radio.play();
+            recetaActual.push(banco.bases[0], banco.rellenos[1], banco.vegetales[1], banco.vegetales[2], 'huevo.png');
+            hablar("Nivel alto. Ignora el ruido de la radio y los timbres. Solo ingredientes de la ensalada.");
+            poolVisual = [...recetaActual, ...banco.distractores.sort(() => 0.5 - Math.random()).slice(0, 6)];
+            // Evento de teléfono aleatorio
+            setInterval(() => { if(iniciado && nivelActual === 3 && Math.random() > 0.8) sonidos.telefono.play(); }, 7000);
+        }
+
+        document.getElementById('nivel-text').innerText = `NIVEL: ${nivelActual}`;
+        document.getElementById('progreso-text').innerText = `RECETA: 0/${totalObjetivos}`;
+
+        // Barajar despensa
+        poolVisual.sort(() => Math.random() - 0.5).forEach(imgName => {
+            const img = document.createElement('img');
+            img.src = `img6/${imgName}`;
+            img.className = 'ingrediente';
+            img.dataset.name = imgName;
+            drag(img);
+            despensa.appendChild(img);
+        });
+    }
+
+    function pararAudios() {
+        Object.values(sonidos).forEach(s => { s.pause(); s.currentTime = 0; });
+    }
+
+    function drag(el) {
+        el.ontouchstart = (e) => {
+            const parent = el.parentNode;
+            el.style.position = 'fixed';
+            el.style.zIndex = 1000;
+            
+            const move = (me) => {
+                let t = me.touches[0];
+                el.style.left = (t.clientX - 35) + 'px';
+                el.style.top = (t.clientY - 35) + 'px';
+            };
+
+            const stop = (se) => {
+                document.removeEventListener('touchmove', move);
+                document.removeEventListener('touchend', stop);
+                let t = se.changedTouches[0];
+                const meta = document.getElementById('zona-meta').getBoundingClientRect();
+
+                if(t.clientX > meta.left && t.clientX < meta.right && t.clientY > meta.top && t.clientY < meta.bottom) {
+                    if(recetaActual.includes(el.dataset.name)) {
+                        el.remove();
+                        aciertos++;
+                        sonidos.exito.play();
+                        document.getElementById('progreso-text').innerText = `RECETA: ${aciertos}/${totalObjetivos}`;
+                        if(aciertos === totalObjetivos) {
+                            hablar("¡Muy bien! Lograste enfocarte en lo necesario para cumplir tu objetivo.");
+                            setTimeout(() => {
+                                if(nivelActual < 3) { nivelActual++; cargarNivel(); }
+                                else { pararAudios(); hablar("Sesión 6 finalizada. ¡Excelente desempeño!"); }
+                            }, 3000);
+                        }
+                    } else {
+                        sonidos.error.play();
+                        hablar("Ese no es un ingrediente de la receta.");
+                        reset();
+                    }
+                } else { reset(); }
+            };
+
+            function reset() { el.style.position = 'static'; parent.appendChild(el); }
+            document.addEventListener('touchmove', move);
+            document.addEventListener('touchend', stop);
+        };
+    }
+</script>
+</body>
+</html>
 
