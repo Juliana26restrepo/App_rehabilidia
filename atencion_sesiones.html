@@ -23,7 +23,7 @@
             cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             border-left: 10px solid var(--t-blue); transition: 0.3s;
         }
-        .sesion-card.bloqueada { border-left-color: #95a5a6; opacity: 0.7; cursor: not-allowed; }
+        .sesion-card.bloqueada { border-left-color: #95a5a5; opacity: 0.7; cursor: not-allowed; }
         .sesion-card span { font-weight: bold; font-size: 1rem; color: #333; }
 
         .niveles-container {
@@ -61,8 +61,9 @@
         2: true, 
         3: true,
         4: true,  
-        5: true,  // SESIÓN 5 ACTIVADA
-        6: false, 7: false, 8: false, 9: false, 10: false
+        5: true,  
+        6: true,  
+        7: false, 8: false, 9: false, 10: false
     };
 
     const contenedor = document.getElementById('lista-sesiones');
@@ -128,4 +129,3 @@
 
 </body>
 </html>
-
