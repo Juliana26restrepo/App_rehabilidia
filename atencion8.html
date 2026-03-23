@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nivel 8 - Organización de Closet</title>
+    <title>Nivel 8 - Organización de Closet Juan</title>
     <style>
         body { font-family: sans-serif; margin: 0; background: #f0f0f0; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
         #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; z-index: 100; }
@@ -55,7 +55,7 @@
 <div id="modal-cierre">
     <h2 id="msg-final"></h2>
     <p id="stats" style="font-size: 1.6rem; margin: 20px 0; color: #FFD700;"></p>
-    <p id="sub-msg">Preparando la siguiente parte...</p>
+    <p id="sub-msg"></p>
 </div>
 
 <script>
@@ -76,11 +76,11 @@
         {q:"¿La nieve es fría?", a:"Sí", b:"No", c:"A"}, {q:"¿El azúcar es dulce?", a:"Sí", b:"No", c:"A"},
         {q:"¿Los pájaros vuelan?", a:"Sí", b:"No", c:"A"}, {q:"¿El sol sale de noche?", a:"No", b:"Sí", c:"A"},
         {q:"¿Usas zapatos en las manos?", a:"No", b:"Sí", c:"A"}, {q:"¿2 + 2 es 4?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El elefante es pequeño?", a:"No", b:"Sí", c:"A"}, {q:"¿Bebemos agua?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El limón es amargo?", a:"Sí", b:"No", c:"A"}, {q:"¿Los peces nadan?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El fuego quema?", a:"Sí", b:"No", c:"A"}, {q:"¿La luna brilla de día?", a:"No", b:"Sí", c:"A"},
-        {q:"¿10 es mayor que 5?", a:"Sí", b:"No", c:"A"}, {q:"¿Dormimos en una cama?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El perro hace miau?", a:"No", b:"Sí", c:"A"}
+        {q:"¿El elefante es grande?", a:"Sí", b:"No", c:"A"}, {q:"¿Bebemos agua?", a:"Sí", b:"No", c:"A"},
+        {q:"¿El limón es ácido?", a:"Sí", b:"No", c:"A"}, {q:"¿Los peces viven en el agua?", a:"Sí", b:"No", c:"A"},
+        {q:"¿El fuego quema?", a:"Sí", b:"No", c:"A"}, {q:"¿La luna brilla?", a:"Sí", b:"No", c:"A"},
+        {q:"¿10 es más que 1?", a:"Sí", b:"No", c:"A"}, {q:"¿Dormimos en el sofá?", a:"No", b:"Sí", c:"A"},
+        {q:"¿El perro ladra?", a:"Sí", b:"No", c:"A"}
     ];
 
     const positivos = ["¡Bien!", "¡Excelente!", "¡Lo estás logrando!", "¡Súper!"];
@@ -97,16 +97,22 @@
     function iniciarProgreso() {
         aciertos = 0;
         document.getElementById('modal-cierre').style.display = 'none';
+        
         if(nivelActual === 1) {
             hablar("Hola Juan vamos a organizar el closet, en el 1 vamos a poner todo lo de colgar, en el 2 todo lo que se dobla y en el 3 los zapatos.");
+        } else if(nivelActual === 2) {
+            hablar("¡Excelente Juan! Sigamos organizando más cosas en el closet. Recuerda bien los puntos 1, 2 y 3.");
+        } else if(nivelActual === 3) {
+            hablar("¡Súper Juan, ya casi terminamos! Un último esfuerzo con estas prendas. ¡Lo estás logrando!");
         }
+        
         configurarNivel();
     }
 
     function configurarNivel() {
         let items = [];
         let numD = 0;
-        let tNotif = 8000;
+        let tNotif = 8500;
 
         if (nivelActual === 1) {
             totalNecesarios = 4;
@@ -114,11 +120,11 @@
         } else if (nivelActual === 2) {
             totalNecesarios = 7;
             items = [categorias[1][2], categorias[1][3], categorias[2][1], categorias[2][2], categorias[3][1], categorias[3][2], categorias[1][4]];
-            numD = 2; tNotif = 7000;
+            numD = 2; tNotif = 7500;
         } else {
             totalNecesarios = 10;
             items = [...categorias[1], ...categorias[2], ...categorias[3]];
-            numD = 3; tNotif = 5500;
+            numD = 3; tNotif = 6000;
         }
 
         renderizarPrendas(items, numD);
@@ -190,9 +196,9 @@
             document.getElementById('btnA').innerText = t.a; document.getElementById('btnB').innerText = t.b;
             n.style.display = 'block';
             const responder = (v) => {
-                if(v === t.c) { aciertosNotif++; hablar("Muy bien."); } else hablar("Prueba de nuevo.");
+                if(v === t.c) { aciertosNotif++; hablar("Muy bien Juan."); } else hablar("Prueba de nuevo.");
                 n.style.display = 'none';
-                timerNotif = setTimeout(lanzarNotificacion, nivelActual === 3 ? 6000 : 11000);
+                timerNotif = setTimeout(lanzarNotificacion, nivelActual === 3 ? 6500 : 11000);
             };
             document.getElementById('btnA').onclick = () => responder("A");
             document.getElementById('btnB').onclick = () => responder("B");
@@ -203,8 +209,9 @@
         if (nivelActual < 3) {
             nivelActual++;
             document.getElementById('modal-cierre').style.display = 'flex';
-            document.getElementById('stats').innerText = "Lo estás logrando, continuemos.";
-            setTimeout(iniciarProgreso, 3500);
+            document.getElementById('stats').innerText = "¡Excelente progreso Juan!";
+            document.getElementById('sub-msg').innerText = "Cargando el siguiente reto...";
+            setTimeout(iniciarProgreso, 4000);
         } else {
             finalizarJuego();
         }
@@ -212,12 +219,13 @@
 
     function finalizarJuego() {
         document.getElementById('modal-cierre').style.display = 'flex';
-        document.getElementById('sub-msg').innerText = "Has completado la organización.";
+        document.getElementById('sub-msg').innerText = "Has completado la organización con éxito.";
         const m = "Tu capacidad para adaptarte a varias demandas está mejorando cada día.";
         document.getElementById('msg-final').innerText = m;
-        document.getElementById('stats').innerText = `Proceso terminado.`;
+        document.getElementById('stats').innerText = `Juan, lo hiciste muy bien.`;
         hablar(m);
     }
 </script>
 </body>
 </html>
+
