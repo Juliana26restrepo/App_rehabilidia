@@ -18,17 +18,17 @@
         #zona-receta { width: 25%; display: flex; flex-direction: column; gap: 10px; }
         #lista-pasos { background: #fff3e0; padding: 15px; border-radius: 12px; border: 2px solid #E67E22; text-align: center; }
         
-        /* Cuadro para instrucciones de VOZ (Contradicciones) */
+        /* Cuadro exclusivo para instrucciones de VOZ (Contradicciones) */
         #caja-instruccion-voz { 
-            background: #fdf2f2; border: 2px solid #C0392B; border-radius: 10px; padding: 10px; 
-            text-align: center; font-weight: bold; color: #C0392B; min-height: 50px; display: flex; align-items: center; justify-content: center;
+            background: #e8f4fd; border: 2px solid #3498db; border-radius: 10px; padding: 10px; 
+            text-align: center; font-weight: bold; color: #1B4F72; min-height: 50px; display: flex; align-items: center; justify-content: center;
         }
 
         #zona-coccion { width: 45%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 50px; }
         #estufa-img { width: 100%; max-width: 380px; z-index: 1; }
-        /* Ajuste de posición del sartén y su colisión */
         #sarten-img { width: 240px; position: absolute; top: 90px; z-index: 2; pointer-events: none; }
-        #sarten-target { width: 120px; height: 120px; position: absolute; top: 130px; z-index: 10; border-radius: 50%; }
+        /* Área de colisión ampliada para mejor agarre */
+        #sarten-target { width: 180px; height: 140px; position: absolute; top: 110px; z-index: 10; border-radius: 50%; }
 
         #despensa { 
             width: 30%; background: rgba(255,255,255,0.9); border: 3px solid #1B4F72; border-radius: 20px; 
@@ -36,8 +36,9 @@
         }
         .item { width: 80px; height: 80px; object-fit: contain; cursor: grab; touch-action: none; z-index: 20; }
 
-        #alerta-emergencia { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #C0392B; color: white; border: 6px solid #FFC300; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; }
-        .btn-accion { padding: 15px 30px; margin-top: 20px; background: #FFC300; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; }
+        /* Ventana de emergencia central */
+        #alerta-emergencia { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #C0392B; color: white; border: 6px solid #FFC300; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .btn-accion { padding: 15px 30px; margin-top: 20px; background: #FFC300; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
     </style>
 </head>
 <body onload="iniciarSesion9()">
@@ -45,19 +46,19 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">¡Hola Juan! Vamos a cocinar.</p>
+        <p id="texto-guia">Cargando...</p>
     </div>
 </div>
 
 <div id="escenario">
     <div id="zona-receta">
         <div id="lista-pasos">
-            <strong>PLATILLO:</strong><br><span id="nombre-plato" style="color:#1B4F72;">---</span>
+            <strong>PLATILLO:</strong><br><span id="nombre-plato">---</span>
             <hr>
             <strong>PANTALLA DICE:</strong><br>
             <span id="paso-texto" style="font-size: 1.4rem; font-weight: bold; color: #d35400;">---</span>
         </div>
-        <div id="caja-instruccion-voz">Escuchando instrucciones...</div>
+        <div id="caja-instruccion-voz">Escucha con atención...</div>
     </div>
 
     <div id="zona-coccion">
@@ -70,7 +71,7 @@
 </div>
 
 <div id="alerta-emergencia">
-    <h2 id="titulo-alerta">¡ATENCIÓN!</h2>
+    <h2>¡ATENCIÓN!</h2>
     <p id="txt-alerta"></p>
     <button class="btn-accion" onclick="resolverInterrupcion()">SOLUCIONAR</button>
 </div>
@@ -88,7 +89,7 @@
             meta: ["arepa.png", "huevo.png", "queso.png", "tocino.png"],
             extra: ["fresa.png", "azucar.png"],
             audio: "img9/ambiente_cocina.mp3",
-            bienvenida: "Ahora prepararemos un rico Desayuno. Pon la arepa, el huevo, el queso y el tocino. ¡Escucha bien!",
+            bienvenida: "Hola Juan, preparemos el Desayuno. Sigue mis instrucciones de voz.",
             emergencia: "¡Juan, el chocolate se está regando! Bátelo rápido."
         },
         2: { 
@@ -96,16 +97,16 @@
             meta: ["arroz.png", "pollo.png", "zanahoria.png", "tomate.png"],
             extra: ["naranja.png", "harina.png"],
             audio: "img9/radio.mp3",
-            bienvenida: "Ahora prepararemos un Arroz con Pollo. Mira los ingredientes, pero atento a lo que te diga.",
-            emergencia: "¡Juan! El arroz se está pegando, muévelo ya."
+            bienvenida: "Bien Juan, ahora Arroz con Pollo. ¡Atento a los cambios!",
+            emergencia: "¡Juan! El arroz se está quemando, muévelo ya."
         },
         3: { 
             nombre: "Sancocho", 
             meta: ["carne.png", "cerdo.png", "pollo.png", "papa.png", "yuca.png", "platano.png", "mazorca.png", "cilantro.png"],
             extra: ["pepino.png", "apio.png"],
             audio: "img9/licuadora.mp3",
-            bienvenida: "Ahora prepararemos un Sancocho. Es una receta larga, ¡concéntrate!",
-            emergencia: "¡CUIDADO! Se está quemando la carne, apaga el fogón."
+            bienvenida: "Reto final: El Sancocho. No te distraigas.",
+            emergencia: "¡Peligro! La carne se quema, apaga el fogón."
         }
     };
 
@@ -118,10 +119,11 @@
         window.speechSynthesis.speak(msg);
     }
 
-    function vozInterrupcion(txt) {
+    function vozInstruccion(txt) {
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-MX';
-        msg.pitch = 0.8;
+        msg.pitch = 0.9;
+        // Solo actualiza el cuadro de la izquierda para retos de voz
         document.getElementById('caja-instruccion-voz').innerText = txt;
         window.speechSynthesis.speak(msg);
     }
@@ -135,7 +137,7 @@
         pasoProgreso = 0;
         const conf = recetas[nivelActual];
         document.getElementById('nombre-plato').innerText = conf.nombre;
-        document.getElementById('caja-instruccion-voz').innerText = "Esperando orden...";
+        document.getElementById('caja-instruccion-voz').innerText = "Cocinando...";
         
         const d = document.getElementById('despensa');
         d.innerHTML = "";
@@ -151,7 +153,7 @@
         });
 
         audioAmbiente.src = conf.audio;
-        audioAmbiente.play();
+        audioAmbiente.play().catch(e => {});
         actualizarUI();
         setTimeout(lanzarEmergencia, 15000);
     }
@@ -161,15 +163,15 @@
         if(pasoProgreso < conf.meta.length) {
             document.getElementById('paso-texto').innerText = conf.meta[pasoProgreso].split('.')[0].toUpperCase();
             
-            // Probabilidad moderada de contradicción (30%)
-            if(Math.random() > 0.7) {
+            // Reto de contradicción ocasional
+            if(Math.random() > 0.6) {
                 let rIdx = Math.floor(Math.random() * conf.meta.length);
                 ingredienteObligatorioVoz = conf.meta[rIdx];
                 let nombreVoz = ingredienteObligatorioVoz.split('.')[0];
-                vozInterrupcion("¡Juan! Pon primero el " + nombreVoz);
+                vozInstruccion("¡Juan! Olvida la pantalla, pon el " + nombreVoz);
             } else {
                 ingredienteObligatorioVoz = "";
-                document.getElementById('caja-instruccion-voz').innerText = "Sigue la pantalla.";
+                document.getElementById('caja-instruccion-voz').innerText = "Sigue el orden visual.";
             }
         }
     }
@@ -180,7 +182,10 @@
             document.getElementById('estufa-img').src = "img9/estufa_prendida.png";
             document.getElementById('alerta-emergencia').style.display = 'block';
             document.getElementById('txt-alerta').innerText = recetas[nivelActual].emergencia;
-            vozInterrupcion(recetas[nivelActual].emergencia);
+            // Solo voz, NO se escribe en el cuadro de la izquierda
+            const msg = new SpeechSynthesisUtterance(recetas[nivelActual].emergencia);
+            msg.lang = 'es-ES';
+            window.speechSynthesis.speak(msg);
         }
     }
 
@@ -188,8 +193,7 @@
         interrupcionActiva = false;
         document.getElementById('estufa-img').src = "img9/estufa.png";
         document.getElementById('alerta-emergencia').style.display = 'none';
-        vozCoterapeuta("¡Bien hecho! Sigamos.");
-        document.getElementById('caja-instruccion-voz').innerText = "Continúa.";
+        vozCoterapeuta("Excelente, continúa.");
     }
 
     function dragIngrediente(e) {
@@ -218,16 +222,14 @@
             let objetivo = (ingredienteObligatorioVoz !== "") ? ingredienteObligatorioVoz : conf.meta[pasoProgreso];
 
             if(drop && drop.id === 'sarten-target' && el.dataset.file === objetivo) {
-                new Audio('img8/exito.mp3').play();
+                new Audio('img8/exito.mp3').play().catch(e=>{});
                 el.remove();
                 if(ingredienteObligatorioVoz !== "" && ingredienteObligatorioVoz !== conf.meta[pasoProgreso]) {
                     conf.meta = conf.meta.filter(item => item !== el.dataset.file);
                 } else { pasoProgreso++; }
 
                 if(pasoProgreso >= conf.meta.length) {
-                    nivelActual++;
-                    if(nivelActual <= 3) iniciarSesion9();
-                    else vozCoterapeuta("¡Chef estrella! Has terminado.");
+                    finalizarPlato();
                 } else { actualizarUI(); }
             } else {
                 el.style.position = 'relative'; el.style.left = 'auto'; el.style.top = 'auto';
@@ -236,6 +238,17 @@
         document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
         document.addEventListener('touchmove', move, {passive: false}); document.addEventListener('touchend', stop);
     }
+
+    function finalizarPlato() {
+        audioAmbiente.pause();
+        vozCoterapeuta("¡Delicioso Juan! Pasemos al siguiente.", () => {
+            setTimeout(() => {
+                if(nivelActual < 3) { nivelActual++; iniciarSesion9(); }
+                else { vozCoterapeuta("¡Sesión completada, eres un gran chef!"); }
+            }, 2000);
+        });
+    }
 </script>
 </body>
 </html>
+
