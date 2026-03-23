@@ -25,7 +25,7 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Toca un ingrediente para iniciar el audio.</p>
+        <p id="texto-guia">Toca un ingrediente para iniciar.</p>
     </div>
 </div>
 
@@ -44,13 +44,20 @@
     const frasesCorrecto = ["¡Bien! Ese era", "Correcto", "¡Muy bien!", "Ese es el ingrediente"];
     const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Prueba con otro", "Ese no va en la receta"];
 
-    // --- AUDIOS LOCALES ---
+    // --- AUDIOS LOCALES CON VOLUMEN REGULADO (15-20%) ---
     const sonidosDistractores = {
         reloj: new Audio("img6/reloj.mp3"),
         licuadora: new Audio("img6/licuadora.mp3"),
         grito: new Audio("img6/grito.mp3"),
         moscas: new Audio("img6/moscas.mp3")
     };
+
+    // Configuración de volumen solicitada
+    sonidosDistractores.reloj.volume = 0.15;
+    sonidosDistractores.licuadora.volume = 0.15;
+    sonidosDistractores.moscas.volume = 0.15;
+    sonidosDistractores.grito.volume = 0.20; // Ligeramente más alto por ser un pico de sonido
+
     let ruidosIniciados = false;
 
     function hablar(mensaje) {
@@ -58,12 +65,12 @@
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
         msg.rate = 1.0;
+        msg.volume = 1.0; 
         document.getElementById('texto-guia').innerText = mensaje;
         window.speechSynthesis.speak(msg);
     }
 
     function gestionarRuidos() {
-        // Resetear sonidos
         Object.values(sonidosDistractores).forEach(s => { s.pause(); s.currentTime = 0; s.loop = true; });
 
         if (nivel === 1) {
