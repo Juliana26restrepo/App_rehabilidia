@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 6 - Cocina Final</title>
+    <title>Sesión 6 - Cocina Terapéutica</title>
     <style>
         body { font-family: sans-serif; margin: 0; background: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
         #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 4px solid #307B8E; }
         #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
-        #texto-guia { font-size: 1.1rem; font-weight: bold; margin: 0; }
-        #zona-juego { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; padding: 10px; }
-        .panel { width: 46%; height: 85%; border: 3px solid #ccc; position: relative; border-radius: 20px; overflow: hidden; }
+        #texto-guia { font-size: 1.1rem; font-weight: bold; margin: 0; line-height: 1.2; }
+        #zona-juego { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; padding: 10px; gap: 10px; }
+        .panel { width: 48%; height: 90%; border: 3px solid #ccc; position: relative; border-radius: 20px; overflow: hidden; background: #f9f9f9; }
         #panel-mesa { background: url('img6/mesa_plato.png') no-repeat center; background-size: cover; display: flex; justify-content: center; align-items: center; }
-        #objetivo { width: 160px; height: 160px; border: 6px dashed #00FFFF; border-radius: 50%; position: absolute; pointer-events: none; }
-        .ing-plato { position: absolute; width: 85px; height: 85px; transform: translate(-50%, -50%); z-index: 10; }
-        #panel-ingredientes { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 8px; padding: 10px; }
-        .item { width: 85px; height: 85px; touch-action: none; z-index: 100; cursor: grab; }
-        .mosca { position: absolute; width: 40px; height: 40px; z-index: 500; pointer-events: none; transition: all 1.5s linear; }
+        #objetivo { width: 170px; height: 170px; border: 6px dashed #00FFFF; border-radius: 50%; position: absolute; pointer-events: none; opacity: 0.5; }
+        .ing-plato { position: absolute; width: 90px; height: 90px; transform: translate(-50%, -50%); z-index: 10; }
+        #panel-ingredientes { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; overflow-y: auto; align-content: start; }
+        .item { width: 85px; height: 85px; touch-action: none; z-index: 100; cursor: grab; object-fit: contain; }
+        .mosca { position: absolute; width: 40px; height: 40px; z-index: 500; pointer-events: none; transition: all 1.8s linear; }
     </style>
 </head>
 <body onload="cargarNivel()">
@@ -25,7 +25,7 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Toca un ingrediente para iniciar el audio de fondo.</p>
+        <p id="texto-guia">Cargando ingredientes...</p>
     </div>
 </div>
 
@@ -39,12 +39,11 @@
 
 <script>
     let nivel = 1, aciertos = 0, receta = [];
-    const posiciones = [{t:'50%',l:'50%'}, {t:'35%',l:'40%'}, {t:'35%',l:'60%'}, {t:'65%',l:'40%'}, {t:'65%',l:'60%'}];
+    const posiciones = [{t:'50%',l:'50%'}, {t:'35%',l:'40%'}, {t:'35%',l:'60%'}, {t:'65%',l:'40%'}, {t:'65%',l:'60%'}, {t:'50%',l:'70%'}];
     
     const frasesCorrecto = ["¡Bien! Ese era", "Correcto", "¡Muy bien!", "Ese es el ingrediente"];
-    const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Prueba con otro", "Ese no va en la receta"];
+    const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Ese no va en la receta", "Busca el correcto"];
 
-    // --- AUDIOS LOCALES CON VOLUMEN MÁS BAJO (10-12%) ---
     const sonidosDistractores = {
         reloj: new Audio("img6/reloj.mp3"),
         licuadora: new Audio("img6/licuadora.mp3"),
@@ -52,11 +51,11 @@
         moscas: new Audio("img6/moscas.mp3")
     };
 
-    // Ajuste de volumen para que sea ruido de fondo sutil
+    // Volumen al 10% para que sea ruido de fondo suave
     sonidosDistractores.reloj.volume = 0.10;
     sonidosDistractores.licuadora.volume = 0.10;
-    sonidosDistractores.moscas.volume = 0.12;
-    sonidosDistractores.grito.volume = 0.15; 
+    sonidosDistractores.moscas.volume = 0.10;
+    sonidosDistractores.grito.volume = 0.15;
 
     let ruidosIniciados = false;
 
@@ -65,28 +64,17 @@
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
         msg.rate = 1.0;
-        msg.volume = 1.0; 
         document.getElementById('texto-guia').innerText = mensaje;
         window.speechSynthesis.speak(msg);
     }
 
     function gestionarRuidos() {
         Object.values(sonidosDistractores).forEach(s => { s.pause(); s.currentTime = 0; s.loop = true; });
-
-        if (nivel === 1) {
-            sonidosDistractores.reloj.play();
-        } else if (nivel === 2) {
-            sonidosDistractores.reloj.play();
-            sonidosDistractores.licuadora.play();
-        } else if (nivel === 3) {
-            sonidosDistractores.reloj.play();
-            sonidosDistractores.licuadora.play();
-            sonidosDistractores.moscas.play();
-            if(!window.intGrito) {
-                window.intGrito = setInterval(() => { 
-                    if(nivel === 3) sonidosDistractores.grito.play(); 
-                }, 15000);
-            }
+        if (nivel === 1) sonidosDistractores.reloj.play();
+        if (nivel === 2) { sonidosDistractores.reloj.play(); sonidosDistractores.licuadora.play(); }
+        if (nivel === 3) { 
+            sonidosDistractores.reloj.play(); sonidosDistractores.licuadora.play(); sonidosDistractores.moscas.play();
+            if(!window.intGrito) window.intGrito = setInterval(() => { if(nivel === 3) sonidosDistractores.grito.play(); }, 15000);
             crearMoscasVisuales();
         }
     }
@@ -97,59 +85,55 @@
             m.src = 'img6/mosca.png'; m.className = 'mosca';
             m.style.left = Math.random()*80+'%'; m.style.top = Math.random()*80+'%';
             document.body.appendChild(m);
-            setInterval(() => { 
-                m.style.left = Math.random()*90+'%'; 
-                m.style.top = Math.random()*90+'%'; 
-            }, 1800);
+            setInterval(() => { m.style.left = Math.random()*90+'%'; m.style.top = Math.random()*90+'%'; }, 2000);
         }
     }
 
     function cargarNivel() {
         const pI = document.getElementById('panel-ingredientes');
         document.getElementById('plato-capa').innerHTML = "";
-        pI.innerHTML = "";
-        aciertos = 0;
+        pI.innerHTML = ""; aciertos = 0;
         document.querySelectorAll('.mosca').forEach(m => m.remove());
 
         let pool = [];
+        const todasBases = ['pan_blanco.png', 'pan_integral.png', 'galleta.png', 'arepa.png', 'pan.png'];
+        const todasPros = ['jamon.png', 'queso.png', 'huevo.png', 'pollo.png', 'atun.png', 'salami.png'];
+        const todosVeg = ['tomate.png', 'lechuga.png', 'cebolla.png', 'pepino.png', 'aguacate.png'];
+        const todosNoCom = ['jabon.png', 'esponja.png', 'moneda.png', 'llave.png', 'pila.png'];
+        const todasFrutas = ['manzana.png', 'platano.png', 'fresa.png', 'uva.png'];
+        const polvos = ['sal.png', 'terrone_azucar.png', 'bicarbonato.png'];
+
         if(nivel === 1) {
             receta = ['pan_blanco.png', 'jamon.png', 'queso.png'];
-            hablar("Busca: Pan blanco, Jamón y Queso.");
-            // Más distractores nivel 1
-            pool = [...receta, 'manzana.png', 'platano.png', 'uva.png', 'pera.png'];
+            hablar("Nivel 1: Haz un sándwich. Busca Pan blanco, Jamón y Queso.");
+            pool = [...receta, 'pan_integral.png', 'manzana.png', 'platano.png', 'jabon.png', 'sal.png'];
         } else if(nivel === 2) {
-            receta = ['pan_integral.png', 'pollo.png', 'tomate.png', 'sal.png'];
-            hablar("Busca: Pan integral, Pollo, Tomate y Sal.");
-            // Más distractores nivel 2 (objetos no comestibles tmb)
-            pool = [...receta, 'jabon.png', 'pila.png', 'terrone_azucar.png', 'fresa.png', 'limon.png'];
+            receta = ['galleta.png', 'atun.png', 'pepino.png', 'tomate.png'];
+            hablar("Nivel 2: Galleta con atún. Busca Galleta, Atún, Pepino y Tomate.");
+            pool = [...receta, 'salami.png', 'lechuga.png', 'terrone_azucar.png', 'bicarbonato.png', 'pila.png', 'moneda.png', 'uva.png'];
         } else {
-            receta = ['arepa.png', 'huevo.png', 'atun.png', 'aguacate.png', 'cebolla.png'];
-            hablar("Busca: Arepa, Huevo, Atún, Aguacate y Cebolla.");
-            // Máxima cantidad de estímulos nivel 3
-            pool = [...receta, 'moneda.png', 'fresa.png', 'esponja.png', 'naranja.png', 'cubiertos.png', 'taza.png'];
+            receta = ['arepa.png', 'huevo.png', 'pollo.png', 'aguacate.png', 'cebolla.png', 'sal.png'];
+            hablar("Nivel Final: Arepa completa. Busca Arepa, Huevo, Pollo, Aguacate, Cebolla y Sal.");
+            pool = [...todasBases, ...todasPros, ...todosVeg, ...todosNoCom, ...todasFrutas, ...polvos];
         }
 
-        if(ruidosIniciados) gestionarRuidos();
-
-        pool.sort(() => Math.random() - 0.5).forEach(img => {
+        [...new Set(pool)].sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
             el.src = `img6/${img}`; el.className = 'item'; el.dataset.id = img;
             el.ontouchstart = drag;
             pI.appendChild(el);
         });
+
+        if(ruidosIniciados) gestionarRuidos();
     }
 
     function drag(e) {
-        if(!ruidosIniciados) {
-            ruidosIniciados = true;
-            gestionarRuidos();
-        }
-
+        if(!ruidosIniciados) { ruidosIniciados = true; gestionarRuidos(); }
         const el = e.target;
         el.style.position = 'fixed';
         const mover = (me) => {
-            el.style.left = (me.touches[0].clientX - 45) + 'px';
-            el.style.top = (me.touches[0].clientY - 45) + 'px';
+            el.style.left = (me.touches[0].clientX - 40) + 'px';
+            el.style.top = (me.touches[0].clientY - 40) + 'px';
         };
         const soltar = (se) => {
             document.removeEventListener('touchmove', mover);
@@ -166,10 +150,7 @@
                     document.getElementById('plato-capa').appendChild(n);
                     el.remove(); aciertos++;
                     if(aciertos === receta.length) {
-                        setTimeout(() => { 
-                            if(nivel < 3) { nivel++; cargarNivel(); } 
-                            else { hablar("¡Excelente trabajo! Has terminado la cocina."); }
-                        }, 2000);
+                        setTimeout(() => { if(nivel < 3) { nivel++; cargarNivel(); } else hablar("¡Felicidades! Completaste la cocina."); }, 2000);
                     }
                 } else {
                     hablar(frasesIncorrecto[Math.floor(Math.random() * frasesIncorrecto.length)]);
@@ -183,3 +164,4 @@
 </script>
 </body>
 </html>
+
