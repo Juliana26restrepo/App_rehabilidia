@@ -17,6 +17,7 @@
         .ing-plato { position: absolute; width: 85px; height: 85px; transform: translate(-50%, -50%); z-index: 10; }
         #panel-ingredientes { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; }
         .item { width: 95px; height: 95px; touch-action: none; z-index: 100; cursor: grab; }
+        .mosca { position: absolute; width: 40px; height: 40px; z-index: 500; pointer-events: none; transition: all 1s linear; }
     </style>
 </head>
 <body onload="cargarNivel()">
@@ -24,7 +25,7 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
+        <p id="texto-guia">Toca un ingrediente para iniciar el audio.</p>
     </div>
 </div>
 
@@ -38,14 +39,11 @@
 
 <script>
     let nivel = 1, aciertos = 0, receta = [];
-    // Posiciones en el plato para que no se amontonen
     const posiciones = [{t:'50%',l:'50%'}, {t:'35%',l:'40%'}, {t:'35%',l:'60%'}, {t:'65%',l:'40%'}, {t:'65%',l:'60%'}];
     
-    // Listas de frases para que no sea repetitivo
     const frasesCorrecto = ["¡Bien! Ese era", "Correcto", "¡Muy bien!", "Ese es el ingrediente"];
     const frasesIncorrecto = ["No, ese no es", "Incorrecto", "Prueba con otro", "Ese no va en la receta"];
 
-    // --- NUEVO: DISTRACTORES ---
     const sonidosDistractores = {
         reloj: new Audio("https://actions.google.com/sounds/v1/household/kitchen_timer_ticking.ogg"),
         licuadora: new Audio("https://actions.google.com/sounds/v1/household/blender_running.ogg"),
@@ -57,32 +55,37 @@
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
-        msg.rate = 1.0;
-        document.getElementById('texto-guia').innerText = mensaje;
+        msg.volume = 1;
+        msg.rate = 0.9;
+        
+        // Esto fuerza a que la voz suene en Android/iOS
         window.speechSynthesis.speak(msg);
+        document.getElementById('texto-guia').innerText = mensaje;
     }
 
     function gestionarRuidos() {
-        // Detener todo antes de empezar
-        sonidosDistractores.reloj.pause();
-        sonidosDistractores.licuadora.pause();
-        sonidosDistractores.reloj.loop = true;
-        sonidosDistractores.licuadora.loop = true;
+        Object.values(sonidosDistractores).forEach(s => { s.pause(); s.currentTime = 0; s.loop = true; });
 
         if (nivel === 1) {
-            sonidosDistractores.reloj.play().catch(e => console.log("Esperando interacción"));
+            sonidosDistractores.reloj.play();
         } else if (nivel === 2) {
             sonidosDistractores.reloj.play();
             sonidosDistractores.licuadora.play();
         } else if (nivel === 3) {
             sonidosDistractores.reloj.play();
             sonidosDistractores.licuadora.play();
-            // Grito aleatorio cada 10 segundos
-            if(!window.intervalGrito) {
-                window.intervalGrito = setInterval(() => {
-                    if(nivel === 3) sonidosDistractores.grito.play();
-                }, 10000);
-            }
+            if(!window.intGrito) window.intGrito = setInterval(() => { if(nivel === 3) sonidosDistractores.grito.play(); }, 12000);
+            crearMoscas();
+        }
+    }
+
+    function crearMoscas() {
+        for(let i=0; i<3; i++) {
+            const m = document.createElement('img');
+            m.src = 'img6/mosca.png'; m.className = 'mosca';
+            m.style.left = Math.random()*80+'%'; m.style.top = Math.random()*80+'%';
+            document.body.appendChild(m);
+            setInterval(() => { m.style.left = Math.random()*90+'%'; m.style.top = Math.random()*90+'%'; }, 2000);
         }
     }
 
@@ -91,6 +94,7 @@
         document.getElementById('plato-capa').innerHTML = "";
         pI.innerHTML = "";
         aciertos = 0;
+        document.querySelectorAll('.mosca').forEach(m => m.remove());
 
         let pool = [];
         if(nivel === 1) {
@@ -107,7 +111,6 @@
             pool = [...receta, 'moneda.png', 'fresa.png'];
         }
 
-        // Si ya hubo un toque previo, actualizar ruidos al cambiar de nivel
         if(ruidosIniciados) gestionarRuidos();
 
         pool.sort(() => Math.random() - 0.5).forEach(img => {
@@ -119,7 +122,6 @@
     }
 
     function drag(e) {
-        // Activar ruidos al primer toque del usuario
         if(!ruidosIniciados) {
             ruidosIniciados = true;
             gestionarRuidos();
@@ -139,23 +141,16 @@
 
             if(t.clientX > obj.left && t.clientX < obj.right && t.clientY > obj.top && t.clientY < obj.bottom) {
                 if(receta.includes(el.dataset.id)) {
-                    // Retroalimentación CORRECTA
                     hablar(frasesCorrecto[Math.floor(Math.random() * frasesCorrecto.length)]);
-                    
                     const n = document.createElement('img');
                     n.src = el.src; n.className = 'ing-plato';
                     n.style.top = posiciones[aciertos].t; n.style.left = posiciones[aciertos].l;
                     document.getElementById('plato-capa').appendChild(n);
                     el.remove(); aciertos++;
-                    
                     if(aciertos === receta.length) {
-                        setTimeout(() => { 
-                            if(nivel < 3) { nivel++; cargarNivel(); }
-                            else { hablar("¡Felicidades! Terminaste toda la actividad."); }
-                        }, 2000);
+                        setTimeout(() => { if(nivel < 3) { nivel++; cargarNivel(); } else hablar("¡Felicidades!"); }, 2000);
                     }
                 } else {
-                    // Retroalimentación INCORRECTA
                     hablar(frasesIncorrecto[Math.floor(Math.random() * frasesIncorrecto.length)]);
                     el.style.position = 'static';
                 }
