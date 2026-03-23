@@ -27,6 +27,7 @@
         @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } }
 
         #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        button { padding: 15px 30px; font-size: 1.2rem; margin-top: 20px; cursor: pointer; background: #307B8E; color: white; border: none; border-radius: 10px; }
     </style>
 </head>
 <body onload="cargarNivel()">
@@ -41,7 +42,7 @@
 <div id="escenario">
     <div id="zona-preparacion">
         <img src="img7/bowl.png" id="bowl">
-        <img src="img7/omelette.png" id="plato-final">
+        <img src="" id="plato-final">
     </div>
 
     <div id="interfaz-derecha">
@@ -55,8 +56,8 @@
 
 <div id="modal-cierre">
     <h2 id="msg-final"></h2>
-    <p id="stats"></p>
-    <button onclick="location.reload()">Siguiente Sesión</button>
+    <p id="stats" style="font-size: 1.4rem;"></p>
+    <button onclick="location.reload()">Reiniciar Sesión</button>
 </div>
 
 <script>
@@ -64,7 +65,6 @@
     let receta = [], llamadaActiva = false;
     const ringtone = new Audio("img7/ringtone.mp3");
 
-    // Voz del Coterapeuta (Normal)
     function hablarCoterapeuta(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
@@ -75,22 +75,21 @@
         window.speechSynthesis.speak(msg);
     }
 
-    // Voz de la Llamada (Diferente: más aguda y rápida)
     function hablarLlamada(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
-        msg.pitch = 1.5; // Más aguda
-        msg.rate = 1.1;  // Un poco más rápida
+        msg.pitch = 1.4; // Voz de "llamada" diferente
+        msg.rate = 1.1;
         window.speechSynthesis.speak(msg);
     }
 
     const frasesLlamada = [
-        "Hola, te llamo para ver cómo estás. ¡Sigue con lo tuyo!",
-        "Recuerda que hoy tenemos una cita más tarde.",
-        "Oye, no olvides echarle bien los ingredientes a esa receta.",
-        "¿Ya terminaste? Me avisas cuando el plato esté listo.",
-        "Te llamo para recordarte que el chocolate es clave en la torta."
+        "Hola, solo llamo para ver cómo vas con el desayuno.",
+        "¡Oye! No te distraigas, sigue cocinando.",
+        "Recuerda que los polvos blancos se parecen, ¡mira bien!",
+        "¿Ya casi terminas? Me muero de hambre.",
+        "¡Excelente trabajo! Sigue así con la receta."
     ];
 
     function cargarNivel() {
@@ -100,21 +99,24 @@
         d.innerHTML = ""; bowl.style.display = "block"; platoFinal.style.display = "none";
         aciertos = 0;
 
+        let pool = [];
         if(nivel === 1) {
             receta = ['huevo_crudo.png', 'sal.png', 'tomate.png', 'cebolla.png'];
             platoFinal.src = "img7/omelette.png";
-            hablarCoterapeuta("Nivel Bajo: Haz un Omelette. Arrastra al bowl: huevo, sal, tomate y cebolla.");
+            hablarCoterapeuta("Nivel Bajo: Preparemos un Omelette. Arrastra al bowl: huevo, sal, tomate y cebolla.");
         } else if(nivel === 2) {
             receta = ['avena_cruda.png', 'arandano.png', 'fresa.png', 'leche.png', 'banano.png', 'azucar_morena.png'];
             platoFinal.src = "img7/avena.png";
-            hablarCoterapeuta("Nivel Medio: Haz la Avena. Necesitas avena, arándanos, fresas, leche, banano y azúcar.");
+            hablarCoterapeuta("Nivel Medio: Preparemos Avena. Agrega avena, arándanos, fresas, leche, banano y azúcar morena.");
         } else {
             receta = ['huevo_crudo.png', 'sal.png', 'azucar_morena.png', 'chocolate.png', 'harina.png'];
-            platoFinal.src = "img7/omelette.png"; 
-            hablarCoterapeuta("Nivel Alto: Torta de chocolate. Busca huevo, sal, azúcar, chocolate y harina.");
+            platoFinal.src = "img7/torta_chocolate.png"; // <-- Ajustado aquí
+            hablarCoterapeuta("Nivel Alto: Torta de chocolate. Busca huevo, sal, azúcar morena, chocolate y harina.");
         }
 
-        const pool = [...receta, 'uva.png', 'sandia.png', 'mango.png', 'perejil.png', 'miel.png'];
+        const distractores = ['uva.png', 'sandia.png', 'mango.png', 'perejil.png', 'miel.png'];
+        pool = [...receta, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 3)];
+
         pool.sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
             el.src = `img7/${img}`; el.className = 'item'; el.dataset.id = img;
@@ -122,7 +124,7 @@
             d.appendChild(el);
         });
 
-        setTimeout(lanzarLlamada, 7000);
+        setTimeout(lanzarLlamada, Math.random() * 5000 + 5000);
     }
 
     function lanzarLlamada() {
@@ -133,12 +135,12 @@
             document.getElementById('status-cel').innerText = "¡LLAMADA ENTRANTE!";
             ringtone.play();
 
-            let tLimite = nivel === 1 ? 8000 : 5000;
+            let tLimite = nivel === 1 ? 8000 : (nivel === 2 ? 5500 : 3800);
             setTimeout(() => {
                 if(llamadaActiva) {
                     llamadaActiva = false;
                     pararLlamada("Llamada perdida");
-                    if(aciertos < receta.length) setTimeout(lanzarLlamada, 12000);
+                    if(aciertos < receta.length) setTimeout(lanzarLlamada, 10000);
                 }
             }, tLimite);
         }
@@ -149,12 +151,12 @@
             llamadaActiva = false;
             llamadasOK++;
             pararLlamada("En llamada...");
-            const frase = frasesLlamada[Math.floor(Math.random() * frasesLlamada.length)];
-            hablarLlamada(frase);
+            const f = frasesLlamada[Math.floor(Math.random()*frasesLlamada.length)];
+            hablarLlamada(f);
             
             setTimeout(() => {
                 document.getElementById('status-cel').innerText = "TELÉFONO EN ESPERA";
-                if(aciertos < receta.length) setTimeout(lanzarLlamada, 15000);
+                if(aciertos < receta.length) setTimeout(lanzarLlamada, 13000);
             }, 4000);
         }
     }
@@ -193,7 +195,7 @@
                         }, 4000);
                     }
                 } else {
-                    hablarCoterapeuta("No, ese ingrediente no va aquí.");
+                    hablarCoterapeuta("No, ese ingrediente no es correcto.");
                     el.style.position = 'static';
                 }
             } else { el.style.position = 'static'; }
@@ -205,8 +207,8 @@
     function finalizarTodo() {
         document.getElementById('modal-cierre').style.display = 'flex';
         document.getElementById('msg-final').innerText = "Excelente, lograste cambiar de tarea sin perder el control de la situación";
-        let perc = Math.round((llamadasOK / llamadasTotales) * 100) || 0;
-        document.getElementById('stats').innerText = `Llamadas atendidas: ${perc}%`;
+        let score = Math.round((llamadasOK / llamadasTotales) * 100) || 0;
+        document.getElementById('stats').innerText = `Eficacia en llamadas: ${score}%`;
         
         const finalVOZ = new SpeechSynthesisUtterance("Excelente, lograste cambiar de tarea sin perder el control de la situación");
         finalVOZ.lang = 'es-ES';
