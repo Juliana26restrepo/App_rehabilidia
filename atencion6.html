@@ -9,35 +9,33 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: white; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
         
         #cabecera { background-color: var(--bg-blue); width: 100%; padding: 10px 0; display: flex; flex-direction: column; align-items: center; z-index: 100; }
-        #guia-box { width: 90%; max-width: 800px; background: white; border: 3px solid var(--t-blue); border-radius: 10px; padding: 10px; display: flex; align-items: center; cursor: pointer; }
+        #guia-box { width: 90%; max-width: 800px; background: white; border: 3px solid var(--t-blue); border-radius: 10px; padding: 10px; display: flex; align-items: center; position: relative; }
         #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; flex-grow: 1; }
+        
+        /* BOTÓN PARA ACTIVAR SONIDO */
+        #btn-iniciar { background: #ff9800; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-left: 10px; animation: pulse 1s infinite; }
+
         header { width: 100%; padding: 5px 20px; color: white; display: flex; justify-content: space-between; font-size: 0.8rem; }
 
         #zona-juego { flex-grow: 1; display: flex; justify-content: space-evenly; align-items: center; padding: 20px; background-color: white; position: relative; }
         .panel { width: 45%; height: 85%; background: white; border: 3px solid #ccc; border-radius: 15px; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 6px 10px rgba(0,0,0,0.1); overflow: hidden; }
 
         #panel-mesa { background-image: url('img6/mesa_plato.png'); background-size: cover; background-position: center; }
-        
-        /* MARCA VISUAL CENTRADA */
-        #area-plato { 
-            width: 150px; height: 150px; border-radius: 50%; 
-            background: rgba(0, 255, 255, 0.05); 
-            border: 3px dashed rgba(0, 255, 255, 0.4); 
-            position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 5; pointer-events: none;
-        }
+        #area-plato { width: 150px; height: 150px; border-radius: 50%; border: 3px dashed rgba(0, 255, 255, 0.4); position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; }
 
         #contenedor-comida { position: absolute; width: 150px; height: 150px; top: 52%; left: 50%; transform: translate(-50%, -50%); z-index: 20; pointer-events: none; }
-        .ing-final { position: absolute; width: 65px; height: 65px; object-fit: contain; transform: translate(-50%, -50%); transition: all 0.3s ease-out; }
+        .ing-final { position: absolute; width: 60px; height: 60px; object-fit: contain; transform: translate(-50%, -50%); }
 
         #panel-ingredientes { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; padding: 15px; }
-        .item { width: 75px; height: 75px; cursor: grab; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); touch-action: none; z-index: 50; }
+        .item { width: 75px; height: 75px; cursor: grab; object-fit: contain; touch-action: none; z-index: 50; }
 
         .mosca { position: absolute; width: 45px; height: 45px; z-index: 200; pointer-events: none; transition: all 1.2s linear; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
-<body onclick="iniciarApp()">
+<body>
 
 <div id="cabecera">
     <header>
@@ -46,7 +44,8 @@
     </header>
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar" onerror="this.src='https://via.placeholder.com/60'">
-        <p id="texto-guia">Toca aquí para que el terapeuta te dé la receta.</p>
+        <p id="texto-guia">Presiona INICIAR para comenzar la sesión.</p>
+        <button id="btn-iniciar" onclick="iniciarApp()">🔊 INICIAR</button>
     </div>
 </div>
 
@@ -62,13 +61,13 @@
     let nivelActual = 1, aciertos = 0, totalObjetivos = 0, appIniciada = false;
     let recetaDelDia = [];
     
-    // Coordenadas para distribuir ingredientes en el plato (formato % dentro del contenedor-comida)
-    const puntosDistribucion = [
-        {x: 50, y: 50}, // Centro
-        {x: 30, y: 40}, // Superior Izquierda
-        {x: 70, y: 40}, // Superior Derecha
-        {x: 35, y: 70}, // Inferior Izquierda
-        {x: 65, y: 70}  // Inferior Derecha
+    // Posiciones fijas para que no se apiñen (En % respecto al centro del plato)
+    const posicionesPlato = [
+        {top: '50%', left: '50%'}, // 1. Centro
+        {top: '30%', left: '50%'}, // 2. Arriba
+        {top: '70%', left: '50%'}, // 3. Abajo
+        {top: '50%', left: '30%'}, // 4. Izquierda
+        {top: '50%', left: '70%'}  // 5. Derecha
     ];
 
     const sonidos = {
@@ -90,12 +89,12 @@
     function pararAudios() { Object.values(sonidos).forEach(s => { s.pause(); s.currentTime = 0; }); }
 
     function iniciarApp() { 
-        if (!appIniciada) { 
-            appIniciada = true;
-            // Forzar carga/desbloqueo de sonidos
-            Object.values(sonidos).forEach(s => { s.play().then(() => { s.pause(); s.currentTime = 0; }).catch(() => {}); });
-            cargarNivel(); 
-        } 
+        document.getElementById('btn-iniciar').style.display = 'none';
+        // Desbloqueo masivo de audio por interacción
+        Object.values(sonidos).forEach(s => {
+            s.play().then(() => { s.pause(); s.currentTime = 0; }).catch(e => console.log("Audio lock"));
+        });
+        cargarNivel(); 
     }
 
     function cargarNivel() {
@@ -112,7 +111,7 @@
             totalObjetivos = 3;
             recetaDelDia = ['pan_blanco.png', 'jamon.png', 'queso.png'];
             hablar("¡Hola! Vamos a cocinar. Para esta receta busca: Pan blanco, Jamón y Queso.");
-            sonidos.temporizador.loop = true; setTimeout(() => sonidos.temporizador.play(), 500);
+            sonidos.temporizador.loop = true; sonidos.temporizador.play();
             poolVisual = [...recetaDelDia, 'manzana.png', 'platano.png', 'uva.png'];
         } 
         else if(nivelActual === 2) {
@@ -120,7 +119,7 @@
             recetaDelDia = ['pan_integral.png', 'pollo.png', 'tomate.png', 'sal.png'];
             hablar("Bienvenido al nivel 2. Necesito que busques: Pan integral, Pollo, Tomate y Sal.");
             sonidos.temporizador.loop = true; sonidos.temporizador.play();
-            sonidos.licuadora.loop = true; setTimeout(() => sonidos.licuadora.play(), 1000);
+            sonidos.licuadora.loop = true; sonidos.licuadora.play();
             poolVisual = [...recetaDelDia, 'terrone_azucar.png', 'bicarbonato.png', 'jabon.png', 'pila.png'];
         }
         else if(nivelActual === 3) {
@@ -129,8 +128,8 @@
             hablar("Nivel final. Por favor, busca estos ingredientes: Arepa, Huevo, Atún, Aguacate y Cebolla.");
             sonidos.temporizador.loop = true; sonidos.temporizador.play();
             sonidos.licuadora.loop = true; sonidos.licuadora.play();
-            // El grito sonará aleatoriamente para asustar/distraer
-            setInterval(() => { if(nivelActual === 3) sonidos.grito.play(); }, 8000);
+            // Grito aleatorio cada 7-10 segundos
+            setInterval(() => { if(nivelActual === 3) sonidos.grito.play(); }, 9000);
             poolVisual = [...recetaDelDia, 'esponja.png', 'moneda.png', 'fresa.png', 'jabon.png', 'pepino.png'];
             crearMoscas();
         }
@@ -175,7 +174,7 @@
                 
                 if(t.clientX > meta.left && t.clientX < meta.right && t.clientY > meta.top && t.clientY < meta.bottom) {
                     if(recetaDelDia.includes(el.dataset.name)) {
-                        colocarOrganizado(el.src);
+                        colocarEnPlato(el.src);
                         el.remove(); aciertos++; sonidos.exito.play();
                         document.getElementById('progreso-text').innerText = `RECETA: ${aciertos}/${totalObjetivos}`;
                         if(aciertos === totalObjetivos) {
@@ -191,17 +190,16 @@
         };
     }
 
-    function colocarOrganizado(src) {
+    function colocarEnPlato(src) {
         const img = document.createElement('img');
         img.src = src;
         img.className = 'ing-final';
-        // Usar un punto de distribución basado en cuántos ingredientes ya hay
-        const punto = puntosDistribucion[aciertos] || puntosDistribucion[0];
-        img.style.left = punto.x + "%";
-        img.style.top = punto.y + "%";
+        // Asignar posición predefinida según el número de ingrediente
+        const pos = posicionesPlato[aciertos % posicionesPlato.length];
+        img.style.top = pos.top;
+        img.style.left = pos.left;
         document.getElementById('contenedor-comida').appendChild(img);
     }
 </script>
 </body>
 </html>
-
