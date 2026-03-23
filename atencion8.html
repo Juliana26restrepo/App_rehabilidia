@@ -29,7 +29,7 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
+        <p id="texto-guia">Cargando sesión...</p>
     </div>
 </div>
 
@@ -61,7 +61,9 @@
 <script>
     let nivelActual = 1; 
     let aciertos = 0, totalNecesarios = 0, totalNotif = 0, aciertosNotif = 0;
-    let timerNotif;
+    let timerNotif = null;
+    let juegoFinalizado = false;
+
     const alarma = new Audio('img8/alarma.mp3');
     const exito = new Audio('img8/exito.mp3');
 
@@ -83,9 +85,6 @@
         {q:"¿El perro ladra?", a:"Sí", b:"No", c:"A"}
     ];
 
-    const positivos = ["¡Bien!", "¡Excelente!", "¡Lo estás logrando!", "¡Súper!"];
-    const correcciones = ["Mal, ese no va ahí", "Mira bien", "Prueba en otro lugar"];
-
     function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
@@ -96,14 +95,15 @@
 
     function iniciarProgreso() {
         aciertos = 0;
+        juegoFinalizado = false;
         document.getElementById('modal-cierre').style.display = 'none';
         
         if(nivelActual === 1) {
             hablar("Hola Juan vamos a organizar el closet, en el 1 vamos a poner todo lo de colgar, en el 2 todo lo que se dobla y en el 3 los zapatos.");
         } else if(nivelActual === 2) {
-            hablar("¡Excelente Juan! Sigamos organizando más cosas en el closet. Recuerda bien los puntos 1, 2 y 3.");
+            hablar("¡Excelente Juan! Sigamos organizando más cosas. Recuerda los puntos 1, 2 y 3.");
         } else if(nivelActual === 3) {
-            hablar("¡Súper Juan, ya casi terminamos! Un último esfuerzo con estas prendas. ¡Lo estás logrando!");
+            hablar("¡Súper Juan, ya casi terminamos! Un último esfuerzo. ¡Lo estás logrando!");
         }
         
         configurarNivel();
@@ -128,7 +128,7 @@
         }
 
         renderizarPrendas(items, numD);
-        clearTimeout(timerNotif);
+        if(timerNotif) clearTimeout(timerNotif);
         timerNotif = setTimeout(lanzarNotificacion, tNotif);
     }
 
@@ -136,7 +136,7 @@
         const d = document.getElementById('despensa-prendas');
         d.innerHTML = "";
         let lista = items.map(img => ({src: img, zona: buscarZona(img)}));
-        distractores.slice(0, numD).forEach(img => lista.push({src: img, zona: 0}));
+        distractores.sort(() => 0.5 - Math.random()).slice(0, numD).forEach(img => lista.push({src: img, zona: 0}));
         lista.sort(() => Math.random() - 0.5).forEach(p => {
             const img = document.createElement('img');
             img.src = `img8/${p.src}`;
@@ -153,6 +153,7 @@
     }
 
     function dragStart(e) {
+        if(juegoFinalizado) return;
         e.preventDefault();
         const el = e.target;
         const touch = e.type === 'touchstart' ? e.touches[0] : e;
@@ -175,11 +176,11 @@
 
             if (det && det.classList.contains('punto-ubicacion') && det.dataset.zona == el.dataset.zona) {
                 aciertos++; exito.play();
-                hablar(positivos[Math.floor(Math.random() * positivos.length)]);
+                hablar(["¡Bien!", "¡Excelente!", "¡Súper!", "¡Lo lograste!"][Math.floor(Math.random()*4)]);
                 el.remove();
                 if (aciertos >= totalNecesarios) siguienteNivel();
             } else {
-                hablar(correcciones[Math.floor(Math.random() * correcciones.length)]);
+                hablar(["Mal, ese no va ahí", "Mira bien", "Prueba en otro lugar"][Math.floor(Math.random()*3)]);
                 el.style.position = 'relative'; el.style.left = 'auto'; el.style.top = 'auto'; el.style.zIndex = "100";
             }
         };
@@ -188,17 +189,21 @@
     }
 
     function lanzarNotificacion() {
-        if (aciertos < totalNecesarios) {
+        if (aciertos < totalNecesarios && !juegoFinalizado) {
             totalNotif++; alarma.play();
             const n = document.getElementById('notificacion');
             const t = trivias[Math.floor(Math.random() * trivias.length)];
             document.getElementById('pregunta-txt').innerText = t.q;
             document.getElementById('btnA').innerText = t.a; document.getElementById('btnB').innerText = t.b;
             n.style.display = 'block';
+
             const responder = (v) => {
                 if(v === t.c) { aciertosNotif++; hablar("Muy bien Juan."); } else hablar("Prueba de nuevo.");
                 n.style.display = 'none';
-                timerNotif = setTimeout(lanzarNotificacion, nivelActual === 3 ? 6500 : 11000);
+                if(!juegoFinalizado) {
+                    let delay = nivelActual === 3 ? 7000 : 12000;
+                    timerNotif = setTimeout(lanzarNotificacion, delay);
+                }
             };
             document.getElementById('btnA').onclick = () => responder("A");
             document.getElementById('btnB').onclick = () => responder("B");
@@ -208,9 +213,10 @@
     function siguienteNivel() {
         if (nivelActual < 3) {
             nivelActual++;
+            if(timerNotif) clearTimeout(timerNotif);
             document.getElementById('modal-cierre').style.display = 'flex';
             document.getElementById('stats').innerText = "¡Excelente progreso Juan!";
-            document.getElementById('sub-msg').innerText = "Cargando el siguiente reto...";
+            document.getElementById('sub-msg').innerText = "Cargando la siguiente parte...";
             setTimeout(iniciarProgreso, 4000);
         } else {
             finalizarJuego();
@@ -218,6 +224,8 @@
     }
 
     function finalizarJuego() {
+        juegoFinalizado = true;
+        if(timerNotif) clearTimeout(timerNotif);
         document.getElementById('modal-cierre').style.display = 'flex';
         document.getElementById('sub-msg').innerText = "Has completado la organización con éxito.";
         const m = "Tu capacidad para adaptarte a varias demandas está mejorando cada día.";
@@ -228,4 +236,3 @@
 </script>
 </body>
 </html>
-
