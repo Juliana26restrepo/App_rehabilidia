@@ -31,7 +31,7 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">¡Juan! Vamos a cocinar con lo que tenemos.</p>
+        <p id="texto-guia">¡Juan! Atención a mis palabras.</p>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
 </div>
 
 <div id="alerta-emergencia">
-    <h2>⚠️ ¡ATENCIÓN!</h2>
+    <h2 id="titulo-alerta">⚠️ ¡ATENCIÓN!</h2>
     <p id="txt-alerta"></p>
     <button class="btn-accion" onclick="resolverInterrupcion()">SOLUCIONAR</button>
 </div>
@@ -67,7 +67,7 @@
     let ingredienteObjetivo = ""; 
     let audioAmbiente = new Audio();
 
-    // Lista VERIFICADA basada en tus archivos
+    // LISTA LIMPIA: Solo ingredientes confirmados en tus archivos
     const todosLosIngredientes = [
         "apio.png", "arepa.png", "arroz.png", "azucar.png", "bowl.png", "camote.png", "carne.png", "cebolla.png", 
         "cerdo.png", "chocolate.png", "cilantro.png", "fresa.png", "harina.png", "huevo.png", "jengibre.png", 
@@ -77,9 +77,10 @@
     ];
 
     const recetas = {
-        1: { nombre: "Desayuno", platoFinal: "img9/desayuno.png", meta: ["arepa.png", "huevo.png", "queso.png", "tocino.png"], audio: "img9/ambiente_cocina.mp3", emergencia: "¡El chocolate se está regando!" },
-        2: { nombre: "Arroz con Pollo", platoFinal: "img9/arroz_con_pollo.png", meta: ["arroz.png", "pollo.png", "zanahoria.png", "arroz.png"], audio: "img9/radio.mp3", emergencia: "¡El arroz se está pegando!" },
-        3: { nombre: "Sancocho", platoFinal: "img9/sancocho.png", meta: ["carne.png", "papa.png", "yuca.png", "mazorca.png", "platano.png", "cilantro.png"], audio: "img9/licuadora.mp3", emergencia: "¡Apaga el fogón!" }
+        1: { nombre: "Desayuno Completo", platoFinal: "img9/desayuno.png", meta: ["arepa.png", "huevo.png", "queso.png", "tocino.png"], audio: "img9/ambiente_cocina.mp3", emergencia: "¡El chocolate se está regando!" },
+        // Se quitó tomate.png de la receta 2
+        2: { nombre: "Arroz con Pollo", platoFinal: "img9/arroz_con_pollo.png", meta: ["arroz.png", "pollo.png", "zanahoria.png", "cebolla.png"], audio: "img9/radio.mp3", emergencia: "¡El arroz se está pegando!" },
+        3: { nombre: "Sancocho Trifásico", platoFinal: "img9/sancocho.png", meta: ["carne.png", "cerdo.png", "pollo.png", "papa.png", "yuca.png", "platano.png", "mazorca.png", "cilantro.png"], audio: "img9/licuadora.mp3", emergencia: "¡Apaga el fogón rápido!" }
     };
 
     function vozCoterapeuta(txt, callback) {
@@ -102,7 +103,7 @@
         document.getElementById('plato-final-img').style.display = 'none';
         const conf = recetas[nivelActual];
         ingredientesRestantes = [...conf.meta]; 
-        vozCoterapeuta("Hagamos " + conf.nombre, () => { cargarCocina(); });
+        vozCoterapeuta("Preparemos " + conf.nombre, () => { cargarCocina(); });
     }
 
     function cargarCocina() {
@@ -110,9 +111,8 @@
         document.getElementById('nombre-plato').innerText = conf.nombre;
         const d = document.getElementById('despensa');
         d.innerHTML = "";
-        
         let distractores = todosLosIngredientes.filter(i => !conf.meta.includes(i));
-        let pool = [...conf.meta, ...distractores.slice(0, 10)].sort(() => Math.random() - 0.5);
+        let pool = [...conf.meta, ...distractores].sort(() => Math.random() - 0.5);
         
         pool.forEach(imgName => {
             const img = document.createElement('img');
@@ -132,7 +132,7 @@
     function planearEmergencia() {
         setTimeout(() => {
             if(ingredientesRestantes.length > 0 && !interrupcionActiva) lanzarEmergencia();
-        }, 15000 + Math.random() * 8000);
+        }, 15000 + Math.random() * 7000);
     }
 
     function actualizarUI() {
@@ -140,7 +140,6 @@
             const pantallaPide = ingredientesRestantes[0];
             document.getElementById('paso-texto').innerText = pantallaPide.split('.')[0].toUpperCase();
             
-            // AZAR 50/50
             if(Math.random() > 0.5 && ingredientesRestantes.length > 1) {
                 let opcionesVoz = ingredientesRestantes.filter(i => i !== pantallaPide);
                 ingredienteObjetivo = opcionesVoz[Math.floor(Math.random() * opcionesVoz.length)];
@@ -164,7 +163,7 @@
         interrupcionActiva = false;
         document.getElementById('estufa-img').src = "img9/estufa.png";
         document.getElementById('alerta-emergencia').style.display = 'none';
-        vozCoterapeuta("¡Bien hecho!");
+        vozCoterapeuta("¡Salvado! Continuemos.");
         planearEmergencia();
     }
 
@@ -198,7 +197,7 @@
                     else actualizarUI();
                 } else {
                     new Audio('img8/error.mp3').play().catch(e=>{});
-                    vozCoterapeuta("¡No Juan! Era el " + ingredienteObjetivo.split('.')[0]);
+                    vozCoterapeuta("¡No Juan! Te pedí el " + ingredienteObjetivo.split('.')[0] + ". Escucha bien.");
                     el.style.position = 'relative'; el.style.left = 'auto'; el.style.top = 'auto';
                 }
             } else {
@@ -214,11 +213,11 @@
         const pf = document.getElementById('plato-final-img');
         pf.src = recetas[nivelActual].platoFinal;
         pf.style.display = 'block';
-        vozCoterapeuta("¡Listo! El plato se ve genial.", () => {
+        vozCoterapeuta("¡Excelente Juan! El plato está listo.", () => {
             setTimeout(() => {
                 if(nivelActual < 3) { nivelActual++; iniciarSesion9(); }
-                else { vozCoterapeuta("¡Sesión finalizada!"); }
-            }, 3000);
+                else { vozCoterapeuta("¡Felicidades Chef! Sesión terminada."); }
+            }, 4000);
         });
     }
 </script>
