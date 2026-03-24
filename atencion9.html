@@ -47,16 +47,16 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">¡Hola Juan! Vamos a cocinar.</p>
+        <p id="texto-guia">¡Hola Juan! A cocinar.</p>
     </div>
 </div>
 
 <div id="escenario">
     <div id="zona-receta">
         <div id="lista-pasos">
-            <strong>RECETA:</strong><br><span id="nombre-plato" style="font-weight: bold;">---</span>
+            <strong>RECETA:</strong><br><span id="nombre-plato">---</span>
             <hr>
-            <strong>EN PANTALLA:</strong><br>
+            <strong>PANTALLA DICE:</strong><br>
             <span id="paso-texto" style="font-size: 1.5rem; font-weight: bold; color: #d35400;">---</span>
         </div>
         <div id="caja-instruccion-voz">Escucha...</div>
@@ -111,7 +111,7 @@
         document.getElementById('plato-final-img').style.display = 'none';
         const conf = recetas[nivelActual];
         ingredientesPendientes = [...conf.meta]; 
-        vozCoterapeuta("Cocinemos " + conf.nombre, () => { cargarCocina(); });
+        vozCoterapeuta("Preparemos " + conf.nombre, () => { cargarCocina(); });
     }
 
     function cargarCocina() {
@@ -141,13 +141,16 @@
             const pasoPantalla = ingredientesPendientes[0];
             document.getElementById('paso-texto').innerText = pasoPantalla.split('.')[0].toUpperCase();
             
+            // LÓGICA DE VARIABILIDAD (50% Contradice, 50% Coincide)
             if(Math.random() > 0.5 && ingredientesPendientes.length > 1) {
+                // CONTRADICCIÓN: Elige otro ingrediente disponible
                 let opcionesVoz = ingredientesPendientes.filter(i => i !== pasoPantalla);
                 ingredienteObligatorioVoz = opcionesVoz[Math.floor(Math.random() * opcionesVoz.length)];
-                vozInstruccion("¡Juan! Mejor pon el " + ingredienteObligatorioVoz.split('.')[0]);
+                vozInstruccion("¡Juan! No hagas caso a la pantalla, pon el " + ingredienteObligatorioVoz.split('.')[0]);
             } else {
-                ingredienteObligatorioVoz = "";
-                document.getElementById('caja-instruccion-voz').innerText = "Sigue la pantalla.";
+                // COINCIDENCIA: La voz apoya a la pantalla
+                ingredienteObligatorioVoz = pasoPantalla;
+                vozInstruccion("¡Eso es! Pon el " + ingredienteObligatorioVoz.split('.')[0]);
             }
         }
     }
@@ -158,9 +161,7 @@
             document.getElementById('estufa-img').src = "img9/estufa_prendida.png";
             document.getElementById('alerta-emergencia').style.display = 'block';
             document.getElementById('txt-alerta').innerText = recetas[nivelActual].emergencia;
-            const msg = new SpeechSynthesisUtterance(recetas[nivelActual].emergencia);
-            msg.lang = 'es-ES';
-            window.speechSynthesis.speak(msg);
+            vozCoterapeuta(recetas[nivelActual].emergencia);
         }
     }
 
@@ -168,7 +169,7 @@
         interrupcionActiva = false;
         document.getElementById('estufa-img').src = "img9/estufa.png";
         document.getElementById('alerta-emergencia').style.display = 'none';
-        vozCoterapeuta("¡Solucionado!");
+        vozCoterapeuta("¡Salvado! Sigamos.");
     }
 
     function dragIngrediente(e) {
@@ -194,23 +195,16 @@
             const drop = document.elementFromPoint(st.clientX, st.clientY);
             el.style.display = 'block';
 
-            let objetivo = (ingredienteObligatorioVoz !== "") ? ingredienteObligatorioVoz : ingredientesPendientes[0];
-
             if(drop && drop.id === 'sarten-target') {
-                if(el.dataset.file === objetivo) {
-                    // ÉXITO
+                if(el.dataset.file === ingredienteObligatorioVoz) {
                     new Audio('img8/exito.mp3').play().catch(e=>{});
                     ingredientesPendientes = ingredientesPendientes.filter(i => i !== el.dataset.file);
                     el.remove();
                     if(ingredientesPendientes.length === 0) mostrarResultadoFinal();
                     else actualizarUI();
                 } else {
-                    // ERROR: RETROALIMENTACIÓN
                     new Audio('img8/error.mp3').play().catch(e=>{});
-                    let razon = (ingredienteObligatorioVoz !== "") ? 
-                        "¡No Juan! Te pedí por voz el " + objetivo.split('.')[0] : 
-                        "¡Ese no es! Mira la pantalla, pide " + objetivo.split('.')[0];
-                    vozCoterapeuta(razon);
+                    vozCoterapeuta("¡No Juan! Escucha bien lo que te pedí: el " + ingredienteObligatorioVoz.split('.')[0]);
                     el.style.position = 'relative'; el.style.left = 'auto'; el.style.top = 'auto';
                 }
             } else {
@@ -226,14 +220,13 @@
         const pf = document.getElementById('plato-final-img');
         pf.src = recetas[nivelActual].platoFinal;
         pf.style.display = 'block';
-        vozCoterapeuta("¡Perfecto! El " + recetas[nivelActual].nombre + " está listo.", () => {
+        vozCoterapeuta("¡Excelente Juan! El " + recetas[nivelActual].nombre + " quedó delicioso.", () => {
             setTimeout(() => {
                 if(nivelActual < 3) { nivelActual++; iniciarSesion9(); }
-                else { vozCoterapeuta("¡Eres un gran Chef! Sesión terminada."); }
+                else { vozCoterapeuta("¡Eres un gran Chef! Sesión completada."); }
             }, 3000);
         });
     }
 </script>
 </body>
 </html>
-
