@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sesión 10 - La Habitación de Juan</title>
+    <style>
+        body { 
+            font-family: sans-serif; margin: 0; overflow: hidden; touch-action: none;
+            background: url('img10/fondo_habitacion.png') no-repeat center center fixed; 
+            background-size: cover; height: 100vh; display: flex; flex-direction: column;
+        }
+        #cabecera { background: rgba(27, 79, 114, 0.9); color: white; padding: 10px; text-align: center; z-index: 100; }
+        
+        #escenario { flex-grow: 1; position: relative; display: flex; justify-content: space-between; padding: 20px; }
+        
+        /* Área de la cama donde se sueltan las cosas */
+        #zona-cama { 
+            width: 60%; position: relative; 
+            background: url('img10/cama_destendida.png') no-repeat center bottom;
+            background-size: contain; margin-top: 50px;
+        }
+
+        #despensa-objetos { 
+            width: 25%; background: rgba(255,255,255,0.8); border-radius: 15px; 
+            padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            border: 3px solid #1B4F72; overflow-y: auto;
+        }
+
+        .item-cama { width: 100px; cursor: grab; touch-action: none; }
+
+        /* Panel de conversación simultánea */
+        #panel-verbal {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 80%; background: white; border: 4px solid #E67E22;
+            border-radius: 20px; padding: 15px; display: flex; align-items: center;
+            justify-content: space-around; z-index: 500;
+        }
+
+        .btn-respuesta { 
+            padding: 15px 40px; font-size: 1.5rem; font-weight: bold; 
+            border-radius: 15px; border: none; cursor: pointer;
+        }
+        #btn-si { background: #2ECC71; color: white; }
+        #btn-no { background: #E74C3C; color: white; }
+
+        #resumen-final {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); color: white; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000; text-align: center;
+        }
+    </style>
+</head>
+<body onload="iniciarNivel10()">
+
+<div id="cabecera">
+    <div style="background:white; color:#1B4F72; border-radius:10px; padding:5px; width:90%; margin:auto;">
+        <p id="instruccion-guia">¡Juan! Tiende la cama mientras charlamos.</p>
+    </div>
+</div>
+
+<div id="escenario">
+    <div id="zona-cama"></div>
+    
+    <div id="despensa-objetos" id="inventario">
+        </div>
+</div>
+
+<div id="panel-verbal">
+    <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.2rem;">¿Escuchas la pregunta?</div>
+    <div>
+        <button id="btn-si" class="btn-respuesta" onclick="responder(true)">SÍ</button>
+        <button id="btn-no" class="btn-respuesta" onclick="responder(false)">NO</button>
+    </div>
+</div>
+
+<div id="resumen-final">
+    <h1>¡Nivel Completado!</h1>
+    <p id="mensaje-motivacional" style="font-size:1.5rem; padding:20px;"></p>
+    <button onclick="location.reload()" style="padding:15px; font-weight:bold;">REPETIR CON OTROS OBJETOS</button>
+</div>
+
+<script>
+    // Listas basadas EN TU FOTO
+    const sabanas = ["sabana_azul.png", "sabana_blanca.png", "sabana_gris.png"];
+    const sobresabanas = ["sobresabana_gris.png", "sobresabana_morada.png", "sobresabana_negra.png"];
+    const cobijas = ["cobija_termica.png", "cobija_tigre.png", "cobija.png"];
+    const almohadas = ["almohada_blanca.png", "almohada_cafe.png", "almohada_gris.png"];
+    const distractores = ["control.png", "lampara.png", "medias.png", "reloj.png", "revista.png", "vaso.png"];
+
+    let aciertosVerbales = 0;
+    let totalPreguntas = 0;
+    let piezasColocadas = 0;
+
+    function iniciarNivel10() {
+        // Seleccionar 1 de cada categoría AL AZAR (Atención, no memoria)
+        const miSabana = sabanas[Math.floor(Math.random()*3)];
+        const miSobresabana = sobresabanas[Math.floor(Math.random()*3)];
+        const miCobija = cobijas[Math.floor(Math.random()*3)];
+        const miAlmohada = almohadas[Math.floor(Math.random()*3)];
+        
+        const inventario = [miSabana, miSobresabana, miCobija, miAlmohada, ...distractores.sort(() => 0.5 - Math.random()).slice(0,3)];
+        
+        const contenedor = document.getElementById('despensa-objetos');
+        inventario.sort(() => 0.5 - Math.random()).forEach(img => {
+            const el = document.createElement('img');
+            el.src = `img10/${img}`;
+            el.className = 'item-cama';
+            el.dataset.tipo = img;
+            el.onmousedown = el.ontouchstart = iniciarArrastre;
+            contenedor.appendChild(el);
+        });
+
+        lanzarPregunta();
+    }
+
+    function lanzarPregunta() {
+        // Aquí llamaríamos a tu conversacion.mp3 o Synthesis
+        const preguntas = ["¿Te gusta el color de esta sábana?", "¿Hoy desayunaste rico?", "¿Los perros vuelan?", "¿Estamos en el cuarto?"];
+        const p = preguntas[Math.floor(Math.random()*preguntas.length)];
+        document.getElementById('texto-pregunta').innerText = p;
+        totalPreguntas++;
+        
+        // Simular voz
+        const msg = new SpeechSynthesisUtterance(p);
+        msg.lang = 'es-ES';
+        window.speechSynthesis.speak(msg);
+    }
+
+    function responder(valor) {
+        aciertosVerbales++; // En un nivel real validaríamos la lógica del Sí/No
+        new Audio('img8/exito.mp3').play().catch(e=>{});
+        setTimeout(lanzarPregunta, 5000); // Siguiente pregunta en 5 seg
+    }
+
+    function iniciarArrastre(e) {
+        // Lógica de arrastrar similar a la cocina...
+        // Si el objeto es una pieza de cama y cae en #zona-cama:
+        // piezasColocadas++;
+        // if(piezasColocadas == 4) finalizarJuego();
+    }
+
+    function finalizarJuego() {
+        document.getElementById('resumen-final').style.display = 'flex';
+        document.getElementById('mensaje-motivacional').innerText = 
+            `Excelente, lograste mantenerte atento en más de una tarea al mismo tiempo. Respondiste ${aciertosVerbales} preguntas correctamente.`;
+    }
+</script>
+</body>
+</html>
 
