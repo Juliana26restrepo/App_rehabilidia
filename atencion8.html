@@ -48,8 +48,8 @@
 
 <div id="notificacion">
     <p id="pregunta-txt" style="font-weight: bold; font-size: 1.2rem; color: #0A253A;"></p>
-    <button class="btn-notif" id="btnA"></button>
-    <button class="btn-notif" id="btnB"></button>
+    <button class="btn-notif" id="btnA">Sí</button>
+    <button class="btn-notif" id="btnB">No</button>
 </div>
 
 <div id="modal-cierre">
@@ -74,15 +74,58 @@
     };
     const distractores = ['balon.png', 'cafe.png', 'martillo.png', 'cepillo.png', 'libro.png'];
     
+    // BANCO DE 100 PREGUNTAS ACTUALIZADO
     const trivias = [
-        {q:"¿La nieve es fría?", a:"Sí", b:"No", c:"A"}, {q:"¿El azúcar es dulce?", a:"Sí", b:"No", c:"A"},
-        {q:"¿Los pájaros vuelan?", a:"Sí", b:"No", c:"A"}, {q:"¿El sol sale de noche?", a:"No", b:"Sí", c:"A"},
-        {q:"¿Usas zapatos en las manos?", a:"No", b:"Sí", c:"A"}, {q:"¿2 + 2 es 4?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El elefante es grande?", a:"Sí", b:"No", c:"A"}, {q:"¿Bebemos agua?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El limón es ácido?", a:"Sí", b:"No", c:"A"}, {q:"¿Los peces viven en el agua?", a:"Sí", b:"No", c:"A"},
-        {q:"¿El fuego quema?", a:"Sí", b:"No", c:"A"}, {q:"¿La luna brilla?", a:"Sí", b:"No", c:"A"},
-        {q:"¿10 es más que 1?", a:"Sí", b:"No", c:"A"}, {q:"¿Dormimos en el sofá?", a:"No", b:"Sí", c:"A"},
-        {q:"¿El perro ladra?", a:"Sí", b:"No", c:"A"}
+        {q:"¿El sol es una estrella?", c:"S"}, {q:"¿Colombia está en América del Sur?", c:"S"},
+        {q:"¿El agua hierve a 100 grados Celsius?", c:"S"}, {q:"¿Los perros son mamíferos?", c:"S"},
+        {q:"¿La luna tiene luz propia?", c:"N"}, {q:"¿París es la capital de Francia?", c:"S"},
+        {q:"¿El hierro es un metal?", c:"S"}, {q:"¿Los peces respiran aire como los humanos?", c:"N"},
+        {q:"¿La Tierra gira alrededor del sol?", c:"S"}, {q:"¿El chocolate viene del cacao?", c:"S"},
+        {q:"¿Los humanos tienen 4 pulmones?", c:"N"}, {q:"¿El Amazonas es un río?", c:"S"},
+        {q:"¿Los gatos maúllan?", c:"S"}, {q:"¿La electricidad puede ser peligrosa?", c:"S"},
+        {q:"¿El hielo es agua en estado sólido?", c:"S"}, {q:"¿Los pájaros vuelan?", c:"S"},
+        {q:"¿El corazón bombea sangre?", c:"S"}, {q:"¿La sal es dulce?", c:"N"},
+        {q:"¿El café contiene cafeína?", c:"S"}, {q:"¿El planeta Marte es rojo?", c:"S"},
+        {q:"¿Las plantas necesitan luz para crecer?", c:"S"}, {q:"¿El océano es agua salada?", c:"S"},
+        {q:"¿El fútbol se juega con las manos?", c:"N"}, {q:"¿Los elefantes son animales grandes?", c:"S"},
+        {q:"¿La nieve es caliente?", c:"N"}, {q:"¿El fuego quema?", c:"S"},
+        {q:"¿La Tierra es plana?", c:"N"}, {q:"¿Los humanos respiran oxígeno?", c:"S"},
+        {q:"¿El oro es un metal precioso?", c:"S"}, {q:"¿El invierno es más frío que el verano?", c:"S"},
+        {q:"¿Las abejas producen miel?", c:"S"}, {q:"¿El cuerpo humano tiene huesos?", c:"S"},
+        {q:"¿La leche viene de animales?", c:"S"}, {q:"¿El sol sale por el este?", c:"S"},
+        {q:"¿La luna es más grande que la Tierra?", c:"N"}, {q:"¿El azúcar es salado?", c:"N"},
+        {q:"¿Los árboles tienen hojas?", c:"S"}, {q:"¿El aire es invisible?", c:"S"},
+        {q:"¿Los tiburones son peces?", c:"S"}, {q:"¿El desierto tiene mucha agua?", c:"N"},
+        {q:"¿La lluvia cae del cielo?", c:"S"}, {q:"¿El hielo flota en el agua?", c:"S"},
+        {q:"¿El plomo es ligero?", c:"N"}, {q:"¿Los humanos necesitan dormir?", c:"S"},
+        {q:"¿El vidrio es transparente?", c:"S"}, {q:"¿La electricidad puede iluminar una casa?", c:"S"},
+        {q:"¿Los caballos tienen alas?", c:"N"}, {q:"¿La Tierra tiene un solo satélite natural?", c:"S"},
+        {q:"¿El pan se hace con harina?", c:"S"}, {q:"¿Los volcanes pueden hacer erupción?", c:"S"},
+        {q:"¿El agua es incolora?", c:"S"}, {q:"¿El cuerpo humano tiene sangre?", c:"S"},
+        {q:"¿Las estrellas se ven de día?", c:"N"}, {q:"¿El fuego necesita oxígeno?", c:"S"},
+        {q:"¿Los murciélagos vuelan?", c:"S"}, {q:"¿El arroz crece en plantas?", c:"S"},
+        {q:"¿El cerebro está en la cabeza?", c:"S"}, {q:"¿El mar es dulce?", c:"N"},
+        {q:"¿Los humanos tienen dos ojos?", c:"S"}, {q:"¿El hielo puede derretirse?", c:"S"},
+        {q:"¿Las nubes están en el cielo?", c:"S"}, {q:"¿El sonido puede viajar en el aire?", c:"S"},
+        {q:"¿El agua es necesaria para la vida?", c:"S"}, {q:"¿Los leones son carnívoros?", c:"S"},
+        {q:"¿Venus está más cerca del sol que la Tierra?", c:"S"}, {q:"¿El viento se puede sentir?", c:"S"},
+        {q:"¿Las plantas producen oxígeno?", c:"S"}, {q:"¿El azúcar se disuelve en agua?", c:"S"},
+        {q:"¿El cuerpo humano tiene piel?", c:"S"}, {q:"¿Los peces viven en el agua?", c:"S"},
+        {q:"¿La sangre es roja?", c:"S"}, {q:"¿El hielo es caliente?", c:"N"},
+        {q:"¿Los humanos pueden vivir sin agua?", c:"N"}, {q:"¿El aire ocupa espacio?", c:"S"},
+        {q:"¿Los árboles crecen?", c:"S"}, {q:"¿El fuego es frío?", c:"N"},
+        {q:"¿La Tierra tiene gravedad?", c:"S"}, {q:"¿El café es una bebida caliente comúnmente?", c:"S"},
+        {q:"¿Los perros pueden ladrar?", c:"S"}, {q:"¿El vidrio puede romperse?", c:"S"},
+        {q:"¿El cuerpo humano necesita comida?", c:"S"}, {q:"¿La luz viaja más rápido que el sonido?", c:"S"},
+        {q:"¿El agua moja?", c:"S"}, {q:"¿Los gatos tienen cola?", c:"S"},
+        {q:"¿El cielo es azul durante el día?", c:"S"}, {q:"¿Los humanos tienen cabello?", c:"S"},
+        {q:"¿El hielo es más denso que el agua líquida?", c:"N"}, {q:"¿Los humanos pueden ver sin ojos?", c:"N"},
+        {q:"¿El sol da calor?", c:"S"}, {q:"¿Los árboles necesitan agua?", c:"S"},
+        {q:"¿El planeta Júpiter es grande?", c:"S"}, {q:"¿La sal se disuelve en agua?", c:"S"},
+        {q:"¿El cuerpo humano tiene músculos?", c:"S"}, {q:"¿El fuego produce luz?", c:"S"},
+        {q:"¿Las montañas son altas?", c:"S"}, {q:"¿El aire tiene olor siempre?", c:"N"},
+        {q:"¿Los humanos pueden nadar?", c:"S"}, {q:"¿La luna cambia de forma (fases)?", c:"S"},
+        {q:"¿El agua puede evaporarse?", c:"S"}, {q:"¿El corazón late?", c:"S"}
     ];
 
     function hablar(txt) {
@@ -194,7 +237,6 @@
             const n = document.getElementById('notificacion');
             const t = trivias[Math.floor(Math.random() * trivias.length)];
             document.getElementById('pregunta-txt').innerText = t.q;
-            document.getElementById('btnA').innerText = t.a; document.getElementById('btnB').innerText = t.b;
             n.style.display = 'block';
 
             const responder = (v) => {
@@ -205,8 +247,8 @@
                     timerNotif = setTimeout(lanzarNotificacion, delay);
                 }
             };
-            document.getElementById('btnA').onclick = () => responder("A");
-            document.getElementById('btnB').onclick = () => responder("B");
+            document.getElementById('btnA').onclick = () => responder("S");
+            document.getElementById('btnB').onclick = () => responder("N");
         }
     }
 
