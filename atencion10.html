@@ -3,194 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - Juan</title>
+    <title>Sesión 10 - Juan - LIMPIEZA TOTAL</title>
     <style>
         body { font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
-        #cabecera { background: rgba(27, 79, 114, 0.9); color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 5px solid #E67E22; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; font-size: 1.1rem; }
-        #panel-objetos { position: absolute; left: 20px; top: 120px; width: 150px; background: rgba(255,255,255,0.85); border: 4px solid #1B4F72; border-radius: 20px; display: flex; flex-direction: column; gap: 20px; padding: 20px; align-items: center; z-index: 10; }
-        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; z-index: 20; }
-        #area-cama { position: absolute; left: 200px; top: 100px; width: calc(100% - 250px); height: calc(100% - 150px); pointer-events: none; border: 2px dashed transparent; }
-        #cama_base { width: 80%; max-width: 550px; display: block; margin: 80px auto; pointer-events: auto; }
+        #cabecera { background: rgba(27, 79, 114, 0.95); color: white; padding: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 5px solid #E67E22; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; }
+        #panel-objetos { position: absolute; left: 15px; top: 110px; width: 140px; background: rgba(255,255,255,0.85); border: 4px solid #1B4F72; border-radius: 20px; display: flex; flex-direction: column; gap: 15px; padding: 15px; align-items: center; z-index: 10; height: 75vh; }
+        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; z-index: 20; }
+        #area-cama { position: absolute; left: 180px; top: 90px; width: calc(100% - 200px); height: calc(100% - 120px); pointer-events: none; }
+        #cama_base { width: 85%; max-width: 550px; display: block; margin: 60px auto; pointer-events: auto; }
+        /* Las piezas que se ponen en la cama temporalmente por nivel */
         .pieza-fija { position: absolute; width: 130px; z-index: 5; pointer-events: none; }
-        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; }
-        .btn-p { padding: 12px 30px; margin: 10px; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; color: white; font-size: 1.3rem; }
-        #exito-txt { font-size: 1.5rem; font-weight: bold; margin-right: 20px; }
+        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; }
+        .btn-p { padding: 12px 25px; margin: 8px; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; color: white; font-size: 1.2rem; }
     </style>
 </head>
 <body onload="iniciar()">
 
 <div id="cabecera">
     <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG" style="width:50px; height:50px; border-radius:50%; margin-right:15px; border: 2px solid #1B4F72;">
-        <span id="label-guia">Iniciando...</span>
+        <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:15px; border: 2px solid #1B4F72;">
+        <span id="label-guia">Cargando...</span>
     </div>
-    <div id="exito-txt">Éxito: 100%</div>
+    <div id="exito-txt" style="font-size: 1.4rem; font-weight: bold; margin-right: 20px;">Éxito: 100%</div>
 </div>
 
 <div id="panel-objetos"></div>
 
 <div id="area-cama">
     <img src="img10/cama_destendida.png" id="cama_base">
+    <div id="contenedor-piezas"></div>
 </div>
 
 <div id="cuadro-pregunta">
-    <p id="pregunta-texto" style="font-size: 1.4rem; font-weight: bold; color:#1B4F72;"></p>
+    <p id="pregunta-texto" style="font-size: 1.3rem; font-weight: bold; color:#1B4F72;"></p>
     <button class="btn-p" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
-    <button class="btn-p" style="background:#E74C3C" onclick="responderNo()">NO</button>
+    <button class="btn-p" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
 </div>
 
 <script>
     let nivel = 1, paso = 0, aciertos = 0, errores = 0, bloqueado = false;
     const sfxOk = new Audio('img8/exito.mp3'); 
     const sfxErr = new Audio('img8/alarma.mp3');
-    const ambientes = [new Audio('img10/conversacion.mp3'), new Audio('img10/pajaros.mp3')];
+    const ambientes = [new Audio('img10/pajaros.mp3'), new Audio('img10/conversacion.mp3')];
 
-    const database = {
-        "sabana_azul": { img: "sabana_azul.png", nombre: "la sábana azul" },
-        "almohada_blanca": { img: "almohada_blanca.png", nombre: "la almohada blanca" },
-        "cobija_termica": { img: "cobija_termica.png", nombre: "la cobija térmica" },
-        "almohada_gris": { img: "almohada_gris.png", nombre: "la almohada gris" },
-        "sabana_blanca": { img: "sabana_blanca.png", nombre: "la sábana blanca" },
-        "reloj": { img: "reloj.png", nombre: "el reloj" },
-        "control": { img: "control.png", nombre: "el control" }
+    const db = {
+        "sabana_azul": { img: "sabana_azul.png", nom: "la sábana azul" },
+        "almohada_blanca": { img: "almohada_blanca.png", nom: "la almohada blanca" },
+        "cobija_termica": { img: "cobija_termica.png", nom: "la cobija térmica" },
+        "almohada_gris": { img: "almohada_gris.png", nom: "la almohada gris" },
+        "sabana_blanca": { img: "sabana_blanca.png", nom: "la sábana blanca" },
+        "reloj": { img: "reloj.png", nom: "el reloj" },
+        "control": { img: "control.png", nom: "el control" },
+        "revista": { img: "revista.png", nom: "la revista" }
     };
 
-    const fases = {
-        1: { pedir: ["sabana_azul", "almohada_blanca"], mostrar: ["sabana_azul", "almohada_blanca", "control"] },
+    const niveles = {
+        1: { pedir: ["sabana_azul", "almohada_blanca"], mostrar: ["sabana_azul", "almohada_blanca", "revista"] },
         2: { pedir: ["cobija_termica"], mostrar: ["cobija_termica", "reloj"] },
-        3: { pedir: ["almohada_gris", "sabana_blanca"], mostrar: ["almohada_gris", "sabana_blanca", "reloj", "control"] }
+        3: { pedir: ["almohada_gris", "sabana_blanca"], mostrar: ["almohada_gris", "sabana_blanca", "control"] }
     };
 
-    const bancoPreguntas = [{q: "¿El sol brilla?", a: "SÍ"}, {q: "¿El agua es seca?", a: "NO"}];
+    const preguntas = [{q: "¿El sol brilla?", a: "SÍ"}, {q: "¿El agua es seca?", a: "NO"}];
 
-    function hablar(texto) {
+    function hablar(t) {
         window.speechSynthesis.cancel();
-        document.getElementById('label-guia').innerText = texto;
-        const msg = new SpeechSynthesisUtterance(texto);
-        msg.lang = 'es-ES';
+        document.getElementById('label-guia').innerText = t;
+        const msg = new SpeechSynthesisUtterance(t); msg.lang = 'es-ES';
         window.speechSynthesis.speak(msg);
     }
 
     function iniciar() {
         ambientes.forEach(a => { a.loop = true; a.volume = 0.1; a.play().catch(() => {}); });
-        cargarNivel();
-        setInterval(mostrarPregunta, 12000);
+        cargarFase();
+        setInterval(lanzarPregunta, 12000); 
     }
 
-    function cargarNivel() {
-        const panel = document.getElementById('panel-objetos');
-        panel.innerHTML = ""; 
-        paso = 0; bloqueado = false;
+    function cargarFase() {
+        // 1. LIMPIAR PANEL
+        document.getElementById('panel-objetos').innerHTML = "";
+        // 2. LIMPIAR CAMA (Lo que tanto pediste)
+        document.getElementById('contenedor-piezas').innerHTML = "";
         
-        const config = fases[nivel];
-        config.mostrar.sort(() => Math.random() - 0.5).forEach(id => {
+        paso = 0; bloqueado = false;
+        const conf = niveles[nivel];
+        conf.mostrar.sort(() => Math.random() - 0.5).forEach(id => {
             const img = document.createElement('img');
-            img.src = `img10/${database[id].img}`;
+            img.src = `img10/${db[id].img}`;
             img.className = 'draggable';
             img.dataset.id = id;
-            img.onmousedown = img.ontouchstart = alEmpezarArrastre;
-            panel.appendChild(img);
+            img.onmousedown = img.ontouchstart = drag;
+            document.getElementById('panel-objetos').appendChild(img);
         });
-        hablar("Juan, pon " + database[config.pedir[0]].nombre + " en la cama.");
+        hablar("Nivel " + nivel + ". Pon " + db[conf.pedir[0]].nom);
     }
 
-    function alEmpezarArrastre(e) {
+    function drag(e) {
         if(bloqueado) return;
         const el = e.target;
         const t = e.type.includes('touch') ? e.touches[0] : e;
-        let shiftX = t.clientX - el.getBoundingClientRect().left;
-        let shiftY = t.clientY - el.getBoundingClientRect().top;
-
-        el.style.position = 'fixed';
-        el.style.zIndex = 1000;
+        let sx = t.clientX - el.getBoundingClientRect().left;
+        let sy = t.clientY - el.getBoundingClientRect().top;
+        el.style.position = 'fixed'; el.style.zIndex = 1000;
 
         function mover(me) {
             const mt = me.type.includes('touch') ? me.touches[0] : me;
-            el.style.left = (mt.clientX - shiftX) + 'px';
-            el.style.top = (mt.clientY - shiftY) + 'px';
+            el.style.left = (mt.clientX - sx) + 'px'; el.style.top = (mt.clientY - sy) + 'px';
         }
 
         function soltar(se) {
-            document.removeEventListener('mousemove', mover);
-            document.removeEventListener('mouseup', soltar);
-            document.removeEventListener('touchmove', mover);
-            document.removeEventListener('touchend', soltar);
+            document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
+            document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
 
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
-            const camaRect = document.getElementById('cama_base').getBoundingClientRect();
-            
-            // Ampliamos un poco el rango de detección para evitar falsos errores
-            const enCama = (st.clientX > (camaRect.left - 20) && st.clientX < (camaRect.right + 20) && 
-                            st.clientY > (camaRect.top - 20) && st.clientY < (camaRect.bottom + 20));
-            
-            const objetivo = fases[nivel].pedir[paso];
+            const cama = document.getElementById('cama_base').getBoundingClientRect();
+            const enCama = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > (cama.top - 20) && st.clientY < (cama.bottom + 20));
+            const objetivo = niveles[nivel].pedir[paso];
 
             if (enCama) {
                 if (el.dataset.id === objetivo) {
+                    // BIEN
                     sfxOk.play(); aciertos++;
+                    hablar("¡Muy bien!");
                     const fija = document.createElement('img');
-                    fija.src = el.src;
-                    fija.className = 'pieza-fija';
-                    fija.style.left = (st.clientX - 65) + 'px';
-                    fija.style.top = (st.clientY - 65) + 'px';
-                    document.getElementById('area-cama').appendChild(fija);
+                    fija.src = el.src; fija.className = 'pieza-fija';
+                    fija.style.left = (st.clientX - 60) + 'px'; fija.style.top = (st.clientY - 60) + 'px';
+                    document.getElementById('contenedor-piezas').appendChild(fija);
                     el.style.display = 'none';
                     paso++;
                     
-                    if (paso < fases[nivel].pedir.length) {
-                        hablar("¡Muy bien! Ahora pon " + database[fases[nivel].pedir[paso]].nombre);
+                    if (paso < niveles[nivel].pedir.length) {
+                        setTimeout(() => hablar("Ahora " + db[niveles[nivel].pedir[paso]].nom), 1000);
                     } else {
                         bloqueado = true;
                         if(nivel < 3) {
-                            hablar("¡Excelente! Nivel " + nivel + " terminado.");
-                            setTimeout(() => { nivel++; cargarNivel(); }, 2000);
-                        } else {
-                            hablar("¡Felicidades Juan! Has terminado de organizar la habitación.");
-                        }
+                            setTimeout(() => { nivel++; cargarFase(); }, 2000);
+                        } else { hablar("¡Excelente Juan! Terminaste."); }
                     }
                 } else {
+                    // MAL
                     sfxErr.play(); errores++;
-                    hablar("Esa no es Juan. Pon " + database[objetivo].nombre);
+                    hablar("Esa no es Juan. Pon " + db[objetivo].nom);
                     el.style.position = 'static';
                 }
-            } else {
-                el.style.position = 'static';
-            }
+            } else { el.style.position = 'static'; }
             actualizarMarcador();
         }
-
-        document.addEventListener('mousemove', mover);
-        document.addEventListener('mouseup', soltar);
-        document.addEventListener('touchmove', mover, {passive: false});
-        document.addEventListener('touchend', soltar);
+        document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
+        document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
     }
 
     function actualizarMarcador() {
-        let total = aciertos + errores;
-        let p = total === 0 ? 100 : Math.round((aciertos / total) * 100);
+        let t = aciertos + errores;
+        let p = t === 0 ? 100 : Math.round((aciertos / t) * 100);
         document.getElementById('exito-txt').innerText = `Éxito: ${p}%`;
     }
 
-    function mostrarPregunta() {
+    function lanzarPregunta() {
         if(document.getElementById('cuadro-pregunta').style.display === 'block' || bloqueado) return;
-        const p = bancoPreguntas[Math.floor(Math.random()*bancoPreguntas.length)];
+        const p = preguntas[Math.floor(Math.random()*preguntas.length)];
         document.getElementById('pregunta-texto').innerText = p.q;
-        document.getElementById('cuadro-pregunta').dataset.respuesta = p.a;
+        document.getElementById('cuadro-pregunta').dataset.ans = p.a;
         document.getElementById('cuadro-pregunta').style.display = 'block';
         hablar(p.q);
     }
 
-    function verificarRespuesta(valor) {
-        const correcta = document.getElementById('cuadro-pregunta').dataset.respuesta;
+    function verificarRespuesta(v) {
+        const correcta = document.getElementById('cuadro-pregunta').dataset.ans;
         document.getElementById('cuadro-pregunta').style.display = 'none';
-        if(valor === correcta) { sfxOk.play(); aciertos++; hablar("¡Correcto!"); }
-        else { sfxErr.play(); errores++; hablar("No, Juan."); }
+        if(v === correcta) { sfxOk.play(); aciertos++; hablar("¡Bien!"); }
+        else { sfxErr.play(); errores++; hablar("No."); }
         actualizarMarcador();
     }
-    
-    function responderNo() { verificarRespuesta('NO'); }
 </script>
 </body>
 </html>
-
