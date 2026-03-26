@@ -5,21 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sesión 10 - Juan</title>
     <style>
-        body { font-family: 'Arial Rounded MT Bold', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center; background-size: cover; height: 100vh; display: flex; flex-direction: column; }
+        body { 
+            font-family: 'Arial Rounded MT Bold', sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            touch-action: none; 
+            background: url('img10/fondo_habitacion.png') no-repeat center center; 
+            background-size: cover; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; padding: 10px; border-bottom: 5px solid #E67E22; z-index: 100; }
         #guia-box { background: white; color: #1B4F72; width: 92%; margin: 0 auto; border-radius: 15px; padding: 15px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         #avatar { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; border: 3px solid #1B4F72; }
         #escenario { flex-grow: 1; position: relative; display: flex; padding: 20px; }
         #panel-objetos { width: 160px; background: rgba(255,255,255,0.9); border-radius: 20px; border: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 15px; padding: 15px; overflow-y: auto; align-items: center; z-index: 10; }
         .objeto-arrastrable { width: 90px; height: 90px; object-fit: contain; cursor: grab; touch-action: none; }
-        #area-cama { position: absolute; left: 200px; right: 20px; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; }
+        #area-cama { position: absolute; left: 200px; right: 20px; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
         #cama-base { width: 95%; max-width: 580px; pointer-events: auto; }
         .pieza-puesta { position: absolute; width: 130px; pointer-events: none; z-index: 5; }
         #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px; background: #FFD700; border: 8px solid #1B4F72; border-radius: 35px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 0 60px rgba(0,0,0,0.6); }
         .btn-pregunta { padding: 18px; margin: 10px; width: 120px; border-radius: 20px; border: 4px solid #1B4F72; font-weight: bold; cursor: pointer; color: white; font-size: 1.5rem; }
+        #modal-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.98); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
-<body onload="iniciarSesion()">
+<body onload="iniciarTodo()">
 
 <div id="cabecera">
     <div id="guia-box">
@@ -37,28 +48,48 @@
 
 <div id="cuadro-pregunta">
     <p id="txt-pregunta" style="font-size: 1.6rem; font-weight: bold; color: #1B4F72; margin-bottom: 25px;"></p>
-    <button class="btn-pregunta" style="background:#2ECC71" onclick="validarRespuesta('SÍ')">SÍ</button>
-    <button class="btn-pregunta" style="background:#E74C3C" onclick="validarRespuesta('NO')">NO</button>
+    <button class="btn-pregunta" style="background:#2ECC71" onclick="validarPregunta('SÍ')">SÍ</button>
+    <button class="btn-pregunta" style="background:#E74C3C" onclick="validarPregunta('NO')">NO</button>
+</div>
+
+<div id="modal-final">
+    <h1 style="font-size: 4rem; color: #FFD700;">¡MUY BIEN!</h1>
+    <p id="stats" style="font-size: 2.2rem; margin: 30px;"></p>
+    <button onclick="siguienteNivel()" style="padding: 25px 60px; font-size: 2rem; background: #E67E22; color: white; border: none; border-radius: 25px; cursor: pointer;">CONTINUAR</button>
 </div>
 
 <script>
-    let nivel = 1; let paso = 0; let objetivos = []; let bloqueado = false;
+    let nivelActual = 1;
+    let pasoActual = 0;
+    let listaObjetivos = [];
+    let bloqueado = false;
+    let pTotales = 0, pCorrectas = 0;
+    let respuestaCorrecta = "";
 
-    // Rutas corregidas exactamente como indicaste
+    // Audios de ambiente (Carpeta img10)
     const ambiente = {
         pajaros: new Audio('img10/pajaros.mp3'),
         conversacion: new Audio('img10/conversacion.mp3'),
         radio: new Audio('img10/radio.mp3')
     };
 
+    // Efectos de sonido
     const sfx = { ok: new Audio('img8/exito.mp3'), error: new Audio('img8/alarma.mp3') };
 
+    // Base de datos de objetos
     const piezas = [
-        {id: "sabana_azul.png", n: "la sábana azul"},
-        {id: "almohada_blanca.png", n: "la almohada blanca"},
-        {id: "cobija_termica.png", n: "la cobija térmica"},
-        {id: "almohada_gris.png", n: "la almohada gris"},
-        {id: "sabana_blanca.png", n: "la sábana blanca"}
+        {id: 0, img: "sabana_azul.png", nombre: "la sábana azul"},
+        {id: 1, img: "almohada_blanca.png", nombre: "la almohada blanca"},
+        {id: 2, img: "cobija_termica.png", nombre: "la cobija térmica"},
+        {id: 3, img: "almohada_gris.png", nombre: "la almohada gris"},
+        {id: 4, img: "sabana_blanca.png", nombre: "la sábana blanca"}
+    ];
+
+    const bancoPreguntas = [
+        {q: "¿El sol brilla?", r: "SÍ"},
+        {q: "¿El hielo quema?", r: "SÍ"},
+        {q: "¿El agua moja?", r: "SÍ"},
+        {q: "¿Los gatos vuelan?", r: "NO"}
     ];
 
     function hablar(t, cb) {
@@ -70,88 +101,134 @@
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() {
-        Object.values(ambiente).forEach(a => { a.loop = true; a.volume = 0.2; a.play().catch(()=>{}); });
+    function iniciarTodo() {
+        // Iniciar audios ambientales en bucle
+        Object.values(ambiente).forEach(a => {
+            a.loop = true;
+            a.volume = 0.2;
+            a.play().catch(() => console.log("Audio requiere clic inicial"));
+        });
+        
         cargarNivel();
-        setInterval(() => {
-            if(document.getElementById('cuadro-pregunta').style.display === 'block' || bloqueado) return;
-            const p = ["¿El sol brilla?", "¿El hielo quema?", "¿El agua moja?", "¿Los gatos vuelan?"].sort(() => Math.random()-0.5)[0];
-            document.getElementById('txt-pregunta').innerText = p;
-            document.getElementById('cuadro-pregunta').style.display = 'block';
-            hablar(p);
-        }, 20000);
+        setInterval(lanzarPregunta, 18000); // Pregunta cada 18 segundos
     }
 
     function cargarNivel() {
+        document.getElementById('modal-final').style.display = 'none';
         document.getElementById('panel-objetos').innerHTML = "";
         document.querySelectorAll('.pieza-puesta').forEach(p => p.remove());
-        paso = 0; bloqueado = false;
-        objetivos = piezas.slice(0, nivel === 1 ? 2 : (nivel === 2 ? 3 : 4));
+        
+        pasoActual = 0;
+        bloqueado = false;
+        
+        // Configurar piezas según nivel
+        let cantidad = nivelActual === 1 ? 2 : (nivelActual === 2 ? 3 : 5);
+        listaObjetivos = piezas.slice(0, cantidad);
 
-        let pool = [...objetivos, {id: "control.png", n:"el control"}, {id: "reloj.png", n:"el reloj"}];
-        pool.sort(() => Math.random() - 0.5).forEach(item => {
+        // Renderizar panel de objetos mezclado
+        let pool = [...listaObjetivos].sort(() => Math.random() - 0.5);
+        pool.forEach(obj => {
             const img = document.createElement('img');
-            img.src = `img10/${item.id}`;
+            img.src = `img10/${obj.img}`;
             img.className = 'objeto-arrastrable';
-            img.dataset.ref = item.id;
-            img.onmousedown = img.ontouchstart = drag;
+            img.dataset.id = obj.id; // VALIDACIÓN POR ID
+            img.onmousedown = img.ontouchstart = dragStart;
             document.getElementById('panel-objetos').appendChild(img);
         });
-        hablar(`Nivel ${nivel}. Pon ${objetivos[0].n} en la cama.`);
+
+        hablar(`Nivel ${nivelActual}. Juan, pon ${listaObjetivos[0].nombre} en la cama.`);
     }
 
-    function drag(e) {
+    function dragStart(e) {
         if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
+        
         const el = e.target;
         const t = e.type === 'touchstart' ? e.touches[0] : e;
-        let ox = t.clientX - el.getBoundingClientRect().left, oy = t.clientY - el.getBoundingClientRect().top;
+        let rect = el.getBoundingClientRect();
+        let ox = t.clientX - rect.left, oy = t.clientY - rect.top;
 
-        el.style.position = 'fixed'; el.style.zIndex = "1000";
+        el.style.position = 'fixed'; el.style.zIndex = "1000"; el.style.opacity = "0.8";
 
-        const move = (me) => {
+        const mover = (me) => {
             const mt = me.type === 'touchmove' ? me.touches[0] : me;
             el.style.left = (mt.clientX - ox) + 'px'; el.style.top = (mt.clientY - oy) + 'px';
         };
 
-        const stop = (se) => {
-            document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', stop);
-            document.removeEventListener('touchmove', move); document.removeEventListener('touchend', stop);
+        const soltar = (se) => {
+            document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
+            document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
             
             const st = se.type === 'touchend' ? se.changedTouches[0] : se;
             const cama = document.getElementById('cama-base').getBoundingClientRect();
+            
+            // Verificamos si soltó sobre la cama
             const hit = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
 
-            if (hit && el.dataset.ref === objetivos[paso].id) {
-                bloqueado = true; sfx.ok.play();
-                const fija = document.createElement('img');
-                fija.src = el.src; fija.className = 'pieza-puesta';
-                let area = document.getElementById('area-cama').getBoundingClientRect();
-                fija.style.left = (st.clientX - area.left - 60) + 'px';
-                fija.style.top = (st.clientY - area.top - 60) + 'px';
-                document.getElementById('area-cama').appendChild(fija);
-                el.style.display = 'none';
+            // COMPROBACIÓN POR ID NUMÉRICO (Infalible)
+            if (hit && parseInt(el.dataset.id) === listaObjetivos[pasoActual].id) {
+                bloqueado = true;
+                sfx.ok.play();
                 
-                paso++;
-                if (paso < objetivos.length) {
-                    hablar(`¡Bien! Ahora busca ${objetivos[paso].n}`, () => { bloqueado = false; });
+                // Pegar pieza en la cama
+                const puesta = document.createElement('img');
+                puesta.src = el.src;
+                puesta.className = 'pieza-puesta';
+                let area = document.getElementById('area-cama').getBoundingClientRect();
+                puesta.style.left = (st.clientX - area.left - 50) + 'px';
+                puesta.style.top = (st.clientY - area.top - 50) + 'px';
+                document.getElementById('area-cama').appendChild(puesta);
+                
+                el.style.display = 'none';
+                pasoActual++;
+
+                if (pasoActual >= listaObjetivos.length) {
+                    setTimeout(finalizarNivel, 1000);
                 } else {
-                    hablar("¡Excelente nivel!", () => { if(nivel < 3) { nivel++; cargarNivel(); } else location.reload(); });
+                    hablar(`¡Muy bien! Ahora busca ${listaObjetivos[pasoActual].nombre}`, () => { bloqueado = false; });
                 }
             } else {
-                if(hit) { sfx.error.play(); hablar(`Esa no es, busca ${objetivos[paso].n}`); }
-                el.style.position = 'static';
+                if(hit) {
+                    sfx.error.play();
+                    hablar(`Esa no es, Juan. Busca ${listaObjetivos[pasoActual].nombre}`);
+                }
+                el.style.position = 'static'; el.style.opacity = "1";
             }
         };
-        document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
-        document.addEventListener('touchmove', move, {passive:false}); document.addEventListener('touchend', stop);
+        document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
+        document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
     }
 
-    function validarRespuesta(rta) {
+    function lanzarPregunta() {
+        if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
+        const p = bancoPreguntas[Math.floor(Math.random() * bancoPreguntas.length)];
+        respuestaCorrecta = p.r;
+        pTotales++;
+        document.getElementById('txt-pregunta').innerText = p.q;
+        document.getElementById('cuadro-pregunta').style.display = 'block';
+        hablar(p.q);
+    }
+
+    function validarPregunta(rta) {
         document.getElementById('cuadro-pregunta').style.display = 'none';
-        (rta === "SÍ" || rta === "NO") ? sfx.ok.play() : sfx.error.play();
-        hablar("Continuamos");
+        if(rta === respuestaCorrecta) {
+            pCorrectas++; sfx.ok.play(); hablar("¡Excelente!");
+        } else {
+            sfx.error.play(); hablar("Oh no.");
+        }
+        setTimeout(() => { if(!bloqueado) hablar(`Sigue buscando ${listaObjetivos[pasoActual].nombre}`); }, 2000);
+    }
+
+    function finalizarNivel() {
+        let pct = pTotales > 0 ? Math.round((pCorrectas/pTotales)*100) : 100;
+        document.getElementById('stats').innerText = `Aciertos en preguntas: ${pct}%`;
+        document.getElementById('modal-final').style.display = 'flex';
+        hablar("¡Excelente trabajo Juan! Has terminado.");
+    }
+
+    function siguienteNivel() {
+        if(nivelActual < 3) { nivelActual++; cargarNivel(); }
+        else { location.reload(); }
     }
 </script>
 </body>
 </html>
-
