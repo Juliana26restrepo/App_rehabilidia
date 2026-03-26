@@ -12,11 +12,12 @@
         
         #escenario { flex-grow: 1; display: flex; padding: 15px; gap: 15px; position: relative; overflow: hidden; }
         
-        #despensa-objetos { width: 150px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; align-items: center; z-index: 10; height: 80%; }
+        #despensa-objetos { width: 150px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; align-items: center; z-index: 10; height: 85%; }
         .item-cama { width: 85px; height: 85px; object-fit: contain; cursor: grab; touch-action: none; }
         
-        #contenedor-cama { position: absolute; left: 180px; right: 20px; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; }
-        #cama_img { width: 90%; max-width: 550px; pointer-events: none; }
+        /* Contenedor de cama con posición absoluta para evitar saltos */
+        #contenedor-cama { position: absolute; left: 180px; right: 20px; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #cama_img { width: 90%; max-width: 550px; pointer-events: none; z-index: 1; }
 
         #notificacion { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         .btn-notif { padding: 15px; margin: 10px 5px; width: 110px; border-radius: 12px; border: 3px solid #1B4F72; font-weight: bold; cursor: pointer; color: white; font-size: 1.2rem; }
@@ -50,7 +51,7 @@
 </div>
 
 <div id="modal-cierre">
-    <h1 style="font-size: 4rem; color: #FFD700;">¡BIEN HECHO!</h1>
+    <h1 style="font-size: 4rem; color: #FFD700;">¡MUY BIEN!</h1>
     <p id="stats-nivel" style="font-size: 2rem; margin: 20px;"></p>
     <button id="btn-siguiente" onclick="irASiguiente()" style="padding: 15px 40px; font-size: 1.5rem; background: #2ECC71; color: white; border: none; border-radius: 15px; cursor: pointer;">SIGUIENTE NIVEL</button>
 </div>
@@ -72,11 +73,10 @@
     const banco = [
         {p: "¿El sol es una estrella?", r: "SÍ"}, {p: "¿El agua moja?", r: "SÍ"},
         {p: "¿El fuego es frío?", r: "NO"}, {p: "¿Los gatos ladran?", r: "NO"},
-        {p: "¿La nieve es fría?", r: "SÍ"}, {p: "¿El azúcar es salado?", r: "NO"},
-        {p: "¿Los pájaros vuelan?", r: "SÍ"}, {p: "¿El cielo es verde?", r: "NO"},
-        {p: "¿La lluvia cae hacia arriba?", r: "NO"}, {p: "¿El helado es caliente?", r: "NO"}
+        {p: "¿La nieve es fría?", r: "SÍ"}, {p: "¿El azúcar es salado?", r: "NO"}
     ];
 
+    // NOMBRES EXACTOS DE TUS ARCHIVOS SEGÚN LA FOTO
     const catalogo = {
         piezas: ["sabana_azul.png", "almohada_blanca.png", "cobija_termica.png", "almohada_gris.png", "sabana_blanca.png", "cobija_tigre.png", "almohada_cafe.png", "sabana_gris.png"],
         distractores: ["control.png", "lampara.png", "medias.png", "reloj.png", "revista.png", "vaso.png"]
@@ -93,7 +93,7 @@
     }
 
     function iniciarSesion() {
-        hablar("Hola Juan, vamos a tender la cama. Atento a lo que te pida.", configurarNivel);
+        hablar("Juan, tiende la cama y responde a mi voz.", configurarNivel);
     }
 
     function configurarNivel() {
@@ -103,7 +103,7 @@
         preguntasCorrectas = 0;
         
         document.getElementById('despensa-objetos').innerHTML = "";
-        const puestas = document.querySelectorAll('#contenedor-cama .item-cama');
+        const puestas = document.querySelectorAll('#contenedor-cama .item-fija');
         puestas.forEach(v => v.remove());
 
         let cantidad = (nivelActual === 1) ? 4 : (nivelActual === 2 ? 6 : 8);
@@ -125,7 +125,6 @@
 
     function renderizarPanel() {
         const panel = document.getElementById('despensa-objetos');
-        // Asegurar que las piezas necesarias estén presentes
         let necesarias = piezasNivel.map(p => p.img);
         let pool = [...new Set(necesarias), ...catalogo.distractores].sort(() => Math.random() - 0.5);
         
@@ -160,9 +159,6 @@
         document.getElementById('pregunta-txt').innerText = data.p;
         document.getElementById('notificacion').style.display = 'block';
         hablar(data.p);
-
-        document.getElementById('btnA').onclick = () => verificarRespuesta("SÍ");
-        document.getElementById('btnB').onclick = () => verificarRespuesta("NO");
     }
 
     function verificarRespuesta(userR) {
@@ -185,7 +181,8 @@
         let offX = touch.clientX - rect.left;
         let offY = touch.clientY - rect.top;
         
-        el.style.position = 'fixed'; el.style.zIndex = "1000";
+        el.style.position = 'fixed'; 
+        el.style.zIndex = "1000";
 
         const move = (me) => {
             const mt = me.type === 'touchmove' ? me.touches[0] : me;
@@ -197,30 +194,46 @@
             document.removeEventListener('touchmove', move); document.removeEventListener('touchend', stop);
             
             const st = se.type === 'touchend' ? se.changedTouches[0] : se;
+            const contenedor = document.getElementById('contenedor-cama');
             const cama = document.getElementById('cama_img').getBoundingClientRect();
+            
+            // Verificamos si soltó sobre la zona de la cama
             const sobreCama = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
 
-            // VALIDACIÓN ESTRICTA
+            // CORRECCIÓN LÓGICA: Solo se queda si es el objeto pedido
             if (sobreCama && el.dataset.archivo === piezasNivel[objetivoIdx].img) {
-                const clone = el.cloneNode(true);
+                // Crear copia visual para que se quede fija
+                const clone = document.createElement('img');
+                clone.src = el.src;
+                clone.className = 'item-fija'; // Clase nueva para poder borrarlos luego
                 clone.style.position = 'absolute';
-                let cont = document.getElementById('contenedor-cama').getBoundingClientRect();
-                clone.style.left = (st.clientX - cont.left - 40) + 'px';
-                clone.style.top = (st.clientY - cont.top - 40) + 'px';
-                document.getElementById('contenedor-cama').appendChild(clone);
+                clone.style.width = '100px';
+                clone.style.zIndex = "5";
+                
+                // Posicionamiento preciso relativo al contenedor
+                let contRect = contenedor.getBoundingClientRect();
+                clone.style.left = (st.clientX - contRect.left - 50) + 'px';
+                clone.style.top = (st.clientY - contRect.top - 50) + 'px';
+                
+                contenedor.appendChild(clone);
                 
                 sonidos.exito.play();
                 objetivoIdx++;
-                el.style.position = 'static';
+                el.style.position = 'static'; // El original vuelve a su sitio en el panel
                 
                 if (objetivoIdx >= piezasNivel.length) {
-                    mostrarResumenNivel();
+                    setTimeout(mostrarResumenNivel, 500);
                 } else {
                     pedirObjeto();
                 }
             } else {
-                if(sobreCama) hablar("Ese objeto no va ahora, busca " + piezasNivel[objetivoIdx].nombre);
+                // Si está mal o no es el objeto, vuelve al panel y NO se queda nada en la cama
+                if(sobreCama) {
+                    sonidos.error.play();
+                    hablar("Ese objeto no va ahora, busca " + piezasNivel[objetivoIdx].nombre);
+                }
                 el.style.position = 'static';
+                el.style.zIndex = "10";
             }
         };
         document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
@@ -238,10 +251,10 @@
         stats.innerHTML = `Nivel ${nivelActual} completado.<br><br>Aciertos en preguntas: ${porcentaje}%`;
         
         if(nivelActual === 3) {
-            document.getElementById('btn-siguiente').innerText = "FINALIZAR SESIÓN";
-            hablar(`¡Súper Juan! Has terminado la sesión 10 con un ${porcentaje} por ciento de aciertos en las preguntas.`);
+            document.getElementById('btn-siguiente').innerText = "FINALIZAR TODO";
+            hablar(`¡Súper Juan! Sesión 10 terminada con ${porcentaje} por ciento de aciertos.`);
         } else {
-            hablar(`Muy bien Juan. Nivel ${nivelActual} superado. Tu porcentaje de aciertos fue del ${porcentaje} por ciento.`);
+            hablar(`Nivel superado Juan. Tu porcentaje de aciertos fue del ${porcentaje} por ciento.`);
         }
     }
 
@@ -250,9 +263,13 @@
             nivelActual++;
             configurarNivel();
         } else {
-            location.reload(); // O redirigir a menú
+            alert("¡Felicidades Juan! Has completado el programa de rehabilitación.");
+            location.reload();
         }
     }
+
+    document.getElementById('btnA').onclick = () => verificarRespuesta("SÍ");
+    document.getElementById('btnB').onclick = () => verificarRespuesta("NO");
 </script>
 </body>
 </html>
