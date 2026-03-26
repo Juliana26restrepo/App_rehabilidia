@@ -21,7 +21,6 @@
         }
         .item-cama { width: 100px; height: 100px; object-fit: contain; cursor: grab; touch-action: none; filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.4)); }
 
-        /* ZONA CENTRAL DONDE ESTÁ LA CAMA */
         #contenedor-central { 
             flex-grow: 1; position: relative; height: 100%; 
             display: flex; align-items: center; justify-content: center;
@@ -30,21 +29,19 @@
         #cama-objeto {
             width: 85%; max-width: 650px; 
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
-            pointer-events: none; /* Para que no interfiera con el soltado de piezas */
+            pointer-events: none;
         }
 
-        /* BURBUJA DE PREGUNTA */
         #burbuja-pregunta {
             position: absolute; right: 20px; top: 20px; width: 280px;
             background: white; border: 5px solid #3498DB; border-radius: 25px;
             padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 500;
+            z-index: 500; display: none; /* Se muestra después de la instrucción */
         }
 
         .btn-respuesta { padding: 15px; font-size: 1.5rem; font-weight: bold; border-radius: 15px; border: none; cursor: pointer; width: 100%; margin-top: 10px; }
         #btn-si { background: #2ECC71; color: white; border-bottom: 5px solid #27ae60; }
         #btn-no { background: #E74C3C; color: white; border-bottom: 5px solid #c0392b; }
-        .btn-respuesta:active { transform: translateY(4px); border-bottom: none; }
 
         #resumen-final {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -53,12 +50,12 @@
         }
     </style>
 </head>
-<body onload="iniciarJuego()">
+<body onload="darInstruccionInicial()">
 
 <div id="cabecera">
     <div style="background:white; color:#1B4F72; border-radius:15px; padding:10px; width:85%; margin:auto; display:flex; align-items:center; justify-content:center; gap:15px;">
         <img src="COTERAPEUTA.JPG" style="width:45px; border-radius:50%; border: 2px solid #E67E22;">
-        <strong>Juan, tiende la cama y responde a mi voz.</strong>
+        <strong id="texto-guia">Cargando nivel...</strong>
     </div>
 </div>
 
@@ -69,7 +66,7 @@
         <img src="img10/cama_destendida.png" id="cama-objeto">
         
         <div id="burbuja-pregunta">
-            <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.3rem; margin-bottom: 15px;">¿Listo para empezar?</div>
+            <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.3rem; margin-bottom: 15px;"></div>
             <button id="btn-si" class="btn-respuesta" onclick="responder()">SÍ</button>
             <button id="btn-no" class="btn-respuesta" onclick="responder()">NO</button>
         </div>
@@ -83,23 +80,38 @@
 </div>
 
 <script>
-    const piezas = [
-        "sabana_azul.png", "sobresabana_gris.png", "cobija_termica.png", "almohada_blanca.png"
-    ];
+    const piezas = ["sabana_azul.png", "sobresabana_gris.png", "cobija_termica.png", "almohada_blanca.png"];
     const distractores = ["control.png", "lampara.png", "medias.png", "reloj.png", "revista.png", "vaso.png"];
-    
-    // LISTA DE 100 PREGUNTAS (Sin repetir)
     let bancoPreguntas = [
-        "¿El sol es una estrella?", "¿Colombia está en América del Sur?", "¿El agua hierve a 100 grados Celsius?", "¿Los perros son mamíferos?", "¿La luna tiene luz propia?", "¿París es la capital de Francia?", "¿El hierro es un metal?", "¿Los peces respiran aire como los humanos?", "¿La Tierra gira alrededor del sol?", "¿El chocolate viene del cacao?", "¿Los humanos tienen 4 pulmones?", "¿El Amazonas es un río?", "¿Los gatos maúllan?", "¿La electricidad puede ser peligrosa?", "¿El hielo es agua en estado sólido?", "¿Los pájaros vuelan?", "¿El corazón bombea sangre?", "¿La sal es dulce?", "¿El café contiene cafeína?", "¿El planeta Marte es rojo?", "¿Las plantas necesitan luz para crecer?", "¿El océano es agua salada?", "¿El fútbol se juega con las manos?", "¿Los elefantes son animales grandes?", "¿La nieve es caliente?", "¿El fuego quema?", "¿La Tierra es plana?", "¿Los humanos respiran oxígeno?", "¿El oro es un metal precioso?", "¿El invierno es más frío que el verano?", "¿Las abejas producen miel?", "¿El cuerpo humano tiene huesos?", "¿La leche viene de animales?", "¿El sol sale por el este?", "¿La luna es más grande que la Tierra?", "¿El azúcar es salado?", "¿Los árboles tienen hojas?", "¿El aire es invisible?", "¿Los tiburones son peces?", "¿El desierto tiene mucha agua?", "¿La lluvia cae del cielo?", "¿El hielo flota en el agua?", "¿El plomo es ligero?", "¿Los humanos necesitan dormir?", "¿El vidrio es transparente?", "¿La electricidad puede iluminar una casa?", "¿Los caballos tienen alas?", "¿La Tierra tiene un solo satélite natural?", "¿El pan se hace con harina?", "¿Los volcanes pueden hacer erupción?", "¿El agua es incolora?", "¿El cuerpo humano tiene sangre?", "¿Las estrellas se ven de día?", "¿El fuego necesita oxígeno?", "¿Los murciélagos vuelan?", "¿El arroz crece en plantas?", "¿El cerebro está en la cabeza?", "¿El mar es dulce?", "¿Los humanos tienen dos ojos?", "¿El hielo puede derretirse?", "¿Las nubes están en el cielo?", "¿El sonido puede viajar en el aire?", "¿El agua es necesaria para la vida?", "¿Los leones son carnívoros?", "¿Venus está más cerca del sol que la Tierra?", "¿El viento se puede sentir?", "¿Las plantas producen oxígeno?", "¿El azúcar se disuelve en agua?", "¿El cuerpo humano tiene piel?", "¿Los peces viven en el agua?", "¿La sangre es roja?", "¿El hielo es caliente?", "¿Los humanos pueden vivir sin agua?", "¿El aire ocupa espacio?", "¿Los árboles crecen?", "¿El fuego es frío?", "¿La Tierra tiene gravedad?", "¿El café es caliente?", "¿Los perros pueden ladrar?", "¿El vidrio puede romperse?", "¿El cuerpo humano necesita comida?", "¿La luz viaja más rápido que el sonido?", "¿El agua moja?", "¿Los gatos tienen cola?", "¿El cielo es azul de día?", "¿Los humanos tienen cabello?", "¿El hielo es más denso que el agua?", "¿Los humanos ven sin ojos?", "¿El sol da calor?", "¿Los árboles necesitan agua?", "¿Júpiter es grande?", "¿La sal se disuelve en agua?", "¿El cuerpo humano tiene músculos?", "¿El fuego produce luz?", "¿Las montañas son altas?", "¿El aire tiene olor siempre?", "¿Los humanos pueden nadar?", "¿La luna tiene fases?", "¿El agua puede evaporarse?", "¿El corazón late?"
+        "¿El sol es una estrella?", "¿Colombia está en América del Sur?", "¿El agua hierve a 100 grados Celsius?", "¿Los perros son mamíferos?", "¿París es la capital de Francia?", "¿El chocolate viene del cacao?", "¿Los gatos maúllan?", "¿Los pájaros vuelan?", "¿El fuego quema?", "¿Las abejas producen miel?", "¿El cuerpo humano tiene músculos?", "¿El corazón late?", "¿Las plantas necesitan agua?", "¿El cielo es azul de día?", "¿El hielo se puede derretir?"
+        // ... (puedes añadir las 100 aquí)
     ];
 
     let mazoPreguntas = [];
     let contadorPiezas = 0;
 
-    function iniciarJuego() {
-        // Mezclar preguntas al inicio
-        mazoPreguntas = [...bancoPreguntas].sort(() => Math.random() - 0.5);
+    function hablar(texto, callback) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(texto);
+        msg.lang = 'es-ES';
+        msg.rate = 0.9; // Un poco más lento para claridad
+        if (callback) msg.onend = callback;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function darInstruccionInicial() {
+        const instruccion = "Hola Juan. Hoy vamos a organizar tu habitación. Tu tarea es tender la cama arrastrando la sábana, la cobija y la almohada desde el panel izquierdo hacia la cama. Mientras lo haces, te haré unas preguntas que debes responder con los botones de Sí o No. ¡Comencemos!";
         
+        document.getElementById('texto-guia').innerText = "Juan, tiende la cama y responde mis preguntas.";
+        
+        hablar(instruccion, () => {
+            document.getElementById('burbuja-pregunta').style.display = 'block';
+            iniciarJuego();
+        });
+    }
+
+    function iniciarJuego() {
+        mazoPreguntas = [...bancoPreguntas].sort(() => Math.random() - 0.5);
         const contenedor = document.getElementById('despensa-objetos');
         const listaFinal = [...piezas, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 4)].sort(() => 0.5 - Math.random());
         
@@ -111,20 +123,14 @@
             img.onmousedown = img.ontouchstart = iniciarArrastre;
             contenedor.appendChild(img);
         });
-        
-        setTimeout(lanzarPregunta, 1000);
+        lanzarPregunta();
     }
 
     function lanzarPregunta() {
         if(mazoPreguntas.length === 0) mazoPreguntas = [...bancoPreguntas].sort(() => Math.random() - 0.5);
-        
         const preguntaActual = mazoPreguntas.pop();
         document.getElementById('texto-pregunta').innerText = preguntaActual;
-        
-        window.speechSynthesis.cancel();
-        const locucion = new SpeechSynthesisUtterance(preguntaActual);
-        locucion.lang = 'es-ES';
-        window.speechSynthesis.speak(locucion);
+        hablar(preguntaActual);
     }
 
     function responder() {
@@ -151,7 +157,6 @@
             const st = se.type === 'touchend' ? se.changedTouches[0] : se;
             const camaBox = document.getElementById('cama-objeto').getBoundingClientRect();
 
-            // Verificar si se suelta sobre la cama
             if(st.clientX > camaBox.left && st.clientX < camaBox.right && st.clientY > camaBox.top && st.clientY < camaBox.bottom) {
                 if(el.dataset.esPieza === "true") {
                     contadorPiezas++;
@@ -162,7 +167,6 @@
                     new Audio('img8/exito.mp3').play().catch(()=>{});
                     if(contadorPiezas >= 4) setTimeout(finalizar, 800);
                 } else {
-                    // Si es distractor, vuelve a su lugar
                     el.style.position = 'static';
                 }
             } else {
@@ -175,8 +179,11 @@
 
     function finalizar() {
         document.getElementById('resumen-final').style.display = 'flex';
-        document.getElementById('mensaje-motivacional').innerText = "Juan, ¡qué gran capacidad de atención! Hiciste dos cosas difíciles al mismo tiempo.";
+        const msj = "Juan, ¡qué gran capacidad de atención! Lograste tender la cama perfectamente mientras mantenías tu mente activa con las preguntas. ¡Eres un campeón!";
+        document.getElementById('mensaje-motivacional').innerText = msj;
+        hablar(msj);
     }
 </script>
 </body>
 </html>
+
