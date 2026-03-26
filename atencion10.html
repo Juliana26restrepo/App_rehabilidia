@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - Juan - FINAL</title>
+    <title>Sesión 10 - Juan</title>
     <style>
-        body { font-family: 'Arial Rounded MT Bold', Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Arial Rounded MT Bold', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; display: flex; flex-direction: column; }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; padding: 10px; z-index: 100; border-bottom: 5px solid #E67E22; }
-        #guia-box { background: white; color: #1B4F72; width: 92%; margin: 0 auto; border-radius: 15px; padding: 12px; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 3px solid #1B4F72; }
-        #avatar { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; border: 2px solid #1B4F72; }
+        #guia-box { background: white; color: #1B4F72; width: 92%; margin: 0 auto; border-radius: 15px; padding: 12px; display: flex; align-items: center; border: 3px solid #1B4F72; }
         #escenario { flex-grow: 1; position: relative; display: flex; padding: 15px; }
         #panel-objetos { width: 160px; background: rgba(255,255,255,0.85); border-radius: 20px; border: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 15px; padding: 15px; overflow-y: auto; align-items: center; z-index: 10; }
-        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; touch-action: none; }
+        .draggable { width: 100px; height: 100px; object-fit: contain; cursor: grab; touch-action: none; }
         #area-cama { position: absolute; left: 190px; right: 10px; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        #cama_base { width: 90%; max-width: 600px; pointer-events: auto; }
-        .pieza-puesta { position: absolute; width: 120px; z-index: 5; pointer-events: none; }
-        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 30px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        .btn-pregunta { padding: 15px; margin: 10px; width: 110px; border-radius: 15px; border: 3px solid #1B4F72; font-weight: bold; cursor: pointer; color: white; font-size: 1.2rem; }
+        #cama_base { width: 95%; max-width: 650px; pointer-events: auto; }
+        .pieza-puesta { position: absolute; width: 140px; z-index: 5; pointer-events: none; }
+        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 30px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .btn-pregunta { padding: 15px; margin: 10px; width: 120px; border-radius: 15px; border: 3px solid #1B4F72; font-weight: bold; cursor: pointer; color: white; font-size: 1.3rem; }
     </style>
 </head>
 <body onload="iniciarTodo()">
 
 <div id="cabecera">
     <div id="guia-box">
-        <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia" style="margin:0; font-size: 1.1rem; font-weight:bold;">¡Vamos Juan!</p>
+        <img src="COTERAPEUTA.JPG" style="width:60px; height:60px; border-radius:50%; margin-right:15px;">
+        <p id="texto-guia" style="margin:0; font-size: 1.2rem; font-weight:bold;">¡Hola Juan!</p>
     </div>
 </div>
 
@@ -36,16 +35,14 @@
 </div>
 
 <div id="cuadro-pregunta">
-    <p id="txt-pregunta" style="font-size: 1.4rem; font-weight: bold; color: #1B4F72; margin-bottom: 20px;"></p>
+    <p id="txt-pregunta" style="font-size: 1.5rem; font-weight: bold; color: #1B4F72; margin-bottom: 20px;"></p>
     <button class="btn-pregunta" style="background:#2ECC71" onclick="responder('SÍ')">SÍ</button>
     <button class="btn-pregunta" style="background:#E74C3C" onclick="responder('NO')">NO</button>
 </div>
 
 <script>
-    let nivel = 1; let paso = 0; let bloqueado = false;
-    let objetivosNivel = [];
-    let pTotales = 0; let pCorrectas = 0;
-    let rCorrecta = "";
+    let nivel = 1, paso = 0, bloqueado = false;
+    let objetivosNivel = [], rCorrecta = "";
 
     const sfx = { ok: new Audio('img8/exito.mp3'), error: new Audio('img8/alarma.mp3') };
     const ambientes = [
@@ -54,17 +51,21 @@
         new Audio('img10/radio.mp3')
     ];
 
+    // LAS PIEZAS QUE JUAN DEBE PONER
     const piezas = [
         {id: "sabana", img: "sabana_azul.png", nombre: "la sábana azul"},
         {id: "almohada", img: "almohada_blanca.png", nombre: "la almohada blanca"},
         {id: "cobija", img: "cobija_termica.png", nombre: "la cobija térmica"}
     ];
 
-    const preguntas = [
+    // AQUÍ PEGA TUS 100 PREGUNTAS
+    const bancoPreguntas = [
         {q: "¿El sol brilla?", a: "SÍ"},
         {q: "¿El hielo quema?", a: "SÍ"},
         {q: "¿El agua moja?", a: "SÍ"},
-        {q: "¿Los perros hablan?", a: "NO"}
+        {q: "¿Los aviones vuelan?", a: "SÍ"},
+        {q: "¿Las vacas vuelan?", a: "NO"},
+        // ... Sigue pegando aquí hasta las 100
     ];
 
     function hablar(t, callback) {
@@ -77,13 +78,14 @@
     }
 
     function iniciarTodo() {
-        ambientes.forEach(a => { a.loop = true; a.volume = 0.2; a.play().catch(()=>{}); });
+        ambientes.forEach(a => { a.loop = true; a.volume = 0.15; a.play().catch(()=>{}); });
         configurar();
         setInterval(lanzarPregunta, 20000);
     }
 
     function configurar() {
-        document.getElementById('panel-objetos').innerHTML = "";
+        const panel = document.getElementById('panel-objetos');
+        panel.innerHTML = "";
         document.querySelectorAll('.pieza-puesta').forEach(p => p.remove());
         paso = 0; bloqueado = false;
         
@@ -95,10 +97,9 @@
             img.className = 'draggable';
             img.dataset.tipo = obj.id;
             img.onmousedown = img.ontouchstart = drag;
-            document.getElementById('panel-objetos').appendChild(img);
+            panel.appendChild(img);
         });
-
-        hablar(`Juan, busca ${objetivosNivel[0].nombre} y ponla en la cama.`);
+        hablar(`Juan, pon ${objetivosNivel[0].nombre} en la cama.`);
     }
 
     function drag(e) {
@@ -107,7 +108,6 @@
         const t = e.type === 'touchstart' ? e.touches[0] : e;
         let rect = el.getBoundingClientRect();
         let ox = t.clientX - rect.left, oy = t.clientY - rect.top;
-
         el.style.position = 'fixed'; el.style.zIndex = "1000";
 
         const mover = (me) => {
@@ -122,35 +122,25 @@
             const st = se.type === 'touchend' ? se.changedTouches[0] : se;
             const cama = document.getElementById('cama_base').getBoundingClientRect();
             
-            // Detección generosa sobre la cama
+            // Detección mejorada: si suelta sobre cualquier parte de la cama
             const hit = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
 
             if (hit && el.dataset.tipo === objetivosNivel[paso].id) {
-                bloqueado = true;
-                sfx.ok.play();
-                
+                bloqueado = true; sfx.ok.play();
                 const fija = document.createElement('img');
                 fija.src = el.src; fija.className = 'pieza-puesta';
-                fija.style.left = (st.clientX - 60) + 'px';
-                fija.style.top = (st.clientY - 60) + 'px';
+                fija.style.left = (st.clientX - 70) + 'px'; fija.style.top = (st.clientY - 70) + 'px';
                 document.body.appendChild(fija);
-                
                 el.style.display = 'none';
                 paso++;
 
                 if (paso >= objetivosNivel.length) {
-                    hablar("¡Excelente Juan! Nivel superado.", () => { 
-                        if(nivel < 2) { nivel++; configurar(); } 
-                        else { location.reload(); }
-                    });
+                    hablar("¡Muy bien Juan!", () => { nivel++; configurar(); });
                 } else {
-                    hablar(`¡Muy bien! Ahora busca ${objetivosNivel[paso].nombre}`, () => { bloqueado = false; });
+                    hablar(`¡Bien! Ahora busca ${objetivosNivel[paso].nombre}`, () => { bloqueado = false; });
                 }
             } else {
-                if(hit) {
-                    sfx.error.play();
-                    hablar(`Esa no es Juan. Pon ${objetivosNivel[paso].nombre}`);
-                }
+                if(hit) sfx.error.play(); // Solo suena error si realmente tocó la cama pero con el objeto mal
                 el.style.position = 'static';
             }
         };
@@ -159,10 +149,9 @@
     }
 
     function lanzarPregunta() {
-        if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
-        const p = preguntas[Math.floor(Math.random() * preguntas.length)];
+        if(document.getElementById('cuadro-pregunta').style.display === 'block') return;
+        const p = bancoPreguntas[Math.floor(Math.random() * bancoPreguntas.length)];
         rCorrecta = p.a;
-        pTotales++;
         document.getElementById('txt-pregunta').innerText = p.q;
         document.getElementById('cuadro-pregunta').style.display = 'block';
         hablar(p.q);
@@ -170,11 +159,11 @@
 
     function responder(rta) {
         document.getElementById('cuadro-pregunta').style.display = 'none';
-        if(rta === rCorrecta) { pCorrectas++; sfx.ok.play(); hablar("¡Bien dicho!"); }
-        else { sfx.error.play(); hablar("Oh, esa no era."); }
-        
-        setTimeout(() => { if(!bloqueado) hablar(`Juan, sigue con ${objetivosNivel[paso].nombre}`); }, 1500);
+        if(rta === rCorrecta) { sfx.ok.play(); hablar("¡Excelente!"); } 
+        else { sfx.error.play(); hablar("Esa no era."); }
+        setTimeout(() => { if(!bloqueado) hablar(`Juan, pon ${objetivosNivel[paso].nombre}`); }, 1500);
     }
 </script>
 </body>
 </html>
+
