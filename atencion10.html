@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - Juan</title>
+    <title>Sesión 10 - Juan - FINAL TOTAL</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
+        body { font-family: Arial; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; padding: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 5px solid #E67E22; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; min-width: 300px; }
-        #panel-objetos { position: absolute; left: 15px; top: 110px; width: 150px; background: rgba(255,255,255,0.9); border: 4px solid #1B4F72; border-radius: 20px; display: flex; flex-direction: column; gap: 10px; padding: 15px; align-items: center; z-index: 10; height: 75vh; overflow-y: auto; }
-        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; z-index: 20; margin-bottom: 5px; }
-        #area-cama-detect { position: absolute; left: 20%; top: 25%; width: 60%; height: 55%; border: 2px dashed transparent; pointer-events: auto; }
-        #cama_base { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        .pieza-fija { position: absolute; width: 120px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
-        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        .btn-p { padding: 15px 30px; margin: 10px; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; color: white; font-size: 1.4rem; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; }
+        #panel-objetos { position: absolute; left: 15px; top: 110px; width: 150px; background: rgba(255,255,255,0.9); border: 4px solid #1B4F72; border-radius: 20px; display: flex; flex-direction: column; gap: 10px; padding: 15px; align-items: center; z-index: 100; height: 75vh; overflow-y: auto; }
+        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; z-index: 200; }
+        
+        /* ZONA DE DETECCIÓN GIGANTE PARA QUE NO FALLE */
+        #area-cama-detect { position: absolute; left: 180px; top: 100px; width: calc(100% - 200px); height: calc(100% - 150px); z-index: 5; }
+        #cama_base { width: 80%; max-width: 600px; display: block; margin: 50px auto; pointer-events: none; }
+        
+        .pieza-fija { position: absolute; width: 140px; z-index: 10; transform: translate(-50%, -50%); pointer-events: none; }
+        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 3000; }
+        .btn-p { padding: 12px 25px; margin: 8px; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; color: white; font-size: 1.2rem; }
     </style>
 </head>
 <body onload="iniciar()">
 
 <div id="cabecera">
     <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG" style="width:50px; height:50px; border-radius:50%; margin-right:15px; border: 2px solid #1B4F72;">
-        <span id="label-guia">Cargando...</span>
+        <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:15px; border: 2px solid #1B4F72;">
+        <span id="label-guia">Iniciando...</span>
     </div>
-    <div id="exito-txt" style="font-size: 1.5rem; font-weight: bold; margin-right: 20px;">Éxito: 100%</div>
+    <div id="exito-txt" style="font-size: 1.4rem; font-weight: bold; margin-right: 20px;">Éxito: 100%</div>
 </div>
 
 <div id="panel-objetos"></div>
@@ -35,7 +38,7 @@
 </div>
 
 <div id="cuadro-pregunta">
-    <p id="pregunta-texto" style="font-size: 1.5rem; font-weight: bold; color:#1B4F72;"></p>
+    <p id="pregunta-texto" style="font-size: 1.3rem; font-weight: bold; color:#1B4F72;"></p>
     <button class="btn-p" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
     <button class="btn-p" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
 </div>
@@ -45,7 +48,6 @@
     const sfxOk = new Audio('img8/exito.mp3'); 
     const sfxErr = new Audio('img8/alarma.mp3');
 
-    // BANCO COMPLETO DE ESTÍMULOS (Nombres exactos de tu carpeta)
     const db = {
         "sabana_azul": { img: "sabana_azul.png", nom: "la sábana azul" },
         "almohada_blanca": { img: "almohada_blanca.png", nom: "la almohada blanca" },
@@ -55,29 +57,21 @@
         "reloj": { img: "reloj.png", nom: "el reloj" },
         "control": { img: "control.png", nom: "el control" },
         "revista": { img: "revista.png", nom: "la revista" },
-        "medias": { img: "medias.png", nom: "las medias" },
-        "vaso": { img: "vaso.png", nom: "el vaso" },
-        "lampara": { img: "lampara.png", nom: "la lámpara" }
+        "vaso": { img: "vaso.png", nom: "el vaso" }
     };
 
-    // NIVELES USANDO EL BANCO DE ESTÍMULOS
     const niveles = {
-        1: { pedir: ["sabana_azul", "almohada_blanca"], distractores: ["revista", "vaso", "reloj"] },
-        2: { pedir: ["cobija_termica", "control"], distractores: ["medias", "lampara", "reloj"] },
-        3: { pedir: ["sabana_blanca", "almohada_gris"], distractores: ["reloj", "control", "vaso", "revista", "medias"] }
+        1: { pedir: ["sabana_azul", "almohada_blanca"], mostrar: ["sabana_azul", "almohada_blanca", "reloj"] },
+        2: { pedir: ["cobija_termica"], mostrar: ["cobija_termica", "control", "vaso"] },
+        3: { pedir: ["sabana_blanca", "almohada_gris"], mostrar: ["sabana_blanca", "almohada_gris", "reloj", "revista"] }
     };
 
-    const preguntas = [
-        {q: "¿El agua es seca?", a: "NO"},
-        {q: "¿El cielo es azul?", a: "SÍ"},
-        {q: "¿Los pájaros vuelan?", a: "SÍ"}
-    ];
+    const preguntas = [{q: "¿El agua moja?", a: "SÍ"}, {q: "¿El sol es frío?", a: "NO"}];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
         document.getElementById('label-guia').innerText = t;
-        const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'es-ES';
+        const msg = new SpeechSynthesisUtterance(t); msg.lang = 'es-ES';
         window.speechSynthesis.speak(msg);
     }
 
@@ -87,27 +81,19 @@
     }
 
     function cargarFase() {
-        const panel = document.getElementById('panel-objetos');
-        const contenedorCama = document.getElementById('contenedor-piezas');
-        panel.innerHTML = "";
-        contenedorCama.innerHTML = ""; // Limpieza total de cama entre niveles
+        document.getElementById('panel-objetos').innerHTML = "";
+        document.getElementById('contenedor-piezas').innerHTML = "";
         paso = 0; bloqueado = false;
-
         const conf = niveles[nivel];
-        // Combinar objetos necesarios con distractores
-        let listaNivel = [...conf.pedir, ...conf.distractores];
-        listaNivel.sort(() => Math.random() - 0.5);
-
-        listaNivel.forEach(id => {
+        conf.mostrar.sort(()=>Math.random()-0.5).forEach(id => {
             const img = document.createElement('img');
             img.src = `img10/${db[id].img}`;
             img.className = 'draggable';
             img.dataset.id = id;
             img.onmousedown = img.ontouchstart = drag;
-            panel.appendChild(img);
+            document.getElementById('panel-objetos').appendChild(img);
         });
-
-        hablar("Juan, pon " + db[conf.pedir[0]].nom + " en la cama.");
+        hablar("Nivel " + nivel + ". Juan, pon " + db[conf.pedir[0]].nom);
     }
 
     function drag(e) {
@@ -128,39 +114,34 @@
             document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
 
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
-            const camaRect = document.getElementById('area-cama-detect').getBoundingClientRect();
+            const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
             
-            // Detección mejorada: si el centro del objeto está sobre la cama
-            const enCama = (st.clientX > camaRect.left && st.clientX < camaRect.right && 
-                            st.clientY > camaRect.top && st.clientY < camaRect.bottom);
-            
+            // SI EL OBJETO ESTÁ EN CUALQUIER LADO DE LA PARTE DERECHA, ES VÁLIDO
+            const enCama = (st.clientX > cama.left);
             const objetivoId = niveles[nivel].pedir[paso];
 
-            if (enCama && el.dataset.id === objetivoId) {
-                sfxOk.play(); aciertos++;
-                const fija = document.createElement('img');
-                fija.src = el.src; fija.className = 'pieza-fija';
-                fija.style.left = (st.clientX - camaRect.left) + 'px';
-                fija.style.top = (st.clientY - camaRect.top) + 'px';
-                document.getElementById('contenedor-piezas').appendChild(fija);
-                el.style.display = 'none';
-                paso++;
-                
-                if (paso < niveles[nivel].pedir.length) {
-                    hablar("¡Muy bien! Ahora busca " + db[niveles[nivel].pedir[paso]].nom);
+            if (enCama) {
+                if (el.dataset.id === objetivoId) {
+                    sfxOk.play(); aciertos++;
+                    const fija = document.createElement('img');
+                    fija.src = el.src; fija.className = 'pieza-fija';
+                    fija.style.left = (st.clientX - cama.left) + 'px';
+                    fija.style.top = (st.clientY - cama.top) + 'px';
+                    document.getElementById('contenedor-piezas').appendChild(fija);
+                    el.style.display = 'none';
+                    paso++;
+                    if (paso < niveles[nivel].pedir.length) {
+                        hablar("¡Bien! Ahora " + db[niveles[nivel].pedir[paso]].nom);
+                    } else {
+                        bloqueado = true;
+                        setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { hablar("¡Terminaste Juan!"); }}, 2000);
+                    }
                 } else {
-                    bloqueado = true;
-                    if(nivel < 3) {
-                        setTimeout(() => { nivel++; cargarFase(); }, 2000);
-                    } else { hablar("¡Excelente Juan! Terminamos."); }
+                    sfxErr.play(); errores++;
+                    hablar("Esa no es Juan. Pon " + db[objetivoId].nom);
+                    el.style.position = 'static';
                 }
-            } else if (enCama) {
-                sfxErr.play(); errores++;
-                hablar("Esa no es Juan. Busca " + db[objetivoId].nom);
-                el.style.position = 'static';
-            } else {
-                el.style.position = 'static';
-            }
+            } else { el.style.position = 'static'; }
             actualizarStats();
         }
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
@@ -168,9 +149,8 @@
     }
 
     function actualizarStats() {
-        let total = aciertos + errores;
-        let p = total === 0 ? 100 : Math.round((aciertos / total) * 100);
-        document.getElementById('exito-txt').innerText = `Éxito: ${p}%`;
+        let t = aciertos + errores;
+        document.getElementById('exito-txt').innerText = `Éxito: ${t === 0 ? 100 : Math.round((aciertos/t)*100)}%`;
     }
 
     function lanzarPregunta() {
@@ -183,10 +163,9 @@
     }
 
     function verificarRespuesta(v) {
-        const correcta = document.getElementById('cuadro-pregunta').dataset.ans;
+        if(v === document.getElementById('cuadro-pregunta').dataset.ans) { sfxOk.play(); aciertos++; } 
+        else { sfxErr.play(); errores++; }
         document.getElementById('cuadro-pregunta').style.display = 'none';
-        if(v === correcta) { sfxOk.play(); aciertos++; hablar("¡Muy bien!"); }
-        else { sfxErr.play(); errores++; hablar("No, Juan."); }
         actualizarStats();
     }
 </script>
