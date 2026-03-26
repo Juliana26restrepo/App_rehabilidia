@@ -14,60 +14,54 @@
         
         #escenario { flex-grow: 1; position: relative; display: flex; padding: 10px; gap: 15px; }
         
-        /* Inventario lateral izquierdo */
         #despensa-objetos { 
-            width: 140px; background: rgba(255,255,255,0.9); border-radius: 15px; 
+            width: 150px; background: rgba(255,255,255,0.9); border-radius: 15px; 
             padding: 10px; display: flex; flex-direction: column; gap: 12px;
-            border: 3px solid #1B4F72; overflow-y: auto; z-index: 10;
+            border: 3px solid #1B4F72; overflow-y: auto; z-index: 10; height: 80vh;
         }
         .item-cama { width: 90%; margin: auto; cursor: grab; touch-action: none; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
 
+        /* ZONA DE CAMA REFORZADA */
         #zona-cama { 
             flex-grow: 1; position: relative;
             background: url('img10/cama_destendida.png') no-repeat center bottom;
-            background-size: 80%;
+            background-size: contain;
+            margin-bottom: 20px;
         }
 
-        /* BURBUJA DE PREGUNTA FLOTANTE (Para que se vea bien en tablets) */
         #contenedor-pregunta {
-            position: absolute; right: 30px; top: 50px; width: 260px;
-            background: white; border: 5px solid #3498DB; border-radius: 30px;
-            padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: absolute; right: 20px; top: 20px; width: 280px;
+            background: #FFFFFF; border: 5px solid #3498DB; border-radius: 25px;
+            padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             z-index: 500;
         }
-        #contenedor-pregunta::after { 
-            content: ''; position: absolute; left: -25px; top: 40px;
-            border-top: 15px solid transparent; border-bottom: 15px solid transparent;
-            border-right: 25px solid #3498DB;
-        }
 
-        .btn-respuesta { padding: 15px; font-size: 1.4rem; font-weight: bold; border-radius: 15px; border: none; cursor: pointer; width: 100%; margin-top: 10px; }
-        #btn-si { background: #2ECC71; color: white; box-shadow: 0 4px #27ae60; }
-        #btn-no { background: #E74C3C; color: white; box-shadow: 0 4px #c0392b; }
-        .btn-respuesta:active { transform: translateY(4px); box-shadow: none; }
+        .btn-respuesta { padding: 15px; font-size: 1.5rem; font-weight: bold; border-radius: 15px; border: none; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
+        #btn-si { background: #2ECC71; color: white; border-bottom: 5px solid #27ae60; }
+        #btn-no { background: #E74C3C; color: white; border-bottom: 5px solid #c0392b; }
+        .btn-respuesta:active { transform: translateY(3px); border-bottom: none; }
 
         #resumen-final {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(27, 79, 114, 0.98); color: white; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 1000; text-align: center;
+            align-items: center; justify-content: center; z-index: 2000; text-align: center;
         }
     </style>
 </head>
 <body onload="iniciarNivel10()">
 
 <div id="cabecera">
-    <div style="background:white; color:#1B4F72; border-radius:15px; padding:10px; width:80%; margin:auto; display:flex; align-items:center; justify-content:center; gap:15px; box-shadow: 0 4px rgba(0,0,0,0.1);">
+    <div style="background:white; color:#1B4F72; border-radius:15px; padding:10px; width:85%; margin:auto; display:flex; align-items:center; justify-content:center; gap:15px;">
         <img src="COTERAPEUTA.JPG" style="width:45px; border-radius:50%; border: 2px solid #E67E22;">
-        <strong style="font-size: 1.2rem;">¡Juan! Tiende la cama y responde mis preguntas.</strong>
+        <strong style="font-size: 1.3rem;">¡Juan! Tiende la cama y responde mis preguntas.</strong>
     </div>
 </div>
 
 <div id="escenario">
     <div id="despensa-objetos"></div>
-    
     <div id="zona-cama">
         <div id="contenedor-pregunta">
-            <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.3rem; margin-bottom: 15px;">¿Listo Juan?</div>
+            <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.4rem; margin-bottom: 15px;">¿Listo?</div>
             <button id="btn-si" class="btn-respuesta" onclick="responder(true)">SÍ</button>
             <button id="btn-no" class="btn-respuesta" onclick="responder(false)">NO</button>
         </div>
@@ -75,13 +69,12 @@
 </div>
 
 <div id="resumen-final">
-    <h1 style="font-size: 3rem; color: #F1C40F;">¡EXCELENTE!</h1>
-    <p id="mensaje-motivacional" style="font-size:1.8rem; padding:20px; max-width: 70%;"></p>
-    <button onclick="location.reload()" style="padding:20px 40px; font-size:1.5rem; cursor:pointer; background:#F1C40F; border:none; border-radius:15px; font-weight:bold; color:#1B4F72;">OTRA VEZ</button>
+    <h1 style="font-size: 3.5rem; color: #F1C40F;">¡EXCELENTE!</h1>
+    <p id="mensaje-motivacional" style="font-size: 2rem; padding: 20px;"></p>
+    <button onclick="location.reload()" style="padding:20px 50px; font-size:1.5rem; cursor:pointer; background:#F1C40F; border:none; border-radius:20px; font-weight:bold; color:#1B4F72;">SIGUIENTE RETO</button>
 </div>
 
 <script>
-    // Usando exactamente tus nombres de archivos
     const piezasCama = {
         sabana: ["sabana_azul.png", "sabana_blanca.png", "sabana_gris.png"],
         sobre: ["sobresabana_gris.png", "sobresabana_morada.png", "sobresabana_negra.png"],
@@ -90,21 +83,65 @@
     };
     
     const distractores = ["control.png", "lampara.png", "medias.png", "reloj.png", "revista.png", "vaso.png"];
+    
+    // BANCO COMPLETO DE 100 PREGUNTAS
     const bancoPreguntas = [
-        {p: "¿El azúcar es dulce?", r: true},
-        {p: "¿El sol es frío?", r: false},
-        {p: "¿Los pájaros vuelan?", r: true},
-        {p: "¿La nieve quema?", r: false},
-        {p: "¿Tienes una almohada?", r: true},
-        {p: "¿El elefante es pequeño?", r: false}
+        {p: "¿El sol es una estrella?", r: true}, {p: "¿Colombia está en América del Sur?", r: true},
+        {p: "¿El agua hierve a 100 grados Celsius?", r: true}, {p: "¿Los perros son mamíferos?", r: true},
+        {p: "¿La luna tiene luz propia?", r: false}, {p: "¿París es la capital de Francia?", r: true},
+        {p: "¿El hierro es un metal?", r: true}, {p: "¿Los peces respiran aire como los humanos?", r: false},
+        {p: "¿La Tierra gira alrededor del sol?", r: true}, {p: "¿El chocolate viene del cacao?", r: true},
+        {p: "¿Los humanos tienen 4 pulmones?", r: false}, {p: "¿El Amazonas es un río?", r: true},
+        {p: "¿Los gatos maúllan?", r: true}, {p: "¿La electricidad puede ser peligrosa?", r: true},
+        {p: "¿El hielo es agua en estado sólido?", r: true}, {p: "¿Los pájaros vuelan?", r: true},
+        {p: "¿El corazón bombea sangre?", r: true}, {p: "¿La sal es dulce?", r: false},
+        {p: "¿El café contiene cafeína?", r: true}, {p: "¿El planeta Marte es rojo?", r: true},
+        {p: "¿Las plantas necesitan luz para crecer?", r: true}, {p: "¿El océano es agua salada?", r: true},
+        {p: "¿El fútbol se juega con las manos?", r: false}, {p: "¿Los elefantes son animales grandes?", r: true},
+        {p: "¿La nieve es caliente?", r: false}, {p: "¿El fuego quema?", r: true},
+        {p: "¿La Tierra es plana?", r: false}, {p: "¿Los humanos respiran oxígeno?", r: true},
+        {p: "¿El oro es un metal precioso?", r: true}, {p: "¿El invierno es más frío que el verano?", r: true},
+        {p: "¿Las abejas producen miel?", r: true}, {p: "¿El cuerpo humano tiene huesos?", r: true},
+        {p: "¿La leche viene de animales?", r: true}, {p: "¿El sol sale por el este?", r: true},
+        {p: "¿La luna es más grande que la Tierra?", r: false}, {p: "¿El azúcar es salado?", r: false},
+        {p: "¿Los árboles tienen hojas?", r: true}, {p: "¿El aire es invisible?", r: true},
+        {p: "¿Los tiburones son peces?", r: true}, {p: "¿El desierto tiene mucha agua?", r: false},
+        {p: "¿La lluvia cae del cielo?", r: true}, {p: "¿El hielo flota en el agua?", r: true},
+        {p: "¿El plomo es ligero?", r: false}, {p: "¿Los humanos necesitan dormir?", r: true},
+        {p: "¿El vidrio es transparente?", r: true}, {p: "¿La electricidad puede iluminar una casa?", r: true},
+        {p: "¿Los caballos tienen alas?", r: false}, {p: "¿La Tierra tiene un solo satélite natural?", r: true},
+        {p: "¿El pan se hace con harina?", r: true}, {p: "¿Los volcanes pueden hacer erupción?", r: true},
+        {p: "¿El agua es incolora?", r: true}, {p: "¿El cuerpo humano tiene sangre?", r: true},
+        {p: "¿Las estrellas se ven de día?", r: false}, {p: "¿El fuego necesita oxígeno?", r: true},
+        {p: "¿Los murciélagos vuelan?", r: true}, {p: "¿El arroz crece en plantas?", r: true},
+        {p: "¿El cerebro está en la cabeza?", r: true}, {p: "¿El mar es dulce?", r: false},
+        {p: "¿Los humanos tienen dos ojos?", r: true}, {p: "¿El hielo puede derretirse?", r: true},
+        {p: "¿Las nubes están en el cielo?", r: true}, {p: "¿El sonido puede viajar en el aire?", r: true},
+        {p: "¿El agua es necesaria para la vida?", r: true}, {p: "¿Los leones son carnívoros?", r: true},
+        {p: "¿Venus está más cerca del sol que la Tierra?", r: true}, {p: "¿El viento se puede sentir?", r: true},
+        {p: "¿Las plantas producen oxígeno?", r: true}, {p: "¿El azúcar se disuelve en agua?", r: true},
+        {p: "¿El cuerpo humano tiene piel?", r: true}, {p: "¿Los peces viven en el agua?", r: true},
+        {p: "¿La sangre es roja?", r: true}, {p: "¿El hielo es caliente?", r: false},
+        {p: "¿Los humanos pueden vivir sin agua?", r: false}, {p: "¿El aire ocupa espacio?", r: true},
+        {p: "¿Los árboles crecen?", r: true}, {p: "¿El fuego es frío?", r: false},
+        {p: "¿La Tierra tiene gravedad?", r: true}, {p: "¿El café es comúnmente caliente?", r: true},
+        {p: "¿Los perros pueden ladrar?", r: true}, {p: "¿El vidrio puede romperse?", r: true},
+        {p: "¿El cuerpo humano necesita comida?", r: true}, {p: "¿La luz viaja más rápido que el sonido?", r: true},
+        {p: "¿El agua moja?", r: true}, {p: "¿Los gatos tienen cola?", r: true},
+        {p: "¿El cielo es azul de día?", r: true}, {p: "¿Los humanos tienen cabello?", r: true},
+        {p: "¿El hielo es más denso que el agua?", r: false}, {p: "¿Los humanos ven sin ojos?", r: false},
+        {p: "¿El sol da calor?", r: true}, {p: "¿Los árboles necesitan agua?", r: true},
+        {p: "¿Júpiter es un planeta grande?", r: true}, {p: "¿La sal se disuelve en agua?", r: true},
+        {p: "¿El cuerpo humano tiene músculos?", r: true}, {p: "¿El fuego produce luz?", r: true},
+        {p: "¿Las montañas son altas?", r: true}, {p: "¿El aire tiene olor siempre?", r: false},
+        {p: "¿Los humanos pueden nadar?", r: true}, {p: "¿La luna tiene fases?", r: true},
+        {p: "¿El agua puede evaporarse?", r: true}, {p: "¿El corazón late?", r: true}
     ];
 
     let piezasPuestas = 0;
 
     function iniciarNivel10() {
         const contenedor = document.getElementById('despensa-objetos');
-        
-        // Selección al azar para EVITAR APRENDIZAJE
         const seleccion = [
             piezasCama.sabana[Math.floor(Math.random()*3)],
             piezasCama.sobre[Math.floor(Math.random()*3)],
@@ -122,14 +159,12 @@
             el.onmousedown = el.ontouchstart = iniciarArrastre;
             contenedor.appendChild(el);
         });
-
         lanzarPregunta();
     }
 
     function lanzarPregunta() {
         const item = bancoPreguntas[Math.floor(Math.random()*bancoPreguntas.length)];
         document.getElementById('texto-pregunta').innerText = item.p;
-        
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(item.p);
         msg.lang = 'es-ES';
@@ -138,13 +173,7 @@
 
     function responder(val) {
         new Audio('img8/exito.mp3').play().catch(()=>{});
-        // Pequeño efecto visual al responder
-        const b = document.getElementById('contenedor-pregunta');
-        b.style.transform = "scale(1.1)";
-        setTimeout(() => {
-            b.style.transform = "scale(1)";
-            lanzarPregunta();
-        }, 200);
+        lanzarPregunta();
     }
 
     function iniciarArrastre(e) {
@@ -166,17 +195,14 @@
             const st = se.type === 'touchend' ? se.changedTouches[0] : se;
             const dropZone = document.getElementById('zona-cama').getBoundingClientRect();
 
-            // Verificar si cae en la cama
-            if(st.clientX > dropZone.left && st.clientX < dropZone.right && st.clientY > dropZone.top) {
+            if(st.clientX > dropZone.left && st.clientX < dropZone.right && st.clientY > dropZone.top && st.clientY < dropZone.bottom) {
                 piezasPuestas++;
                 el.style.position = 'absolute'; 
-                el.style.left = Math.random()*50 + 20 + '%'; 
-                el.style.top = Math.random()*30 + 30 + '%';
+                el.style.left = (Math.random()*40 + 20) + '%'; 
+                el.style.top = (Math.random()*30 + 30) + '%';
                 document.getElementById('zona-cama').appendChild(el);
                 new Audio('img8/exito.mp3').play().catch(()=>{});
-                if(piezasPuestas >= 4) {
-                    setTimeout(finalizar, 1000);
-                }
+                if(piezasPuestas >= 4) setTimeout(finalizar, 1000);
             } else { el.style.position = 'static'; }
         };
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
@@ -185,7 +211,7 @@
 
     function finalizar() {
         document.getElementById('resumen-final').style.display = 'flex';
-        document.getElementById('mensaje-motivacional').innerText = "Excelente Juan, lograste mantenerte atento en más de una tarea al mismo tiempo.";
+        document.getElementById('mensaje-motivacional').innerText = "Excelente, lograste mantenerte atento en más de una tarea al mismo tiempo.";
     }
 </script>
 </body>
