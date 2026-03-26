@@ -11,70 +11,77 @@
             background-size: cover; height: 100vh; display: flex; flex-direction: column;
         }
         #cabecera { background: rgba(27, 79, 114, 0.9); color: white; padding: 10px; text-align: center; z-index: 100; border-bottom: 4px solid #E67E22; }
-        #escenario { flex-grow: 1; position: relative; display: flex; justify-content: space-between; padding: 20px; }
         
-        #zona-cama { 
-            width: 65%; height: 70%; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
-            background: url('img10/cama_destendida.png') no-repeat center bottom;
-            background-size: contain; border: 2px dashed rgba(255,255,255,0.3);
-        }
-
+        #escenario { flex-grow: 1; position: relative; display: flex; padding: 10px; gap: 10px; }
+        
+        /* Inventario lateral más estilizado */
         #despensa-objetos { 
-            width: 200px; background: rgba(255,255,255,0.9); border-radius: 15px; 
-            padding: 15px; display: flex; flex-direction: column; gap: 15px;
-            border: 3px solid #1B4F72; overflow-y: auto; max-height: 80vh; box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            width: 15%; background: rgba(255,255,255,0.85); border-radius: 15px; 
+            padding: 10px; display: flex; flex-direction: column; gap: 10px;
+            border: 3px solid #1B4F72; overflow-y: auto; z-index: 10;
+        }
+        .item-cama { width: 80%; margin: auto; cursor: grab; touch-action: none; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2)); }
+
+        #zona-cama { 
+            flex-grow: 1; position: relative;
+            background: url('img10/cama_destendida.png') no-repeat center bottom;
+            background-size: 70%;
         }
 
-        .item-cama { width: 90px; height: auto; cursor: grab; touch-action: none; filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2)); }
-
-        #panel-verbal {
-            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-            width: 90%; background: white; border: 4px solid #3498DB;
-            border-radius: 20px; padding: 15px; display: flex; align-items: center;
-            justify-content: space-around; z-index: 500; box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+        /* BURBUJA DE PREGUNTA FLOTANTE A LA DERECHA */
+        #burbuja-pregunta {
+            position: absolute; right: 20px; top: 100px; width: 220px;
+            background: white; border: 4px solid #3498DB; border-radius: 25px;
+            padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 100; display: flex; flex-direction: column; gap: 15px;
+        }
+        #burbuja-pregunta::after { /* Pico de la burbuja */
+            content: ''; position: absolute; left: -20px; top: 40px;
+            border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+            border-right: 20px solid #3498DB;
         }
 
-        .btn-respuesta { padding: 15px 45px; font-size: 1.6rem; font-weight: bold; border-radius: 15px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-respuesta { padding: 12px; font-size: 1.2rem; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: 0.2s; width: 100%; }
         #btn-si { background: #2ECC71; color: white; }
         #btn-no { background: #E74C3C; color: white; }
 
         #resumen-final {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(27, 79, 114, 0.95); color: white; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 1000; text-align: center;
+            align-items: center; justify-content: center; z-index: 1000;
         }
     </style>
 </head>
 <body onload="iniciarNivel10()">
 
 <div id="cabecera">
-    <div style="background:white; color:#1B4F72; border-radius:10px; padding:10px; width:85%; margin:auto; display:flex; align-items:center; justify-content:center; gap:15px;">
-        <img src="COTERAPEUTA.JPG" style="width:50px; border-radius:50%;">
-        <strong id="instruccion-guia">¡Juan! Escucha la pregunta y acomoda la cama.</strong>
+    <div style="background:white; color:#1B4F72; border-radius:10px; padding:8px; width:90%; margin:auto; display:flex; align-items:center; justify-content:center; gap:10px;">
+        <img src="COTERAPEUTA.JPG" style="width:40px; border-radius:50%;">
+        <strong id="instruccion-guia">¡Juan! Tiende la cama y responde mis preguntas.</strong>
     </div>
 </div>
 
 <div id="escenario">
     <div id="despensa-objetos"></div>
-    <div id="zona-cama" id="target-cama"></div>
-</div>
-
-<div id="panel-verbal">
-    <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.3rem; max-width: 50%;">Cargando...</div>
-    <div style="display:flex; gap:20px;">
-        <button id="btn-si" class="btn-respuesta" onclick="responder(true)">SÍ</button>
-        <button id="btn-no" class="btn-respuesta" onclick="responder(false)">NO</button>
+    
+    <div id="zona-cama">
+        <div id="burbuja-pregunta">
+            <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.1rem; line-height: 1.3;">Cargando...</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button id="btn-si" class="btn-respuesta" onclick="responder(true)">SÍ</button>
+                <button id="btn-no" class="btn-respuesta" onclick="responder(false)">NO</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <div id="resumen-final">
-    <h1 style="font-size: 3rem;">¡Excelente Trabajo!</h1>
-    <p id="mensaje-motivacional" style="font-size:1.8rem; padding:30px; max-width: 80%;"></p>
-    <button onclick="location.reload()" style="padding:20px 40px; font-size:1.5rem; font-weight:bold; cursor:pointer; background:#F1C40F; border:none; border-radius:10px;">VOLVER A ENTRENAR</button>
+    <h1 style="font-size: 2.5rem;">¡Lo lograste!</h1>
+    <p id="mensaje-motivacional" style="font-size:1.5rem; padding:20px; text-align:center;"></p>
+    <button onclick="location.reload()" style="padding:15px 30px; font-size:1.2rem; cursor:pointer; background:#F1C40F; border:none; border-radius:10px; font-weight:bold;">VOLVER A EMPEZAR</button>
 </div>
 
 <script>
-    // LISTAS BASADAS EN TUS ARCHIVOS REALES (Evitamos aprendizaje por repetición)
     const piezasCama = {
         sabana: ["sabana_azul.png", "sabana_blanca.png", "sabana_gris.png"],
         sobre: ["sobresabana_gris.png", "sobresabana_morada.png", "sobresabana_negra.png"],
@@ -84,23 +91,19 @@
     
     const distractores = ["control.png", "lampara.png", "medias.png", "reloj.png", "revista.png", "vaso.png"];
     const bancoPreguntas = [
-        {p: "¿El cielo es de color verde?", r: false},
-        {p: "¿El azúcar es dulce?", r: true},
-        {p: "¿Los perros vuelan?", r: false},
-        {p: "¿Estamos en el dormitorio?", r: true},
         {p: "¿La lluvia moja?", r: true},
-        {p: "¿El sol sale de noche?", r: false},
-        {p: "¿Te gusta tender la cama?", r: true}
+        {p: "¿El sol es frío?", r: false},
+        {p: "¿Los gatos ladran?", r: false},
+        {p: "¿El azúcar es dulce?", r: true},
+        {p: "¿Estamos en el cuarto?", r: true},
+        {p: "¿El fuego congela?", r: false}
     ];
 
-    let aciertosVerbales = 0;
     let piezasPuestas = 0;
     let piezaObjetivoActual = "";
 
     function iniciarNivel10() {
         const contenedor = document.getElementById('despensa-objetos');
-        
-        // Selección aleatoria de piezas para que NUNCA sea igual
         const seleccion = [
             piezasCama.sabana[Math.floor(Math.random()*3)],
             piezasCama.sobre[Math.floor(Math.random()*3)],
@@ -108,11 +111,10 @@
             piezasCama.almohada[Math.floor(Math.random()*3)]
         ];
 
-        piezaObjetivoActual = seleccion[0]; // Empezamos pidiendo la sábana
-
-        // Mezclar con distractores
-        const pool = [...seleccion, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 3)];
-        pool.sort(() => 0.5 - Math.random()).forEach(img => {
+        piezaObjetivoActual = seleccion[0];
+        const pool = [...seleccion, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 3)].sort(() => 0.5 - Math.random());
+        
+        pool.forEach(img => {
             const el = document.createElement('img');
             el.src = `img10/${img}`;
             el.className = 'item-cama';
@@ -133,10 +135,12 @@
     }
 
     function responder(val) {
-        aciertosVerbales++;
         new Audio('img8/exito.mp3').play().catch(()=>{});
-        document.getElementById('texto-pregunta').innerText = "¡Muy bien! Sigue con la cama...";
-        setTimeout(lanzarPregunta, 6000);
+        document.getElementById('burbuja-pregunta').style.transform = "scale(1.1)";
+        setTimeout(() => {
+            document.getElementById('burbuja-pregunta').style.transform = "scale(1)";
+            lanzarPregunta();
+        }, 300);
     }
 
     function iniciarArrastre(e) {
@@ -159,17 +163,12 @@
             const dropZone = document.getElementById('zona-cama').getBoundingClientRect();
 
             if(st.clientX > dropZone.left && st.clientX < dropZone.right && st.clientY > dropZone.top) {
-                if(el.dataset.file === piezaObjetivoActual || piezasPuestas >= 4) {
-                    piezasPuestas++;
-                    el.style.position = 'absolute';
-                    el.style.left = '50%'; el.style.top = '50%';
-                    el.style.transform = 'translate(-50%, -50%)';
-                    document.getElementById('zona-cama').appendChild(el);
-                    new Audio('img8/exito.mp3').play().catch(()=>{});
-                    if(piezasPuestas >= 4) finalizar();
-                } else {
-                    el.style.position = 'static';
-                }
+                piezasPuestas++;
+                el.style.position = 'absolute'; el.style.left = '50%'; el.style.top = '50%';
+                el.style.transform = 'translate(-50%, -50%)';
+                document.getElementById('zona-cama').appendChild(el);
+                new Audio('img8/exito.mp3').play().catch(()=>{});
+                if(piezasPuestas >= 4) finalizar();
             } else { el.style.position = 'static'; }
         };
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
