@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - La Habitación de Juan</title>
+    <title>Sesión 10 - Juan</title>
     <style>
-        body { font-family: 'Arial Rounded MT Bold', Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; display: flex; flex-direction: column; }
-        #cabecera { background: rgba(27, 79, 114, 0.95); color: white; padding: 10px; z-index: 100; border-bottom: 5px solid #E67E22; }
-        #guia-box { background: white; color: #1B4F72; width: 92%; margin: 0 auto; border-radius: 15px; padding: 12px; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        #avatar { width: 65px; height: 65px; border-radius: 50%; margin-right: 15px; border: 3px solid #1B4F72; }
-        #escenario { flex-grow: 1; position: relative; display: flex; padding: 20px; gap: 20px; }
-        #despensa-objetos { width: 160px; background: rgba(255,255,255,0.9); border-radius: 20px; border: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 15px; padding: 15px; overflow-y: auto; align-items: center; height: 82vh; }
-        .item-cama { width: 95px; height: 95px; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; }
-        #contenedor-cama { position: absolute; left: 210px; right: 20px; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        #cama_img { width: 95%; max-width: 600px; pointer-events: auto; }
-        .pieza-fija { position: absolute; width: 120px; z-index: 5; pointer-events: none; }
-        #notificacion { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; background: #FFD700; border: 8px solid #1B4F72; border-radius: 35px; padding: 30px; text-align: center; z-index: 2000; box-shadow: 0 0 60px rgba(0,0,0,0.6); }
-        .btn-notif { padding: 18px; margin: 10px; width: 120px; border-radius: 20px; border: 4px solid #1B4F72; font-weight: bold; cursor: pointer; color: white; font-size: 1.4rem; transition: transform 0.1s; }
-        .btn-notif:active { transform: scale(0.9); }
+        body { font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
+        #cabecera { background: rgba(27, 79, 114, 0.9); color: white; padding: 10px; border-bottom: 4px solid #E67E22; }
+        #guia-box { background: white; color: #1B4F72; width: 90%; margin: 0 auto; border-radius: 12px; padding: 10px; display: flex; align-items: center; }
+        #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid #1B4F72; }
+        #escenario { display: flex; padding: 15px; gap: 15px; height: 80vh; }
+        #despensa-objetos { width: 140px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; align-items: center; }
+        .item-cama { width: 80px; height: 80px; object-fit: contain; cursor: grab; touch-action: none; }
+        #contenedor-cama { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        #cama_img { width: 90%; max-width: 500px; pointer-events: auto; }
+        .pieza-fija { position: absolute; width: 100px; z-index: 5; pointer-events: none; }
+        #notificacion { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 20px; text-align: center; z-index: 2000; }
+        .btn-notif { padding: 12px; margin: 10px; width: 100px; border-radius: 12px; border: 2px solid #1B4F72; font-weight: bold; cursor: pointer; color: white; }
         #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.98); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
-<body onload="configurarNivel()">
+<body onload="iniciarJuego()">
 
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia" style="margin:0; font-size: 1.3rem; font-weight:bold;">¡Hola Juan!</p>
+        <p id="texto-guia" style="margin:0; font-weight:bold;">¡Vamos Juan!</p>
     </div>
 </div>
 
@@ -38,140 +37,120 @@
 </div>
 
 <div id="notificacion">
-    <p id="pregunta-txt" style="font-size: 1.6rem; font-weight: bold; color: #1B4F72; margin-bottom: 25px;"></p>
-    <button class="btn-notif" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
-    <button class="btn-notif" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
+    <p id="pregunta-txt" style="font-size: 1.2rem; font-weight: bold; color: #1B4F72;"></p>
+    <button class="btn-notif" style="background:#2ECC71" onclick="responderPregunta('SÍ')">SÍ</button>
+    <button class="btn-notif" style="background:#E74C3C" onclick="responderPregunta('NO')">NO</button>
 </div>
 
 <div id="modal-cierre">
-    <h1 style="font-size: 4rem; color: #FFD700;">¡SÚPER JUAN!</h1>
-    <p id="stats-nivel" style="font-size: 2.2rem; margin: 30px;"></p>
-    <button id="btn-next" onclick="irASiguiente()" style="padding: 25px 60px; font-size: 2rem; background: #E67E22; color: white; border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.4);">CONTINUAR</button>
+    <h1 style="color: #FFD700;">¡MUY BIEN!</h1>
+    <p id="stats" style="font-size: 1.5rem;"></p>
+    <button onclick="siguienteNivel()" style="padding: 15px 30px; background: #2ECC71; color: white; border: none; border-radius: 10px; font-size: 1.2rem;">CONTINUAR</button>
 </div>
 
 <script>
-    let nivelActual = 1;
-    let objetivoIdx = 0;
-    let piezasNivel = [];
-    let timerPregunta = null;
-    let bloqueadoDrag = false;
+    let nivel = 1;
+    let indexObjetivo = 0;
+    let listaNivel = [];
     let pTotales = 0, pCorrectas = 0;
-    let respuestaEsperada = "";
+    let respuestaCorrecta = "";
+    let timerGlobal = null;
 
-    const sonidos = { exito: new Audio('img8/exito.mp3'), error: new Audio('img8/alarma.mp3') };
-    
-    const banco = [
-        {p:"¿El sol brilla?", r:"SÍ"}, 
-        {p:"¿El fuego quema?", r:"SÍ"}, 
-        {p:"¿El hielo quema?", r:"SÍ"}, 
-        {p:"¿Los perros vuelan?", r:"NO"},
-        {p:"¿El agua moja?", r:"SÍ"},
-        {p:"¿El cielo es azul?", r:"SÍ"}
+    const audios = { ok: new Audio('img8/exito.mp3'), error: new Audio('img8/alarma.mp3') };
+    const bancoPreguntas = [
+        {p:"¿El sol da calor?", r:"SÍ"}, {p:"¿El hielo quema?", r:"SÍ"}, 
+        {p:"¿Los gatos ladran?", r:"NO"}, {p:"¿El agua moja?", r:"SÍ"},
+        {p:"¿El azúcar es salado?", r:"NO"}
     ];
-    
+
     const catalogo = {
         piezas: ["sabana_azul.png", "almohada_blanca.png", "cobija_termica.png", "almohada_gris.png", "sabana_blanca.png", "cobija_tigre.png", "almohada_cafe.png", "sabana_gris.png"],
-        distractores: ["control.png", "lampara.png", "medias.png", "reloj.png"]
+        distractores: ["control.png", "lampara.png", "medias.png"]
     };
 
-    function hablar(txt, callback) {
+    function hablar(t) {
         window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = 'es-ES';
-        msg.rate = 0.95;
-        document.getElementById('texto-guia').innerText = txt;
-        if(callback) msg.onend = callback;
-        window.speechSynthesis.speak(msg);
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
+        document.getElementById('texto-guia').innerText = t;
+        window.speechSynthesis.speak(m);
     }
 
-    function configurarNivel() {
+    function iniciarJuego() {
         document.getElementById('modal-cierre').style.display = 'none';
-        objetivoIdx = 0; pTotales = 0; pCorrectas = 0;
+        indexObjetivo = 0; pTotales = 0; pCorrectas = 0;
         document.getElementById('despensa-objetos').innerHTML = "";
         document.querySelectorAll('.pieza-fija').forEach(p => p.remove());
 
-        let cant = (nivelActual === 1) ? 4 : (nivelActual === 2 ? 6 : 8);
-        piezasNivel = [];
-        for(let i=0; i<cant; i++) {
-            let img = catalogo.piezas[i % catalogo.piezas.length];
-            let tipo = "";
-            if(img.includes("sabana")) tipo = "la sábana";
-            else if(img.includes("almohada")) tipo = "la almohada";
-            else if(img.includes("cobija")) tipo = "la cobija";
-            piezasNivel.push({archivo: img, nombre: tipo});
+        // Definir objetivos según nivel
+        let limite = nivel === 1 ? 4 : (nivel === 2 ? 6 : 8);
+        listaNivel = [];
+        for(let i=0; i<limite; i++) {
+            let f = catalogo.piezas[i % catalogo.piezas.length];
+            let n = f.includes("sabana") ? "la sábana" : (f.includes("almohada") ? "la almohada" : "la cobija");
+            listaNivel.push({img: f, nombre: n});
         }
-        renderizarPanel();
-        bloqueadoDrag = false;
-        hablar("Nivel " + nivelActual + ". Juan, busca " + piezasNivel[0].nombre);
-        iniciarTimer();
-    }
 
-    function renderizarPanel() {
-        const panel = document.getElementById('despensa-objetos');
-        let pool = [...new Set(piezasNivel.map(p => p.archivo)), ...catalogo.distractores].sort(() => Math.random() - 0.5);
-        pool.forEach(imgName => {
+        // Crear panel de objetos
+        let pool = [...new Set(listaNivel.map(x => x.img)), ...catalogo.distractores].sort(() => Math.random() - 0.5);
+        pool.forEach(archivo => {
             const img = document.createElement('img');
-            img.src = `img10/${imgName}`;
+            img.src = `img10/${archivo}`;
             img.className = 'item-cama';
-            img.dataset.nombreArchivo = imgName;
-            img.onmousedown = img.ontouchstart = dragStart;
-            panel.appendChild(img);
+            img.dataset.ref = archivo;
+            img.onmousedown = img.ontouchstart = alArrastrar;
+            document.getElementById('despensa-objetos').appendChild(img);
         });
+
+        hablar("Juan, busca " + listaNivel[0].nombre);
+        
+        // Iniciar cronómetro de preguntas (cada 15 seg)
+        if(timerGlobal) clearInterval(timerGlobal);
+        timerGlobal = setInterval(mostrarPregunta, 15000);
     }
 
-    function iniciarTimer() {
-        if(timerPregunta) clearInterval(timerPregunta);
-        let ms = (nivelActual === 1) ? 15000 : (nivelActual === 2 ? 10000 : 7000);
-        timerPregunta = setInterval(lanzarPregunta, ms);
-    }
-
-    function lanzarPregunta() {
-        if (bloqueadoDrag || document.getElementById('notificacion').style.display === 'block') return;
-        const data = banco[Math.floor(Math.random() * banco.length)];
-        respuestaEsperada = data.r;
+    function mostrarPregunta() {
+        if(document.getElementById('notificacion').style.display === 'block') return;
+        const q = bancoPreguntas[Math.floor(Math.random() * bancoPreguntas.length)];
+        respuestaCorrecta = q.r;
         pTotales++;
-        document.getElementById('pregunta-txt').innerText = data.p;
+        document.getElementById('pregunta-txt').innerText = q.p;
         document.getElementById('notificacion').style.display = 'block';
-        hablar(data.p);
+        hablar(q.p);
     }
 
-    function verificarRespuesta(userR) {
+    function responderPregunta(r) {
         document.getElementById('notificacion').style.display = 'none';
-        if(userR === respuestaEsperada) { 
-            pCorrectas++; sonidos.exito.play(); 
-            hablar("¡Muy bien Juan!", () => { if(!bloqueadoDrag) hablar("Busca " + piezasNivel[objetivoIdx].nombre); }); 
-        } else { 
-            sonidos.error.play(); 
-            hablar("¡Oh no Juan!", () => { if(!bloqueadoDrag) hablar("Busca " + piezasNivel[objetivoIdx].nombre); }); 
-        }
+        if(r === respuestaCorrecta) { pCorrectas++; audios.ok.play(); hablar("¡Bien!"); }
+        else { audios.error.play(); hablar("¡Oh no!"); }
+        // Al cerrar pregunta, recordamos qué buscamos
+        setTimeout(() => hablar("Sigue buscando " + listaNivel[indexObjetivo].nombre), 1500);
     }
 
-    function dragStart(e) {
-        if(bloqueadoDrag || document.getElementById('notificacion').style.display === 'block') return;
+    function alArrastrar(e) {
+        if(document.getElementById('notificacion').style.display === 'block') return;
         const el = e.target;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
+        const t = e.type === 'touchstart' ? e.touches[0] : e;
         let rect = el.getBoundingClientRect();
-        let offX = touch.clientX - rect.left;
-        let offY = touch.clientY - rect.top;
-        el.style.position = 'fixed'; el.style.zIndex = "1000"; el.style.opacity = "0.7";
+        let ox = t.clientX - rect.left, oy = t.clientY - rect.top;
+        el.style.position = 'fixed'; el.style.zIndex = "1000";
 
-        const move = (me) => {
+        const mover = (me) => {
             const mt = me.type === 'touchmove' ? me.touches[0] : me;
-            el.style.left = (mt.clientX - offX) + 'px'; el.style.top = (mt.clientY - offY) + 'px';
+            el.style.left = (mt.clientX - ox) + 'px'; el.style.top = (mt.clientY - oy) + 'px';
         };
 
-        const stop = (se) => {
-            document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', stop);
-            document.removeEventListener('touchmove', move); document.removeEventListener('touchend', stop);
+        const soltar = (se) => {
+            document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
+            document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
             
             const st = se.type === 'touchend' ? se.changedTouches[0] : se;
             const cama = document.getElementById('cama_img').getBoundingClientRect();
-            const hit = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
+            const tocaCama = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
 
-            // COMPROBACIÓN DEFINITIVA
-            if (hit && el.dataset.nombreArchivo === piezasNivel[objetivoIdx].archivo) {
-                bloqueadoDrag = true;
-                sonidos.exito.play();
+            // VALIDACIÓN: ¿Es el archivo que toca ahora?
+            if (tocaCama && el.dataset.ref === listaNivel[indexObjetivo].img) {
+                audios.ok.play();
                 const fija = document.createElement('img');
                 fija.src = el.src; fija.className = 'pieza-fija';
                 let cont = document.getElementById('contenedor-cama').getBoundingClientRect();
@@ -179,40 +158,35 @@
                 fija.style.top = (st.clientY - cont.top - 50) + 'px';
                 document.getElementById('contenedor-cama').appendChild(fija);
                 
-                el.style.visibility = 'hidden'; 
-                let nombreJusto = piezasNivel[objetivoIdx].nombre;
-                objetivoIdx++;
+                el.style.visibility = 'hidden'; // Desaparece del panel
+                indexObjetivo++;
 
-                if (objetivoIdx >= piezasNivel.length) {
-                    clearInterval(timerPregunta);
-                    hablar("¡Excelente Juan! Pusiste " + nombreJusto, () => { setTimeout(mostrarResumen, 600); });
+                if (indexObjetivo >= listaNivel.length) {
+                    clearInterval(timerGlobal);
+                    setTimeout(finalNivel, 1000);
                 } else {
-                    hablar("¡Muy bien! Pusiste " + nombreJusto + ". Ahora busca " + piezasNivel[objetivoIdx].nombre, () => { bloqueadoDrag = false; });
+                    hablar("¡Bien! Ahora busca " + listaNivel[indexObjetivo].nombre);
                 }
             } else {
-                if(hit) { 
-                    sonidos.error.play(); 
-                    hablar("Esa no es, Juan. Busca " + piezasNivel[objetivoIdx].nombre); 
-                }
-                el.style.position = 'static'; el.style.opacity = "1";
+                if(tocaCama) { audios.error.play(); hablar("Esa no es " + listaNivel[indexObjetivo].nombre); }
+                el.style.position = 'static'; // Regresa al panel
             }
         };
-        document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
-        document.addEventListener('touchmove', move, {passive:false}); document.addEventListener('touchend', stop);
+        document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
+        document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
     }
 
-    function mostrarResumen() {
-        let porc = pTotales > 0 ? Math.round((pCorrectas/pTotales)*100) : 100;
-        document.getElementById('stats-nivel').innerHTML = `Nivel ${nivelActual} completado.<br>Preguntas correctas: ${porc}%`;
+    function finalNivel() {
+        let pct = pTotales > 0 ? Math.round((pCorrectas/pTotales)*100) : 100;
+        document.getElementById('stats').innerText = `Aciertos: ${pct}%`;
         document.getElementById('modal-cierre').style.display = 'flex';
-        hablar("¡Bien hecho! Nivel superado.");
+        hablar("¡Nivel superado Juan!");
     }
 
-    function irASiguiente() {
-        if(nivelActual < 3) { nivelActual++; configurarNivel(); }
-        else { alert("¡Felicidades Juan! Programa terminado."); location.reload(); }
+    function siguienteNivel() {
+        if(nivel < 3) { nivel++; iniciarJuego(); }
+        else { location.reload(); }
     }
 </script>
 </body>
 </html>
-
