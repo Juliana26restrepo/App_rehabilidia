@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - Juan: Atención Dividida</title>
+    <title>Sesión 10 - Juan: ATENCIÓN EXTREMA</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #E67E22; z-index: 1000; position: relative; }
         #instruccion-box { background: white; padding: 10px 25px; border-radius: 30px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; max-width: 65%; }
         #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid #1B4F72; }
-        #panel-objetos { width: 160px; background: rgba(255,255,255,0.85); border-right: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 15px; padding: 20px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; }
-        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; z-index: 100; }
-        #escena-central { margin-left: 164px; height: calc(100vh - 84px); position: relative; display: flex; justify-content: center; align-items: center; }
-        #area-cama-detect { position: relative; width: 90%; height: 80%; display: flex; justify-content: center; align-items: center; }
-        #cama_base { width: 100%; max-width: 650px; pointer-events: none; }
-        .pieza-fija { position: absolute; width: 130px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
-        #panel-preguntas { position: absolute; right: 20px; top: 100px; width: 300px; z-index: 500; }
-        #cuadro-pregunta { background: #FFD700; border: 5px solid #1B4F72; border-radius: 25px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; }
-        .btn-p { width: 100%; padding: 12px; margin: 8px 0; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; color: white; font-size: 1.2rem; }
-        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.95); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
+        #panel-objetos { width: 170px; background: rgba(255,255,255,0.85); border-right: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; }
+        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; z-index: 100; transition: transform 0.1s; }
+        #escena-central { margin-left: 174px; height: calc(100vh - 84px); position: relative; display: flex; justify-content: center; align-items: center; }
+        #area-cama-detect { position: relative; width: 90%; height: 85%; display: flex; justify-content: center; align-items: center; }
+        #cama_base { width: 100%; max-width: 600px; pointer-events: none; }
+        .pieza-fija { position: absolute; width: 140px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
+        #panel-preguntas { position: absolute; right: 20px; top: 80px; width: 320px; z-index: 500; }
+        #cuadro-pregunta { background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); display: none; }
+        .btn-p { width: 100%; padding: 15px; margin: 8px 0; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; color: white; font-size: 1.4rem; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
     </style>
 </head>
 <body onload="iniciar()">
 
 <div id="cabecera">
-    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
+    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando sesión...</span></div>
     <div style="text-align: right;">
         <div id="exito-txt" style="font-size: 1.6rem; font-weight: bold;">Éxito: 100%</div>
-        <div id="nivel-txt" style="color: #FFD700; font-weight: bold;">NIVEL: BAJO</div>
+        <div id="nivel-txt" style="color: #FFD700; font-weight: bold; font-size: 1.2rem;">NIVEL: BAJO</div>
     </div>
 </div>
 
@@ -40,7 +40,7 @@
     </div>
     <div id="panel-preguntas">
         <div id="cuadro-pregunta">
-            <p id="pregunta-texto" style="font-size: 1.2rem; font-weight: bold; color:#1B4F72;"></p>
+            <p id="pregunta-texto" style="font-size: 1.4rem; font-weight: bold; color:#1B4F72; line-height: 1.2;"></p>
             <button class="btn-p" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
             <button class="btn-p" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
         </div>
@@ -48,9 +48,9 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 3rem; color: #FFD700;">¡EXCELENTE!</h1>
-    <p id="resumen-final" style="font-size: 1.5rem; max-width: 700px;"></p>
-    <button onclick="location.reload()" style="padding: 15px 30px; font-size: 1.2rem; border-radius: 15px; cursor: pointer; background: #E67E22; color: white; border: none; margin-top: 20px;">Reiniciar</button>
+    <h1 style="font-size: 4rem; color: #FFD700; margin-bottom: 10px;">¡INCREÍBLE TRABAJO!</h1>
+    <p id="resumen-final" style="font-size: 1.8rem; max-width: 800px; font-weight: 300;"></p>
+    <button onclick="location.reload()" style="padding: 20px 50px; font-size: 1.5rem; border-radius: 20px; cursor: pointer; background: #E67E22; color: white; border: none; margin-top: 30px; font-weight: bold;">REPETIR DESAFÍO</button>
 </div>
 
 <script>
@@ -61,7 +61,7 @@
         "almohada_blanca": { img: "almohada_blanca.png", nom: "la almohada blanca" },
         "almohada_cafe": { img: "almohada_cafe.png", nom: "la almohada café" },
         "almohada_gris": { img: "almohada_gris.png", nom: "la almohada gris" },
-        "cobija": { img: "cobija.png", nom: "la cobija" },
+        "cobija": { img: "cobija.png", nom: "la cobija azul" },
         "cobija_termica": { img: "cobija_termica.png", nom: "la cobija térmica" },
         "cobija_tigre": { img: "cobija_tigre.png", nom: "la cobija de tigre" },
         "sabana_azul": { img: "sabana_azul.png", nom: "la sábana azul" },
@@ -79,83 +79,88 @@
     };
 
     const niveles = {
-        1: { nom: "BAJO", pedir: ["sabana_azul", "almohada_blanca"], extra: ["reloj", "revista"], t: 15000 },
-        2: { nom: "MEDIO", pedir: ["sabana_blanca", "cobija_termica", "almohada_cafe"], extra: ["control", "vaso", "lampara"], t: 10000 },
-        3: { nom: "ALTO", pedir: ["sabana_gris", "cobija_tigre", "sobresabana_negra", "almohada_gris"], extra: ["medias", "reloj", "control", "revista"], t: 7000 }
+        1: { nom: "BAJO", pedir: ["sabana_azul", "almohada_blanca"], extra: ["reloj"], t: 10000, rate: 1.0 },
+        2: { nom: "MEDIO", pedir: ["sabana_blanca", "cobija_termica", "almohada_cafe"], extra: ["control", "vaso"], t: 7000, rate: 1.1 },
+        3: { nom: "EXTREMO", pedir: ["sabana_gris", "sobresabana_gris", "sobresabana_negra", "cobija_tigre", "almohada_gris", "almohada_cafe"], extra: ["medias", "reloj", "control", "revista", "vaso", "lampara", "almohada_blanca"], t: 3500, rate: 1.2 }
     };
 
+    // BANCO COMPLETO DE PREGUNTAS (100)
     const bancoPreguntas = [
-        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿Colombia está en América del Sur?", a: "SÍ"},
-        {q: "¿El agua hierve a 100 grados Celsius?", a: "SÍ"}, {q: "¿Los perros son mamíferos?", a: "SÍ"},
-        {q: "¿La luna tiene luz propia?", a: "NO"}, {q: "¿París es la capital de Francia?", a: "SÍ"},
-        {q: "¿El hierro es un metal?", a: "SÍ"}, {q: "¿Los peces respiran aire como los humanos?", a: "NO"},
-        {q: "¿La Tierra gira alrededor del sol?", a: "SÍ"}, {q: "¿El chocolate viene del cacao?", a: "SÍ"},
-        {q: "¿Los humanos tienen 4 pulmones?", a: "NO"}, {q: "¿El Amazonas es un río?", a: "SÍ"},
-        {q: "¿Los gatos maúllan?", a: "SÍ"}, {q: "¿La electricidad puede ser peligrosa?", a: "SÍ"},
-        {q: "¿El hielo es agua en estado sólido?", a: "SÍ"}, {q: "¿Los pájaros vuelan?", a: "SÍ"},
-        {q: "¿El corazón bombea sangre?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"},
-        {q: "¿El café contiene cafeína?", a: "SÍ"}, {q: "¿El planeta Marte es rojo?", a: "SÍ"},
-        {q: "¿Las plantas necesitan luz para crecer?", a: "SÍ"}, {q: "¿El océano es agua salada?", a: "SÍ"},
-        {q: "¿El fútbol se juega con las manos?", a: "NO"}, {q: "¿Los elefantes son animales grandes?", a: "SÍ"},
+        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿Colombia está en América?", a: "SÍ"},
+        {q: "¿El agua hierve a 100 grados?", a: "SÍ"}, {q: "¿Los perros son mamíferos?", a: "SÍ"},
+        {q: "¿La luna tiene luz propia?", a: "NO"}, {q: "¿París es capital de Francia?", a: "SÍ"},
+        {q: "¿El hierro es un metal?", a: "SÍ"}, {q: "¿Peces respiran aire?", a: "NO"},
+        {q: "¿Tierra gira alrededor del sol?", a: "SÍ"}, {q: "¿El chocolate viene del cacao?", a: "SÍ"},
+        {q: "¿Humanos tienen 4 pulmones?", a: "NO"}, {q: "¿El Amazonas es un río?", a: "SÍ"},
+        {q: "¿Los gatos maúllan?", a: "SÍ"}, {q: "¿Electricidad es peligrosa?", a: "SÍ"},
+        {q: "¿El hielo es agua sólida?", a: "SÍ"}, {q: "¿Los pájaros vuelan?", a: "SÍ"},
+        {q: "¿Corazón bombea sangre?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"},
+        {q: "¿Café tiene cafeína?", a: "SÍ"}, {q: "¿Marte es rojo?", a: "SÍ"},
+        {q: "¿Plantas necesitan luz?", a: "SÍ"}, {q: "¿Océano es agua salada?", a: "SÍ"},
+        {q: "¿Fútbol se juega con manos?", a: "NO"}, {q: "¿Elefantes son grandes?", a: "SÍ"},
         {q: "¿La nieve es caliente?", a: "NO"}, {q: "¿El fuego quema?", a: "SÍ"},
-        {q: "¿La Tierra es plana?", a: "NO"}, {q: "¿Los humanos respiran oxígeno?", a: "SÍ"},
-        {q: "¿El oro es un metal precioso?", a: "SÍ"}, {q: "¿El invierno es más frío que el verano?", a: "SÍ"},
-        {q: "¿Las abejas producen miel?", a: "SÍ"}, {q: "¿El cuerpo humano tiene huesos?", a: "SÍ"},
-        {q: "¿La leche viene de animales?", a: "SÍ"}, {q: "¿El sol sale por el este?", a: "SÍ"},
-        {q: "¿La luna es más grande que la Tierra?", a: "NO"}, {q: "¿El azúcar es salado?", a: "NO"},
-        {q: "¿Los árboles tienen hojas?", a: "SÍ"}, {q: "¿El aire es invisible?", a: "SÍ"},
-        {q: "¿Los tiburones son peces?", a: "SÍ"}, {q: "¿El desierto tiene mucha agua?", a: "NO"},
-        {q: "¿La lluvia cae del cielo?", a: "SÍ"}, {q: "¿El hielo flota en el agua?", a: "SÍ"},
-        {q: "¿El plomo es ligero?", a: "NO"}, {q: "¿Los humanos necesitan dormir?", a: "SÍ"},
-        {q: "¿El vidrio es transparente?", a: "SÍ"}, {q: "¿La electricidad ilumina?", a: "SÍ"},
-        {q: "¿Los caballos tienen alas?", a: "NO"}, {q: "¿La Tierra tiene una luna?", a: "SÍ"},
-        {q: "¿El pan se hace con harina?", a: "SÍ"}, {q: "¿Los volcanes hacen erupción?", a: "SÍ"},
-        {q: "¿El agua es incolora?", a: "SÍ"}, {q: "¿El cuerpo tiene sangre?", a: "SÍ"},
-        {q: "¿Las estrellas se ven de día?", a: "NO"}, {q: "¿El fuego necesita oxígeno?", a: "SÍ"},
-        {q: "¿Los murciélagos vuelan?", a: "SÍ"}, {q: "¿El arroz crece en plantas?", a: "SÍ"},
-        {q: "¿El cerebro está en la cabeza?", a: "SÍ"}, {q: "¿El mar es dulce?", a: "NO"},
-        {q: "¿Los humanos tienen dos ojos?", a: "SÍ"}, {q: "¿El hielo se derrite?", a: "SÍ"},
-        {q: "¿Las nubes están en el cielo?", a: "SÍ"}, {q: "¿El sonido viaja por el aire?", a: "SÍ"},
-        {q: "¿El agua es necesaria?", a: "SÍ"}, {q: "¿Los leones son carnívoros?", a: "SÍ"},
-        {q: "¿Venus está más cerca del sol que la Tierra?", a: "SÍ"}, {q: "¿El viento se siente?", a: "SÍ"},
-        {q: "¿Las plantas producen oxígeno?", a: "SÍ"}, {q: "¿El azúcar se disuelve?", a: "SÍ"},
-        {q: "¿El cuerpo tiene piel?", a: "SÍ"}, {q: "¿Los peces viven en el agua?", a: "SÍ"},
-        {q: "¿La sangre es roja?", a: "SÍ"}, {q: "¿El hielo es caliente?", a: "NO"},
-        {q: "¿Los humanos viven sin agua?", a: "NO"}, {q: "¿El aire ocupa espacio?", a: "SÍ"},
-        {q: "¿Los árboles crecen?", a: "SÍ"}, {q: "¿El fuego es frío?", a: "NO"},
-        {q: "¿La Tierra tiene gravedad?", a: "SÍ"}, {q: "¿El café es caliente?", a: "SÍ"},
-        {q: "¿Los perros ladran?", a: "SÍ"}, {q: "¿El vidrio se rompe?", a: "SÍ"},
-        {q: "¿El cuerpo necesita comida?", a: "SÍ"}, {q: "¿La luz es más rápida que el sonido?", a: "SÍ"},
-        {q: "¿El agua moja?", a: "SÍ"}, {q: "¿Los gatos tienen cola?", a: "SÍ"},
-        {q: "¿El cielo es azul de día?", a: "SÍ"}, {q: "¿Los humanos tienen cabello?", a: "SÍ"},
-        {q: "¿El hielo es más denso que el agua?", a: "NO"}, {q: "¿Se puede ver sin ojos?", a: "NO"},
-        {q: "¿El sol da calor?", a: "SÍ"}, {q: "¿Los árboles necesitan agua?", a: "SÍ"},
-        {q: "¿Júpiter es grande?", a: "SÍ"}, {q: "¿La sal se disuelve?", a: "SÍ"},
-        {q: "¿El cuerpo tiene músculos?", a: "SÍ"}, {q: "¿El fuego da luz?", a: "SÍ"},
-        {q: "¿Las montañas son altas?", a: "SÍ"}, {q: "¿El aire siempre huele?", a: "NO"},
-        {q: "¿Los humanos nadan?", a: "SÍ"}, {q: "¿La luna tiene fases?", a: "SÍ"},
-        {q: "¿El agua se evapora?", a: "SÍ"}, {q: "¿El corazón late?", a: "SÍ"}
+        {q: "¿La Tierra es plana?", a: "NO"}, {q: "¿Respiramos oxígeno?", a: "SÍ"},
+        {q: "¿Oro es metal precioso?", a: "SÍ"}, {q: "¿Invierno es frío?", a: "SÍ"},
+        {q: "¿Abejas hacen miel?", a: "SÍ"}, {q: "¿Tenemos huesos?", a: "SÍ"},
+        {q: "¿Leche viene de animales?", a: "SÍ"}, {q: "¿Sol sale por el este?", a: "SÍ"},
+        {q: "¿Luna es mayor que Tierra?", a: "NO"}, {q: "¿Azúcar es salado?", a: "NO"},
+        {q: "¿Árboles tienen hojas?", a: "SÍ"}, {q: "¿Aire es invisible?", a: "SÍ"},
+        {q: "¿Tiburones son peces?", a: "SÍ"}, {q: "¿Desierto tiene mucha agua?", a: "NO"},
+        {q: "¿Lluvia cae del cielo?", a: "SÍ"}, {q: "¿Hielo flota?", a: "SÍ"},
+        {q: "¿Plomo es ligero?", a: "NO"}, {q: "¿Necesitamos dormir?", a: "SÍ"},
+        {q: "¿Vidrio es transparente?", a: "SÍ"}, {q: "¿Luz es rápida?", a: "SÍ"},
+        {q: "¿Caballos tienen alas?", a: "NO"}, {q: "¿Tierra tiene una luna?", a: "SÍ"},
+        {q: "¿Pan se hace con harina?", a: "SÍ"}, {q: "¿Volcanes hacen erupción?", a: "SÍ"},
+        {q: "¿Agua es incolora?", a: "SÍ"}, {q: "¿Tenemos sangre?", a: "SÍ"},
+        {q: "¿Estrellas se ven de día?", a: "NO"}, {q: "¿Fuego necesita aire?", a: "SÍ"},
+        {q: "¿Murciélagos vuelan?", a: "SÍ"}, {q: "¿Arroz crece en plantas?", a: "SÍ"},
+        {q: "¿Cerebro está en la cabeza?", a: "SÍ"}, {q: "¿Mar es dulce?", a: "NO"},
+        {q: "¿Tenemos dos ojos?", a: "SÍ"}, {q: "¿Hielo se derrite?", a: "SÍ"},
+        {q: "¿Nubes están en el cielo?", a: "SÍ"}, {q: "¿Sonido viaja por aire?", a: "SÍ"},
+        {q: "¿Agua es vital?", a: "SÍ"}, {q: "¿Leones comen carne?", a: "SÍ"},
+        {q: "¿Venus es caliente?", a: "SÍ"}, {q: "¿Viento se siente?", a: "SÍ"},
+        {q: "¿Plantas dan oxígeno?", a: "SÍ"}, {q: "¿Azúcar se disuelve?", a: "SÍ"},
+        {q: "¿Tenemos piel?", a: "SÍ"}, {q: "¿Peces viven en agua?", a: "SÍ"},
+        {q: "¿Sangre es roja?", a: "SÍ"}, {q: "¿Hielo es caliente?", a: "NO"},
+        {q: "¿Vivimos sin agua?", a: "NO"}, {q: "¿Aire ocupa espacio?", a: "SÍ"},
+        {q: "¿Árboles crecen?", a: "SÍ"}, {q: "¿Fuego es frío?", a: "NO"},
+        {q: "¿Hay gravedad?", a: "SÍ"}, {q: "¿Café es bebida?", a: "SÍ"},
+        {q: "¿Perros ladran?", a: "SÍ"}, {q: "¿Vidrio se rompe?", a: "SÍ"},
+        {q: "¿Comer es necesario?", a: "SÍ"}, {q: "¿Luz vence al sonido?", a: "SÍ"},
+        {q: "¿Agua moja?", a: "SÍ"}, {q: "¿Gatos tienen cola?", a: "SÍ"},
+        {q: "¿Cielo es azul?", a: "SÍ"}, {q: "¿Tenemos pelo?", a: "SÍ"},
+        {q: "¿Hielo es más denso que agua?", a: "NO"}, {q: "¿Vemos sin ojos?", a: "NO"},
+        {q: "¿Sol calienta?", a: "SÍ"}, {q: "¿Árboles beben agua?", a: "SÍ"},
+        {q: "¿Júpiter es gigante?", a: "SÍ"}, {q: "¿Sal se disuelve?", a: "SÍ"},
+        {q: "¿Tenemos músculos?", a: "SÍ"}, {q: "¿Fuego ilumina?", a: "SÍ"},
+        {q: "¿Montañas son altas?", a: "SÍ"}, {q: "¿Aire siempre huele?", a: "NO"},
+        {q: "¿Humanos nadan?", a: "SÍ"}, {q: "¿Luna tiene fases?", a: "SÍ"},
+        {q: "¿Agua se evapora?", a: "SÍ"}, {q: "¿El corazón late?", a: "SÍ"}
     ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
         document.getElementById('label-guia').innerText = t;
-        const msg = new SpeechSynthesisUtterance(t); msg.lang = 'es-ES';
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'es-ES';
+        msg.rate = niveles[nivel].rate; // Aumenta velocidad según nivel
         window.speechSynthesis.speak(msg);
     }
 
+    let loopPreguntas;
     function iniciar() {
         new Audio('img10/pajaros.mp3').play().catch(()=>{});
         cargarFase();
-        setInterval(lanzarPregunta, 12000); 
     }
 
     function cargarFase() {
+        if(loopPreguntas) clearInterval(loopPreguntas);
         const c = niveles[nivel];
         document.getElementById('panel-objetos').innerHTML = "";
         document.getElementById('contenedor-piezas').innerHTML = "";
         document.getElementById('nivel-txt').innerText = `NIVEL: ${c.nom}`;
         paso = 0; bloqueado = false;
+        
         let items = [...c.pedir, ...c.extra].sort(() => Math.random() - 0.5);
         items.forEach(id => {
             const img = document.createElement('img');
@@ -165,7 +170,9 @@
             img.onmousedown = img.ontouchstart = drag;
             document.getElementById('panel-objetos').appendChild(img);
         });
-        hablar(`Juan, pon ${db[c.pedir[0]].nom} en la cama.`);
+        
+        hablar(`Juan, atención. Pon ${db[c.pedir[0]].nom}.`);
+        loopPreguntas = setInterval(lanzarPregunta, c.t); 
     }
 
     function drag(e) {
@@ -175,6 +182,7 @@
         let sx = t.clientX - el.getBoundingClientRect().left;
         let sy = t.clientY - el.getBoundingClientRect().top;
         el.style.position = 'fixed'; el.style.zIndex = 1000;
+        el.style.transform = "scale(1.2)";
 
         function mover(me) {
             const mt = me.type.includes('touch') ? me.touches[0] : me;
@@ -182,11 +190,13 @@
         }
 
         function soltar(se) {
+            el.style.transform = "scale(1)";
             document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
             document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
+            
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
             const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
-            const enCama = (st.clientX > (cama.left + 50));
+            const enCama = (st.clientX > (cama.left + 30));
             const objId = niveles[nivel].pedir[paso];
 
             if (enCama && el.dataset.id === objId) {
@@ -199,13 +209,17 @@
                 el.style.display = 'none';
                 paso++;
                 if (paso < niveles[nivel].pedir.length) {
-                    hablar(`¡Bien! Ahora busca ${db[niveles[nivel].pedir[paso]].nom}`);
+                    hablar(`¡Bien! Ahora ${db[niveles[nivel].pedir[paso]].nom}`);
                 } else {
                     bloqueado = true;
-                    setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { finalizar(); }}, 2000);
+                    setTimeout(() => { 
+                        if(nivel < 3){ nivel++; cargarFase(); } 
+                        else { finalizar(); }
+                    }, 2000);
                 }
             } else if (enCama) {
-                sfxErr.play(); errores++; hablar(`No, busca ${db[objId].nom}`);
+                sfxErr.play(); errores++;
+                hablar(`¡No! Concentración Juan. Busca ${db[objId].nom}`);
                 el.style.position = 'static';
             } else { el.style.position = 'static'; }
             actualizarStats();
@@ -236,9 +250,10 @@
     }
 
     function finalizar() {
+        if(loopPreguntas) clearInterval(loopPreguntas);
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-final').innerText = `Excelente Juan, lograste mantenerte atento en más de una tarea al mismo tiempo. Lograste un ${document.getElementById('exito-txt').innerText} de precisión.`;
-        hablar("Excelente Juan, lograste mantenerte atento en más de una tarea al mismo tiempo.");
+        document.getElementById('resumen-final').innerText = `Juan, has demostrado una capacidad de atención dividida excepcional. Completaste el nivel EXTREMO con un ${document.getElementById('exito-txt').innerText} de precisión bajo presión constante.`;
+        hablar("Excelente, lograste mantenerte atento en más de una tarea al mismo tiempo.");
     }
 </script>
 </body>
