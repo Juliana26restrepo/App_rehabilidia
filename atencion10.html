@@ -9,14 +9,32 @@
         #cabecera { background: #1B4F72; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; z-index: 100; }
         #guia-box { background: white; color: #1B4F72; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 3px solid #E67E22; }
         #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-        #escenario { flex-grow: 1; display: flex; padding: 15px; gap: 15px; position: relative; }
-        #despensa-objetos { width: 160px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; align-items: center; }
+        
+        #escenario { flex-grow: 1; display: flex; padding: 15px; gap: 15px; position: relative; overflow: hidden; }
+        
+        #despensa-objetos { width: 160px; background: rgba(255,255,255,0.9); border-radius: 15px; border: 3px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; align-items: center; z-index: 10; }
         .item-cama { width: 90px; height: 90px; object-fit: contain; cursor: grab; touch-action: none; }
-        #contenedor-cama { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; }
-        #cama_img { width: 90%; max-width: 600px; }
-        #notificacion { display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #FFD700; border: 5px solid #1B4F72; border-radius: 20px; padding: 20px; text-align: center; z-index: 2000; }
-        .btn-notif { padding: 12px; margin: 10px 5px; width: 100px; border-radius: 10px; border: 2px solid #1B4F72; font-weight: bold; cursor: pointer; background: #3498DB; color: white; font-size: 1.1rem; }
-        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        
+        /* CONTENEDOR FIJO PARA QUE LA CAMA NO SE MUEVA */
+        #contenedor-cama { 
+            flex-grow: 1; 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100%;
+        }
+        #cama_img { 
+            width: 85%; 
+            max-width: 600px; 
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        #notificacion { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn-notif { padding: 15px; margin: 10px 5px; width: 110px; border-radius: 12px; border: 3px solid #1B4F72; font-weight: bold; cursor: pointer; background: #3498DB; color: white; font-size: 1.2rem; }
+        
+        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.95); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -24,7 +42,7 @@
 <div id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia" style="margin:0; font-weight:bold;">Cargando...</p>
+        <p id="texto-guia" style="margin:0; font-weight:bold;">Preparando habitación...</p>
     </div>
 </div>
 
@@ -36,19 +54,21 @@
 </div>
 
 <div id="notificacion">
-    <p id="pregunta-txt" style="font-weight: bold; color: #1B4F72;"></p>
-    <button class="btn-notif" id="btnA">Sí</button>
-    <button class="btn-notif" id="btnB">No</button>
+    <p id="pregunta-txt" style="font-size: 1.3rem; font-weight: bold; color: #1B4F72; margin-bottom: 20px;"></p>
+    <div style="display: flex; justify-content: center; gap: 10px;">
+        <button class="btn-notif" id="btnA">SÍ</button>
+        <button class="btn-notif" id="btnB">NO</button>
+    </div>
 </div>
 
 <div id="modal-cierre">
-    <h1 id="msg-final"></h1>
-    <p id="stats" style="font-size: 1.5rem; color: #FFD700;"></p>
+    <h1 style="font-size: 4rem; color: #FFD700;">¡SÚPER JUAN!</h1>
+    <p id="stats" style="font-size: 2rem;"></p>
+    <button onclick="location.reload()" style="padding: 15px 40px; font-size: 1.5rem; background: #E67E22; color: white; border: none; border-radius: 15px; margin-top: 20px;">VOLVER A EMPEZAR</button>
 </div>
 
 <script>
     let nivelActual = 1;
-    let piezasPuestas = 0;
     let objetivoActualIdx = 0;
     let piezasRequeridas = [];
     let timerPregunta = null;
@@ -65,29 +85,34 @@
 
     const bancoPreguntas = ["¿El sol es una estrella?", "¿El agua moja?", "¿El fuego quema?", "¿Los perros ladran?", "¿La nieve es fría?", "¿El azúcar es dulce?", "¿Los pájaros vuelan?", "¿La luna sale de noche?", "¿2+2 es 4?", "¿El cielo es azul?", "¿La lluvia cae del cielo?", "¿El hielo es sólido?", "¿El chocolate es dulce?", "¿Las plantas crecen?", "¿El mar es salado?"];
 
-    function hablar(txt) {
+    function hablar(txt, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
+        msg.rate = 0.95;
         document.getElementById('texto-guia').innerText = txt;
+        if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarSesion() {
-        if (nivelActual === 1) hablar("Hola Juan, vamos a tender la cama. Yo te diré qué piezas buscar.");
-        setTimeout(configurarNivel, 2000);
+        hablar("Hola Juan, vamos a organizar tu cama en 3 niveles. Yo te diré qué piezas buscar.", () => {
+            configurarNivel();
+        });
     }
 
     function configurarNivel() {
-        piezasPuestas = 0;
         objetivoActualIdx = 0;
         document.getElementById('despensa-objetos').innerHTML = "";
         
-        // Definir piezas según nivel
+        // Limpiar piezas anteriores que estén sobre la cama
+        const viejas = document.querySelectorAll('#contenedor-cama .item-cama');
+        viejas.forEach(v => v.remove());
+
         if (nivelActual === 1) {
             piezasRequeridas = [
                 {img: catalogo.sabanas[0], nombre: "la sábana"},
-                {img: catalogo.almohadas[0], nombre: "una almohada"},
+                {img: catalogo.almohadas[0], nombre: "la almohada"},
                 {img: catalogo.cobijas[0], nombre: "la cobija"},
                 {img: catalogo.almohadas[1], nombre: "la otra almohada"}
             ];
@@ -96,16 +121,16 @@
                 {img: catalogo.sabanas[1], nombre: "la sábana blanca"},
                 {img: catalogo.almohadas[2], nombre: "la almohada gris"},
                 {img: catalogo.cobijas[1], nombre: "la cobija de tigre"},
-                {img: catalogo.almohadas[0], nombre: "la almohada blanca"},
-                {img: catalogo.sabanas[2], nombre: "la sábana gris"},
-                {img: catalogo.almohadas[3], nombre: "la almohada azul"}
+                {img: catalogo.almohadas[3], nombre: "la almohada azul"},
+                {img: catalogo.sabanas[0], nombre: "la sábana azul"},
+                {img: catalogo.cobijas[2], nombre: "la cobija azul"}
             ];
         } else {
             piezasRequeridas = [
-                {img: catalogo.sabanas[0], nombre: "la sábana"}, {img: catalogo.almohadas[0], nombre: "la almohada"},
-                {img: catalogo.cobijas[2], nombre: "la cobija azul"}, {img: catalogo.almohadas[1], nombre: "la almohada café"},
+                {img: catalogo.sabanas[2], nombre: "la sábana gris"}, {img: catalogo.almohadas[0], nombre: "la almohada"},
+                {img: catalogo.cobijas[0], nombre: "la cobija térmica"}, {img: catalogo.almohadas[1], nombre: "la almohada café"},
                 {img: catalogo.sabanas[1], nombre: "la sábana blanca"}, {img: catalogo.almohadas[2], nombre: "la almohada gris"},
-                {img: catalogo.cobijas[0], nombre: "la cobija térmica"}, {img: catalogo.almohadas[3], nombre: "la almohada azul"}
+                {img: catalogo.cobijas[2], nombre: "la cobija azul"}, {img: catalogo.almohadas[3], nombre: "la almohada azul"}
             ];
         }
 
@@ -116,10 +141,9 @@
 
     function renderizarObjetos() {
         const cont = document.getElementById('despensa-objetos');
-        let pool = piezasRequeridas.map(p => p.img);
-        // Añadir distractores
-        let dist = [...catalogo.distractores].sort(() => 0.5 - Math.random()).slice(0, 3);
-        pool = [...pool, ...dist].sort(() => Math.random() - 0.5);
+        let unicos = [...new Set(piezasRequeridas.map(p => p.img))];
+        let distract = [...catalogo.distractores].sort(() => 0.5 - Math.random()).slice(0, 3);
+        let pool = [...unicos, ...distract].sort(() => Math.random() - 0.5);
 
         pool.forEach(imgName => {
             const img = document.createElement('img');
@@ -144,26 +168,32 @@
     }
 
     function lanzarPregunta() {
-        if (juegoFinalizado) return;
+        if (juegoFinalizado || document.getElementById('notificacion').style.display === 'block') return;
         sonidos.alerta.play();
         const n = document.getElementById('notificacion');
         const p = bancoPreguntas[Math.floor(Math.random() * bancoPreguntas.length)];
         document.getElementById('pregunta-txt').innerText = p;
         n.style.display = 'block';
 
-        const cerrar = () => { n.style.display = 'none'; hablar("Muy bien Juan, sigue."); };
+        const cerrar = () => { 
+            n.style.display = 'none'; 
+            if(!juegoFinalizado) pedirSiguiente(); 
+        };
         document.getElementById('btnA').onclick = cerrar;
         document.getElementById('btnB').onclick = cerrar;
+        hablar(p);
     }
 
     function dragStart(e) {
-        if(juegoFinalizado) return;
-        e.preventDefault();
+        if(juegoFinalizado || document.getElementById('notificacion').style.display === 'block') return;
         const el = e.target;
         const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        let offX = touch.clientX - el.getBoundingClientRect().left;
-        let offY = touch.clientY - el.getBoundingClientRect().top;
-        el.style.position = 'fixed'; el.style.zIndex = "1000";
+        let rect = el.getBoundingClientRect();
+        let offX = touch.clientX - rect.left;
+        let offY = touch.clientY - rect.top;
+        
+        el.style.position = 'fixed'; 
+        el.style.zIndex = "1000";
 
         const move = (me) => {
             const mt = me.type === 'touchmove' ? me.touches[0] : me;
@@ -173,28 +203,35 @@
         const stop = (se) => {
             document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', stop);
             document.removeEventListener('touchmove', move); document.removeEventListener('touchend', stop);
-            const st = se.type === 'touchend' ? se.changedTouches[0] : se;
             
-            const cama = document.getElementById('cama_img').getBoundingClientRect();
-            const hit = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
+            const st = se.type === 'touchend' ? se.changedTouches[0] : se;
+            const camaRect = document.getElementById('cama_img').getBoundingClientRect();
+            
+            const enCama = (st.clientX > camaRect.left && st.clientX < camaRect.right && st.clientY > camaRect.top && st.clientY < camaRect.bottom);
 
-            if (hit && el.dataset.archivo === piezasRequeridas[objetivoActualIdx].img) {
-                piezasPuestas++;
+            if (enCama && el.dataset.archivo === piezasRequeridas[objetivoActualIdx].img) {
                 objetivoActualIdx++;
                 sonidos.exito.play();
-                el.style.position = 'absolute';
-                el.style.left = (Math.random()*40 + 30) + '%';
-                el.style.top = (Math.random()*30 + 30) + '%';
-                document.getElementById('contenedor-cama').appendChild(el);
                 
-                if (piezasPuestas >= piezasRequeridas.length) {
+                // Clonar para dejar la pieza fija sobre la cama
+                const clone = el.cloneNode(true);
+                clone.style.position = 'absolute';
+                // Posición relativa al contenedor de la cama
+                let contRect = document.getElementById('contenedor-cama').getBoundingClientRect();
+                clone.style.left = (st.clientX - contRect.left - (rect.width/2)) + 'px';
+                clone.style.top = (st.clientY - contRect.top - (rect.height/2)) + 'px';
+                document.getElementById('contenedor-cama').appendChild(clone);
+                
+                el.style.position = 'static'; el.style.zIndex = "1"; // El original vuelve al panel
+
+                if (objetivoActualIdx >= piezasRequeridas.length) {
                     siguienteNivel();
                 } else {
                     pedirSiguiente();
                 }
             } else {
-                if(hit) hablar("Ese no es, busca " + piezasRequeridas[objetivoActualIdx].nombre);
-                el.style.position = 'relative'; el.style.left = 'auto'; el.style.top = 'auto';
+                if(enCama) hablar("Ese no es, sigue buscando " + piezasRequeridas[objetivoActualIdx].nombre);
+                el.style.position = 'static';
             }
         };
         document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
@@ -204,12 +241,8 @@
     function siguienteNivel() {
         if (nivelActual < 3) {
             nivelActual++;
-            hablar("¡Excelente nivel completado! Vamos al siguiente.");
-            setTimeout(() => {
-                const puestas = document.querySelectorAll('#contenedor-cama .item-cama');
-                puestas.forEach(p => p.remove());
-                configurarNivel();
-            }, 3000);
+            hablar("¡Muy bien Juan! Nivel completado. Vamos al siguiente.");
+            setTimeout(configurarNivel, 3000);
         } else {
             finalizar();
         }
@@ -219,11 +252,11 @@
         juegoFinalizado = true;
         clearInterval(timerPregunta);
         document.getElementById('modal-cierre').style.display = 'flex';
-        document.getElementById('msg-final').innerText = "¡Súper Juan!";
-        document.getElementById('stats').innerText = "Has organizado toda la habitación con gran atención.";
-        hablar("Muy bien Juan, hemos terminado por hoy. Lo hiciste excelente.");
+        document.getElementById('stats').innerText = "Has completado la Sesión 10 con éxito.";
+        hablar("¡Súper Juan! Hemos terminado. Tu habitación quedó excelente.");
     }
 </script>
 </body>
 </html>
+
 
