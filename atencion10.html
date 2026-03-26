@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sesión 10 - Juan</title>
     <style>
-        body { font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
+        body { font-family: Arial; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; padding: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 5px solid #E67E22; }
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; }
         #panel-objetos { position: absolute; left: 15px; top: 110px; width: 140px; background: rgba(255,255,255,0.85); border: 4px solid #1B4F72; border-radius: 20px; display: flex; flex-direction: column; gap: 15px; padding: 15px; align-items: center; z-index: 10; height: 70vh; }
@@ -13,7 +13,7 @@
         #area-cama-detect { position: absolute; left: 25%; top: 30%; width: 50%; height: 50%; pointer-events: auto; }
         #cama_base { width: 100%; height: auto; display: block; }
         .pieza-fija { position: absolute; width: 130px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
-        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; }
+        #cuadro-pregunta { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn-p { padding: 12px 25px; margin: 8px; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; color: white; font-size: 1.2rem; }
     </style>
 </head>
@@ -22,7 +22,7 @@
 <div id="cabecera">
     <div id="instruccion-box">
         <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:15px; border: 2px solid #1B4F72;">
-        <span id="label-guia">Cargando...</span>
+        <span id="label-guia">Iniciando...</span>
     </div>
     <div id="exito-txt" style="font-size: 1.4rem; font-weight: bold; margin-right: 20px;">Éxito: 100%</div>
 </div>
@@ -44,7 +44,9 @@
     let nivel = 1, paso = 0, aciertos = 0, errores = 0, bloqueado = false;
     const sfxOk = new Audio('img8/exito.mp3'); 
     const sfxErr = new Audio('img8/alarma.mp3');
+    const bgMusic = new Audio('img10/pajaros.mp3');
 
+    // NOMBRES EXACTOS DE TUS ARCHIVOS (SIN MAYÚSCULAS)
     const db = {
         "sabana_azul": { img: "sabana_azul.png", nom: "la sábana azul" },
         "almohada_blanca": { img: "almohada_blanca.png", nom: "la almohada blanca" },
@@ -52,26 +54,32 @@
         "almohada_gris": { img: "almohada_gris.png", nom: "la almohada gris" },
         "sabana_blanca": { img: "sabana_blanca.png", nom: "la sábana blanca" },
         "reloj": { img: "reloj.png", nom: "el reloj" },
-        "control": { img: "control.png", nom: "el control" }
+        "control": { img: "control.png", nom: "el control" },
+        "revista": { img: "revista.png", nom: "la revista" }
     };
 
     const niveles = {
-        1: { pedir: ["sabana_azul", "almohada_blanca"], mostrar: ["sabana_azul", "almohada_blanca", "reloj"] },
-        2: { pedir: ["cobija_termica"], mostrar: ["cobija_termica", "control"] },
-        3: { pedir: ["almohada_gris", "sabana_blanca"], mostrar: ["almohada_gris", "sabana_blanca", "reloj"] }
+        1: { pedir: ["sabana_azul", "almohada_blanca"], mostrar: ["sabana_azul", "almohada_blanca", "revista"] },
+        2: { pedir: ["cobija_termica"], mostrar: ["cobija_termica", "reloj"] },
+        3: { pedir: ["almohada_gris", "sabana_blanca"], mostrar: ["almohada_gris", "sabana_blanca", "control"] }
     };
 
-    const preguntas = [{q: "¿El agua moja?", a: "SÍ"}, {q: "¿El sol es frío?", a: "NO"}];
+    const preguntas = [
+        {q: "¿El sol brilla?", a: "SÍ"},
+        {q: "¿El agua es seca?", a: "NO"}
+    ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
         document.getElementById('label-guia').innerText = t;
-        const msg = new SpeechSynthesisUtterance(t); msg.lang = 'es-ES';
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'es-ES';
         window.speechSynthesis.speak(msg);
     }
 
     function iniciar() {
-        new Audio('img10/pajaros.mp3').play().catch(()=>{});
+        bgMusic.loop = true; bgMusic.volume = 0.1;
+        bgMusic.play().catch(()=>{});
         cargarFase();
         setInterval(lanzarPregunta, 12000); 
     }
@@ -89,11 +97,11 @@
             img.onmousedown = img.ontouchstart = drag;
             document.getElementById('panel-objetos').appendChild(img);
         });
-        hablar("Nivel " + nivel + ". Juan, pon " + db[conf.pedir[0]].nom);
+        hablar("Nivel " + nivel + ". Juan, busca " + db[conf.pedir[0]].nom);
     }
 
     function drag(e) {
-        if(bloqueado) return;
+        if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
         const el = e.target;
         const t = e.type.includes('touch') ? e.touches[0] : e;
         let sx = t.clientX - el.getBoundingClientRect().left;
@@ -111,11 +119,15 @@
 
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
             const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
-            const enCama = (st.clientX > cama.left && st.clientX < cama.right && st.clientY > cama.top && st.clientY < cama.bottom);
+            // Aumentamos margen de detección para que no falle al soltar
+            const enCama = (st.clientX > (cama.left - 20) && st.clientX < (cama.right + 20) && 
+                            st.clientY > (cama.top - 20) && st.clientY < (cama.bottom + 20));
+            
             const objetivo = niveles[nivel].pedir[paso];
 
             if (enCama && el.dataset.id === objetivo) {
                 sfxOk.play(); aciertos++;
+                hablar("¡Muy bien!");
                 const fija = document.createElement('img');
                 fija.src = el.src; fija.className = 'pieza-fija';
                 fija.style.left = (st.clientX - cama.left) + 'px';
@@ -124,13 +136,14 @@
                 el.style.display = 'none';
                 paso++;
                 if (paso < niveles[nivel].pedir.length) {
-                    hablar("¡Bien! Ahora " + db[niveles[nivel].pedir[paso]].nom);
+                    setTimeout(() => hablar("Ahora " + db[niveles[nivel].pedir[paso]].nom), 800);
                 } else {
                     bloqueado = true;
-                    setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { hablar("¡Terminaste!"); }}, 2000);
+                    setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { hablar("¡Excelente Juan!"); }}, 1500);
                 }
             } else if (enCama) {
-                sfxErr.play(); errores++; hablar("Esa no es Juan.");
+                sfxErr.play(); errores++; 
+                hablar("Esa no es Juan. Pon " + db[objetivo].nom);
                 el.style.position = 'static';
             } else { el.style.position = 'static'; }
             actualizarStats();
@@ -154,11 +167,11 @@
     }
 
     function verificarRespuesta(v) {
-        if(v === document.getElementById('cuadro-pregunta').dataset.ans) { sfxOk.play(); aciertos++; } else { sfxErr.play(); errores++; }
+        if(v === document.getElementById('cuadro-pregunta').dataset.ans) { sfxOk.play(); aciertos++; hablar("¡Correcto!"); } 
+        else { sfxErr.play(); errores++; hablar("No."); }
         document.getElementById('cuadro-pregunta').style.display = 'none';
         actualizarStats();
     }
 </script>
 </body>
 </html>
-
