@@ -10,43 +10,37 @@
             background: url('img10/fondo_habitacion.png') no-repeat center center fixed; 
             background-size: cover; height: 100vh; display: flex; flex-direction: column;
         }
-        #cabecera { background: rgba(27, 79, 114, 0.9); color: white; padding: 10px; text-align: center; z-index: 100; }
-        
+        #cabecera { background: rgba(27, 79, 114, 0.9); color: white; padding: 10px; text-align: center; z-index: 100; border-bottom: 4px solid #E67E22; }
         #escenario { flex-grow: 1; position: relative; display: flex; justify-content: space-between; padding: 20px; }
         
-        /* Área de la cama donde se sueltan las cosas */
         #zona-cama { 
-            width: 60%; position: relative; 
+            width: 65%; height: 70%; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
             background: url('img10/cama_destendida.png') no-repeat center bottom;
-            background-size: contain; margin-top: 50px;
+            background-size: contain; border: 2px dashed rgba(255,255,255,0.3);
         }
 
         #despensa-objetos { 
-            width: 25%; background: rgba(255,255,255,0.8); border-radius: 15px; 
-            padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            border: 3px solid #1B4F72; overflow-y: auto;
+            width: 200px; background: rgba(255,255,255,0.9); border-radius: 15px; 
+            padding: 15px; display: flex; flex-direction: column; gap: 15px;
+            border: 3px solid #1B4F72; overflow-y: auto; max-height: 80vh; box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
         }
 
-        .item-cama { width: 100px; cursor: grab; touch-action: none; }
+        .item-cama { width: 90px; height: auto; cursor: grab; touch-action: none; filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2)); }
 
-        /* Panel de conversación simultánea */
         #panel-verbal {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 80%; background: white; border: 4px solid #E67E22;
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 90%; background: white; border: 4px solid #3498DB;
             border-radius: 20px; padding: 15px; display: flex; align-items: center;
-            justify-content: space-around; z-index: 500;
+            justify-content: space-around; z-index: 500; box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
         }
 
-        .btn-respuesta { 
-            padding: 15px 40px; font-size: 1.5rem; font-weight: bold; 
-            border-radius: 15px; border: none; cursor: pointer;
-        }
+        .btn-respuesta { padding: 15px 45px; font-size: 1.6rem; font-weight: bold; border-radius: 15px; border: none; cursor: pointer; transition: 0.2s; }
         #btn-si { background: #2ECC71; color: white; }
         #btn-no { background: #E74C3C; color: white; }
 
         #resumen-final {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); color: white; flex-direction: column;
+            background: rgba(27, 79, 114, 0.95); color: white; flex-direction: column;
             align-items: center; justify-content: center; z-index: 1000; text-align: center;
         }
     </style>
@@ -54,59 +48,75 @@
 <body onload="iniciarNivel10()">
 
 <div id="cabecera">
-    <div style="background:white; color:#1B4F72; border-radius:10px; padding:5px; width:90%; margin:auto;">
-        <p id="instruccion-guia">¡Juan! Tiende la cama mientras charlamos.</p>
+    <div style="background:white; color:#1B4F72; border-radius:10px; padding:10px; width:85%; margin:auto; display:flex; align-items:center; justify-content:center; gap:15px;">
+        <img src="COTERAPEUTA.JPG" style="width:50px; border-radius:50%;">
+        <strong id="instruccion-guia">¡Juan! Escucha la pregunta y acomoda la cama.</strong>
     </div>
 </div>
 
 <div id="escenario">
-    <div id="zona-cama"></div>
-    
-    <div id="despensa-objetos" id="inventario">
-        </div>
+    <div id="despensa-objetos"></div>
+    <div id="zona-cama" id="target-cama"></div>
 </div>
 
 <div id="panel-verbal">
-    <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.2rem;">¿Escuchas la pregunta?</div>
-    <div>
+    <div id="texto-pregunta" style="font-weight:bold; color:#1B4F72; font-size:1.3rem; max-width: 50%;">Cargando...</div>
+    <div style="display:flex; gap:20px;">
         <button id="btn-si" class="btn-respuesta" onclick="responder(true)">SÍ</button>
         <button id="btn-no" class="btn-respuesta" onclick="responder(false)">NO</button>
     </div>
 </div>
 
 <div id="resumen-final">
-    <h1>¡Nivel Completado!</h1>
-    <p id="mensaje-motivacional" style="font-size:1.5rem; padding:20px;"></p>
-    <button onclick="location.reload()" style="padding:15px; font-weight:bold;">REPETIR CON OTROS OBJETOS</button>
+    <h1 style="font-size: 3rem;">¡Excelente Trabajo!</h1>
+    <p id="mensaje-motivacional" style="font-size:1.8rem; padding:30px; max-width: 80%;"></p>
+    <button onclick="location.reload()" style="padding:20px 40px; font-size:1.5rem; font-weight:bold; cursor:pointer; background:#F1C40F; border:none; border-radius:10px;">VOLVER A ENTRENAR</button>
 </div>
 
 <script>
-    // Listas basadas EN TU FOTO
-    const sabanas = ["sabana_azul.png", "sabana_blanca.png", "sabana_gris.png"];
-    const sobresabanas = ["sobresabana_gris.png", "sobresabana_morada.png", "sobresabana_negra.png"];
-    const cobijas = ["cobija_termica.png", "cobija_tigre.png", "cobija.png"];
-    const almohadas = ["almohada_blanca.png", "almohada_cafe.png", "almohada_gris.png"];
+    // LISTAS BASADAS EN TUS ARCHIVOS REALES (Evitamos aprendizaje por repetición)
+    const piezasCama = {
+        sabana: ["sabana_azul.png", "sabana_blanca.png", "sabana_gris.png"],
+        sobre: ["sobresabana_gris.png", "sobresabana_morada.png", "sobresabana_negra.png"],
+        cobija: ["cobija_termica.png", "cobija_tigre.png", "cobija.png"],
+        almohada: ["almohada_blanca.png", "almohada_cafe.png", "almohada_gris.png"]
+    };
+    
     const distractores = ["control.png", "lampara.png", "medias.png", "reloj.png", "revista.png", "vaso.png"];
+    const bancoPreguntas = [
+        {p: "¿El cielo es de color verde?", r: false},
+        {p: "¿El azúcar es dulce?", r: true},
+        {p: "¿Los perros vuelan?", r: false},
+        {p: "¿Estamos en el dormitorio?", r: true},
+        {p: "¿La lluvia moja?", r: true},
+        {p: "¿El sol sale de noche?", r: false},
+        {p: "¿Te gusta tender la cama?", r: true}
+    ];
 
     let aciertosVerbales = 0;
-    let totalPreguntas = 0;
-    let piezasColocadas = 0;
+    let piezasPuestas = 0;
+    let piezaObjetivoActual = "";
 
     function iniciarNivel10() {
-        // Seleccionar 1 de cada categoría AL AZAR (Atención, no memoria)
-        const miSabana = sabanas[Math.floor(Math.random()*3)];
-        const miSobresabana = sobresabanas[Math.floor(Math.random()*3)];
-        const miCobija = cobijas[Math.floor(Math.random()*3)];
-        const miAlmohada = almohadas[Math.floor(Math.random()*3)];
-        
-        const inventario = [miSabana, miSobresabana, miCobija, miAlmohada, ...distractores.sort(() => 0.5 - Math.random()).slice(0,3)];
-        
         const contenedor = document.getElementById('despensa-objetos');
-        inventario.sort(() => 0.5 - Math.random()).forEach(img => {
+        
+        // Selección aleatoria de piezas para que NUNCA sea igual
+        const seleccion = [
+            piezasCama.sabana[Math.floor(Math.random()*3)],
+            piezasCama.sobre[Math.floor(Math.random()*3)],
+            piezasCama.cobija[Math.floor(Math.random()*3)],
+            piezasCama.almohada[Math.floor(Math.random()*3)]
+        ];
+
+        piezaObjetivoActual = seleccion[0]; // Empezamos pidiendo la sábana
+
+        // Mezclar con distractores
+        const pool = [...seleccion, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 3)];
+        pool.sort(() => 0.5 - Math.random()).forEach(img => {
             const el = document.createElement('img');
             el.src = `img10/${img}`;
             el.className = 'item-cama';
-            el.dataset.tipo = img;
+            el.dataset.file = img;
             el.onmousedown = el.ontouchstart = iniciarArrastre;
             contenedor.appendChild(el);
         });
@@ -115,37 +125,61 @@
     }
 
     function lanzarPregunta() {
-        // Aquí llamaríamos a tu conversacion.mp3 o Synthesis
-        const preguntas = ["¿Te gusta el color de esta sábana?", "¿Hoy desayunaste rico?", "¿Los perros vuelan?", "¿Estamos en el cuarto?"];
-        const p = preguntas[Math.floor(Math.random()*preguntas.length)];
-        document.getElementById('texto-pregunta').innerText = p;
-        totalPreguntas++;
-        
-        // Simular voz
-        const msg = new SpeechSynthesisUtterance(p);
+        const item = bancoPreguntas[Math.floor(Math.random()*bancoPreguntas.length)];
+        document.getElementById('texto-pregunta').innerText = item.p;
+        const msg = new SpeechSynthesisUtterance(item.p);
         msg.lang = 'es-ES';
         window.speechSynthesis.speak(msg);
     }
 
-    function responder(valor) {
-        aciertosVerbales++; // En un nivel real validaríamos la lógica del Sí/No
-        new Audio('img8/exito.mp3').play().catch(e=>{});
-        setTimeout(lanzarPregunta, 5000); // Siguiente pregunta en 5 seg
+    function responder(val) {
+        aciertosVerbales++;
+        new Audio('img8/exito.mp3').play().catch(()=>{});
+        document.getElementById('texto-pregunta').innerText = "¡Muy bien! Sigue con la cama...";
+        setTimeout(lanzarPregunta, 6000);
     }
 
     function iniciarArrastre(e) {
-        // Lógica de arrastrar similar a la cocina...
-        // Si el objeto es una pieza de cama y cae en #zona-cama:
-        // piezasColocadas++;
-        // if(piezasColocadas == 4) finalizarJuego();
+        const el = e.target;
+        const t = e.type === 'touchstart' ? e.touches[0] : e;
+        let ox = t.clientX - el.getBoundingClientRect().left;
+        let oy = t.clientY - el.getBoundingClientRect().top;
+        el.style.position = 'fixed'; el.style.zIndex = "1000";
+
+        const mover = (me) => {
+            const mt = me.type === 'touchmove' ? me.touches[0] : me;
+            el.style.left = (mt.clientX - ox) + 'px'; el.style.top = (mt.clientY - oy) + 'px';
+        };
+
+        const soltar = (se) => {
+            document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
+            document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
+            
+            const st = se.type === 'touchend' ? se.changedTouches[0] : se;
+            const dropZone = document.getElementById('zona-cama').getBoundingClientRect();
+
+            if(st.clientX > dropZone.left && st.clientX < dropZone.right && st.clientY > dropZone.top) {
+                if(el.dataset.file === piezaObjetivoActual || piezasPuestas >= 4) {
+                    piezasPuestas++;
+                    el.style.position = 'absolute';
+                    el.style.left = '50%'; el.style.top = '50%';
+                    el.style.transform = 'translate(-50%, -50%)';
+                    document.getElementById('zona-cama').appendChild(el);
+                    new Audio('img8/exito.mp3').play().catch(()=>{});
+                    if(piezasPuestas >= 4) finalizar();
+                } else {
+                    el.style.position = 'static';
+                }
+            } else { el.style.position = 'static'; }
+        };
+        document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
+        document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
     }
 
-    function finalizarJuego() {
+    function finalizar() {
         document.getElementById('resumen-final').style.display = 'flex';
-        document.getElementById('mensaje-motivacional').innerText = 
-            `Excelente, lograste mantenerte atento en más de una tarea al mismo tiempo. Respondiste ${aciertosVerbales} preguntas correctamente.`;
+        document.getElementById('mensaje-motivacional').innerText = "Excelente, lograste mantenerte atento en más de una tarea al mismo tiempo.";
     }
 </script>
 </body>
 </html>
-
