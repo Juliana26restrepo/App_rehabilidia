@@ -1,1 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria 3 - Juan: Sonidos de la Ciudad</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
+        
+        /* Fondo de Ciudad Animada (Basado en tu idea) */
+        #escena-total { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: url('mem3/fondo_ciudad.jpg') no-repeat center center; 
+            background-size: cover; z-index: -1; 
+        }
+
+        /* Cabecera Estilo Juan */
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid #307B8E; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
+
+        /* Contenedor Principal dividido como en tu croquis (image_5.png) */
+        #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; }
+        
+        /* FASE 1: CODIFICACIÓN (Panel Superior de tu croquis) */
+        #panel-codificacion { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border-bottom: 2px solid rgba(255,255,255,0.3); }
+        #box-onda { background: rgba(255, 255, 255, 0.9); border: 4px solid #366B2B; border-radius: 20px; width: 60%; height: 180px; display: flex; align-items: center; justify-content: center; position: relative; }
+        #onda-sonido { width: 80%; height: 60px; background: url('mem3/onda.png') repeat-x; display: none; }
+        #txt-sonido-count { position: absolute; bottom: 10px; font-size: 1.5rem; color: #333; font-weight: bold; }
+
+        /* FASE 2: RESPUESTA (Panel Inferior de tu croquis) */
+        #panel-respuesta { flex: 1; background: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; align-items: center; padding: 20px; border-radius: 20px; margin: 20px; border: 4px solid #103A57; }
+        #grid-sonidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 90%; max-height: 80%; overflow-y: auto; padding: 10px; }
+        
+        /* Botones "Cuadros Listos" (Estilo image_5.png) */
+        .btn-sonido { background: white; border: 4px solid #103A57; border-radius: 15px; width: 130px; height: 130px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-sonido img { width: 80px; height: 80px; object-fit: contain; }
+        .btn-sonido:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        /* Overlay Final */
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+    </style>
+</head>
+<body onload="iniciarNivel()">
+
+<div id="escena-total"></div>
+
+<div id="cabecera">
+    <div id="instruccion-box">
+        <img src="COTERAPEUTA.JPG">
+        <span id="label-guia">Fase 1: Escucha la secuencia...</span>
+    </div>
+</div>
+
+<div id="contenedor-juego">
+    <div id="panel-codificacion">
+        <div id="box-onda">
+            <div id="onda-sonido"></div>
+            <div id="txt-sonido-count"></div>
+        </div>
+    </div>
+
+    <div id="panel-respuesta">
+        <div id="grid-sonidos"></div>
+    </div>
+</div>
+
+<div id="overlay-final">
+    <h1 style="font-size: 3.5rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
+    <p style="font-style: italic; font-size: 1.5rem;">"Cada sonido que recuerdas, te acerca más a dominar tu vida"</p>
+    <button onclick="location.reload()" style="padding: 15px 40px; font-size: 1.5rem; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px;">REINTENTAR</button>
+</div>
+
+<script>
+    const banco = ["ambulancia", "aplausos", "avion", "bebe", "carro", "freno", "gato", "lluvia", "martillo", "moto", "pajaro", "pasos", "perro", "puerta", "taladro", "telefono", "timbre", "trueno", "vaca", "vidrio"];
+    
+    let nivelActual = 1;
+    let secuenciaReto = [];
+    let respuestasUsuario = [];
+    const config = { 1: 5, 2: 8, 3: 11 };
+
+    function hablar(t, callback) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'es-ES';
+        msg.rate = 0.95;
+        if(callback) msg.onend = callback;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function iniciarNivel() {
+        const cant = config[nivelActual];
+        // Seleccionamos sonidos aleatorios del banco
+        secuenciaReto = [...banco].sort(() => 0.5 - Math.random()).slice(0, cant);
+        
+        document.getElementById('panel-respuesta').style.display = 'none';
+        document.getElementById('panel-codificacion').style.display = 'flex';
+        
+        hablar(`Juan, escucha estos ${cant} sonidos en orden.`, () => {
+            reproducirSecuencia(0);
+        });
+    }
+
+    function reproducirSecuencia(idx) {
+        const boxOnda = document.getElementById('onda-sonido');
+        const countTxt = document.getElementById('txt-sonido-count');
+
+        if (idx < secuenciaReto.length) {
+            countTxt.innerText = `Sonido ${idx + 1} de ${secuenciaReto.length}`;
+            boxOnda.style.display = 'block'; // Activar onda visual
+            
+            const audio = new Audio(`mem3/${secuenciaReto[idx]}.mp3`);
+            audio.play();
+            
+            // Corte a los 2.5 segundos
+            setTimeout(() => {
+                audio.pause();
+                boxOnda.style.display = 'none'; // Desactivar onda
+                setTimeout(() => reproducirSecuencia(idx + 1), 700); // Pausa entre sonidos
+            }, 2500);
+        } else {
+            faseRespuesta();
+        }
+    }
+
+    function faseRespuesta() {
+        document.getElementById('panel-codificacion').style.display = 'none';
+        const panelRep = document.getElementById('panel-respuesta');
+        const grid = document.getElementById('grid-sonidos');
+        grid.innerHTML = "";
+        panelRep.style.display = 'flex';
+        
+        hablar("¿En qué orden sonaron? Toca las imágenes.");
+
+        // Lógica de dificultad por nivel (cantidad de botones y distractores)
+        let poolOpciones = [...secuenciaReto];
+        const numBotones = { 1: 8, 2: 12, 3: 16 }[nivelActual];
+        
+        const distractoresDisponibles = banco.filter(id => !poolOpciones.includes(id));
+        const poolFinal = [...poolOpciones, ...distractoresDisponibles.sort(() => 0.5 - Math.random()).slice(0, numBotones - poolOpciones.length)].sort(() => 0.5 - Math.random());
+        
+        poolFinal.forEach(id => {
+            const btn = document.createElement('div');
+            btn.className = 'btn-sonido';
+            btn.innerHTML = `<img src="mem3/${id}.png">`;
+            
+            // Función al tocar: Sonar brevemente + Registrar respuesta
+            btn.onclick = () => {
+                const a = new Audio(`mem3/${id}.mp3`);
+                a.volume = 0.5; // Audio más bajo para feedback
+                a.play();
+                setTimeout(() => a.pause(), 800); // Sonido corto
+                registrarRespuesta(id, btn);
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    function registrarRespuesta(id, elemento) {
+        const objetivo = secuenciaReto[respuestasUsuario.length];
+        
+        if (id === objetivo) {
+            respuestasUsuario.push(id);
+            elemento.style.borderColor = "#366B2B"; // Feedback Verde
+            elemento.onclick = null; // Bloquear botón ya usado
+            
+            if (respuestasUsuario.length === secuenciaReto.length) {
+                if (nivelActual < 3) {
+                    nivelActual++;
+                    respuestasUsuario = [];
+                    setTimeout(iniciarNivel, 1000);
+                } else {
+                    mostrarFinal();
+                }
+            }
+        } else {
+            // Error
+            hablar("Ese no era el siguiente.");
+            elemento.style.borderColor = "#E67E22"; // Feedback Naranja
+            setTimeout(() => { elemento.style.borderColor = "#103A57"; }, 500);
+        }
+    }
+
+    function mostrarFinal() {
+        document.getElementById('contenedor-juego').style.display = 'none';
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("¡Excelente Juan! Has terminado.");
+    }
+</script>
+</body>
+</html>
 
