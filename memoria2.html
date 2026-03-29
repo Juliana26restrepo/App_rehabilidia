@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 2 - Juan: La Lista del Mercado</title>
+    <title>Memoria 2 - Juan: Desempeño Detallado</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; }
         
-        /* Fondo de la habitación (mem1/fondo.jpg) */
+        /* Fondo de la habitación */
         #escena-total { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: url('mem1/fondo.jpg') no-repeat center center; 
             background-size: cover; z-index: -1; 
         }
 
-        /* Cabecera Estilo Juan con Coterapeuta */
+        /* Cabecera Estilo Juan */
         #cabecera { background: rgba(54, 107, 43, 0.95); color: white; height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid #28521f; }
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
@@ -25,17 +25,18 @@
         #lista-visual { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 80%; }
         .palabra-item { background: rgba(255, 255, 255, 0.95); padding: 15px 30px; border-radius: 15px; border: 4px solid #366B2B; font-size: 2.2rem; font-weight: bold; color: #333; box-shadow: 0 6px 15px rgba(0,0,0,0.3); animation: aparecer 0.5s ease-out; }
         
-        /* Fase 2: Reconocimiento (Botones Grandes) */
+        /* Fase 2: Reconocimiento */
         #zona-reconocimiento { display: none; width: 100%; }
         .botones-par { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
         .btn-opcion { padding: 35px 60px; font-size: 2.8rem; cursor: pointer; border-radius: 25px; border: 6px solid #103A57; background: white; font-weight: bold; min-width: 300px; box-shadow: 0 12px 24px rgba(0,0,0,0.3); transition: 0.2s; color: #333; }
         .btn-opcion:active { transform: scale(0.9); }
 
-        /* Timer de Almacenamiento */
-        #timer-box { font-size: 2.2rem; color: #E67E22; font-weight: bold; margin-top: 40px; background: white; padding: 10px 40px; border-radius: 50px; display: none; border: 4px solid #E67E22; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #timer-box { font-size: 2.2rem; color: #E67E22; font-weight: bold; margin-top: 40px; background: white; padding: 10px 40px; border-radius: 50px; display: none; border: 4px solid #E67E22; }
 
-        /* Overlay Final */
+        /* Pantalla Final con Resultados por Nivel */
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .tabla-resultados { margin: 25px 0; font-size: 1.8rem; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.3); }
+        .linea-resumen { margin: 10px 0; display: flex; justify-content: space-between; width: 350px; }
 
         @keyframes aparecer { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -68,9 +69,12 @@
 
 <div id="overlay-final">
     <h1 style="font-size: 3.5rem; color: #FFD700;">¡MUY BIEN HECHO!</h1>
-    <p id="resumen-final" style="font-size: 2rem; margin: 20px 0;"></p>
-    <p style="font-style: italic; font-size: 1.5rem;">"Cada palabra que recuerdas es un gran avance"</p>
-    <button onclick="location.reload()" style="padding: 15px 40px; font-size: 1.5rem; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px;">REINTENTAR</button>
+    
+    <div class="tabla-resultados" id="detalle-niveles">
+        </div>
+
+    <p style="font-style: italic; font-size: 1.5rem; margin-top: 10px;">"Cada palabra que recuerdas es un gran avance"</p>
+    <button onclick="location.reload()" style="padding: 15px 40px; font-size: 1.5rem; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 25px;">REINTENTAR</button>
 </div>
 
 <script>
@@ -81,7 +85,10 @@
     let nivelActual = 1;
     let palabrasReto = [];
     let indicePregunta = 0;
-    let aciertosGlobales = 0;
+    
+    // Almacén de aciertos por nivel
+    let aciertosPorNivel = { 1: 0, 2: 0, 3: 0 };
+    const metasPorNivel = { 1: 6, 2: 10, 3: 15 };
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
@@ -93,10 +100,9 @@
     }
 
     function iniciarNivel() {
-        const cantidad = { 1: 6, 2: 10, 3: 15 }[nivelActual];
+        const cantidad = metasPorNivel[nivelActual];
         palabrasReto = [...mercado].sort(() => 0.5 - Math.random()).slice(0, cantidad);
         
-        // Reset visual
         document.getElementById('lista-visual').innerHTML = "";
         document.getElementById('fase-codificacion').style.display = 'block';
         document.getElementById('zona-reconocimiento').style.display = 'none';
@@ -114,30 +120,25 @@
             div.className = 'palabra-item';
             div.innerText = palabrasReto[idx];
             document.getElementById('lista-visual').appendChild(div);
-            
             hablar(palabrasReto[idx], () => {
                 setTimeout(() => mostrarPalabrasAcumuladas(idx + 1), 700);
             });
         } else {
-            iniciarTiempoFijacion();
+            const box = document.getElementById('timer-box');
+            box.style.display = 'inline-block';
+            let segundos = 15;
+            const countdown = setInterval(() => {
+                segundos--;
+                document.getElementById('segundos').innerText = segundos;
+                if (segundos <= 0) {
+                    clearInterval(countdown);
+                    faseReconocimiento();
+                }
+            }, 1000);
         }
     }
 
-    function iniciarTiempoFijacion() {
-        const box = document.getElementById('timer-box');
-        box.style.display = 'inline-block';
-        let segundos = 15;
-        const countdown = setInterval(() => {
-            segundos--;
-            document.getElementById('segundos').innerText = segundos;
-            if (segundos <= 0) {
-                clearInterval(countdown);
-                iniciarReconocimiento();
-            }
-        }, 1000);
-    }
-
-    function iniciarReconocimiento() {
+    function faseReconocimiento() {
         document.getElementById('fase-codificacion').style.display = 'none';
         document.getElementById('zona-reconocimiento').style.display = 'block';
         document.getElementById('label-guia').innerText = "Fase 2: ¿Cuáles recuerdas?";
@@ -149,8 +150,6 @@
         if (indicePregunta < palabrasReto.length) {
             const correcta = palabrasReto[indicePregunta];
             let dist;
-            
-            // Dificultad por nivel
             if (nivelActual === 1) dist = distNeutros[Math.floor(Math.random()*distNeutros.length)];
             else if (nivelActual === 3) dist = distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
             else dist = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random()*distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
@@ -158,16 +157,20 @@
             const opciones = [correcta, dist].sort(() => 0.5 - Math.random());
             document.getElementById('btn-a').innerText = opciones[0];
             document.getElementById('btn-b').innerText = opciones[1];
-            
             hablar(`¿Cuál estaba en la lista, ${opciones[0]} o ${opciones[1]}?`);
         } else {
-            avanzarNivel();
+            if (nivelActual < 3) {
+                nivelActual++;
+                hablar(`Nivel completado. Vamos al siguiente.`, iniciarNivel);
+            } else {
+                finalizarTodo();
+            }
         }
     }
 
     function verificar(elegida) {
         if (elegida === palabrasReto[indicePregunta]) {
-            aciertosGlobales++;
+            aciertosPorNivel[nivelActual]++;
             hablar("¡Muy bien!");
         } else {
             hablar("Esa no estaba.");
@@ -176,22 +179,22 @@
         setTimeout(presentarPregunta, 1300);
     }
 
-    function avanzarNivel() {
-        if (nivelActual < 3) {
-            nivelActual++;
-            hablar(`Nivel completado. Vamos por ${nivelActual === 2 ? '10' : '15'} palabras.`, iniciarNivel);
-        } else {
-            finalizarTodo();
-        }
-    }
-
     function finalizarTodo() {
         document.getElementById('zona-reconocimiento').style.display = 'none';
+        const contenedorResultados = document.getElementById('detalle-niveles');
+        
+        // Crear resumen visual desglosado
+        contenedorResultados.innerHTML = `
+            <div class="linea-resumen"><span>Nivel Bajo:</span> <b>${aciertosPorNivel[1]} / 6</b></div>
+            <div class="linea-resumen"><span>Nivel Medio:</span> <b>${aciertosPorNivel[2]} / 10</b></div>
+            <div class="linea-resumen"><span>Nivel Alto:</span> <b>${aciertosPorNivel[3]} / 15</b></div>
+            <hr style="border: 0; border-top: 1px solid white; margin: 15px 0;">
+            <div class="linea-resumen" style="color: #FFD700;"><span>Total Aciertos:</span> <b>${aciertosPorNivel[1]+aciertosPorNivel[2]+aciertosPorNivel[3]} / 31</b></div>
+        `;
+
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-final').innerText = `Lograste ${aciertosGlobales} aciertos en total.`;
-        hablar("¡Excelente Juan! Has terminado todo el entrenamiento del mercado.");
+        hablar("¡Excelente Juan! Has terminado todo el entrenamiento del mercado. Mira tus resultados.");
     }
 </script>
 </body>
 </html>
-
