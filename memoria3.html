@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 3 - Juan: Sonidos de la Ciudad</title>
+    <title>Memoria 3 - Juan: Arrastra la Secuencia</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
         
-        /* Fondo de Ciudad Animada (Basado en tu idea) */
+        /* Fondo de Ciudad Animada (mem3/fondo_ciudad.jpg) */
         #escena-total { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: url('mem3/fondo_ciudad.jpg') no-repeat center center; 
-            background-size: cover; z-index: -1; 
+            background-size: cover; z-index: -1; filter: brightness(0.7); 
         }
 
         /* Cabecera Estilo Juan */
@@ -19,23 +19,36 @@
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
 
-        /* Contenedor Principal dividido como en tu croquis (image_5.png) */
-        #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; }
+        /* Contenedor Principal (DIVIDIDO COMO EN TU CROQUIS - image_7.png) */
+        #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; position: relative; }
         
-        /* FASE 1: CODIFICACIÓN (Panel Superior de tu croquis) */
-        #panel-codificacion { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border-bottom: 2px solid rgba(255,255,255,0.3); }
+        /* --- FASE 1: CODIFICACIÓN (Superior de tu croquis) --- */
+        #panel-codificacion { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         #box-onda { background: rgba(255, 255, 255, 0.9); border: 4px solid #366B2B; border-radius: 20px; width: 60%; height: 180px; display: flex; align-items: center; justify-content: center; position: relative; }
         #onda-sonido { width: 80%; height: 60px; background: url('mem3/onda.png') repeat-x; display: none; }
         #txt-sonido-count { position: absolute; bottom: 10px; font-size: 1.5rem; color: #333; font-weight: bold; }
 
-        /* FASE 2: RESPUESTA (Panel Inferior de tu croquis) */
-        #panel-respuesta { flex: 1; background: rgba(255, 255, 255, 0.9); display: none; flex-direction: column; align-items: center; padding: 20px; border-radius: 20px; margin: 20px; border: 4px solid #103A57; }
-        #grid-sonidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 90%; max-height: 80%; overflow-y: auto; padding: 10px; }
+        /* --- FASE 2: RESPUESTA CON ARRASTRE (DIVISIÓN COMO EN IMAGE_7.PNG) --- */
+        #panel-respuesta { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px; border-radius: 20px; margin: 20px; border: 4px solid #103A57; position: relative; }
+
+        /* Contenedor Blanco Principal (engloba las dos zonas de tu croquis) */
+        #contenedor-blanco-principal { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+
+        /* 2A. ZONA SUPERIOR (Banco de Sonidos) */
+        #zona-banco-sonidos { background: rgba(255,255,255,0.9); border: 3px solid #6C5B7B; border-radius: 15px; width: 95%; height: 60%; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; align-content: start; }
         
-        /* Botones "Cuadros Listos" (Estilo image_5.png) */
-        .btn-sonido { background: white; border: 4px solid #103A57; border-radius: 15px; width: 130px; height: 130px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .btn-sonido img { width: 80px; height: 80px; object-fit: contain; }
-        .btn-sonido:active { transform: scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* 2B. ZONA INFERIOR (Línea de Arrastre - Tus círculos inferiores) */
+        #zona-linea-arrastre { background: rgba(54, 107, 43, 0.9); border: 3px dashed #FFD700; border-radius: 15px; width: 95%; height: 35%; display: flex; align-items: center; justify-content: center; gap: 15px; padding: 10px; position: relative; }
+
+        /* Estilos de los Botones (Banco) y las Piezas Arrastrables */
+        .btn-sonido { background: white; border: 4px solid #103A57; border-radius: 15px; width: 120px; height: 120px; cursor: grab; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-sonido img { width: 75px; height: 75px; object-fit: contain; pointer-events: none; }
+        .dragging { opacity: 0.7; transform: scale(1.1); cursor: grabbing; box-shadow: 0 10px 20px rgba(0,0,0,0.4); z-index: 2000; }
+
+        /* Estilos de los espacios en la línea (Huecos) */
+        .hueco-arrastre { background: rgba(255,255,255,0.2); border: 3px dashed white; border-radius: 50%; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: rgba(255,255,255,0.5); font-weight: bold; }
+        .hueco-arrastre.correct { border-style: solid; border-color: #FFD700; color: #FFD700; }
+        .piece-on-hueco { width: 85px; height: 85px; object-fit: contain; }
 
         /* Overlay Final */
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
@@ -61,7 +74,11 @@
     </div>
 
     <div id="panel-respuesta">
-        <div id="grid-sonidos"></div>
+        <div id="contenedor-blanco-principal">
+            <div id="zona-banco-sonidos"></div>
+            
+            <div id="zona-linea-arrastre"></div>
+        </div>
     </div>
 </div>
 
@@ -89,12 +106,14 @@
     }
 
     function iniciarNivel() {
+        respuestasUsuario = [];
         const cant = config[nivelActual];
         // Seleccionamos sonidos aleatorios del banco
         secuenciaReto = [...banco].sort(() => 0.5 - Math.random()).slice(0, cant);
         
         document.getElementById('panel-respuesta').style.display = 'none';
         document.getElementById('panel-codificacion').style.display = 'flex';
+        document.getElementById('label-guia').innerText = "Fase 1: Escucha la secuencia...";
         
         hablar(`Juan, escucha estos ${cant} sonidos en orden.`, () => {
             reproducirSecuencia(0);
@@ -107,7 +126,7 @@
 
         if (idx < secuenciaReto.length) {
             countTxt.innerText = `Sonido ${idx + 1} de ${secuenciaReto.length}`;
-            boxOnda.style.display = 'block'; // Activar onda visual
+            boxOnda.style.display = 'block'; 
             
             const audio = new Audio(`mem3/${secuenciaReto[idx]}.mp3`);
             audio.play();
@@ -115,24 +134,38 @@
             // Corte a los 2.5 segundos
             setTimeout(() => {
                 audio.pause();
-                boxOnda.style.display = 'none'; // Desactivar onda
-                setTimeout(() => reproducirSecuencia(idx + 1), 700); // Pausa entre sonidos
+                audio.currentTime = 0;
+                boxOnda.style.display = 'none';
+                setTimeout(() => reproducirSecuencia(idx + 1), 700);
             }, 2500);
         } else {
-            faseRespuesta();
+            prepararFaseRespuesta();
         }
     }
 
-    function faseRespuesta() {
+    function prepararFaseRespuesta() {
         document.getElementById('panel-codificacion').style.display = 'none';
+        document.getElementById('label-guia').innerText = "Fase 2: Arrastra en orden";
         const panelRep = document.getElementById('panel-respuesta');
-        const grid = document.getElementById('grid-sonidos');
-        grid.innerHTML = "";
+        const bancoRep = document.getElementById('zona-banco-sonidos');
+        const lineaRep = document.getElementById('zona-linea-arrastre');
+        
+        bancoRep.innerHTML = "";
+        lineaRep.innerHTML = "";
         panelRep.style.display = 'flex';
         
-        hablar("¿En qué orden sonaron? Toca las imágenes.");
+        hablar("Juan, ¿en qué orden sonaron? Arrástralos a los espacios de abajo.");
 
-        // Lógica de dificultad por nivel (cantidad de botones y distractores)
+        // 1. Crear los HUECOS numerados en la línea de reconstrucción
+        secuenciaReto.forEach((_, i) => {
+            const hueco = document.createElement('div');
+            hueco.className = 'hueco-arrastre';
+            hueco.dataset.idx = i;
+            hueco.innerText = i + 1; // Número visible
+            lineaRep.appendChild(hueco);
+        });
+
+        // 2. Crear los BOTONES del banco con distractores y asignar Drag & Drop
         let poolOpciones = [...secuenciaReto];
         const numBotones = { 1: 8, 2: 12, 3: 16 }[nivelActual];
         
@@ -142,51 +175,78 @@
         poolFinal.forEach(id => {
             const btn = document.createElement('div');
             btn.className = 'btn-sonido';
-            btn.innerHTML = `<img src="mem3/${id}.png">`;
+            btn.innerHTML = `<img src="mem3/${id}.png" alt="${id}">`;
+            btn.dataset.id = id;
+            btn.setAttribute('draggable', true); // HACER ARRASTRABLE
             
-            // Función al tocar: Sonar brevemente + Registrar respuesta
+            // Función de Audio Explorativo al TOCAR
             btn.onclick = () => {
+                if (btn.classList.contains('used')) return; // No sonar si ya está usado
                 const a = new Audio(`mem3/${id}.mp3`);
-                a.volume = 0.5; // Audio más bajo para feedback
+                a.volume = 0.5;
                 a.play();
-                setTimeout(() => a.pause(), 800); // Sonido corto
-                registrarRespuesta(id, btn);
+                setTimeout(() => { a.pause(); a.currentTime=0; }, 2500); // Sonido explorativo
             };
-            grid.appendChild(btn);
+
+            // INICIAR ARRASTRE
+            btn.ondragstart = (e) => {
+                e.dataTransfer.setData('text/plain', id);
+                btn.classList.add('dragging');
+                hablar(`Arrastrando ${id}`); // Apoyo auditivo del objeto arrastrado
+            };
+            btn.ondragend = () => {
+                btn.classList.remove('dragging');
+            };
+
+            bancoRep.appendChild(btn);
         });
+
+        // HACER QUE LA LÍNEA DE ARRASTRE SEA UN "DROPZONE" GLOBAL
+        lineaRep.ondragover = (e) => e.preventDefault();
+        lineaRep.ondrop = (e) => {
+            e.preventDefault();
+            const idSoltado = e.dataTransfer.getData('text/plain');
+            soltarEnLinea(idSoltado);
+        };
     }
 
-    function registrarRespuesta(id, elemento) {
-        const objetivo = secuenciaReto[respuestasUsuario.length];
+    function soltarEnLinea(idSoltado) {
+        const objetivoActual = secuenciaReto[respuestasUsuario.length];
         
-        if (id === objetivo) {
-            respuestasUsuario.push(id);
-            elemento.style.borderColor = "#366B2B"; // Feedback Verde
-            elemento.onclick = null; // Bloquear botón ya usado
+        if (idSoltado === objetivoActual) {
+            // ACIERTO
+            hablar("¡Bien!");
+            respuestasUsuario.push(idSoltado);
             
+            // 1. Ocultar el botón original del banco
+            const btnOriginal = document.querySelector(`.btn-sonido[data-id="${idSoltado}"]`);
+            btnOriginal.style.visibility = 'hidden'; 
+
+            // 2. Llenar el hueco numerado correspondiente
+            const hueco = document.querySelectorAll('.hueco-arrastre')[respuestasUsuario.length - 1];
+            hueco.innerHTML = `<img src="mem3/${idSoltado}.png" class="piece-on-hueco">`;
+            hueco.classList.add('correct');
+
             if (respuestasUsuario.length === secuenciaReto.length) {
+                hablar("¡Perfecto! Secuencia completada.");
                 if (nivelActual < 3) {
                     nivelActual++;
-                    respuestasUsuario = [];
-                    setTimeout(iniciarNivel, 1000);
+                    setTimeout(iniciarNivel, 1500);
                 } else {
                     mostrarFinal();
                 }
             }
         } else {
-            // Error
-            hablar("Ese no era el siguiente.");
-            elemento.style.borderColor = "#E67E22"; // Feedback Naranja
-            setTimeout(() => { elemento.style.borderColor = "#103A57"; }, 500);
+            // ERROR
+            hablar("Ese no es el siguiente sonido.");
         }
     }
 
     function mostrarFinal() {
         document.getElementById('contenedor-juego').style.display = 'none';
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente Juan! Has terminado.");
+        hablar("¡Increíble Juan! Has completado todo el entrenamiento auditivo.");
     }
 </script>
 </body>
 </html>
-
