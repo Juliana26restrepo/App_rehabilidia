@@ -3,141 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 2 - Juan: Reconocimiento Auditivo</title>
+    <title>Memoria 2 - Juan: La Lista del Mercado</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; }
         
-        /* Fondo de la habitación (Desenfoque ligero para lectura) */
-        #escena-total { flex: 1; background: url('mem1/fondo.jpg') no-repeat center center fixed; background-size: cover; filter: blur(2px); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        #contenido { flex: 1; position: relative; z-index: 10; display: flex; flex-direction: column; }
+        /* Fondo de la habitación (mem1/fondo.jpg) */
+        #escena-total { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: url('mem1/fondo.jpg') no-repeat center center; 
+            background-size: cover; z-index: -1; 
+        }
 
-        /* Cabecera con Coterapeuta (Estilo image_0.png) */
-        #cabecera { background: rgba(54, 107, 43, 0.9); color: white; height: 80px; display: flex; align-items: center; justify-content: start; padding: 0 20px; border-bottom: 4px solid #28521f; }
-        #instruccion-box { background: white; padding: 8px 18px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; font-size: 1.1rem; }
-        #instruccion-box img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; }
+        /* Cabecera Estilo Juan con Coterapeuta */
+        #cabecera { background: rgba(54, 107, 43, 0.95); color: white; height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid #28521f; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
 
-        /* Zona de Reconocimiento (Central) */
-        #contenedor-central { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #contenedor-principal { height: calc(100vh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 10; }
+
+        /* Fase 1: Lista Visual Acumulativa */
+        #lista-visual { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 80%; }
+        .palabra-item { background: rgba(255, 255, 255, 0.95); padding: 15px 30px; border-radius: 15px; border: 4px solid #366B2B; font-size: 2.2rem; font-weight: bold; color: #333; box-shadow: 0 6px 15px rgba(0,0,0,0.3); animation: aparecer 0.5s ease-out; }
         
-        /* Botones de Opción Estilizados (Estilo image_5.png) */
-        .botones-par { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
-        .btn-opcion { padding: 25px 50px; font-size: 2.5rem; cursor: pointer; border-radius: 20px; border: 5px solid #103A57; background: rgba(255, 255, 255, 0.95); transition: 0.3s; font-weight: bold; min-width: 250px; color: #333; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .btn-opcion:active { transform: scale(0.95); box-shadow: 0 5px 10px rgba(0,0,0,0.2); }
-        .btn-opcion:hover { background: white; border-color: #366B2B; }
+        /* Fase 2: Reconocimiento (Botones Grandes) */
+        #zona-reconocimiento { display: none; width: 100%; }
+        .botones-par { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
+        .btn-opcion { padding: 35px 60px; font-size: 2.8rem; cursor: pointer; border-radius: 25px; border: 6px solid #103A57; background: white; font-weight: bold; min-width: 300px; box-shadow: 0 12px 24px rgba(0,0,0,0.3); transition: 0.2s; color: #333; }
+        .btn-opcion:active { transform: scale(0.9); }
+
+        /* Timer de Almacenamiento */
+        #timer-box { font-size: 2.2rem; color: #E67E22; font-weight: bold; margin-top: 40px; background: white; padding: 10px 40px; border-radius: 50px; display: none; border: 4px solid #E67E22; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         /* Overlay Final */
-        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+
+        @keyframes aparecer { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body onload="prepararFaseReconocimiento()">
+<body onload="iniciarNivel()">
 
 <div id="escena-total"></div>
 
-<div id="contenido">
-    <div id="cabecera">
-        <div id="instruccion-box">
-            <img src="COTERAPEUTA.JPG">
-            <span id="label-guia">Fase 2: ¿Cuáles recuerdas?</span>
-        </div>
+<div id="cabecera">
+    <div id="instruccion-box">
+        <img src="COTERAPEUTA.JPG">
+        <span id="label-guia">Juan, memoriza esta lista.</span>
+    </div>
+</div>
+
+<div id="contenedor-principal">
+    <div id="fase-codificacion">
+        <div id="lista-visual"></div>
+        <div id="timer-box">Memoriza: <span id="segundos">15</span>s</div>
     </div>
 
-    <div id="contenedor-central">
+    <div id="zona-reconocimiento">
+        <h2 style="font-size: 2.5rem; color: #103A57; background: rgba(255,255,255,0.8); display: inline-block; padding: 10px 30px; border-radius: 15px; margin-bottom: 20px;">¿Cuál estaba en la lista?</h2>
         <div class="botones-par">
-            <button class="btn-opcion" id="opcion-a" onclick="verificar(this.innerText)"></button>
-            <button class="btn-opcion" id="opcion-b" onclick="verificar(this.innerText)"></button>
+            <button class="btn-opcion" id="btn-a" onclick="verificar(this.innerText)"></button>
+            <button class="btn-opcion" id="btn-b" onclick="verificar(this.innerText)"></button>
         </div>
     </div>
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 3.5rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
+    <h1 style="font-size: 3.5rem; color: #FFD700;">¡MUY BIEN HECHO!</h1>
     <p id="resumen-final" style="font-size: 2rem; margin: 20px 0;"></p>
-    <p style="font-style: italic; font-size: 1.5rem;">"Recordar cada palabra es un avance"</p>
-    <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer; margin-top: 20px;">REPETIR NIVEL</button>
+    <p style="font-style: italic; font-size: 1.5rem;">"Cada palabra que recuerdas es un gran avance"</p>
+    <button onclick="location.reload()" style="padding: 15px 40px; font-size: 1.5rem; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px;">REINTENTAR</button>
 </div>
 
 <script>
-    // Banco de datos (Mercado y Distractores según image_4.png)
     const mercado = ["Arroz", "Pasta", "Lentejas", "Frijoles", "Aceite", "Sal", "Azúcar", "Café", "Leche", "Huevos", "Pan", "Queso", "Pollo", "Carne", "Atún", "Tomate", "Cebolla", "Ajo", "Papa", "Zanahoria", "Lechuga", "Manzana", "Banano", "Naranja", "Limón", "Yogur", "Mantequilla", "Harina", "Galletas", "Chocolate"];
     const distNeutros = ["Silencio", "Tormenta", "Espejo", "Camino", "Nube", "Arena", "Bosque", "Puerta", "Sombra", "Fuego", "Río", "Estrella", "Viento", "Libro", "Cielo", "Piedra", "Puente", "Luz", "Jardín", "Mariposa", "Tren", "Isla", "Luna", "Globo", "Torre", "Laberinto", "Horizonte"];
     const distFoneticos = ["Aro", "Raza", "Lente", "Flecos", "Aseito", "Sol", "Azafrán", "Cafeto", "Lecho", "Huesos", "Pana", "Caso", "Poyo", "Marte", "Atajo", "Tomar", "Sebolla", "Agro", "Mapa", "Santana", "Lechuza", "Montana", "Verano", "Noriega", "Limbo", "Yugo", "Mantilla", "Montaña", "Reloj", "Ventana"];
 
-    // Variables de estado (Simulación de Fase 1 para prueba)
-    let nivel = 1; // Nivel 1 = 6 palabras. Nivel 3 = 15.
-    let palabrasReto = ["Tomate", "Arroz", "Leche", "Queso", "Sal", "Pan"]; 
+    let nivelActual = 1;
+    let palabrasReto = [];
     let indicePregunta = 0;
-    let aciertos = 0;
+    let aciertosGlobales = 0;
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.95; // Velocidad cómoda
+        msg.rate = 0.85;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
-    function prepararFaseReconocimiento() {
-        // En producción, aquí se recibirían las palabras memorizadas en Fase 1
-        aciertos = 0;
-        indicePregunta = 0;
-        presentarPar();
+    function iniciarNivel() {
+        const cantidad = { 1: 6, 2: 10, 3: 15 }[nivelActual];
+        palabrasReto = [...mercado].sort(() => 0.5 - Math.random()).slice(0, cantidad);
+        
+        // Reset visual
+        document.getElementById('lista-visual').innerHTML = "";
+        document.getElementById('fase-codificacion').style.display = 'block';
+        document.getElementById('zona-reconocimiento').style.display = 'none';
+        document.getElementById('timer-box').style.display = 'none';
+        document.getElementById('label-guia').innerText = "Memoriza la lista, Juan";
+
+        hablar(`Juan, memoriza estas ${cantidad} palabras.`, () => {
+            mostrarPalabrasAcumuladas(0);
+        });
     }
 
-    function presentarPar() {
+    function mostrarPalabrasAcumuladas(idx) {
+        if (idx < palabrasReto.length) {
+            const div = document.createElement('div');
+            div.className = 'palabra-item';
+            div.innerText = palabrasReto[idx];
+            document.getElementById('lista-visual').appendChild(div);
+            
+            hablar(palabrasReto[idx], () => {
+                setTimeout(() => mostrarPalabrasAcumuladas(idx + 1), 700);
+            });
+        } else {
+            iniciarTiempoFijacion();
+        }
+    }
+
+    function iniciarTiempoFijacion() {
+        const box = document.getElementById('timer-box');
+        box.style.display = 'inline-block';
+        let segundos = 15;
+        const countdown = setInterval(() => {
+            segundos--;
+            document.getElementById('segundos').innerText = segundos;
+            if (segundos <= 0) {
+                clearInterval(countdown);
+                iniciarReconocimiento();
+            }
+        }, 1000);
+    }
+
+    function iniciarReconocimiento() {
+        document.getElementById('fase-codificacion').style.display = 'none';
+        document.getElementById('zona-reconocimiento').style.display = 'block';
+        document.getElementById('label-guia').innerText = "Fase 2: ¿Cuáles recuerdas?";
+        indicePregunta = 0;
+        presentarPregunta();
+    }
+
+    function presentarPregunta() {
         if (indicePregunta < palabrasReto.length) {
             const correcta = palabrasReto[indicePregunta];
-            let distractor;
-
-            // Lógica de dificultad por nivel
-            if (nivel === 1) {
-                distractor = distNeutros[Math.floor(Math.random() * distNeutros.length)];
-            } else if (nivel === 3) {
-                const idxMercado = mercado.indexOf(correcta);
-                distractor = distFoneticos[idxMercado] || distNeutros[0];
-            } else { // Nivel 2: Mezcla
-                distractor = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random() * distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
-            }
-
-            const opciones = [correcta, distractor].sort(() => 0.5 - Math.random());
+            let dist;
             
-            const btnA = document.getElementById('opcion-a');
-            const btnB = document.getElementById('opcion-b');
-            btnA.innerText = opciones[0];
-            btnB.innerText = opciones[1];
-            btnA.style.borderColor = "#103A57"; btnB.style.borderColor = "#103A57"; // Reset colores
+            // Dificultad por nivel
+            if (nivelActual === 1) dist = distNeutros[Math.floor(Math.random()*distNeutros.length)];
+            else if (nivelActual === 3) dist = distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
+            else dist = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random()*distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
 
-            // AUDIO COMPLETO: ¿Cuál estaba en la lista, Río o Tomate?
-            hablar(`Juan, ¿cuál estaba en la lista, ${opciones[0]} o ${opciones[1]}?`);
+            const opciones = [correcta, dist].sort(() => 0.5 - Math.random());
+            document.getElementById('btn-a').innerText = opciones[0];
+            document.getElementById('btn-b').innerText = opciones[1];
+            
+            hablar(`¿Cuál estaba en la lista, ${opciones[0]} o ${opciones[1]}?`);
         } else {
-            finalizarNivel();
+            avanzarNivel();
         }
     }
 
     function verificar(elegida) {
-        const correcta = palabrasReto[indicePregunta];
-        const btnCorrecto = Array.from(document.getElementsByClassName('btn-opcion')).find(b => b.innerText === correcta);
-        const btnElegido = Array.from(document.getElementsByClassName('btn-opcion')).find(b => b.innerText === elegida);
-
-        if (elegida === correcta) {
-            aciertos++;
-            hablar("¡Correcto!");
-            btnCorrecto.style.borderColor = "#366B2B"; // Verde
+        if (elegida === palabrasReto[indicePregunta]) {
+            aciertosGlobales++;
+            hablar("¡Muy bien!");
         } else {
             hablar("Esa no estaba.");
-            btnElegido.style.borderColor = "#E67E22"; // Naranja (Error)
-            btnCorrecto.style.borderColor = "#366B2B"; // Muestra la correcta
         }
-
         indicePregunta++;
-        setTimeout(presentarPar, 1500); // Pausa para feedback visual y de audio
+        setTimeout(presentarPregunta, 1300);
     }
 
-    function finalizarNivel() {
+    function avanzarNivel() {
+        if (nivelActual < 3) {
+            nivelActual++;
+            hablar(`Nivel completado. Vamos por ${nivelActual === 2 ? '10' : '15'} palabras.`, iniciarNivel);
+        } else {
+            finalizarTodo();
+        }
+    }
+
+    function finalizarTodo() {
+        document.getElementById('zona-reconocimiento').style.display = 'none';
         document.getElementById('overlay-final').style.display = 'flex';
-        const pct = Math.round((aciertos / palabrasReto.length) * 100);
-        document.getElementById('resumen-final').innerText = `Aciertos: ${aciertos} de ${palabrasReto.length} | Precisión: ${pct}%`;
-        hablar(`¡Muy bien Juan! Has fortalecido tu memoria hoy con ${aciertos} aciertos.`);
+        document.getElementById('resumen-final').innerText = `Lograste ${aciertosGlobales} aciertos en total.`;
+        hablar("¡Excelente Juan! Has terminado todo el entrenamiento del mercado.");
     }
 </script>
 </body>
