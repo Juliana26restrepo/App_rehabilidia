@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 3 - Juan: Sonidos de la Ciudad</title>
+    <title>Memoria 3 - Juan: Sonidos con Pistas</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
         
@@ -37,14 +37,15 @@
         .btn-sonido { background: white; border: 3px solid #103A57; border-radius: 15px; width: 100px; height: 100px; cursor: grab; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .btn-sonido img { width: 70px; height: 70px; pointer-events: none; }
         
-        .hueco-arrastre { background: rgba(255,255,255,0.2); border: 2px dashed white; border-radius: 50%; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; }
-        .hueco-arrastre img { width: 70px; height: 70px; }
+        .hueco-arrastre { background: rgba(255,255,255,0.2); border: 3px dashed white; border-radius: 50%; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; transition: 0.3s; }
+        .hueco-arrastre img { width: 80px; height: 80px; }
 
-        /* Estilo de la Pista */
-        .pista-activa { animation: flicker 1s infinite; border-color: #FFD700 !important; background: rgba(255, 215, 0, 0.3) !important; }
-        @keyframes flicker { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        /* PISTA: Parpadeo amarillo */
+        .pista-ayuda { animation: parpadeo 1s infinite; border: 5px solid #FFD700 !important; background: rgba(255, 215, 0, 0.4) !important; color: #FFD700 !important; }
+        @keyframes parpadeo { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .linea-resumen { margin: 10px 0; width: 400px; display: flex; justify-content: space-between; font-size: 1.8rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
     </style>
 </head>
 <body onload="iniciarNivel()">
@@ -73,10 +74,10 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3rem;">¡MUY BIEN HECHO!</h1>
-    <div id="resumen-niveles" style="margin: 20px 0; font-size: 1.8rem;"></div>
-    <p style="font-size: 1.2rem;">"Cada sonido que recuerdas, te acerca más a dominar tu vida"</p>
-    <button onclick="location.reload()" style="padding: 15px 40px; background: #366B2B; color: white; border: none; border-radius: 10px; font-size: 1.5rem; cursor: pointer;">REINTENTAR</button>
+    <h1 style="color: #FFD700; font-size: 3.5rem;">¡REPORTE FINAL!</h1>
+    <div id="resumen-niveles" style="margin: 20px 0;"></div>
+    <p style="font-style: italic; font-size: 1.4rem;">"Cada sonido que recuerdas, te acerca más a dominar tu vida"</p>
+    <button onclick="location.reload()" style="padding: 15px 40px; background: #366B2B; color: white; border: none; border-radius: 10px; font-size: 1.5rem; cursor: pointer; margin-top: 20px;">REINTENTAR</button>
 </div>
 
 <script>
@@ -84,8 +85,9 @@
     let nivelActual = 1;
     let secuenciaReto = [];
     let respuestasUsuario = [];
-    let erroresConsecutivos = 0;
-    let aciertosPorNivel = { 1: 0, 2: 0, 3: 0 };
+    let erroresSeguidos = 0;
+    let aciertosFinales = { 1: 0, 2: 0, 3: 0 };
+    let intentosTotales = { 1: 0, 2: 0, 3: 0 }; 
     const metas = { 1: 5, 2: 8, 3: 11 };
 
     function hablar(t, callback) {
@@ -99,13 +101,11 @@
 
     function iniciarNivel() {
         respuestasUsuario = [];
-        erroresConsecutivos = 0;
+        erroresSeguidos = 0;
         secuenciaReto = [...banco].sort(() => 0.5 - Math.random()).slice(0, metas[nivelActual]);
         document.getElementById('panel-respuesta').style.display = 'none';
         document.getElementById('panel-codificacion').style.display = 'flex';
-        document.getElementById('label-guia').innerText = "Fase 1: Escucha la secuencia...";
-        
-        hablar(`Juan, escucha estos ${metas[nivelActual]} sonidos.`, () => {
+        hablar(`Escucha con atención estos ${metas[nivelActual]} sonidos.`, () => {
             setTimeout(() => reproducirSecuencia(0), 1000);
         });
     }
@@ -114,31 +114,26 @@
         if (idx < secuenciaReto.length) {
             document.getElementById('txt-sonido-count').innerText = `Sonido ${idx + 1} de ${secuenciaReto.length}`;
             document.getElementById('box-onda').classList.add('animating');
-            
             const audio = new Audio(`mem3/${secuenciaReto[idx]}.mp3`);
             audio.play();
-            
             setTimeout(() => {
                 audio.pause();
                 document.getElementById('box-onda').classList.remove('animating');
-                // PAUSA DE 2 SEGUNDOS ENTRE SONIDOS
                 setTimeout(() => reproducirSecuencia(idx + 1), 2000);
-            }, 4000); // CADA SONIDO DURA 4 SEGUNDOS
+            }, 4000); // 4 SEGUNDOS DE AUDIO
         } else {
-            prepararRespuesta();
+            prepararFaseRespuesta();
         }
     }
 
-    function prepararRespuesta() {
+    function prepararFaseRespuesta() {
         document.getElementById('panel-codificacion').style.display = 'none';
         const panelRes = document.getElementById('panel-respuesta');
         const bancoDiv = document.getElementById('zona-banco-sonidos');
         const lineaDiv = document.getElementById('zona-linea-arrastre');
-        
         bancoDiv.innerHTML = ""; lineaDiv.innerHTML = "";
         panelRes.style.display = 'flex';
-        document.getElementById('label-guia').innerText = "Fase 2: Arrastra en orden";
-        hablar("¿En qué orden sonaron? Arrástralos a los círculos.");
+        hablar("Juan, ¿en qué orden los escuchaste?");
 
         secuenciaReto.forEach((_, i) => {
             const h = document.createElement('div');
@@ -147,9 +142,7 @@
             lineaDiv.appendChild(h);
         });
 
-        // Banco con 6 distractores adicionales
         let opciones = [...secuenciaReto, ...banco.filter(x => !secuenciaReto.includes(x)).slice(0, 6)].sort(() => 0.5 - Math.random());
-        
         opciones.forEach(id => {
             const btn = document.createElement('div');
             btn.className = 'btn-sonido';
@@ -166,47 +159,54 @@
         lineaDiv.ondragover = (e) => e.preventDefault();
         lineaDiv.ondrop = (e) => {
             const id = e.dataTransfer.getData('text');
-            verificarRespuesta(id);
+            evaluar(id);
         };
     }
 
-    function verificarRespuesta(id) {
+    function evaluar(id) {
+        intentosTotales[nivelActual]++;
         const objetivo = secuenciaReto[respuestasUsuario.length];
-        const lineaDiv = document.getElementById('zona-linea-arrastre');
-        const huecoActual = lineaDiv.children[respuestasUsuario.length];
+        const huecos = document.querySelectorAll('.hueco-arrastre');
+        const huecoActual = huecos[respuestasUsuario.length];
 
         if (id === objetivo) {
             huecoActual.innerHTML = `<img src="mem3/${id}.png">`;
-            huecoActual.classList.remove('pista-activa');
+            huecoActual.classList.remove('pista-ayuda');
             huecoActual.style.borderStyle = "solid";
+            huecoActual.style.borderColor = "#FFD700";
             respuestasUsuario.push(id);
-            erroresConsecutivos = 0; // Reset de errores
-
+            erroresSeguidos = 0;
             if (respuestasUsuario.length === secuenciaReto.length) {
-                aciertosPorNivel[nivelActual] = secuenciaReto.length;
+                aciertosFinales[nivelActual] = secuenciaReto.length;
                 setTimeout(nivelActual < 3 ? () => { nivelActual++; iniciarNivel(); } : finalizar, 1500);
             }
         } else {
-            erroresConsecutivos++;
+            erroresSeguidos++;
             hablar("Ese no sigue el orden.");
-            
-            // Si hay 3 errores, dar pista
-            if (erroresConsecutivos >= 3) {
-                huecoActual.classList.add('pista-activa');
-                hablar(`Juan, fíjate en el círculo que parpadea. El siguiente es el sonido de ${objetivo}.`);
+            // PISTA: Si se equivoca 3 veces en el mismo lugar
+            if (erroresSeguidos >= 3) {
+                huecoActual.classList.add('pista-ayuda');
+                hablar(`¡Mira Juan! El siguiente es el sonido de ${objetivo}.`);
             }
         }
     }
 
     function finalizar() {
         document.getElementById('panel-respuesta').style.display = 'none';
-        document.getElementById('resumen-niveles').innerHTML = `
-            Nivel Bajo: ${aciertosPorNivel[1]}/5 <br>
-            Nivel Medio: ${aciertosPorNivel[2]}/8 <br>
-            Nivel Alto: ${aciertosPorNivel[3]}/11
+        const resumen = document.getElementById('resumen-niveles');
+        
+        const getP = (n) => {
+            let p = Math.round((aciertosFinales[n] / intentosTotales[n]) * 100);
+            return isNaN(p) ? 0 : p;
+        };
+
+        resumen.innerHTML = `
+            <div class="linea-resumen"><span>Nivel 1 (5 sonidos):</span> <b>${getP(1)}%</b></div>
+            <div class="linea-resumen"><span>Nivel 2 (8 sonidos):</span> <b>${getP(2)}%</b></div>
+            <div class="linea-resumen"><span>Nivel 3 (11 sonidos):</span> <b>${getP(3)}%</b></div>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente trabajo Juan! Has completado el entrenamiento de hoy.");
+        hablar("¡Excelente Juan! Has recuperado todos los sonidos. Mira tus resultados.");
     }
 </script>
 </body>
