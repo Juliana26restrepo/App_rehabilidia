@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 1 - Juan: Entrenamiento Total</title>
+    <title>Memoria 1 - Juan: Entrenamiento de Retención</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('mem1/fondo.jpg') no-repeat center center fixed; background-size: cover; height: 100vh; }
         #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; z-index: 1000; position: relative; }
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; max-width: 70%; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-        #panel-objetos { width: 170px; background: rgba(255,255,255,0.9); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 100; }
-        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; margin-bottom: 10px; }
+        #panel-objetos { width: 175px; background: rgba(255,255,255,0.92); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 15px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 100; }
+        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; }
         #escena-central { margin-left: 0; height: calc(100vh - 84px); position: relative; transition: margin 0.3s; }
         #habitacion-area { position: relative; width: 100%; height: 100%; }
-        .pieza { position: absolute; width: 100px; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; }
-        .guia-sombra { position: absolute; width: 110px; height: 110px; border: 3px dashed rgba(108, 91, 123, 0.5); border-radius: 15px; background: rgba(255,255,255,0.15); transform: translate(-50%, -50%); display: none; z-index: 5; }
+        .pieza { position: absolute; width: 105px; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; }
+        .guia-sombra { position: absolute; width: 110px; height: 110px; border: 4px dashed rgba(108, 91, 123, 0.6); border-radius: 15px; background: rgba(255,255,255,0.25); transform: translate(-50%, -50%); display: none; z-index: 5; }
         #timer-box { position: absolute; top: 20px; right: 20px; background: #E67E22; color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; display: none; z-index: 2000; }
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
     </style>
 </head>
-<body onload="iniciarJuego()">
+<body onload="prepararNivel()">
 
 <div id="cabecera">
-    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
+    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Preparando...</span></div>
     <div id="timer-box">00:00</div>
 </div>
 
@@ -32,7 +32,7 @@
 <div id="overlay-final">
     <h1 style="font-size: 3.5rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
     <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
-    <button onclick="window.location.href='memoria_sesiones.html'" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">VOLVER AL MENÚ</button>
+    <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">REPETIR ENTRENAMIENTO</button>
 </div>
 
 <script>
@@ -42,19 +42,18 @@
     let erroresTotales = 0;
     let aciertosTotales = 0;
 
-    // PUNTOS DE GRILLA FIJOS (Aseguran que no se tapen)
     const puntosGrilla = [
-        {x: 250, y: 200}, {x: 550, y: 200}, {x: 850, y: 200},
-        {x: 250, y: 450}, {x: 550, y: 450}, {x: 850, y: 450},
-        {x: 400, y: 700}, {x: 700, y: 700}
+        {x: 220, y: 300}, {x: 480, y: 250}, {x: 800, y: 200},
+        {x: 250, y: 650}, {x: 550, y: 480}, {x: 880, y: 450},
+        {x: 400, y: 750}, {x: 750, y: 720}, {x: 950, y: 680}
     ];
 
     const itemsRepo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
 
     const config = {
-        'bajo': { cant: 2, tiempo: 10, distractores: 2, next: 'medio' },
-        'medio': { cant: 4, tiempo: 15, distractores: 3, next: 'alto' },
-        'alto': { cant: 6, tiempo: 20, distractores: 2, next: 'fin' }
+        'bajo': { cant: 2, tiempo: 12, distractores: 2, next: 'medio' },
+        'medio': { cant: 4, tiempo: 18, distractores: 3, next: 'alto' },
+        'alto': { cant: 6, tiempo: 25, distractores: 3, next: 'fin' }
     };
 
     function hablar(t, callback) {
@@ -66,8 +65,6 @@
         window.speechSynthesis.speak(msg);
     }
 
-    function iniciarJuego() { prepararNivel(); }
-
     function prepararNivel() {
         document.getElementById('guias-contenedor').innerHTML = "";
         document.getElementById('objetos-memorizar').innerHTML = "";
@@ -78,32 +75,26 @@
         colocadasEnNivel = 0;
 
         const c = config[nivelActual];
-        // Seleccionar objetos y asignarles puntos de grilla únicos
         const itemsSorteados = [...itemsRepo].sort(() => Math.random() - 0.5).slice(0, c.cant);
         const puntosSorteados = [...puntosGrilla].sort(() => Math.random() - 0.5);
 
         objetosReto = itemsSorteados.map((id, index) => ({
-            id: id,
-            x: puntosSorteados[index].x,
-            y: puntosSorteados[index].y
+            id: id, x: puntosSorteados[index].x, y: puntosSorteados[index].y
         }));
 
-        hablar(`Juan, memoriza estos ${c.cant} objetos.`, () => {
-            const contenedor = document.getElementById('objetos-memorizar');
-            const guias = document.getElementById('guias-contenedor');
-
+        hablar(`Juan, nivel ${nivelActual}. Memoriza estos ${c.cant} objetos.`, () => {
             objetosReto.forEach(obj => {
                 const img = document.createElement('img');
                 img.src = `mem1/${obj.id}.png`;
                 img.className = 'pieza';
                 img.style.left = obj.x + 'px'; img.style.top = obj.y + 'px';
-                contenedor.appendChild(img);
+                document.getElementById('objetos-memorizar').appendChild(img);
 
                 const guia = document.createElement('div');
                 guia.className = 'guia-sombra';
                 guia.style.display = 'block';
                 guia.style.left = obj.x + 'px'; guia.style.top = obj.y + 'px';
-                guias.appendChild(guia);
+                document.getElementById('guias-contenedor').appendChild(guia);
             });
             iniciarContador(c.tiempo);
         });
@@ -121,11 +112,10 @@
     function faseEvocacion() {
         document.getElementById('objetos-memorizar').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'flex';
-        document.getElementById('escena-central').style.marginLeft = '174px';
+        document.getElementById('escena-central').style.marginLeft = '179px';
         
         const c = config[nivelActual];
-        // Añadir guías distractoras vacías
-        const puntosUsados = objetosReto.length;
+        // AGREGAR SEÑALES DISTRACTORAS (Marcas vacías)
         const puntosLibres = puntosGrilla.filter(p => !objetosReto.some(o => o.x === p.x && o.y === p.y));
         puntosLibres.slice(0, c.distractores).forEach(p => {
             const guiaExtra = document.createElement('div');
@@ -135,15 +125,14 @@
             document.getElementById('guias-contenedor').appendChild(guiaExtra);
         });
 
-        hablar("Coloca cada objeto en su marca.");
-        const panel = document.getElementById('panel-objetos');
+        hablar("Ahora Juan, colócalos en sus marcas originales.");
         [...objetosReto].sort(() => Math.random() - 0.5).forEach(obj => {
             const img = document.createElement('img');
             img.src = `mem1/${obj.id}.png`;
             img.className = 'draggable';
             img.dataset.id = obj.id;
             img.onmousedown = img.ontouchstart = drag;
-            panel.appendChild(img);
+            document.getElementById('panel-objetos').appendChild(img);
         });
     }
 
@@ -169,7 +158,7 @@
             const objInfo = objetosReto.find(o => o.id === el.dataset.id);
             const dist = Math.sqrt(Math.pow(posX - objInfo.x, 2) + Math.pow(posY - objInfo.y, 2));
             
-            if (dist < 90) {
+            if (dist < 85) { // Si acertó
                 aciertosTotales++; colocadasEnNivel++;
                 hablar("¡Muy bien!");
                 const fija = document.createElement('img');
@@ -177,10 +166,12 @@
                 fija.style.left = objInfo.x + 'px'; fija.style.top = objInfo.y + 'px';
                 document.getElementById('objetos-evocar').appendChild(fija);
                 el.style.visibility = 'hidden';
-                if (colocadasEnNivel === objetosReto.length) setTimeout(verificarProgresion, 1200);
+                
+                // SOLO PASA DE NIVEL SI COMPLETÓ TODOS LOS OBJETOS DEL NIVEL
+                if (colocadasEnNivel === objetosReto.length) setTimeout(verificarProgresion, 1500);
             } else {
                 erroresTotales++;
-                hablar("Ese no es su lugar.");
+                hablar("Cerca, pero no ahí.");
                 el.style.position = 'static';
             }
         }
@@ -193,8 +184,8 @@
         if (proximo === 'fin') {
             document.getElementById('overlay-final').style.display = 'flex';
             const total = aciertosTotales + erroresTotales;
-            document.getElementById('resumen-final').innerText = `Retención: ${Math.round((aciertosTotales/total)*100)}% | Errores: ${erroresTotales}`;
-            hablar("¡Entrenamiento finalizado con éxito!");
+            document.getElementById('resumen-final').innerText = `Precisión: ${Math.round((aciertosTotales/total)*100)}% | Errores: ${erroresTotales}`;
+            hablar("¡Entrenamiento completado!");
         } else {
             nivelActual = proximo; prepararNivel();
         }
@@ -202,4 +193,3 @@
 </script>
 </body>
 </html>
-
