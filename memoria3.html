@@ -7,7 +7,6 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
         
-        /* Fondo solicitado: mem3/fondo.jpg */
         #escena-total { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: url('mem3/fondo.jpg') no-repeat center center; 
@@ -20,28 +19,30 @@
 
         #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; position: relative; }
         
-        /* FASE 1: ONDA DE SONIDO */
+        /* FASE 1: ONDA */
         #panel-codificacion { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #box-onda { background: rgba(255, 255, 255, 0.9); border: 4px solid #366B2B; border-radius: 20px; width: 60%; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; gap: 8px; }
         
-        /* Barras de sonido animadas */
         .bar { width: 12px; height: 40px; background: #366B2B; border-radius: 5px; display: none; }
         .animating .bar { display: block; animation: soundWave 0.5s infinite alternate; }
         .bar:nth-child(2) { animation-delay: 0.2s; }
         .bar:nth-child(3) { animation-delay: 0.4s; }
-        .bar:nth-child(4) { animation-delay: 0.1s; }
         @keyframes soundWave { from { height: 20px; } to { height: 80px; } }
 
         /* FASE 2: ARRASTRE */
         #panel-respuesta { display: none; flex: 1; flex-direction: column; align-items: center; padding: 15px; }
-        #zona-banco-sonidos { background: rgba(255,255,255,0.9); border: 3px solid #6C5B7B; border-radius: 15px; width: 95%; height: 55%; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
-        #zona-linea-arrastre { background: rgba(54, 107, 43, 0.9); border: 3px dashed #FFD700; border-radius: 15px; width: 95%; height: 35%; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
+        #zona-banco-sonidos { background: rgba(255,255,255,0.9); border: 3px solid #6C5B7B; border-radius: 15px; width: 95%; height: 50%; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        #zona-linea-arrastre { background: rgba(54, 107, 43, 0.9); border: 3px dashed #FFD700; border-radius: 15px; width: 95%; height: 40%; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
 
         .btn-sonido { background: white; border: 3px solid #103A57; border-radius: 15px; width: 100px; height: 100px; cursor: grab; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .btn-sonido img { width: 70px; height: 70px; pointer-events: none; }
         
-        .hueco-arrastre { background: rgba(255,255,255,0.2); border: 2px dashed white; border-radius: 50%; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .hueco-arrastre { background: rgba(255,255,255,0.2); border: 2px dashed white; border-radius: 50%; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; }
         .hueco-arrastre img { width: 70px; height: 70px; }
+
+        /* Estilo de la Pista */
+        .pista-activa { animation: flicker 1s infinite; border-color: #FFD700 !important; background: rgba(255, 215, 0, 0.3) !important; }
+        @keyframes flicker { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
     </style>
@@ -53,7 +54,7 @@
 <div id="cabecera">
     <div id="instruccion-box">
         <img src="COTERAPEUTA.JPG">
-        <span id="label-guia">Escucha atentamente...</span>
+        <span id="label-guia">Juan, escucha los sonidos...</span>
     </div>
 </div>
 
@@ -61,7 +62,7 @@
     <div id="panel-codificacion">
         <div id="box-onda">
             <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div id="txt-sonido-count" style="position: absolute; bottom: 10px; font-weight: bold;"></div>
+            <div id="txt-sonido-count" style="position: absolute; bottom: 10px; font-weight: bold; color: #333;"></div>
         </div>
     </div>
 
@@ -72,10 +73,10 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
-    <div id="resumen-niveles" style="margin: 20px 0; font-size: 1.5rem;"></div>
-    <p>"Cada sonido que recuerdas, te acerca más a dominar tu vida"</p>
-    <button onclick="location.reload()" style="padding: 15px 40px; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer;">REINTENTAR</button>
+    <h1 style="color: #FFD700; font-size: 3rem;">¡MUY BIEN HECHO!</h1>
+    <div id="resumen-niveles" style="margin: 20px 0; font-size: 1.8rem;"></div>
+    <p style="font-size: 1.2rem;">"Cada sonido que recuerdas, te acerca más a dominar tu vida"</p>
+    <button onclick="location.reload()" style="padding: 15px 40px; background: #366B2B; color: white; border: none; border-radius: 10px; font-size: 1.5rem; cursor: pointer;">REINTENTAR</button>
 </div>
 
 <script>
@@ -83,6 +84,7 @@
     let nivelActual = 1;
     let secuenciaReto = [];
     let respuestasUsuario = [];
+    let erroresConsecutivos = 0;
     let aciertosPorNivel = { 1: 0, 2: 0, 3: 0 };
     const metas = { 1: 5, 2: 8, 3: 11 };
 
@@ -90,16 +92,19 @@
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
+        msg.rate = 0.85;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarNivel() {
         respuestasUsuario = [];
+        erroresConsecutivos = 0;
         secuenciaReto = [...banco].sort(() => 0.5 - Math.random()).slice(0, metas[nivelActual]);
         document.getElementById('panel-respuesta').style.display = 'none';
         document.getElementById('panel-codificacion').style.display = 'flex';
+        document.getElementById('label-guia').innerText = "Fase 1: Escucha la secuencia...";
+        
         hablar(`Juan, escucha estos ${metas[nivelActual]} sonidos.`, () => {
             setTimeout(() => reproducirSecuencia(0), 1000);
         });
@@ -116,9 +121,9 @@
             setTimeout(() => {
                 audio.pause();
                 document.getElementById('box-onda').classList.remove('animating');
-                // PAUSA MÁS LARGA ENTRE SONIDOS (1.5 segundos)
-                setTimeout(() => reproducirSecuencia(idx + 1), 1500);
-            }, 3000); // CADA SONIDO DURA 3 SEGUNDOS
+                // PAUSA DE 2 SEGUNDOS ENTRE SONIDOS
+                setTimeout(() => reproducirSecuencia(idx + 1), 2000);
+            }, 4000); // CADA SONIDO DURA 4 SEGUNDOS
         } else {
             prepararRespuesta();
         }
@@ -132,7 +137,8 @@
         
         bancoDiv.innerHTML = ""; lineaDiv.innerHTML = "";
         panelRes.style.display = 'flex';
-        hablar("¿En qué orden sonaron? Arrástralos abajo.");
+        document.getElementById('label-guia').innerText = "Fase 2: Arrastra en orden";
+        hablar("¿En qué orden sonaron? Arrástralos a los círculos.");
 
         secuenciaReto.forEach((_, i) => {
             const h = document.createElement('div');
@@ -141,16 +147,17 @@
             lineaDiv.appendChild(h);
         });
 
-        let opciones = [...secuenciaReto, ...banco.filter(x => !secuenciaReto.includes(x)).slice(0, 4)].sort(() => 0.5 - Math.random());
+        // Banco con 6 distractores adicionales
+        let opciones = [...secuenciaReto, ...banco.filter(x => !secuenciaReto.includes(x)).slice(0, 6)].sort(() => 0.5 - Math.random());
         
         opciones.forEach(id => {
             const btn = document.createElement('div');
             btn.className = 'btn-sonido';
             btn.innerHTML = `<img src="mem3/${id}.png">`;
             btn.setAttribute('draggable', true);
-            btn.onclick = () => { // Escuchar antes de arrastrar
+            btn.onclick = () => { 
                 const a = new Audio(`mem3/${id}.mp3`);
-                a.play(); setTimeout(() => a.pause(), 2000);
+                a.play(); setTimeout(() => a.pause(), 2500);
             };
             btn.ondragstart = (e) => e.dataTransfer.setData('text', id);
             bancoDiv.appendChild(btn);
@@ -159,26 +166,47 @@
         lineaDiv.ondragover = (e) => e.preventDefault();
         lineaDiv.ondrop = (e) => {
             const id = e.dataTransfer.getData('text');
-            if (id === secuenciaReto[respuestasUsuario.length]) {
-                const hueco = lineaDiv.children[respuestasUsuario.length];
-                hueco.innerHTML = `<img src="mem3/${id}.png">`;
-                hueco.style.borderStyle = "solid";
-                respuestasUsuario.push(id);
-                if (respuestasUsuario.length === secuenciaReto.length) {
-                    aciertosPorNivel[nivelActual] = secuenciaReto.length;
-                    setTimeout(nivelActual < 3 ? () => { nivelActual++; iniciarNivel(); } : finalizar, 1500);
-                }
-            } else { hablar("Ese no sigue el orden."); }
+            verificarRespuesta(id);
         };
+    }
+
+    function verificarRespuesta(id) {
+        const objetivo = secuenciaReto[respuestasUsuario.length];
+        const lineaDiv = document.getElementById('zona-linea-arrastre');
+        const huecoActual = lineaDiv.children[respuestasUsuario.length];
+
+        if (id === objetivo) {
+            huecoActual.innerHTML = `<img src="mem3/${id}.png">`;
+            huecoActual.classList.remove('pista-activa');
+            huecoActual.style.borderStyle = "solid";
+            respuestasUsuario.push(id);
+            erroresConsecutivos = 0; // Reset de errores
+
+            if (respuestasUsuario.length === secuenciaReto.length) {
+                aciertosPorNivel[nivelActual] = secuenciaReto.length;
+                setTimeout(nivelActual < 3 ? () => { nivelActual++; iniciarNivel(); } : finalizar, 1500);
+            }
+        } else {
+            erroresConsecutivos++;
+            hablar("Ese no sigue el orden.");
+            
+            // Si hay 3 errores, dar pista
+            if (erroresConsecutivos >= 3) {
+                huecoActual.classList.add('pista-activa');
+                hablar(`Juan, fíjate en el círculo que parpadea. El siguiente es el sonido de ${objetivo}.`);
+            }
+        }
     }
 
     function finalizar() {
         document.getElementById('panel-respuesta').style.display = 'none';
         document.getElementById('resumen-niveles').innerHTML = `
-            Nivel 1: ${aciertosPorNivel[1]}/5 | Nivel 2: ${aciertosPorNivel[2]}/8 | Nivel 3: ${aciertosPorNivel[3]}/11
+            Nivel Bajo: ${aciertosPorNivel[1]}/5 <br>
+            Nivel Medio: ${aciertosPorNivel[2]}/8 <br>
+            Nivel Alto: ${aciertosPorNivel[3]}/11
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente trabajo Juan! Has recuperado todos los sonidos.");
+        hablar("¡Excelente trabajo Juan! Has completado el entrenamiento de hoy.");
     }
 </script>
 </body>
