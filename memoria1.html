@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 1 - Juan: Sistema de Imán</title>
+    <title>Memoria 1 - Juan: Sistema Imán</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #222; height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #222; }
         #escena-total { width: 100vw; height: 100vh; background: url('mem1/fondo.jpg') no-repeat center center; background-size: cover; position: relative; }
-        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; position: relative; z-index: 1000; }
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; z-index: 1000; position: relative; }
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
         #panel-objetos { width: 150px; background: rgba(255,255,255,0.92); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 12px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 500; }
         .draggable { width: 75px; height: 75px; object-fit: contain; cursor: grab; }
         #zona-juego { position: relative; height: calc(100vh - 84px); overflow: hidden; }
         .pieza { position: absolute; width: 85px; transform: translate(-50%, -50%); z-index: 20; pointer-events: none; }
-        .guia-sombra { position: absolute; width: 90px; height: 90px; border: 3px dashed rgba(108, 91, 123, 0.8); border-radius: 12px; background: rgba(255,255,255,0.3); transform: translate(-50%, -50%); display: none; z-index: 10; }
+        .guia-sombra { position: absolute; width: 95px; height: 95px; border: 3px dashed rgba(108, 91, 123, 0.8); border-radius: 12px; background: rgba(255,255,255,0.3); transform: translate(-50%, -50%); display: none; z-index: 10; }
         #timer-box { background: #E67E22; color: white; padding: 8px 20px; border-radius: 12px; font-size: 1.5rem; font-weight: bold; display: none; }
     </style>
 </head>
@@ -138,16 +138,20 @@
             
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
             const area = document.getElementById('zona-juego').getBoundingClientRect();
+            
+            // Convertimos la posición de soltado a porcentaje relativo a la zona de juego
             const px = ((st.clientX - area.left) / area.width) * 100;
             const py = ((st.clientY - area.top) / area.height) * 100;
             
+            // Buscamos si el objeto es correcto
             const objInfo = objetosReto.find(o => o.id === el.dataset.id && !o.colocado);
+            
             if(objInfo) {
                 const d = Math.sqrt(Math.pow(px - objInfo.x, 2) + Math.pow(py - objInfo.y, 2));
-                // TOLERANCIA AUMENTADA A 20 PARA EVITAR FALSOS ERRORES
-                if(d < 20) {
+                // UMBRAL DE TOLERANCIA MUY AMPLIO (25% del área)
+                if(d < 25) {
                     objInfo.colocado = true; colocadasEnNivel++;
-                    hablar("¡Muy bien!");
+                    hablar("¡Excelente!");
                     const f = document.createElement('img');
                     f.src = el.src; f.className = 'pieza';
                     f.style.left = objInfo.x + '%'; f.style.top = objInfo.y + '%';
@@ -157,6 +161,7 @@
                     return;
                 }
             }
+            // Si llega aquí es porque falló o es distractor
             hablar("Esa no es su marca.");
             el.style.position = 'static';
         }
@@ -166,9 +171,10 @@
 
     function siguiente() {
         if(nivelActual < 3) { nivelActual++; prepararSesion(); }
-        else { hablar("¡Excelente Juan! Terminamos."); }
+        else { hablar("¡Muy bien Juan! Completaste el ejercicio."); }
     }
 </script>
 </body>
 </html>
+
 
