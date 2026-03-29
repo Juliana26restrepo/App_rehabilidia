@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 1 - Juan: Malla Compacta</title>
+    <title>Memoria 1 - Juan: Entrenamiento de Precisión</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #333; height: 100vh; }
         #escena-total { width: 100vw; height: 100vh; background: url('mem1/fondo.jpg') no-repeat center center; background-size: cover; position: relative; }
@@ -35,19 +35,18 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 3rem; color: #FFD700;">¡COMPLETADO!</h1>
+    <h1 style="font-size: 3rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
     <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
     <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">REINTENTAR</button>
 </div>
 
 <script>
     let nivelActual = 1;
-    let objetosReto = [];
+    let objetosReto = []; // Los que debe memorizar
     let colocadasEnNivel = 0;
     let erroresGlobales = 0;
     let aciertosGlobales = 0;
 
-    // MALLA COMPACTA Y CENTRADA (Margen de 30% a 70% para que no sea tan ancha)
     const cuadricula = [
         {x: 35, y: 30}, {x: 45, y: 30}, {x: 55, y: 30}, {x: 65, y: 30},
         {x: 35, y: 50}, {x: 45, y: 50}, {x: 55, y: 50}, {x: 65, y: 50},
@@ -57,9 +56,9 @@
     const repo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
 
     const niveles = {
-        1: { memoriza: 2, distractores: 4, tiempo: 12 },
-        2: { memoriza: 4, distractores: 4, tiempo: 18 },
-        3: { memoriza: 6, distractores: 6, tiempo: 25 }
+        1: { memoriza: 2, distractores: 4, tiempo: 10 },
+        2: { memoriza: 4, distractores: 4, tiempo: 15 },
+        3: { memoriza: 6, distractores: 6, tiempo: 20 }
     };
 
     function hablar(t, callback) {
@@ -92,13 +91,14 @@
                 img.style.left = obj.x + '%'; img.style.top = obj.y + '%';
                 document.getElementById('objetos-layer').appendChild(img);
             });
-            iniciarReloj(c.tiempo);
+            setTimeout(() => iniciarReloj(c.tiempo), 500);
         });
     }
 
     function iniciarReloj(s) {
         const box = document.getElementById('timer-box');
         box.style.display = 'block';
+        box.innerText = `00:${s<10?'0'+s:s}`;
         const t = setInterval(() => {
             s--; box.innerText = `00:${s<10?'0'+s:s}`;
             if(s<=0) { clearInterval(t); box.style.display='none'; faseReconocimiento(); }
@@ -112,19 +112,27 @@
         panel.innerHTML = "";
         
         const c = niveles[nivelActual];
+        
+        // 1. Mostrar Marcas (Guías)
         const puntosUsados = objetosReto.map(o => o.x + '-' + o.y);
-        const puntosLibres = cuadricula.filter(p => !puntosUsados.includes(p.x + '-' + p.y))
-                                       .sort(() => Math.random() - 0.5);
+        const puntosLibres = cuadricula.filter(p => !puntosUsados.includes(p.x + '-' + p.y)).sort(() => Math.random() - 0.5);
         
         objetosReto.forEach(obj => crearGuia(obj.x, obj.y));
         puntosLibres.slice(0, c.distractores).forEach(p => crearGuia(p.x, p.y));
 
-        hablar("Ahora Juan, colócalos en sus marcas correspondientes.");
+        // 2. Preparar Barra con Correctos + Distractores
+        const itemsCorrectos = objetosReto.map(o => o.id);
+        const distractoresDisponibles = repo.filter(item => !itemsCorrectos.includes(item));
+        const itemsDistractores = distractoresDisponibles.sort(() => Math.random() - 0.5).slice(0, c.distractores);
+        
+        const poolSeleccion = [...itemsCorrectos, ...itemsDistractores].sort(() => Math.random() - 0.5);
 
-        [...objetosReto].sort(() => Math.random() - 0.5).forEach(obj => {
+        hablar("Ahora Juan, elige los objetos correctos y ponlos en su marca.");
+
+        poolSeleccion.forEach(id => {
             const img = document.createElement('img');
-            img.src = `mem1/${obj.id}.png`; img.className = 'draggable';
-            img.dataset.id = obj.id;
+            img.src = `mem1/${id}.png`; img.className = 'draggable';
+            img.dataset.id = id;
             img.onmousedown = img.ontouchstart = drag;
             panel.appendChild(img);
         });
@@ -160,36 +168,46 @@
             const pctX = ((st.clientX - area.left) / area.width) * 100;
             const pctY = ((st.clientY - area.top) / area.height) * 100;
             
-            const dist = Math.sqrt(Math.pow(pctX - objInfo.x, 2) + Math.pow(pctY - objInfo.y, 2));
-
-            if(dist < 7) {
-                aciertosGlobales++; colocadasEnNivel++;
-                hablar("¡Muy bien!");
-                const fija = document.createElement('img');
-                fija.src = el.src; fija.className = 'pieza';
-                fija.style.left = objInfo.x + '%'; fija.style.top = objInfo.y + '%';
-                document.getElementById('objetos-layer').appendChild(fija);
-                el.style.visibility = 'hidden';
-                if(colocadasEnNivel === objetosReto.length) setTimeout(siguiente, 1200);
-            } else {
-                erroresGlobales++;
-                hablar("Prueba en otra marca.");
-                el.style.position = 'static';
+            // Si el objeto soltado es uno de los del reto y está cerca de su marca
+            if(objInfo) {
+                const dist = Math.sqrt(Math.pow(pctX - objInfo.x, 2) + Math.pow(pctY - objInfo.y, 2));
+                if(dist < 7) {
+                    aciertosGlobales++; colocadasEnNivel++;
+                    hablar("¡Muy bien!");
+                    const fija = document.createElement('img');
+                    fija.src = el.src; fija.className = 'pieza';
+                    fija.style.left = objInfo.x + '%'; fija.style.top = objInfo.y + '%';
+                    document.getElementById('objetos-layer').appendChild(fija);
+                    el.style.visibility = 'hidden';
+                    
+                    // Solo avanza si ya puso todos los que memorizó
+                    if(colocadasEnNivel === objetosReto.length) setTimeout(siguiente, 1200);
+                    return;
+                }
             }
+            
+            // Si no es correcto o falló el lugar
+            erroresGlobales++;
+            hablar("Ese no va ahí.");
+            el.style.position = 'static';
         }
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
         document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
     }
 
     function siguiente() {
-        if(nivelActual < 3) { nivelActual++; prepararSesion(); }
-        else {
+        if(nivelActual < 3) { 
+            nivelActual++; 
+            hablar(`Nivel ${nivelActual} completado. Vamos por más.`);
+            setTimeout(prepararSesion, 1000); 
+        } else {
             document.getElementById('overlay-final').style.display = 'flex';
             const total = aciertosGlobales + erroresGlobales;
             document.getElementById('resumen-final').innerText = `Precisión: ${Math.round((aciertosGlobales/total)*100)}% | Errores: ${erroresGlobales}`;
-            hablar("¡Excelente trabajo Juan! Has terminado por hoy.");
+            hablar("¡Excelente Juan! Has terminado todos los niveles de memoria.");
         }
     }
 </script>
 </body>
 </html>
+
