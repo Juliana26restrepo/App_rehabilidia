@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 1 - Juan: Entrenamiento de Precisión</title>
+    <title>Memoria 1 - Juan</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #333; height: 100vh; }
         #escena-total { width: 100vw; height: 100vh; background: url('mem1/fondo.jpg') no-repeat center center; background-size: cover; position: relative; }
@@ -26,7 +26,6 @@
         <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
         <div id="timer-box">00:00</div>
     </div>
-
     <div id="panel-objetos"></div>
     <div id="zona-juego">
         <div id="guias-layer"></div>
@@ -35,7 +34,7 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 3rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
+    <h1 style="font-size: 3rem; color: #FFD700;">¡COMPLETADO!</h1>
     <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
     <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">REINTENTAR</button>
 </div>
@@ -54,8 +53,7 @@
     ];
 
     const repo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
-
-    const niveles = {
+    const niveles = { 
         1: { memoriza: 2, distractores: 4, tiempo: 10 },
         2: { memoriza: 4, distractores: 4, tiempo: 15 },
         3: { memoriza: 6, distractores: 6, tiempo: 20 }
@@ -73,12 +71,12 @@
     function iniciarEntrenamiento() { prepararSesion(); }
 
     function prepararSesion() {
+        colocadasEnNivel = 0; // Reinicio obligatorio del contador
         const c = niveles[nivelActual];
         const puntos = [...cuadricula].sort(() => Math.random() - 0.5);
         const items = [...repo].sort(() => Math.random() - 0.5).slice(0, c.memoriza);
         
-        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y }));
-        colocadasEnNivel = 0;
+        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y, puesto: false }));
         
         document.getElementById('guias-layer').innerHTML = "";
         document.getElementById('objetos-layer').innerHTML = "";
@@ -98,7 +96,6 @@
     function iniciarReloj(s) {
         const box = document.getElementById('timer-box');
         box.style.display = 'block';
-        box.innerText = `00:${s<10?'0'+s:s}`;
         const t = setInterval(() => {
             s--; box.innerText = `00:${s<10?'0'+s:s}`;
             if(s<=0) { clearInterval(t); box.style.display='none'; faseReconocimiento(); }
@@ -108,8 +105,7 @@
     function faseReconocimiento() {
         document.getElementById('objetos-layer').innerHTML = "";
         const panel = document.getElementById('panel-objetos');
-        panel.style.display = 'flex';
-        panel.innerHTML = "";
+        panel.style.display = 'flex'; panel.innerHTML = "";
         
         const c = niveles[nivelActual];
         const puntosUsados = objetosReto.map(o => o.x + '-' + o.y);
@@ -118,17 +114,12 @@
         objetosReto.forEach(obj => crearGuia(obj.x, obj.y));
         puntosLibres.slice(0, c.distractores).forEach(p => crearGuia(p.x, p.y));
 
-        const itemsCorrectos = objetosReto.map(o => o.id);
-        const distractoresDisponibles = repo.filter(item => !itemsCorrectos.includes(item));
-        const itemsDistractores = distractoresDisponibles.sort(() => Math.random() - 0.5).slice(0, c.distractores);
-        const poolSeleccion = [...itemsCorrectos, ...itemsDistractores].sort(() => Math.random() - 0.5);
+        const pool = [...objetosReto.map(o => o.id), ...repo.filter(i => !objetosReto.some(o => o.id === i)).sort(() => Math.random() - 0.5).slice(0, c.distractores)].sort(() => Math.random() - 0.5);
 
-        hablar("Ahora Juan, elige los objetos correctos y ponlos en su marca.");
-
-        poolSeleccion.forEach(id => {
+        hablar("Colócalos en su marca.");
+        pool.forEach(id => {
             const img = document.createElement('img');
-            img.src = `mem1/${id}.png`; img.className = 'draggable';
-            img.dataset.id = id;
+            img.src = `mem1/${id}.png`; img.className = 'draggable'; img.dataset.id = id;
             img.onmousedown = img.ontouchstart = drag;
             panel.appendChild(img);
         });
@@ -158,24 +149,25 @@
             document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
             
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
-            const objInfo = objetosReto.find(o => o.id === el.dataset.id);
             const area = document.getElementById('zona-juego').getBoundingClientRect();
-            const pctX = ((st.clientX - area.left) / area.width) * 100;
-            const pctY = ((st.clientY - area.top) / area.height) * 100;
+            const px = ((st.clientX - area.left) / area.width) * 100;
+            const py = ((st.clientY - area.top) / area.height) * 100;
+            
+            const objInfo = objetosReto.find(o => o.id === el.dataset.id && !o.puesto);
             
             if(objInfo) {
-                const dist = Math.sqrt(Math.pow(pctX - objInfo.x, 2) + Math.pow(pctY - objInfo.y, 2));
-                // Mantengo el umbral de 7 que tenías en tu código original
-                if(dist < 7) {
+                const dist = Math.sqrt(Math.pow(px - objInfo.x, 2) + Math.pow(py - objInfo.y, 2));
+                if(dist < 10) {
+                    objInfo.puesto = true;
                     aciertosGlobales++; colocadasEnNivel++;
-                    hablar("¡Muy bien!");
-                    const fija = document.createElement('img');
-                    fija.src = el.src; fija.className = 'pieza';
-                    fija.style.left = objInfo.x + '%'; fija.style.top = objInfo.y + '%';
-                    document.getElementById('objetos-layer').appendChild(fija);
+                    hablar("¡Bien!");
+                    const f = document.createElement('img');
+                    f.src = el.src; f.className = 'pieza';
+                    f.style.left = objInfo.x + '%'; f.style.top = objInfo.y + '%';
+                    document.getElementById('objetos-layer').appendChild(f);
                     el.style.visibility = 'hidden';
                     
-                    // EL ÚNICO CAMBIO: Comparamos contra el número de objetos que memorizó Juan
+                    // VALIDACIÓN POR NIVEL: Solo pasa si colocó el número requerido (2, 4 o 6)
                     if(colocadasEnNivel === niveles[nivelActual].memoriza) {
                         setTimeout(siguiente, 1200);
                     }
@@ -183,7 +175,6 @@
                 }
             }
             erroresGlobales++;
-            hablar("Ese no va ahí.");
             el.style.position = 'static';
         }
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
@@ -191,16 +182,15 @@
     }
 
     function siguiente() {
-        if(nivelActual < 3) { 
-            nivelActual++; 
-            prepararSesion(); 
-        } else {
+        if(nivelActual < 3) { nivelActual++; prepararSesion(); }
+        else {
             document.getElementById('overlay-final').style.display = 'flex';
             const total = aciertosGlobales + erroresGlobales;
-            document.getElementById('resumen-final').innerText = `Precisión: ${Math.round((aciertosGlobales/total)*100)}% | Errores: ${erroresGlobales}`;
-            hablar("¡Excelente Juan! Has terminado.");
+            document.getElementById('resumen-final').innerText = `Aciertos: ${aciertosGlobales} | Errores: ${erroresGlobales}`;
+            hablar("¡Excelente Juan!");
         }
     }
 </script>
 </body>
 </html>
+
