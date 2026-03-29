@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria 2 - La Lista del Mercado</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; overflow: hidden; touch-action: none; text-align: center; }
+        #cabecera { background: #366B2B; color: white; padding: 15px; font-size: 1.5rem; font-weight: bold; border-bottom: 5px solid #28521f; }
+        #contenedor-principal { height: calc(100vh - 80px); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        
+        /* Estilos Fase 1: Lista Acumulativa */
+        #lista-mercado { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 80%; }
+        .palabra-lista { background: white; padding: 10px 20px; border-radius: 10px; border: 2px solid #366B2B; font-size: 1.8rem; font-weight: bold; color: #333; animation: aparecer 0.5s ease-out; }
+        
+        /* Estilos Fase 2: Reconocimiento */
+        #zona-reconocimiento { display: none; width: 100%; }
+        .pregunta-titulo { font-size: 2rem; margin-bottom: 30px; color: #103A57; }
+        .botones-par { display: flex; justify-content: center; gap: 30px; }
+        .btn-opcion { padding: 20px 40px; font-size: 2.2rem; cursor: pointer; border-radius: 15px; border: 4px solid #103A57; background: white; transition: 0.3s; font-weight: bold; min-width: 200px; }
+        .btn-opcion:active { transform: scale(0.95); }
+
+        /* Timer y Overlay */
+        #timer-box { font-size: 2rem; color: #E67E22; font-weight: bold; margin-top: 20px; display: none; }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.95); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        
+        @keyframes aparecer { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body onload="iniciarEjercicio()">
+
+<div id="cabecera">MEMORIA 2: LISTA DEL MERCADO</div>
+
+<div id="contenedor-principal">
+    <div id="fase-codificacion">
+        <div id="lista-mercado"></div>
+        <div id="timer-box">Memoriza: <span id="segundos">15</span>s</div>
+    </div>
+
+    <div id="zona-reconocimiento">
+        <div class="pregunta-titulo">¿Cuál estaba en la lista?</div>
+        <div class="botones-par">
+            <button class="btn-opcion" id="opcion-a" onclick="verificar(this.innerText)"></button>
+            <button class="btn-opcion" id="opcion-b" onclick="verificar(this.innerText)"></button>
+        </div>
+    </div>
+</div>
+
+<div id="overlay-final">
+    <h1 style="color: #FFD700;">¡AVANCE LOGRADO!</h1>
+    <p id="resumen" style="font-size: 1.5rem;"></p>
+    <p style="font-style: italic;">"Recordar cada palabra es un avance"</p>
+    <button onclick="location.reload()" style="padding: 15px 30px; font-size: 1.2rem; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer;">REINTENTAR</button>
+</div>
+
+<script>
+    const mercado = ["Arroz", "Pasta", "Lentejas", "Frijoles", "Aceite", "Sal", "Azúcar", "Café", "Leche", "Huevos", "Pan", "Queso", "Pollo", "Carne", "Atún", "Tomate", "Cebolla", "Ajo", "Papa", "Zanahoria", "Lechuga", "Manzana", "Banano", "Naranja", "Limón", "Yogur", "Mantequilla", "Harina", "Galletas", "Chocolate"];
+    const distFoneticos = ["Aro", "Raza", "Lente", "Flecos", "Aseito", "Sol", "Azafrán", "Cafeto", "Lecho", "Huesos", "Pana", "Caso", "Poyo", "Marte", "Atajo", "Tomar", "Sebolla", "Agro", "Mapa", "Santana", "Lechuza", "Montana", "Verano", "Noriega", "Limbo", "Yugo", "Mantilla", "Montaña", "Reloj", "Ventana"];
+    const distNeutros = ["Silencio", "Tormenta", "Espejo", "Camino", "Nube", "Arena", "Bosque", "Puerta", "Sombra", "Fuego", "Río", "Estrella", "Viento", "Libro", "Cielo", "Piedra", "Puente", "Luz", "Jardín", "Mariposa", "Tren", "Isla", "Luna", "Globo", "Torre", "Laberinto", "Horizonte"];
+
+    let nivel = 1;
+    let palabrasReto = [];
+    let indicePregunta = 0;
+    let aciertos = 0;
+
+    function hablar(t, callback) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'es-ES';
+        msg.rate = 0.9;
+        if(callback) msg.onend = callback;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function iniciarEjercicio() {
+        const conf = { 1: 6, 2: 10, 3: 15 };
+        const cantidad = conf[nivel];
+        // Seleccionar palabras al azar del mercado
+        palabrasReto = [...mercado].sort(() => 0.5 - Math.random()).slice(0, cantidad);
+        
+        hablar(`Juan, memoriza esta lista del mercado.`, () => {
+            mostrarPalabrasAcumulativas(0);
+        });
+    }
+
+    function mostrarPalabrasAcumulativas(i) {
+        if (i < palabrasReto.length) {
+            const div = document.createElement('div');
+            div.className = 'palabra-lista';
+            div.innerText = palabrasReto[i];
+            document.getElementById('lista-mercado').appendChild(div);
+            hablar(palabrasReto[i], () => {
+                setTimeout(() => mostrarPalabrasAcumulativas(i + 1), 500);
+            });
+        } else {
+            // Lista completa, iniciar timer
+            const timerBox = document.getElementById('timer-box');
+            timerBox.style.display = 'block';
+            let seg = 15;
+            const t = setInterval(() => {
+                seg--;
+                document.getElementById('segundos').innerText = seg;
+                if(seg <= 0) {
+                    clearInterval(t);
+                    iniciarReconocimiento();
+                }
+            }, 1000);
+        }
+    }
+
+    function iniciarReconocimiento() {
+        document.getElementById('fase-codificacion').style.display = 'none';
+        document.getElementById('zona-reconocimiento').style.display = 'block';
+        presentarPar();
+    }
+
+    function presentarPar() {
+        if (indicePregunta < palabrasReto.length) {
+            const correcta = palabrasReto[indicePregunta];
+            let distractor;
+            
+            // Lógica de dificultad por nivel
+            if (nivel === 1) {
+                distractor = distNeutros[Math.floor(Math.random() * distNeutros.length)];
+            } else if (nivel === 3) {
+                const idxMercado = mercado.indexOf(correcta);
+                distractor = distFoneticos[idxMercado] || distNeutros[0];
+            } else {
+                distractor = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random() * distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
+            }
+
+            const opciones = [correcta, distractor].sort(() => 0.5 - Math.random());
+            document.getElementById('opcion-a').innerText = opciones[0];
+            document.getElementById('opcion-b').innerText = opciones[1];
+        } else {
+            finalizar();
+        }
+    }
+
+    function verificar(elegida) {
+        if (elegida === palabrasReto[indicePregunta]) {
+            aciertos++;
+            hablar("Correcto");
+        } else {
+            hablar("Esa no estaba");
+        }
+        indicePregunta++;
+        setTimeout(presentarPar, 800);
+    }
+
+    function finalizar() {
+        if (nivel < 3) {
+            nivel++;
+            indicePregunta = 0;
+            // Reiniciar para siguiente nivel
+            document.getElementById('lista-mercado').innerHTML = "";
+            document.getElementById('fase-codificacion').style.display = 'block';
+            document.getElementById('zona-reconocimiento').style.display = 'none';
+            document.getElementById('timer-box').style.display = 'none';
+            document.getElementById('segundos').innerText = "15";
+            hablar(`Nivel ${nivel - 1} completado. Vamos al nivel ${nivel}.`, iniciarEjercicio);
+        } else {
+            document.getElementById('overlay-final').style.display = 'flex';
+            const pct = Math.round((aciertos / (6 + 10 + 15)) * 100);
+            document.getElementById('resumen').innerText = `Aciertos totales: ${aciertos} | Precisión: ${pct}%`;
+            hablar("¡Excelente Juan! Has fortalecido tu memoria hoy.");
+        }
+    }
+</script>
+</body>
+</html>
 
