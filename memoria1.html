@@ -15,24 +15,22 @@
         .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; }
         
         #escena-central { margin-left: 0; height: calc(100vh - 84px); position: relative; transition: margin 0.3s; }
-        
-        /* Contenedor de la habitación (sin la cama de atención) */
         #habitacion-area { position: relative; width: 100%; height: 100%; }
         
-        .pieza { position: absolute; width: 100px; transform: translate(-50%, -50%); z-index: 10; }
+        .pieza { position: absolute; width: 110px; transform: translate(-50%, -50%); z-index: 10; }
         
-        /* Guías visuales opcionales (solo aparecen si quieres dar pistas) */
-        .guia-drop { position: absolute; border: 2px dashed rgba(108, 91, 123, 0.3); border-radius: 10px; transform: translate(-50%, -50%); display: none; }
+        /* Guías de ubicación (Siluetas sutiles) */
+        .guia-sombra { position: absolute; width: 110px; height: 110px; border: 3px dashed rgba(108, 91, 123, 0.4); border-radius: 15px; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%); display: none; z-index: 5; }
 
         #timer-box { position: absolute; top: 20px; right: 20px; background: #E67E22; color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; display: none; z-index: 2000; }
         
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
     </style>
 </head>
-<body onload="iniciarSesion()">
+<body onload="prepararSesion()">
 
 <div id="cabecera">
-    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Memorizando...</span></div>
+    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
     <div id="timer-box">00:00</div>
 </div>
 
@@ -40,13 +38,14 @@
 
 <div id="escena-central">
     <div id="habitacion-area">
+        <div id="guias-contenedor"></div>
         <div id="objetos-memorizar"></div>
         <div id="objetos-evocar"></div>
     </div>
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 3.5rem; color: #FFD700;">¡SESIÓN COMPLETADA!</h1>
+    <h1 style="font-size: 3.5rem; color: #FFD700;">¡MUY BIEN HECHO!</h1>
     <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
     <blockquote style="font-style: italic; color: #CEE5D6; font-size: 1.4rem;">"Lo estás logrando, el éxito es la respuesta de un esfuerzo constante"</blockquote>
     <button onclick="window.location.href='memoria_sesiones.html'" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">CONTINUAR</button>
@@ -60,54 +59,75 @@
     let colocadas = 0;
     let errores = 0;
 
-    // COORDENADAS PRECISAS (Ajustadas a tu fondo.jpg)
+    // COORDENADAS REDISTRIBUIDAS (Lejos del panel izquierdo)
     const db = {
         "billetera": { nom: "la billetera", x: 450, y: 550 },
-        "camisa": { nom: "la camisa", x: 800, y: 500 },
-        "celular": { nom: "el celular", x: 200, y: 400 },
-        "crema_dental": { nom: "la crema dental", x: 150, y: 350 },
-        "frasco_gotas": { nom: "el frasco de gotas", x: 850, y: 300 },
-        "gafas": { nom: "las gafas", x: 500, y: 320 },
-        "libro": { nom: "el libro", x: 820, y: 380 },
-        "pantalon": { nom: "el pantalón", x: 580, y: 700 },
-        "pastillero": { nom: "el pastillero", x: 100, y: 420 },
-        "reloj": { nom: "el reloj", x: 520, y: 560 },
-        "toalla_manos": { nom: "la toalla", x: 120, y: 480 },
-        "vaso": { nom: "el vaso", x: 880, y: 420 }
+        "camisa": { nom: "la camisa", x: 750, y: 500 },
+        "celular": { nom: "el celular", x: 600, y: 350 },
+        "crema_dental": { nom: "la crema dental", x: 400, y: 350 },
+        "frasco_gotas": { nom: "el frasco de gotas", x: 850, y: 320 },
+        "gafas": { nom: "las gafas", x: 550, y: 520 },
+        "libro": { nom: "el libro", x: 800, y: 580 },
+        "pantalon": { nom: "el pantalón", x: 650, y: 700 },
+        "pastillero": { nom: "el pastillero", x: 500, y: 420 },
+        "reloj": { nom: "el reloj", x: 720, y: 360 },
+        "toalla_manos": { nom: "la toalla", x: 820, y: 450 },
+        "vaso": { nom: "el vaso", x: 680, y: 560 }
     };
 
     const config = {
-        'bajo': { cant: 2, tiempo: 10, errorMax: 100 },
-        'medio': { cant: 4, tiempo: 15, errorMax: 80 },
-        'alto': { cant: 6, tiempo: 20, errorMax: 50 }
+        'bajo': { cant: 2, tiempo: 10, errorMax: 100, distractores: 1 },
+        'medio': { cant: 4, tiempo: 15, errorMax: 80, distractores: 3 },
+        'alto': { cant: 6, tiempo: 20, errorMax: 60, distractores: 6 }
     };
 
-    function hablar(t) {
+    function hablar(t, callback) {
         window.speechSynthesis.cancel();
         document.getElementById('label-guia').innerText = t;
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
+        msg.onend = () => { if(callback) callback(); };
         window.speechSynthesis.speak(msg);
     }
 
-    function iniciarSesion() {
+    function prepararSesion() {
         const c = config[nivelActual];
         const keys = Object.keys(db).sort(() => Math.random() - 0.5);
         objetosReto = keys.slice(0, c.cant);
 
-        hablar(`Juan, memoriza dónde están los objetos. Tienes ${c.tiempo} segundos.`);
-        
+        // PRIMERO LA INSTRUCCIÓN, luego el tiempo
+        hablar(`Juan, memoriza dónde están estos ${c.cant} objetos. Fíjate bien en las marcas del suelo.`, () => {
+            iniciarMemorizacion();
+        });
+    }
+
+    function iniciarMemorizacion() {
+        const c = config[nivelActual];
         const contenedor = document.getElementById('objetos-memorizar');
+        const guias = document.getElementById('guias-contenedor');
+
         objetosReto.forEach(id => {
+            // Mostrar objeto
             const img = document.createElement('img');
             img.src = `mem1/${id}.png`;
             img.className = 'pieza';
             img.style.left = db[id].x + 'px';
             img.style.top = db[id].y + 'px';
             contenedor.appendChild(img);
+
+            // Mostrar guía (sombra)
+            const guia = document.createElement('div');
+            guia.className = 'guia-sombra';
+            guia.style.display = 'block';
+            guia.style.left = db[id].x + 'px';
+            guia.style.top = db[id].y + 'px';
+            guias.appendChild(guia);
         });
 
-        let s = c.tiempo;
+        iniciarContador(c.tiempo);
+    }
+
+    function iniciarContador(s) {
         const timer = document.getElementById('timer-box');
         timer.style.display = 'block';
         const interval = setInterval(() => {
@@ -125,9 +145,14 @@
         document.getElementById('objetos-memorizar').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'flex';
         document.getElementById('escena-central').style.marginLeft = '174px';
-        hablar("Ahora Juan, pon cada objeto en el lugar donde estaba.");
+        
+        hablar("Ahora Juan, arrastra los objetos a su lugar correspondiente.");
 
-        const pool = Object.keys(db).sort(() => Math.random() - 0.5);
+        const c = config[nivelActual];
+        // Solo tomamos los del reto + los distractores definidos
+        const otros = Object.keys(db).filter(x => !objetosReto.includes(x)).slice(0, c.distractores);
+        const pool = [...objetosReto, ...otros].sort(() => Math.random() - 0.5);
+
         const panel = document.getElementById('panel-objetos');
         pool.forEach(id => {
             const img = document.createElement('img');
@@ -157,36 +182,31 @@
             
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
             const id = el.dataset.id;
-            
-            // Si el objeto no es del reto, es error automático si intenta ponerlo
-            if (!objetosReto.includes(id)) {
-                if (st.clientX > 200) { 
-                    errores++;
-                    hablar("Ese objeto no estaba en la habitación, Juan.");
-                }
-                el.style.position = 'static';
-                return;
-            }
-
-            // VALIDACIÓN DE DISTANCIA (Memoria Espacial)
             const area = document.getElementById('habitacion-area').getBoundingClientRect();
             const posX = st.clientX - area.left;
             const posY = st.clientY - area.top;
-            
-            const dist = Math.sqrt(Math.pow(posX - db[id].x, 2) + Math.pow(posY - db[id].y, 2));
 
-            if (dist < config[nivelActual].errorMax) {
-                colocadas++;
-                hablar(`¡Excelente Juan! ${db[id].nom} iba ahí.`);
-                const fija = document.createElement('img');
-                fija.src = el.src; fija.className = 'pieza';
-                fija.style.left = db[id].x + 'px'; fija.style.top = db[id].y + 'px';
-                document.getElementById('objetos-evocar').appendChild(fija);
-                el.style.visibility = 'hidden';
-                if (colocadas === objetosReto.length) finalizar();
+            if (objetosReto.includes(id)) {
+                const dist = Math.sqrt(Math.pow(posX - db[id].x, 2) + Math.pow(posY - db[id].y, 2));
+                if (dist < config[nivelActual].errorMax) {
+                    colocadas++;
+                    hablar(`¡Muy bien Juan!`);
+                    const fija = document.createElement('img');
+                    fija.src = el.src; fija.className = 'pieza';
+                    fija.style.left = db[id].x + 'px'; fija.style.top = db[id].y + 'px';
+                    document.getElementById('objetos-evocar').appendChild(fija);
+                    el.style.visibility = 'hidden';
+                    if (colocadas === objetosReto.length) finalizar();
+                } else {
+                    errores++;
+                    hablar("Casi, pero no estaba ahí.");
+                    el.style.position = 'static';
+                }
             } else {
-                errores++;
-                hablar("Cerca, pero no estaba exactamente ahí. Intenta de nuevo.");
+                if (st.clientX > 200) { 
+                    errores++;
+                    hablar("Ese no va ahí.");
+                }
                 el.style.position = 'static';
             }
         }
@@ -198,8 +218,8 @@
         document.getElementById('overlay-final').style.display = 'flex';
         const total = colocadas + errores;
         const porc = Math.round((colocadas/total)*100);
-        document.getElementById('resumen-final').innerText = `Precisión: ${porc}% | Errores: ${errores}`;
-        hablar("¡Misión cumplida! Has demostrado una memoria excelente.");
+        document.getElementById('resumen-final').innerText = `Aciertos: ${colocadas} | Precisión: ${porc}%`;
+        hablar("¡Excelente! Has completado tu rutina de hoy.");
     }
 </script>
 </body>
