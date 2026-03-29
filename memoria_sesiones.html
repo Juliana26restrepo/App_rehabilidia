@@ -2,143 +2,152 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 2 - Juan: Reconocimiento Auditivo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesiones de Memoria - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; display: flex; flex-direction: column; }
+        :root {
+            /* Mantenemos la paleta para coherencia visual */
+            --p-blue: #103A57; 
+            --t-blue: #307B8E; 
+            --silver: #CEE5D6; 
+            --m-green: #366B2B;
+            --m-purple: #6C5B7B; /* Color sugerido para diferenciar Memoria de Atención */
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--silver); color: var(--p-blue); }
+        header { background-color: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; border-bottom: 4px solid var(--t-blue); }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; margin-right: 15px; }
         
-        /* Fondo de la habitación (Desenfoque ligero para lectura) */
-        #escena-total { flex: 1; background: url('mem1/fondo.jpg') no-repeat center center fixed; background-size: cover; filter: blur(2px); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        #contenido { flex: 1; position: relative; z-index: 10; display: flex; flex-direction: column; }
+        .container { padding: 20px; max-width: 500px; margin: auto; }
 
-        /* Cabecera con Coterapeuta (Estilo image_0.png) */
-        #cabecera { background: rgba(54, 107, 43, 0.9); color: white; height: 80px; display: flex; align-items: center; justify-content: start; padding: 0 20px; border-bottom: 4px solid #28521f; }
-        #instruccion-box { background: white; padding: 8px 18px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; font-size: 1.1rem; }
-        #instruccion-box img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; }
+        .sesion-wrapper { margin-bottom: 15px; }
 
-        /* Zona de Reconocimiento (Central) */
-        #contenedor-central { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .sesion-card {
+            background: white; border-radius: 15px; padding: 18px 25px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            /* Cambiamos el color del borde izquierdo para que Juan note que es un área nueva */
+            border-left: 10px solid var(--m-purple); 
+            transition: 0.3s;
+        }
+        .sesion-card.bloqueada { border-left-color: #95a5a5; opacity: 0.7; cursor: not-allowed; }
+        .sesion-card span { font-weight: bold; font-size: 1.1rem; color: #333; }
+
+        .niveles-container {
+            display: none; background: rgba(255,255,255,0.8); 
+            border-radius: 0 0 15px 15px; padding: 15px; border: 1px solid #ddd;
+            border-top: none; animation: slideDown 0.3s ease-out;
+        }
         
-        /* Botones de Opción Estilizados (Estilo image_5.png) */
-        .botones-par { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
-        .btn-opcion { padding: 25px 50px; font-size: 2.5rem; cursor: pointer; border-radius: 20px; border: 5px solid #103A57; background: rgba(255, 255, 255, 0.95); transition: 0.3s; font-weight: bold; min-width: 250px; color: #333; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .btn-opcion:active { transform: scale(0.95); box-shadow: 0 5px 10px rgba(0,0,0,0.2); }
-        .btn-opcion:hover { background: white; border-color: #366B2B; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Overlay Final */
-        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        .btn-nivel {
+            display: block; width: 100%; padding: 12px; margin-bottom: 8px;
+            border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
+            text-align: center; text-decoration: none; font-size: 0.95rem; transition: 0.2s;
+        }
+        .btn-nivel:active { transform: scale(0.96); }
+        .n-bajo { background-color: var(--m-green); color: white; }
+        .n-medio { background-color: #E67E22; color: white; }
+        .n-alto { background-color: #C0392B; color: white; }
+        
+        .indicador-fase {
+            text-align: center; font-size: 0.8rem; color: var(--t-blue);
+            margin-bottom: 15px; font-weight: bold; text-transform: uppercase;
+        }
     </style>
 </head>
-<body onload="prepararFaseReconocimiento()">
+<body>
 
-<div id="escena-total"></div>
+<header>
+    <a href="ejercicios.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <span style="font-weight: bold;">ENTRENAMIENTO DE MEMORIA</span>
+</header>
 
-<div id="contenido">
-    <div id="cabecera">
-        <div id="instruccion-box">
-            <img src="COTERAPEUTA.JPG">
-            <span id="label-guia">Fase 2: ¿Cuáles recuerdas?</span>
-        </div>
-    </div>
-
-    <div id="contenedor-central">
-        <div class="botones-par">
-            <button class="btn-opcion" id="opcion-a" onclick="verificar(this.innerText)"></button>
-            <button class="btn-opcion" id="opcion-b" onclick="verificar(this.innerText)"></button>
-        </div>
-    </div>
-</div>
-
-<div id="overlay-final">
-    <h1 style="font-size: 3.5rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
-    <p id="resumen-final" style="font-size: 2rem; margin: 20px 0;"></p>
-    <p style="font-style: italic; font-size: 1.5rem;">"Recordar cada palabra es un avance"</p>
-    <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer; margin-top: 20px;">REPETIR NIVEL</button>
+<div class="container">
+    <div class="indicador-fase">Fase 2: Retención y Evocación</div>
+    <div id="lista-sesiones"></div>
 </div>
 
 <script>
-    // Banco de datos (Mercado y Distractores según image_4.png)
-    const mercado = ["Arroz", "Pasta", "Lentejas", "Frijoles", "Aceite", "Sal", "Azúcar", "Café", "Leche", "Huevos", "Pan", "Queso", "Pollo", "Carne", "Atún", "Tomate", "Cebolla", "Ajo", "Papa", "Zanahoria", "Lechuga", "Manzana", "Banano", "Naranja", "Limón", "Yogur", "Mantequilla", "Harina", "Galletas", "Chocolate"];
-    const distNeutros = ["Silencio", "Tormenta", "Espejo", "Camino", "Nube", "Arena", "Bosque", "Puerta", "Sombra", "Fuego", "Río", "Estrella", "Viento", "Libro", "Cielo", "Piedra", "Puente", "Luz", "Jardín", "Mariposa", "Tren", "Isla", "Luna", "Globo", "Torre", "Laberinto", "Horizonte"];
-    const distFoneticos = ["Aro", "Raza", "Lente", "Flecos", "Aseito", "Sol", "Azafrán", "Cafeto", "Lecho", "Huesos", "Pana", "Caso", "Poyo", "Marte", "Atajo", "Tomar", "Sebolla", "Agro", "Mapa", "Santana", "Lechuza", "Montana", "Verano", "Noriega", "Limbo", "Yugo", "Mantilla", "Montaña", "Reloj", "Ventana"];
+    // Configuración de sesiones de memoria activas
+    // Por ahora dejamos la 1 activa para empezar las pruebas
+    const estadoSesiones = {
+        1: true,
+        2: false, 
+        3: false,
+        4: false,  
+        5: false,  
+        6: false,  
+        7: false, 
+        8: false, 
+        9: false, 
+        10:false,
+    };
 
-    // Variables de estado (Simulación de Fase 1 para prueba)
-    let nivel = 1; // Nivel 1 = 6 palabras. Nivel 3 = 15.
-    let palabrasReto = ["Tomate", "Arroz", "Leche", "Queso", "Sal", "Pan"]; 
-    let indicePregunta = 0;
-    let aciertos = 0;
+    const contenedor = document.getElementById('lista-sesiones');
 
-    function hablar(t, callback) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'es-ES';
-        msg.rate = 0.95; // Velocidad cómoda
-        if(callback) msg.onend = callback;
-        window.speechSynthesis.speak(msg);
-    }
-
-    function prepararFaseReconocimiento() {
-        // En producción, aquí se recibirían las palabras memorizadas en Fase 1
-        aciertos = 0;
-        indicePregunta = 0;
-        presentarPar();
-    }
-
-    function presentarPar() {
-        if (indicePregunta < palabrasReto.length) {
-            const correcta = palabrasReto[indicePregunta];
-            let distractor;
-
-            // Lógica de dificultad por nivel
-            if (nivel === 1) {
-                distractor = distNeutros[Math.floor(Math.random() * distNeutros.length)];
-            } else if (nivel === 3) {
-                const idxMercado = mercado.indexOf(correcta);
-                distractor = distFoneticos[idxMercado] || distNeutros[0];
-            } else { // Nivel 2: Mezcla
-                distractor = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random() * distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
-            }
-
-            const opciones = [correcta, distractor].sort(() => 0.5 - Math.random());
+    function cargarSesiones() {
+        contenedor.innerHTML = "";
+        for (let i = 1; i <= 10; i++) {
+            const estaAbierta = estadoSesiones[i];
             
-            const btnA = document.getElementById('opcion-a');
-            const btnB = document.getElementById('opcion-b');
-            btnA.innerText = opciones[0];
-            btnB.innerText = opciones[1];
-            btnA.style.borderColor = "#103A57"; btnB.style.borderColor = "#103A57"; // Reset colores
-
-            // AUDIO COMPLETO: ¿Cuál estaba en la lista, Río o Tomate?
-            hablar(`Juan, ¿cuál estaba en la lista, ${opciones[0]} o ${opciones[1]}?`);
-        } else {
-            finalizarNivel();
+            const htmlSesion = `
+                <div class="sesion-wrapper">
+                    <div class="sesion-card ${estaAbierta ? '' : 'bloqueada'}" onclick="toggleNiveles(${i}, ${estaAbierta})">
+                        <span>SESIÓN DE MEMORIA ${i}</span>
+                        <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'}" 
+                           style="color: ${estaAbierta ? 'var(--m-purple)' : '#999'};"></i>
+                    </div>
+                    ${estaAbierta ? `
+                    <div id="niveles-${i}" class="niveles-container">
+                        <p style="font-size: 0.85rem; margin-bottom: 12px; text-align: center; color: #444;">Elige el nivel de recordación:</p>
+                        <button class="btn-nivel n-bajo" onclick="irA(${i}, 'bajo')">NIVEL BAJO</button>
+                        <button class="btn-nivel n-medio" onclick="irA(${i}, 'medio')">NIVEL MEDIO</button>
+                        <button class="btn-nivel n-alto" onclick="irA(${i}, 'alto')">NIVEL ALTO</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            contenedor.innerHTML += htmlSesion;
         }
     }
 
-    function verificar(elegida) {
-        const correcta = palabrasReto[indicePregunta];
-        const btnCorrecto = Array.from(document.getElementsByClassName('btn-opcion')).find(b => b.innerText === correcta);
-        const btnElegido = Array.from(document.getElementsByClassName('btn-opcion')).find(b => b.innerText === elegida);
+    function toggleNiveles(num, abierta) {
+        if (!abierta) return; 
 
-        if (elegida === correcta) {
-            aciertos++;
-            hablar("¡Correcto!");
-            btnCorrecto.style.borderColor = "#366B2B"; // Verde
+        const contenedorNiveles = document.getElementById(`niveles-${num}`);
+        const icono = document.getElementById(`icono-${num}`);
+        
+        // Cerrar otros niveles abiertos
+        document.querySelectorAll('.niveles-container').forEach(el => {
+            if(el.id !== `niveles-${num}`) {
+                el.style.display = 'none';
+                const idOtro = el.id.split('-')[1];
+                const iconoOtro = document.getElementById(`icono-${idOtro}`);
+                if(iconoOtro && iconoOtro.classList.contains("fa-chevron-up")) {
+                    iconoOtro.classList.replace("fa-chevron-up", "fa-chevron-down");
+                }
+            }
+        });
+
+        if (contenedorNiveles.style.display === "block") {
+            contenedorNiveles.style.display = "none";
+            icono.classList.replace("fa-chevron-up", "fa-chevron-down");
         } else {
-            hablar("Esa no estaba.");
-            btnElegido.style.borderColor = "#E67E22"; // Naranja (Error)
-            btnCorrecto.style.borderColor = "#366B2B"; // Muestra la correcta
+            contenedorNiveles.style.display = "block";
+            icono.classList.replace("fa-chevron-down", "fa-chevron-up");
         }
-
-        indicePregunta++;
-        setTimeout(presentarPar, 1500); // Pausa para feedback visual y de audio
     }
 
-    function finalizarNivel() {
-        document.getElementById('overlay-final').style.display = 'flex';
-        const pct = Math.round((aciertos / palabrasReto.length) * 100);
-        document.getElementById('resumen-final').innerText = `Aciertos: ${aciertos} de ${palabrasReto.length} | Precisión: ${pct}%`;
-        hablar(`¡Muy bien Juan! Has fortalecido tu memoria hoy con ${aciertos} aciertos.`);
+    function irA(sesion, dificultad) {
+        // Redirige a archivos tipo memoria1.html, memoria2.html...
+        window.location.href = `memoria${sesion}.html?nivel=${dificultad}`;
     }
+
+    cargarSesiones();
 </script>
+
 </body>
 </html>
+
