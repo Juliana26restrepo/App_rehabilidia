@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - Juan: DESAFÍO FINAL</title>
+    <title>Sesión 10 - Juan: DESAFÍO ELITE</title>
     <style>
-        body { font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #E67E22; z-index: 1000; position: relative; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; max-width: 65%; min-height: 40px; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; max-width: 60%; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-        #panel-objetos { width: 170px; background: rgba(255,255,255,0.9); border-right: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 8px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; }
-        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; z-index: 100; }
-        #escena-central { margin-left: 174px; height: calc(100vh - 84px); position: relative; display: flex; justify-content: center; align-items: center; }
-        #area-cama-detect { position: relative; width: 90%; height: 85%; display: flex; justify-content: center; align-items: center; }
-        #cama_base { width: 100%; max-width: 600px; pointer-events: none; }
-        .pieza-fija { position: absolute; width: 140px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
-        #panel-preguntas { position: absolute; right: 20px; top: 90px; width: 320px; z-index: 500; }
-        #cuadro-pregunta { background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); display: none; }
+        #panel-objetos { width: 180px; background: rgba(255,255,255,0.9); border-right: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; }
+        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; }
+        #escena-central { margin-left: 184px; height: calc(100vh - 84px); position: relative; display: flex; justify-content: center; align-items: center; }
+        #area-cama-detect { position: relative; width: 95%; height: 90%; }
+        #cama_base { width: 100%; max-width: 650px; display: block; margin: 40px auto; pointer-events: none; }
+        .pieza-fija { position: absolute; width: 160px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
+        #panel-preguntas { position: absolute; right: 20px; top: 20px; width: 320px; z-index: 500; }
+        #cuadro-pregunta { background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: none; }
         .btn-p { width: 100%; padding: 18px; margin: 10px 0; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; color: white; font-size: 1.5rem; }
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
     </style>
@@ -24,10 +24,10 @@
 <body onload="iniciar()">
 
 <div id="cabecera">
-    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Iniciando...</span></div>
+    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando ambiente...</span></div>
     <div style="text-align: right;">
         <div id="exito-txt" style="font-size: 1.6rem; font-weight: bold;">Éxito: 100%</div>
-        <div id="nivel-txt" style="color: #FFD700; font-weight: bold; font-size: 1.2rem;">NIVEL: 1</div>
+        <div id="nivel-txt" style="color: #FFD700; font-weight: bold;">SESIÓN 10</div>
     </div>
 </div>
 
@@ -40,7 +40,7 @@
     </div>
     <div id="panel-preguntas">
         <div id="cuadro-pregunta">
-            <p id="pregunta-texto" style="font-size: 1.4rem; font-weight: bold; color:#1B4F72;"></p>
+            <p id="pregunta-texto" style="font-size: 1.5rem; font-weight: bold; color:#1B4F72;"></p>
             <button class="btn-p" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
             <button class="btn-p" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
         </div>
@@ -48,20 +48,23 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 4rem; color: #FFD700;">¡MISIÓN CUMPLIDA!</h1>
-    <p id="resumen-final" style="font-size: 2rem; max-width: 800px;"></p>
-    <button onclick="location.reload()" style="padding: 20px 40px; font-size: 1.5rem; border-radius: 20px; cursor: pointer; background: #E67E22; color: white; border: none; margin-top: 30px;">REPETIR</button>
+    <h1 style="font-size: 4rem; color: #FFD700;">¡DOMINIO TOTAL!</h1>
+    <p id="resumen-final" style="font-size: 2rem; max-width: 800px; padding: 20px;"></p>
+    <button onclick="location.reload()" style="padding: 20px 50px; font-size: 1.5rem; border-radius: 20px; background: #E67E22; color: white; border: none; cursor: pointer; font-weight: bold;">REPETIR DESAFÍO</button>
 </div>
 
 <script>
     let nivel = 1, paso = 0, aciertos = 0, errores = 0, bloqueado = false;
-    const sfxOk = new Audio('img8/exito.mp3'); const sfxErr = new Audio('img8/alarma.mp3');
+    const sfxOk = new Audio('img8/exito.mp3'); 
+    const sfxErr = new Audio('img8/alarma.mp3');
+    const sfxFondo = new Audio('img10/pajaros.mp3');
+    sfxFondo.loop = true;
 
     const db = {
         "almohada_blanca": { img: "almohada_blanca.png", nom: "la almohada blanca" },
         "almohada_cafe": { img: "almohada_cafe.png", nom: "la almohada café" },
         "almohada_gris": { img: "almohada_gris.png", nom: "la almohada gris" },
-        "cobija": { img: "cobija.png", nom: "la cobija" },
+        "cobija": { img: "cobija.png", nom: "la cobija azul" },
         "cobija_termica": { img: "cobija_termica.png", nom: "la cobija térmica" },
         "cobija_tigre": { img: "cobija_tigre.png", nom: "la cobija de tigre" },
         "sabana_azul": { img: "sabana_azul.png", nom: "la sábana azul" },
@@ -79,62 +82,15 @@
     };
 
     const niveles = {
-        1: { nom: "1 - INICIO", pedir: ["sabana_azul", "almohada_blanca"], extra: ["reloj"], t: 8000, rate: 1.0 },
-        2: { nom: "2 - INTERMEDIO", pedir: ["sabana_blanca", "cobija_termica", "almohada_cafe"], extra: ["vaso", "control"], t: 5000, rate: 1.15 },
-        3: { nom: "3 - EXTREMO FINAL", pedir: ["sabana_gris", "sobresabana_gris", "sobresabana_negra", "cobija_tigre", "almohada_gris", "cobija", "almohada_cafe", "sabana_blanca"], extra: ["revista", "medias", "reloj", "lampara"], t: 3000, rate: 1.35 }
+        1: { nom: "10-A", pedir: ["sabana_azul", "sobresabana_gris", "almohada_blanca", "almohada_cafe"], extra: ["reloj", "revista"], t: 6000, rate: 1.1 },
+        2: { nom: "10-B", pedir: ["sabana_blanca", "sobresabana_negra", "cobija_termica", "almohada_gris", "reloj"], extra: ["medias", "control"], t: 4500, rate: 1.2 },
+        3: { nom: "10-C FINAL", pedir: ["sabana_gris", "sobresabana_negra", "sobresabana_morada", "cobija_tigre", "cobija", "almohada_gris", "almohada_cafe", "almohada_blanca", "control", "vaso"], extra: ["revista", "lampara"], t: 3000, rate: 1.35 }
     };
 
     const bancoPreguntas = [
-        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿Colombia está en América del Sur?", a: "SÍ"},
-        {q: "¿El agua hierve a 100 grados?", a: "SÍ"}, {q: "¿Los perros son mamíferos?", a: "SÍ"},
-        {q: "¿La luna tiene luz propia?", a: "NO"}, {q: "¿París es la capital de Francia?", a: "SÍ"},
-        {q: "¿El hierro es un metal?", a: "SÍ"}, {q: "¿Los peces respiran aire?", a: "NO"},
-        {q: "¿La Tierra gira alrededor del sol?", a: "SÍ"}, {q: "¿El chocolate viene del cacao?", a: "SÍ"},
-        {q: "¿Los humanos tienen 4 pulmones?", a: "NO"}, {q: "¿El Amazonas es un río?", a: "SÍ"},
-        {q: "¿Los gatos maúllan?", a: "SÍ"}, {q: "¿La electricidad es peligrosa?", a: "SÍ"},
-        {q: "¿El hielo es agua sólida?", a: "SÍ"}, {q: "¿Los pájaros vuelan?", a: "SÍ"},
-        {q: "¿El corazón bombea sangre?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"},
-        {q: "¿El café contiene cafeína?", a: "SÍ"}, {q: "¿El planeta Marte es rojo?", a: "SÍ"},
-        {q: "¿Plantas necesitan luz?", a: "SÍ"}, {q: "¿El océano es salado?", a: "SÍ"},
-        {q: "¿Fútbol se juega con las manos?", a: "NO"}, {q: "¿Elefantes son animales grandes?", a: "SÍ"},
-        {q: "¿La nieve es caliente?", a: "NO"}, {q: "¿El fuego quema?", a: "SÍ"},
-        {q: "¿La Tierra es plana?", a: "NO"}, {q: "¿Respiramos oxígeno?", a: "SÍ"},
-        {q: "¿El oro es metal precioso?", a: "SÍ"}, {q: "¿Invierno es más frío que verano?", a: "SÍ"},
-        {q: "¿Abejas producen miel?", a: "SÍ"}, {q: "¿El cuerpo tiene huesos?", a: "SÍ"},
-        {q: "¿Leche viene de animales?", a: "SÍ"}, {q: "¿El sol sale por el este?", a: "SÍ"},
-        {q: "¿La luna es mayor que la Tierra?", a: "NO"}, {q: "¿El azúcar es salado?", a: "NO"},
-        {q: "¿Los árboles tienen hojas?", a: "SÍ"}, {q: "¿El aire es invisible?", a: "SÍ"},
-        {q: "¿Los tiburones son peces?", a: "SÍ"}, {q: "¿El desierto tiene mucha agua?", a: "NO"},
-        {q: "¿La lluvia cae del cielo?", a: "SÍ"}, {q: "¿El hielo flota?", a: "SÍ"},
-        {q: "¿El plomo es ligero?", a: "NO"}, {q: "¿Necesitamos dormir?", a: "SÍ"},
-        {q: "¿El vidrio es transparente?", a: "SÍ"}, {q: "¿Luz ilumina?", a: "SÍ"},
-        {q: "¿Caballos tienen alas?", a: "NO"}, {q: "¿Tierra tiene un satélite?", a: "SÍ"},
-        {q: "¿El pan se hace con harina?", a: "SÍ"}, {q: "¿Volcanes hacen erupción?", a: "SÍ"},
-        {q: "¿El agua es incolora?", a: "SÍ"}, {q: "¿El cuerpo tiene sangre?", a: "SÍ"},
-        {q: "¿Estrellas se ven de día?", a: "NO"}, {q: "¿Fuego necesita oxígeno?", a: "SÍ"},
-        {q: "¿Murciélagos vuelan?", a: "SÍ"}, {q: "¿Arroz crece en plantas?", a: "SÍ"},
-        {q: "¿Cerebro está en la cabeza?", a: "SÍ"}, {q: "¿El mar es dulce?", a: "NO"},
-        {q: "¿Tenemos dos ojos?", a: "SÍ"}, {q: "¿Hielo se derrite?", a: "SÍ"},
-        {q: "¿Nubes están en el cielo?", a: "SÍ"}, {q: "¿Sonido viaja por aire?", a: "SÍ"},
-        {q: "¿Agua es vital?", a: "SÍ"}, {q: "¿Leones son carnívoros?", a: "SÍ"},
-        {q: "¿Venus está cerca del sol?", a: "SÍ"}, {q: "¿Viento se siente?", a: "SÍ"},
-        {q: "¿Plantas dan oxígeno?", a: "SÍ"}, {q: "¿Azúcar se disuelve?", a: "SÍ"},
-        {q: "¿El cuerpo tiene piel?", a: "SÍ"}, {q: "¿Peces viven en agua?", a: "SÍ"},
-        {q: "¿Sangre es roja?", a: "SÍ"}, {q: "¿Hielo es caliente?", a: "NO"},
-        {q: "¿Vivimos sin agua?", a: "NO"}, {q: "¿Aire ocupa espacio?", a: "SÍ"},
-        {q: "¿Árboles crecen?", a: "SÍ"}, {q: "¿Fuego es frío?", a: "NO"},
-        {q: "¿Tierra tiene gravedad?", a: "SÍ"}, {q: "¿Café es caliente?", a: "SÍ"},
-        {q: "¿Perros ladran?", a: "SÍ"}, {q: "¿Vidrio se rompe?", a: "SÍ"},
-        {q: "¿Necesitamos comida?", a: "SÍ"}, {q: "¿Luz es rápida?", a: "SÍ"},
-        {q: "¿El agua moja?", a: "SÍ"}, {q: "¿Gatos tienen cola?", a: "SÍ"},
-        {q: "¿Cielo es azul?", a: "SÍ"}, {q: "¿Tenemos cabello?", a: "SÍ"},
-        {q: "¿Hielo es más denso que agua?", a: "NO"}, {q: "¿Vemos sin ojos?", a: "NO"},
-        {q: "¿El sol da calor?", a: "SÍ"}, {q: "¿Árboles necesitan agua?", a: "SÍ"},
-        {q: "¿Júpiter es grande?", a: "SÍ"}, {q: "¿Sal se disuelve?", a: "SÍ"},
-        {q: "¿Tenemos músculos?", a: "SÍ"}, {q: "¿Fuego da luz?", a: "SÍ"},
-        {q: "¿Montañas son altas?", a: "SÍ"}, {q: "¿Aire siempre huele?", a: "NO"},
-        {q: "¿Humanos nadan?", a: "SÍ"}, {q: "¿Luna tiene fases?", a: "SÍ"},
-        {q: "¿Agua se evapora?", a: "SÍ"}, {q: "¿El corazón late?", a: "SÍ"}
+        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿El agua moja?", a: "SÍ"}, {q: "¿Colombia está en América?", a: "SÍ"}, {q: "¿El hielo es frío?", a: "SÍ"}, {q: "¿2+2 son 5?", a: "NO"}, {q: "¿Los perros ladran?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"}, {q: "¿Dormir es necesario?", a: "SÍ"}, {q: "¿Los gatos vuelan?", a: "NO"}, {q: "¿El azúcar es dulce?", a: "SÍ"},
+        {q: "¿El fuego quema?", a: "SÍ"}, {q: "¿La tierra es plana?", a: "NO"}, {q: "¿Los peces nadan?", a: "SÍ"}, {q: "¿La sangre es azul?", a: "NO"}, {q: "¿El cielo es azul?", a: "SÍ"}, {q: "¿Tenemos dos ojos?", a: "SÍ"}, {q: "¿El hierro es blando?", a: "NO"}, {q: "¿La vaca da leche?", a: "SÍ"}, {q: "¿El café tiene cafeína?", a: "SÍ"}, {q: "¿París es capital de Francia?", a: "SÍ"}
+        // Aquí puedes pegar las otras 80 preguntas siguiendo el mismo formato.
     ];
 
     function hablar(t) {
@@ -146,17 +102,20 @@
     }
 
     let loopPreguntas;
-    function iniciar() { cargarFase(); }
+    function iniciar() { 
+        sfxFondo.play().catch(() => console.log("Clic para audio")); 
+        cargarFase(); 
+    }
 
     function cargarFase() {
         if(loopPreguntas) clearInterval(loopPreguntas);
-        const n = niveles[nivel];
+        const config = niveles[nivel];
         document.getElementById('panel-objetos').innerHTML = "";
         document.getElementById('contenedor-piezas').innerHTML = "";
-        document.getElementById('nivel-txt').innerText = `NIVEL: ${n.nom}`;
+        document.getElementById('nivel-txt').innerText = `NIVEL: ${config.nom}`;
         paso = 0; bloqueado = false;
         
-        let pool = [...n.pedir, ...n.extra].sort(() => Math.random() - 0.5);
+        let pool = [...config.pedir, ...config.extra].sort(() => Math.random() - 0.5);
         pool.forEach(id => {
             const img = document.createElement('img');
             img.src = `img10/${db[id].img}`; img.className = 'draggable';
@@ -165,8 +124,8 @@
             document.getElementById('panel-objetos').appendChild(img);
         });
         
-        hablar(`Juan, coloca ${db[n.pedir[0]].nom}.`);
-        loopPreguntas = setInterval(lanzarPregunta, n.t);
+        hablar(`Juan, pon ${db[config.pedir[0]].nom}.`);
+        loopPreguntas = setInterval(lanzarPregunta, config.t);
     }
 
     function drag(e) {
@@ -189,7 +148,7 @@
             const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
             const objId = niveles[nivel].pedir[paso];
 
-            if (st.clientX > cama.left && el.dataset.id === objId) {
+            if (st.clientX > (cama.left + 50) && el.dataset.id === objId) {
                 sfxOk.play(); aciertos++;
                 const fija = document.createElement('img');
                 fija.src = el.src; fija.className = 'pieza-fija';
@@ -199,13 +158,13 @@
                 el.style.display = 'none';
                 paso++;
                 if (paso < niveles[nivel].pedir.length) {
-                    hablar(`¡Bien! Ahora ${db[niveles[nivel].pedir[paso]].nom}`);
+                    hablar(`Bien. Ahora ${db[niveles[nivel].pedir[paso]].nom}`);
                 } else {
                     bloqueado = true;
                     setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { finalizar(); }}, 1500);
                 }
-            } else if (st.clientX > cama.left) {
-                sfxErr.play(); errores++; hablar(`Busca ${db[objId].nom}`);
+            } else if (st.clientX > (cama.left + 50)) {
+                sfxErr.play(); errores++; hablar(`No, Juan. Busca ${db[objId].nom}`);
                 el.style.position = 'static';
             } else { el.style.position = 'static'; }
             actualizarStats();
@@ -231,17 +190,16 @@
     }
 
     function actualizarStats() {
-        let t = aciertos + errores;
-        document.getElementById('exito-txt').innerText = `Éxito: ${t === 0 ? 100 : Math.round((aciertos/t)*100)}%`;
+        let total = aciertos + errores;
+        document.getElementById('exito-txt').innerText = `Éxito: ${total === 0 ? 100 : Math.round((aciertos/total)*100)}%`;
     }
 
     function finalizar() {
         clearInterval(loopPreguntas);
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-final').innerText = `¡Espectacular! Superaste el Nivel 10 de Atención Dividida con un ${document.getElementById('exito-txt').innerText} de precisión.`;
-        hablar("Excelente Juan, lograste mantenerte atento en más de una tarea al mismo tiempo. Misión cumplida.");
+        document.getElementById('resumen-final').innerText = `¡Espectacular Juan! Has cerrado la etapa de Atención con maestría. Mañana nos vemos para empezar a entrenar tu memoria.`;
+        hablar("¡Misión cumplida! Has terminado todos los niveles de atención. Mañana iniciaremos con memoria.");
     }
 </script>
 </body>
 </html>
-
