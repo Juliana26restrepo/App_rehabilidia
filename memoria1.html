@@ -1,1 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria 1 - Juan: Routine Doméstica</title>
+    <style>
+        /* Usamos fondo.jpg de tu carpeta mem1 */
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('mem1/fondo.jpg') no-repeat center center fixed; background-size: cover; height: 100vh; }
+        
+        /* Cabecera estilo Módulo Memoria (Púrpura) */
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; z-index: 1000; position: relative; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; max-width: 70%; }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; border: 2px solid #6C5B7B; }
+        
+        /* Panel de objetos (oculto al inicio) */
+        #panel-objetos { width: 170px; background: rgba(255,255,255,0.9); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 100; }
+        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; }
+        
+        /* Escena central y Cama */
+        #escena-central { margin-left: 0; height: calc(100vh - 84px); position: relative; transition: margin 0.3s; display: flex; justify-content: center; align-items: center; }
+        #area-cama-detect { position: relative; width: 90%; height: 85%; }
+        /* Usamos la cama transparente de atención si la tienes, o una genérica */
+        #cama_base { width: 100%; max-width: 600px; display: block; margin: 50px auto; pointer-events: none; opacity: 0.8; }
+        
+        /* Objetos sobre la cama */
+        .pieza { position: absolute; width: 130px; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; }
+        /* Clase para cuando Juan los vuelve a poner (activar puntero) */
+        .pieza-evocada { pointer-events: auto; cursor: grab; }
+
+        /* Contador visual */
+        #timer-box { position: absolute; top: 20px; right: 20px; background: #E67E22; color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: none; z-index: 2000; }
+        
+        /* Pantalla Final */
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
+        .btn-final { margin-top:30px; padding: 18px 50px; font-size: 1.3rem; border-radius: 15px; background: #366B2B; color: white; border: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body onload="iniciarSesion()">
+
+<div id="cabecera">
+    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Memorizando rutina...</span></div>
+    <div id="timer-box">00:00</div>
+</div>
+
+<div id="panel-objetos"></div>
+
+<div id="escena-central">
+    <div id="area-cama-detect">
+        <img src="img10/cama_destendida.png" id="cama_base">
+        <div id="objetos-memorizar"></div>
+        <div id="objetos-evocar"></div>
+    </div>
+</div>
+
+<div id="overlay-final">
+    <h1 style="font-size: 3.5rem; color: #FFD700; margin-bottom: 10px;">¡SESIÓN COMPLETADA!</h1>
+    <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0; font-weight: 300;"></p>
+    <blockquote style="font-style: italic; color: #CEE5D6; font-size: 1.4rem; border-left: 5px solid #FFD700; padding-left: 15px; max-width: 600px;">
+        "Lo estás logrando, el éxito es la respuesta de un esfuerzo constante"
+    </blockquote>
+    <button class="btn-final" onclick="window.location.href='memoria_sesiones.html'">VOLVER A SESIONES</button>
+</div>
+
+<script>
+    // Capturar nivel de la URL
+    const params = new URLSearchParams(window.location.search);
+    const nivelActual = params.get('nivel') || 'bajo';
+
+    let objetosReto = []; // Los que debe memorizar
+    let colocadas = 0;
+    let errores = 0;
+    let faseRecuerdoActive = false;
+    let poolGeneral = []; // Todos los objetos de la carpeta mem1
+
+    // BASE DE DATOS AJUSTADA A TUS NOMBRES DE ARCHIVO EN 'mem1'
+    const db = {
+        "billetera": { nom: "la billetera", x: "35%", y: "40%" },
+        "camisa": { nom: "la camisa", x: "55%", y: "45%" },
+        "celular": { nom: "el celular", x: "65%", y: "35%" },
+        "crema_dental": { nom: "la crema dental", x: "40%", y: "65%" },
+        "frasco_gotas": { nom: "el frasco de gotas", x: "70%", y: "60%" },
+        "gafas": { nom: "las gafas", x: "45%", y: "30%" },
+        "libro": { nom: "el libro", x: "30%", y: "55%" },
+        "pantalon": { nom: "el pantalón", x: "50%", y: "70%" },
+        "pastillero": { nom: "el pastillero", x: "60%", y: "30%" },
+        "reloj": { nom: "el reloj", x: "75%", y: "50%" },
+        "toalla_manos": { nom: "la toalla de manos", x: "25%", y: "45%" },
+        "vaso": { nom: "el vaso", x: "35%", y: "60%" }
+    };
+
+    // Configuración de dificultad según tu requerimiento
+    const config = {
+        'bajo': { cant: 2, tiempo: 12, distractores: 2 }, // 2 objetos, fácil
+        'medio': { cant: 4, tiempo: 18, distractores: 4 }, // 4 objetos, intermedio
+        'alto': { cant: 6, tiempo: 25, distractores: 6 } // 6 objetos, difícil
+    };
+
+    const sfxOk = new Audio('img8/exito.mp3'); 
+    const sfxErr = new Audio('img8/alarma.mp3');
+
+    function hablar(t, rate = 1.0) {
+        window.speechSynthesis.cancel();
+        document.getElementById('label-guia').innerText = t;
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'es-ES';
+        msg.rate = rate; 
+        window.speechSynthesis.speak(msg);
+    }
+
+    function iniciarSesion() {
+         hablaInicio();
+    }
+
+    function hablaInicio() {
+        hablar("Juan, bienvenido a tu primera sesión de memoria. Vamos a entrenar tu cerebro recordando objetos de tu rutina diaria.", 0.9);
+        setTimeout(faseMemorizacion, 6000);
+    }
+
+    function faseMemorizacion() {
+        const c = config[nivelActual];
+        // Seleccionar objetos aleatorios para el reto
+        const keys = Object.keys(db).sort(() => Math.random() - 0.5);
+        objetosReto = keys.slice(0, c.cant);
+        poolGeneral = keys; // Guardamos el orden para distractores luego
+
+        hablar(`Observa bien la habitación, Juan. Memoriza estos ${c.cant} objetos y dónde están puestos. Tienes ${c.tiempo} segundos.`, 1.0);
+        
+        // Posicionar objetos en la cama (Fase visual)
+        const contenedor = document.getElementById('objetos-memorizar');
+        objetosReto.forEach(id => {
+            const img = document.createElement('img');
+            img.src = `mem1/${id}.png`; // Ruta a tu carpeta mem1
+            img.className = 'pieza';
+            img.style.left = db[id].x;
+            img.style.top = db[id].y;
+            contenedor.appendChild(img);
+        });
+
+        iniciarContador(c.tiempo);
+    }
+
+    function iniciarContador(segundos) {
+        const timerBox = document.getElementById('timer-box');
+        timerBox.style.display = 'block';
+        let restante = segundos;
+        timerBox.innerText = `00:${restante < 10 ? '0'+restante : restante}`;
+
+        const intervalo = setInterval(() => {
+            restante--;
+            timerBox.innerText = `00:${restante < 10 ? '0'+restante : restante}`;
+            
+            if (restante <= 0) {
+                clearInterval(intervalo);
+                timerBox.style.display = 'none';
+                faseEvocacion();
+            }
+        }, 1000);
+    }
+
+    function faseEvocacion() {
+        faseRecuerdoActive = true;
+        document.getElementById('objetos-memorizar').innerHTML = ""; // Desaparecen de la cama
+        
+        // Activar panel lateral y ajustar escena
+        document.getElementById('panel-objetos').style.display = 'flex';
+        document.getElementById('escena-central').style.marginLeft = '174px';
+        
+        hablar("¡Tiempo! Ahora, Juan, busca en el panel los objetos que viste y ponlos exactamente donde estaban.");
+
+        // Crear pool de panel (Reto + Distractores según nivel)
+        const c = config[nivelActual];
+        const extras = poolGeneral.filter(id => !objetosReto.includes(id)).slice(0, c.distractores);
+        const poolPanel = [...objetosReto, ...extras].sort(() => Math.random() - 0.5);
+
+        const panel = document.getElementById('panel-objetos');
+        poolPanel.forEach(id => {
+            const img = document.createElement('img');
+            img.src = `mem1/${id}.png`;
+            img.className = 'draggable';
+            img.dataset.id = id;
+            img.onmousedown = img.ontouchstart = drag;
+            panel.appendChild(img);
+        });
+    }
+
+    function drag(e) {
+        if(!faseRecuerdoActive) return;
+        const el = e.target;
+        const t = e.type.includes('touch') ? e.touches[0] : e;
+        let sx = t.clientX - el.getBoundingClientRect().left;
+        let sy = t.clientY - el.getBoundingClientRect().top;
+        el.style.position = 'fixed'; el.style.zIndex = 1000;
+        el.style.transform = "scale(1.1)";
+
+        function mover(me) {
+            const mt = me.type.includes('touch') ? me.touches[0] : me;
+            el.style.left = (mt.clientX - sx) + 'px'; el.style.top = (mt.clientY - sy) + 'px';
+        }
+
+        function soltar(se) {
+            el.style.transform = "scale(1)";
+            document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
+            document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
+            
+            const st = se.type.includes('touch') ? se.changedTouches[0] : se;
+            const id = el.dataset.id;
+            const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
+
+            // Verificar si soltó en la cama y si es un objeto del reto
+            if (st.clientX > cama.left && objetosReto.includes(id)) {
+                sfxOk.play(); colocadas++;
+                hablar(`¡Sí Juan! Ahí estaba ${db[id].nom}.`);
+                
+                // Fijar objeto en su posición original
+                const fija = document.createElement('img');
+                fija.src = el.src; fija.className = 'pieza pieza-evocada'; // Pequeño ajuste para que se vea puesto
+                fija.style.left = db[id].x; fija.style.top = db[id].y;
+                document.getElementById('objetos-evocar').appendChild(fija);
+                
+                el.style.visibility = 'hidden'; // Desaparece del panel
+                
+                if (colocadas === objetosReto.length) setTimeout(finalizar, 1500);
+            } else if (st.clientX > cama.left) {
+                // Es un distractor o un error de posición
+                sfxErr.play(); errores++;
+                hablar("Ese objeto no estaba ahí, Juan. Intenta recordar.");
+                el.style.position = 'static'; // Vuelve al panel
+            } else {
+                // Soltó fuera de la cama
+                el.style.position = 'static';
+            }
+            // Aquí podrías actualizar un contador de aciertos/errores en vivo si quisieras
+        }
+        document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
+        document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
+    }
+
+    function finalizar() {
+        faseRecuerdoActive = false;
+        clearInterval(loopPreguntas); // Por seguridad, aunque no hay preguntas aquí
+        document.getElementById('overlay-final').style.display = 'flex';
+        
+        const totalIntentes = colocadas + errores;
+        const porcentaje = Math.round((colocadas / totalIntentes) * 100);
+        
+        document.getElementById('resumen-final').innerText = `Has logrado posicionar correctamente ${colocadas} objetos domésticos, con un ${porcentaje}% de precisión en tu evocación.`;
+        
+        // Hablar mensaje motivacional
+        hablar("¡Excelente trabajo de memoria Juan! Lo estás logrando. El éxito es la respuesta de un esfuerzo constante.");
+    }
+</script>
+</body>
+</html>
 
