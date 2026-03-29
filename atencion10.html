@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 10 - Juan: DESAFÍO ELITE</title>
+    <title>Sesión 10 FINAL - Juan</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
+        body { font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('img10/fondo_habitacion.png') no-repeat center center fixed; background-size: cover; height: 100vh; }
         #cabecera { background: rgba(27, 79, 114, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #E67E22; z-index: 1000; position: relative; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; max-width: 60%; }
-        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-        #panel-objetos { width: 180px; background: rgba(255,255,255,0.9); border-right: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; }
-        .draggable { width: 90px; height: 90px; object-fit: contain; cursor: grab; }
-        #escena-central { margin-left: 184px; height: calc(100vh - 84px); position: relative; display: flex; justify-content: center; align-items: center; }
-        #area-cama-detect { position: relative; width: 95%; height: 90%; }
-        #cama_base { width: 100%; max-width: 650px; display: block; margin: 40px auto; pointer-events: none; }
-        .pieza-fija { position: absolute; width: 160px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
-        #panel-preguntas { position: absolute; right: 20px; top: 20px; width: 320px; z-index: 500; }
-        #cuadro-pregunta { background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: none; }
-        .btn-p { width: 100%; padding: 18px; margin: 10px 0; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; color: white; font-size: 1.5rem; }
+        #instruccion-box { background: white; padding: 10px 25px; border-radius: 30px; color: #1B4F72; display: flex; align-items: center; border: 3px solid #1B4F72; font-weight: bold; max-width: 65%; font-size: 1.2rem; }
+        #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
+        #panel-objetos { width: 170px; background: rgba(255,255,255,0.9); border-right: 4px solid #1B4F72; display: flex; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; }
+        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; }
+        #escena-central { margin-left: 174px; height: calc(100vh - 84px); position: relative; display: flex; justify-content: center; align-items: center; }
+        #area-cama-detect { position: relative; width: 90%; height: 85%; }
+        #cama_base { width: 100%; max-width: 600px; display: block; margin: 40px auto; pointer-events: none; }
+        .pieza-fija { position: absolute; width: 150px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
+        #cuadro-pregunta { position: absolute; right: 20px; top: 20px; width: 300px; background: #FFD700; border: 6px solid #1B4F72; border-radius: 25px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: none; z-index: 2000; }
+        .btn-p { width: 100%; padding: 15px; margin: 8px 0; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; color: white; font-size: 1.4rem; }
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(27, 79, 114, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
     </style>
 </head>
@@ -25,10 +24,7 @@
 
 <div id="cabecera">
     <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando ambiente...</span></div>
-    <div style="text-align: right;">
-        <div id="exito-txt" style="font-size: 1.6rem; font-weight: bold;">Éxito: 100%</div>
-        <div id="nivel-txt" style="color: #FFD700; font-weight: bold;">SESIÓN 10</div>
-    </div>
+    <div id="exito-txt" style="font-size: 1.6rem; font-weight: bold;">Éxito: 100%</div>
 </div>
 
 <div id="panel-objetos"></div>
@@ -38,19 +34,17 @@
         <img src="img10/cama_destendida.png" id="cama_base">
         <div id="contenedor-piezas"></div>
     </div>
-    <div id="panel-preguntas">
-        <div id="cuadro-pregunta">
-            <p id="pregunta-texto" style="font-size: 1.5rem; font-weight: bold; color:#1B4F72;"></p>
-            <button class="btn-p" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
-            <button class="btn-p" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
-        </div>
+    <div id="cuadro-pregunta">
+        <p id="pregunta-texto" style="font-size: 1.4rem; font-weight: bold; color:#1B4F72;"></p>
+        <button class="btn-p" style="background:#2ECC71" onclick="verificarRespuesta('SÍ')">SÍ</button>
+        <button class="btn-p" style="background:#E74C3C" onclick="verificarRespuesta('NO')">NO</button>
     </div>
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 4rem; color: #FFD700;">¡DOMINIO TOTAL!</h1>
-    <p id="resumen-final" style="font-size: 2rem; max-width: 800px; padding: 20px;"></p>
-    <button onclick="location.reload()" style="padding: 20px 50px; font-size: 1.5rem; border-radius: 20px; background: #E67E22; color: white; border: none; cursor: pointer; font-weight: bold;">REPETIR DESAFÍO</button>
+    <h1 style="font-size: 4rem; color: #FFD700;">¡MAESTRÍA LOGRADA!</h1>
+    <p id="resumen-final" style="font-size: 2rem; max-width: 800px;"></p>
+    <button onclick="location.reload()" style="padding: 20px 50px; font-size: 1.5rem; border-radius: 20px; background: #E67E22; color: white; border: none; cursor: pointer;">REPETIR</button>
 </div>
 
 <script>
@@ -76,34 +70,32 @@
         "control": { img: "control.png", nom: "el control" },
         "reloj": { img: "reloj.png", nom: "el reloj" },
         "revista": { img: "revista.png", nom: "la revista" },
-        "vaso": { img: "vaso.png", nom: "el vaso" },
-        "lampara": { img: "lampara.png", nom: "la lámpara" },
-        "medias": { img: "medias.png", nom: "las medias" }
+        "vaso": { img: "vaso.png", nom: "el vaso" }
     };
 
     const niveles = {
-        1: { nom: "10-A", pedir: ["sabana_azul", "sobresabana_gris", "almohada_blanca", "almohada_cafe"], extra: ["reloj", "revista"], t: 6000, rate: 1.1 },
-        2: { nom: "10-B", pedir: ["sabana_blanca", "sobresabana_negra", "cobija_termica", "almohada_gris", "reloj"], extra: ["medias", "control"], t: 4500, rate: 1.2 },
-        3: { nom: "10-C FINAL", pedir: ["sabana_gris", "sobresabana_negra", "sobresabana_morada", "cobija_tigre", "cobija", "almohada_gris", "almohada_cafe", "almohada_blanca", "control", "vaso"], extra: ["revista", "lampara"], t: 3000, rate: 1.35 }
+        1: { pedir: ["sabana_azul", "almohada_blanca", "reloj"], extra: ["vaso"], t: 7000 },
+        2: { pedir: ["sabana_blanca", "sobresabana_negra", "cobija_termica", "almohada_cafe"], extra: ["control", "medias"], t: 5000 },
+        3: { pedir: ["sabana_gris", "sobresabana_negra", "sobresabana_morada", "cobija_tigre", "almohada_gris", "almohada_cafe", "control", "revista"], extra: ["vaso"], t: 3000 }
     };
 
     const bancoPreguntas = [
-        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿El agua moja?", a: "SÍ"}, {q: "¿Colombia está en América?", a: "SÍ"}, {q: "¿El hielo es frío?", a: "SÍ"}, {q: "¿2+2 son 5?", a: "NO"}, {q: "¿Los perros ladran?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"}, {q: "¿Dormir es necesario?", a: "SÍ"}, {q: "¿Los gatos vuelan?", a: "NO"}, {q: "¿El azúcar es dulce?", a: "SÍ"},
-        {q: "¿El fuego quema?", a: "SÍ"}, {q: "¿La tierra es plana?", a: "NO"}, {q: "¿Los peces nadan?", a: "SÍ"}, {q: "¿La sangre es azul?", a: "NO"}, {q: "¿El cielo es azul?", a: "SÍ"}, {q: "¿Tenemos dos ojos?", a: "SÍ"}, {q: "¿El hierro es blando?", a: "NO"}, {q: "¿La vaca da leche?", a: "SÍ"}, {q: "¿El café tiene cafeína?", a: "SÍ"}, {q: "¿París es capital de Francia?", a: "SÍ"}
-        // Aquí puedes pegar las otras 80 preguntas siguiendo el mismo formato.
+        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿El agua moja?", a: "SÍ"}, {q: "¿2+2 son 4?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"}, {q: "¿Los perros ladran?", a: "SÍ"}
+        // ... (el sistema usará este banco)
     ];
 
-    function hablar(t) {
-        window.speechSynthesis.cancel();
+    function hablar(t, esInstruccionCama = false) {
+        window.speechSynthesis.cancel(); 
         document.getElementById('label-guia').innerText = t;
         const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'es-ES'; msg.rate = niveles[nivel].rate;
+        msg.lang = 'es-ES';
+        msg.rate = esInstruccionCama ? 1.0 : 1.25; // Más lento para instrucciones de cama
         window.speechSynthesis.speak(msg);
     }
 
     let loopPreguntas;
     function iniciar() { 
-        sfxFondo.play().catch(() => console.log("Clic para audio")); 
+        sfxFondo.play().catch(() => {});
         cargarFase(); 
     }
 
@@ -112,19 +104,20 @@
         const config = niveles[nivel];
         document.getElementById('panel-objetos').innerHTML = "";
         document.getElementById('contenedor-piezas').innerHTML = "";
-        document.getElementById('nivel-txt').innerText = `NIVEL: ${config.nom}`;
         paso = 0; bloqueado = false;
         
         let pool = [...config.pedir, ...config.extra].sort(() => Math.random() - 0.5);
         pool.forEach(id => {
-            const img = document.createElement('img');
-            img.src = `img10/${db[id].img}`; img.className = 'draggable';
-            img.dataset.id = id;
-            img.onmousedown = img.ontouchstart = drag;
-            document.getElementById('panel-objetos').appendChild(img);
+            if(db[id]){
+                const img = document.createElement('img');
+                img.src = `img10/${db[id].img}`; img.className = 'draggable';
+                img.dataset.id = id;
+                img.onmousedown = img.ontouchstart = drag;
+                document.getElementById('panel-objetos').appendChild(img);
+            }
         });
         
-        hablar(`Juan, pon ${db[config.pedir[0]].nom}.`);
+        hablar(`Juan, atención. Pon ${db[config.pedir[0]].nom} en la cama.`, true);
         loopPreguntas = setInterval(lanzarPregunta, config.t);
     }
 
@@ -148,8 +141,11 @@
             const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
             const objId = niveles[nivel].pedir[paso];
 
-            if (st.clientX > (cama.left + 50) && el.dataset.id === objId) {
+            if (st.clientX > cama.left && el.dataset.id === objId) {
                 sfxOk.play(); aciertos++;
+                // AQUÍ LA CLAVE: CONFIRMACIÓN Y NUEVA INSTRUCCIÓN
+                hablar(`¡Sí Juan, muy bien! Pusiste ${db[objId].nom}.`, true);
+                
                 const fija = document.createElement('img');
                 fija.src = el.src; fija.className = 'pieza-fija';
                 fija.style.left = (st.clientX - cama.left) + 'px';
@@ -157,14 +153,18 @@
                 document.getElementById('contenedor-piezas').appendChild(fija);
                 el.style.display = 'none';
                 paso++;
+
                 if (paso < niveles[nivel].pedir.length) {
-                    hablar(`Bien. Ahora ${db[niveles[nivel].pedir[paso]].nom}`);
+                    setTimeout(() => {
+                        hablar(`Ahora busca y pon ${db[niveles[nivel].pedir[paso]].nom}.`, true);
+                    }, 2000);
                 } else {
                     bloqueado = true;
-                    setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { finalizar(); }}, 1500);
+                    setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { finalizar(); }}, 2000);
                 }
-            } else if (st.clientX > (cama.left + 50)) {
-                sfxErr.play(); errores++; hablar(`No, Juan. Busca ${db[objId].nom}`);
+            } else if (st.clientX > cama.left) {
+                sfxErr.play(); errores++;
+                // No dice nada para que tú lo manejes manual o solo suene la alarma
                 el.style.position = 'static';
             } else { el.style.position = 'static'; }
             actualizarStats();
@@ -187,6 +187,10 @@
         else { sfxErr.play(); errores++; }
         document.getElementById('cuadro-pregunta').style.display = 'none';
         actualizarStats();
+        // Después de responder una pregunta, recordamos la tarea de la cama si no ha terminado
+        setTimeout(() => {
+            if(!bloqueado) hablar(`Juan, recuerda que estamos buscando ${db[niveles[nivel].pedir[paso]].nom}.`, true);
+        }, 1000);
     }
 
     function actualizarStats() {
@@ -197,9 +201,10 @@
     function finalizar() {
         clearInterval(loopPreguntas);
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-final').innerText = `¡Espectacular Juan! Has cerrado la etapa de Atención con maestría. Mañana nos vemos para empezar a entrenar tu memoria.`;
-        hablar("¡Misión cumplida! Has terminado todos los niveles de atención. Mañana iniciaremos con memoria.");
+        document.getElementById('resumen-final').innerText = `Juan, ¡has dominado el Nivel 10! Tu atención dividida es excelente. Terminamos la etapa de atención por hoy.`;
+        hablar("Misión cumplida Juan. Has superado el reto final de atención.");
     }
 </script>
 </body>
 </html>
+
