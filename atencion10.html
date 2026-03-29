@@ -49,6 +49,7 @@
 
 <script>
     let nivel = 1, paso = 0, aciertos = 0, errores = 0, bloqueado = false;
+    let preguntasDisponibles = []; // Para no repetir preguntas
     const sfxOk = new Audio('img8/exito.mp3'); 
     const sfxErr = new Audio('img8/alarma.mp3');
     const sfxFondo = new Audio('img10/pajaros.mp3');
@@ -74,14 +75,16 @@
     };
 
     const niveles = {
-        1: { pedir: ["sabana_azul", "almohada_blanca", "reloj"], extra: ["vaso"], t: 7000 },
-        2: { pedir: ["sabana_blanca", "sobresabana_negra", "cobija_termica", "almohada_cafe"], extra: ["control", "medias"], t: 5000 },
-        3: { pedir: ["sabana_gris", "sobresabana_negra", "sobresabana_morada", "cobija_tigre", "almohada_gris", "almohada_cafe", "control", "revista"], extra: ["vaso"], t: 3000 }
+        // Reloj, revista y vaso ahora son EXTRAS (distractores)
+        1: { pedir: ["sabana_azul", "almohada_blanca"], extra: ["reloj", "vaso"], t: 7000 },
+        2: { pedir: ["sabana_blanca", "sobresabana_negra", "cobija_termica", "almohada_cafe"], extra: ["control", "reloj", "revista"], t: 5000 },
+        3: { pedir: ["sabana_gris", "sobresabana_negra", "sobresabana_morada", "cobija_tigre", "almohada_gris", "almohada_cafe"], extra: ["control", "revista", "vaso", "reloj"], t: 3000 }
     };
 
     const bancoPreguntas = [
-        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿El agua moja?", a: "SÍ"}, {q: "¿2+2 son 4?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"}, {q: "¿Los perros ladran?", a: "SÍ"}
-        // ... (el sistema usará este banco)
+        {q: "¿El sol es una estrella?", a: "SÍ"}, {q: "¿El agua moja?", a: "SÍ"}, {q: "¿2+2 son 4?", a: "SÍ"}, {q: "¿La sal es dulce?", a: "NO"}, {q: "¿Los perros ladran?", a: "SÍ"},
+        {q: "¿El cielo es azul?", a: "SÍ"}, {q: "¿El azúcar es salado?", a: "NO"}, {q: "¿La tierra es redonda?", a: "SÍ"}, {q: "¿El fuego es frío?", a: "NO"}, {q: "¿Dormir es vital?", a: "SÍ"}
+        // ... (Agrega aquí las 100 preguntas que desees)
     ];
 
     function hablar(t, esInstruccionCama = false) {
@@ -89,13 +92,14 @@
         document.getElementById('label-guia').innerText = t;
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = esInstruccionCama ? 1.0 : 1.25; // Más lento para instrucciones de cama
+        msg.rate = esInstruccionCama ? 1.0 : 1.25;
         window.speechSynthesis.speak(msg);
     }
 
     let loopPreguntas;
     function iniciar() { 
         sfxFondo.play().catch(() => {});
+        preguntasDisponibles = [...bancoPreguntas]; // Copiamos el banco al iniciar
         cargarFase(); 
     }
 
@@ -141,9 +145,8 @@
             const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
             const objId = niveles[nivel].pedir[paso];
 
-            if (st.clientX > cama.left && el.dataset.id === objId) {
+            if (st.clientX > (cama.left + 50) && el.dataset.id === objId) {
                 sfxOk.play(); aciertos++;
-                // AQUÍ LA CLAVE: CONFIRMACIÓN Y NUEVA INSTRUCCIÓN
                 hablar(`¡Sí Juan, muy bien! Pusiste ${db[objId].nom}.`, true);
                 
                 const fija = document.createElement('img');
@@ -162,9 +165,8 @@
                     bloqueado = true;
                     setTimeout(() => { if(nivel < 3){ nivel++; cargarFase(); } else { finalizar(); }}, 2000);
                 }
-            } else if (st.clientX > cama.left) {
+            } else if (st.clientX > (cama.left + 50)) {
                 sfxErr.play(); errores++;
-                // No dice nada para que tú lo manejes manual o solo suene la alarma
                 el.style.position = 'static';
             } else { el.style.position = 'static'; }
             actualizarStats();
@@ -175,7 +177,15 @@
 
     function lanzarPregunta() {
         if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
-        const p = bancoPreguntas[Math.floor(Math.random()*bancoPreguntas.length)];
+        
+        if (preguntasDisponibles.length === 0) {
+            preguntasDisponibles = [...bancoPreguntas]; // Si se acaban, reiniciamos el mazo
+        }
+
+        // Seleccionamos una pregunta y la ELIMINAMOS de disponibles para que no se repita
+        const index = Math.floor(Math.random() * preguntasDisponibles.length);
+        const p = preguntasDisponibles.splice(index, 1)[0]; 
+
         document.getElementById('pregunta-texto').innerText = p.q;
         document.getElementById('cuadro-pregunta').dataset.ans = p.a;
         document.getElementById('cuadro-pregunta').style.display = 'block';
@@ -187,10 +197,9 @@
         else { sfxErr.play(); errores++; }
         document.getElementById('cuadro-pregunta').style.display = 'none';
         actualizarStats();
-        // Después de responder una pregunta, recordamos la tarea de la cama si no ha terminado
         setTimeout(() => {
             if(!bloqueado) hablar(`Juan, recuerda que estamos buscando ${db[niveles[nivel].pedir[paso]].nom}.`, true);
-        }, 1000);
+        }, 1200);
     }
 
     function actualizarStats() {
@@ -201,10 +210,9 @@
     function finalizar() {
         clearInterval(loopPreguntas);
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-final').innerText = `Juan, ¡has dominado el Nivel 10! Tu atención dividida es excelente. Terminamos la etapa de atención por hoy.`;
+        document.getElementById('resumen-final').innerText = `Juan, ¡misión cumplida! Has terminado el Nivel 10 con éxito. ¡Mañana empezamos con Memoria!`;
         hablar("Misión cumplida Juan. Has superado el reto final de atención.");
     }
 </script>
 </body>
 </html>
-
