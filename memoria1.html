@@ -5,135 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Memoria 1 - Juan: Entrenamiento de Retención</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('mem1/fondo.jpg') no-repeat center center fixed; background-size: cover; height: 100vh; }
-        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; z-index: 1000; position: relative; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; max-width: 70%; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #f0f0f0; height: 100vh; }
+        #escena-total { width: 100vw; height: 100vh; background: url('mem1/fondo.jpg') no-repeat center center; background-size: cover; position: relative; }
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; position: relative; z-index: 1000; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; font-size: 1.1rem; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-        #panel-objetos { width: 175px; background: rgba(255,255,255,0.92); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 15px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 100; }
-        .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; }
-        #escena-central { margin-left: 0; height: calc(100vh - 84px); position: relative; transition: margin 0.3s; }
-        #habitacion-area { position: relative; width: 100%; height: 100%; }
-        .pieza { position: absolute; width: 105px; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; }
-        .guia-sombra { position: absolute; width: 110px; height: 110px; border: 4px dashed rgba(108, 91, 123, 0.6); border-radius: 15px; background: rgba(255,255,255,0.25); transform: translate(-50%, -50%); display: none; z-index: 5; }
-        #timer-box { position: absolute; top: 20px; right: 20px; background: #E67E22; color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; display: none; z-index: 2000; }
-        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
+        #panel-objetos { width: 160px; background: rgba(255,255,255,0.9); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 500; }
+        .draggable { width: 80px; height: 80px; object-fit: contain; cursor: grab; }
+        #zona-juego { position: relative; height: calc(100vh - 84px); overflow: hidden; }
+        .pieza { position: absolute; width: 90px; transform: translate(-50%, -50%); z-index: 20; pointer-events: none; }
+        .guia-sombra { position: absolute; width: 95px; height: 95px; border: 3px dashed rgba(108, 91, 123, 0.7); border-radius: 12px; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%); display: none; z-index: 10; }
+        #timer-box { background: #E67E22; color: white; padding: 8px 20px; border-radius: 12px; font-size: 1.5rem; font-weight: bold; display: none; }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
     </style>
 </head>
-<body onload="prepararNivel()">
+<body onload="iniciarEntrenamiento()">
 
-<div id="cabecera">
-    <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Preparando...</span></div>
-    <div id="timer-box">00:00</div>
+<div id="escena-total">
+    <div id="cabecera">
+        <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
+        <div id="timer-box">00:00</div>
+    </div>
+
+    <div id="panel-objetos"></div>
+    <div id="zona-juego">
+        <div id="guias-layer"></div>
+        <div id="objetos-layer"></div>
+    </div>
 </div>
 
-<div id="panel-objetos"></div>
-<div id="escena-central"><div id="habitacion-area"><div id="guias-contenedor"></div><div id="objetos-memorizar"></div><div id="objetos-evocar"></div></div></div>
-
 <div id="overlay-final">
-    <h1 style="font-size: 3.5rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
+    <h1 style="font-size: 3rem; color: #FFD700;">¡MUY BIEN TRABAJADO!</h1>
     <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
-    <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">REPETIR ENTRENAMIENTO</button>
+    <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">REPETIR</button>
 </div>
 
 <script>
-    let nivelActual = 'bajo';
+    let nivelActual = 1;
     let objetosReto = [];
     let colocadasEnNivel = 0;
-    let erroresTotales = 0;
-    let aciertosTotales = 0;
+    let erroresGlobales = 0;
+    let aciertosGlobales = 0;
 
-    const puntosGrilla = [
-        {x: 220, y: 300}, {x: 480, y: 250}, {x: 800, y: 200},
-        {x: 250, y: 650}, {x: 550, y: 480}, {x: 880, y: 450},
-        {x: 400, y: 750}, {x: 750, y: 720}, {x: 950, y: 680}
+    // Cuadrícula de 4x3 para evitar bordes y solapamientos
+    const cuadricula = [
+        {x: 20, y: 25}, {x: 40, y: 25}, {x: 60, y: 25}, {x: 80, y: 25},
+        {x: 20, y: 55}, {x: 40, y: 55}, {x: 60, y: 55}, {x: 80, y: 55},
+        {x: 30, y: 80}, {x: 50, y: 80}, {x: 70, y: 80}, {x: 90, y: 80}
     ];
 
-    const itemsRepo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
+    const repo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
 
-    const config = {
-        'bajo': { cant: 2, tiempo: 12, distractores: 2, next: 'medio' },
-        'medio': { cant: 4, tiempo: 18, distractores: 3, next: 'alto' },
-        'alto': { cant: 6, tiempo: 25, distractores: 3, next: 'fin' }
+    const niveles = {
+        1: { memoriza: 2, distractores: 4, tiempo: 12 },
+        2: { memoriza: 4, distractores: 4, tiempo: 18 },
+        3: { memoriza: 6, distractores: 6, tiempo: 25 }
     };
+
+    function iniciarEntrenamiento() { prepararSesion(); }
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         document.getElementById('label-guia').innerText = t;
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.onend = () => { if(callback) callback(); };
+        if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
-    function prepararNivel() {
-        document.getElementById('guias-contenedor').innerHTML = "";
-        document.getElementById('objetos-memorizar').innerHTML = "";
-        document.getElementById('objetos-evocar').innerHTML = "";
-        document.getElementById('panel-objetos').innerHTML = "";
-        document.getElementById('panel-objetos').style.display = 'none';
-        document.getElementById('escena-central').style.marginLeft = '0';
+    function prepararSesion() {
+        const c = niveles[nivelActual];
+        const puntos = [...cuadricula].sort(() => Math.random() - 0.5);
+        const items = [...repo].sort(() => Math.random() - 0.5).slice(0, c.memoriza);
+        
+        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y }));
         colocadasEnNivel = 0;
+        
+        document.getElementById('guias-layer').innerHTML = "";
+        document.getElementById('objetos-layer').innerHTML = "";
+        document.getElementById('panel-objetos').style.display = 'none';
 
-        const c = config[nivelActual];
-        const itemsSorteados = [...itemsRepo].sort(() => Math.random() - 0.5).slice(0, c.cant);
-        const puntosSorteados = [...puntosGrilla].sort(() => Math.random() - 0.5);
-
-        objetosReto = itemsSorteados.map((id, index) => ({
-            id: id, x: puntosSorteados[index].x, y: puntosSorteados[index].y
-        }));
-
-        hablar(`Juan, nivel ${nivelActual}. Memoriza estos ${c.cant} objetos.`, () => {
+        hablar(`Juan, nivel ${nivelActual}. Memoriza estos ${c.memoriza} objetos.`, () => {
             objetosReto.forEach(obj => {
                 const img = document.createElement('img');
-                img.src = `mem1/${obj.id}.png`;
-                img.className = 'pieza';
-                img.style.left = obj.x + 'px'; img.style.top = obj.y + 'px';
-                document.getElementById('objetos-memorizar').appendChild(img);
-
-                const guia = document.createElement('div');
-                guia.className = 'guia-sombra';
-                guia.style.display = 'block';
-                guia.style.left = obj.x + 'px'; guia.style.top = obj.y + 'px';
-                document.getElementById('guias-contenedor').appendChild(guia);
+                img.src = `mem1/${obj.id}.png`; img.className = 'pieza';
+                img.style.left = obj.x + '%'; img.style.top = obj.y + '%';
+                document.getElementById('objetos-layer').appendChild(img);
             });
-            iniciarContador(c.tiempo);
+            iniciarReloj(c.tiempo);
         });
     }
 
-    function iniciarContador(s) {
-        const timer = document.getElementById('timer-box');
-        timer.style.display = 'block';
-        const interval = setInterval(() => {
-            s--; timer.innerText = `00:${s < 10 ? '0'+s : s}`;
-            if(s <= 0) { clearInterval(interval); timer.style.display = 'none'; faseEvocacion(); }
+    function iniciarReloj(s) {
+        const box = document.getElementById('timer-box');
+        box.style.display = 'block';
+        const t = setInterval(() => {
+            s--; box.innerText = `00:${s<10?'0'+s:s}`;
+            if(s<=0) { clearInterval(t); box.style.display='none'; faseReconocimiento(); }
         }, 1000);
     }
 
-    function faseEvocacion() {
-        document.getElementById('objetos-memorizar').innerHTML = "";
+    function faseReconocimiento() {
+        document.getElementById('objetos-layer').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'flex';
-        document.getElementById('escena-central').style.marginLeft = '179px';
+        document.getElementById('panel-objetos').innerHTML = "";
         
-        const c = config[nivelActual];
-        // AGREGAR SEÑALES DISTRACTORAS (Marcas vacías)
-        const puntosLibres = puntosGrilla.filter(p => !objetosReto.some(o => o.x === p.x && o.y === p.y));
-        puntosLibres.slice(0, c.distractores).forEach(p => {
-            const guiaExtra = document.createElement('div');
-            guiaExtra.className = 'guia-sombra';
-            guiaExtra.style.display = 'block';
-            guiaExtra.style.left = p.x + 'px'; guiaExtra.style.top = p.y + 'px';
-            document.getElementById('guias-contenedor').appendChild(guiaExtra);
-        });
+        const c = niveles[nivelActual];
+        // Crear guías: Correctas + Distractoras
+        const puntosUsados = objetosReto.map(o => o.x + '-' + o.y);
+        const puntosLibres = cuadricula.filter(p => !puntosUsados.includes(p.x + '-' + p.y))
+                                       .sort(() => Math.random() - 0.5);
+        
+        // Mostrar marcas correctas
+        objetosReto.forEach(obj => crearGuia(obj.x, obj.y));
+        // Mostrar marcas distractoras
+        puntosLibres.slice(0, c.distractores).forEach(p => crearGuia(p.x, p.y));
 
-        hablar("Ahora Juan, colócalos en sus marcas originales.");
+        hablar("Ahora, pon cada objeto en la marca que le corresponde.");
+
         [...objetosReto].sort(() => Math.random() - 0.5).forEach(obj => {
             const img = document.createElement('img');
-            img.src = `mem1/${obj.id}.png`;
-            img.className = 'draggable';
+            img.src = `mem1/${obj.id}.png`; img.className = 'draggable';
             img.dataset.id = obj.id;
             img.onmousedown = img.ontouchstart = drag;
             document.getElementById('panel-objetos').appendChild(img);
         });
+    }
+
+    function crearGuia(x, y) {
+        const g = document.createElement('div');
+        g.className = 'guia-sombra'; g.style.display = 'block';
+        g.style.left = x + '%'; g.style.top = y + '%';
+        document.getElementById('guias-layer').appendChild(g);
     }
 
     function drag(e) {
@@ -141,7 +144,7 @@
         const t = e.type.includes('touch') ? e.touches[0] : e;
         let sx = t.clientX - el.getBoundingClientRect().left;
         let sy = t.clientY - el.getBoundingClientRect().top;
-        el.style.position = 'fixed'; el.style.zIndex = 1000;
+        el.style.position = 'fixed'; el.style.zIndex = 2000;
 
         function mover(me) {
             const mt = me.type.includes('touch') ? me.touches[0] : me;
@@ -151,27 +154,28 @@
         function soltar(se) {
             document.removeEventListener('mousemove', mover); document.removeEventListener('mouseup', soltar);
             document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
+            
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
-            const area = document.getElementById('habitacion-area').getBoundingClientRect();
-            const posX = st.clientX - area.left; const posY = st.clientY - area.top;
-            
             const objInfo = objetosReto.find(o => o.id === el.dataset.id);
-            const dist = Math.sqrt(Math.pow(posX - objInfo.x, 2) + Math.pow(posY - objInfo.y, 2));
             
-            if (dist < 85) { // Si acertó
-                aciertosTotales++; colocadasEnNivel++;
-                hablar("¡Muy bien!");
+            // Convertir click a porcentaje para comparar con la guía
+            const pctX = (st.clientX / window.innerWidth) * 100;
+            const pctY = ((st.clientY - 84) / (window.innerHeight - 84)) * 100;
+            
+            const dist = Math.sqrt(Math.pow(pctX - objInfo.x, 2) + Math.pow(pctY - objInfo.y, 2));
+
+            if(dist < 8) { // Acierto
+                aciertosGlobales++; colocadasEnNivel++;
+                hablar("¡Correcto!");
                 const fija = document.createElement('img');
                 fija.src = el.src; fija.className = 'pieza';
-                fija.style.left = objInfo.x + 'px'; fija.style.top = objInfo.y + 'px';
-                document.getElementById('objetos-evocar').appendChild(fija);
+                fija.style.left = objInfo.x + '%'; fija.style.top = objInfo.y + '%';
+                document.getElementById('objetos-layer').appendChild(fija);
                 el.style.visibility = 'hidden';
-                
-                // SOLO PASA DE NIVEL SI COMPLETÓ TODOS LOS OBJETOS DEL NIVEL
-                if (colocadasEnNivel === objetosReto.length) setTimeout(verificarProgresion, 1500);
+                if(colocadasEnNivel === objetosReto.length) setTimeout(siguiente, 1200);
             } else {
-                erroresTotales++;
-                hablar("Cerca, pero no ahí.");
+                erroresGlobales++;
+                hablar("Esa no es su marca.");
                 el.style.position = 'static';
             }
         }
@@ -179,17 +183,16 @@
         document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
     }
 
-    function verificarProgresion() {
-        const proximo = config[nivelActual].next;
-        if (proximo === 'fin') {
+    function siguiente() {
+        if(nivelActual < 3) { nivelActual++; prepararSesion(); }
+        else {
             document.getElementById('overlay-final').style.display = 'flex';
-            const total = aciertosTotales + erroresTotales;
-            document.getElementById('resumen-final').innerText = `Precisión: ${Math.round((aciertosTotales/total)*100)}% | Errores: ${erroresTotales}`;
-            hablar("¡Entrenamiento completado!");
-        } else {
-            nivelActual = proximo; prepararNivel();
+            const precision = Math.round((aciertosGlobales / (aciertosGlobales + erroresGlobales)) * 100);
+            document.getElementById('resumen-final').innerText = `Retención: ${precision}% | Errores: ${erroresGlobales}`;
+            hablar("¡Excelente trabajo Juan! Has completado el entrenamiento de hoy.");
         }
     }
 </script>
 </body>
 </html>
+
