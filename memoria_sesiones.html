@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesiones de Memoria - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Mantenemos la paleta para coherencia visual */
+            --p-blue: #103A57; 
+            --t-blue: #307B8E; 
+            --silver: #CEE5D6; 
+            --m-green: #366B2B;
+            --m-purple: #6C5B7B; /* Color sugerido para diferenciar Memoria de Atención */
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--silver); color: var(--p-blue); }
+        header { background-color: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; border-bottom: 4px solid var(--t-blue); }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; margin-right: 15px; }
+        
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+
+        .sesion-wrapper { margin-bottom: 15px; }
+
+        .sesion-card {
+            background: white; border-radius: 15px; padding: 18px 25px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            /* Cambiamos el color del borde izquierdo para que Juan note que es un área nueva */
+            border-left: 10px solid var(--m-purple); 
+            transition: 0.3s;
+        }
+        .sesion-card.bloqueada { border-left-color: #95a5a5; opacity: 0.7; cursor: not-allowed; }
+        .sesion-card span { font-weight: bold; font-size: 1.1rem; color: #333; }
+
+        .niveles-container {
+            display: none; background: rgba(255,255,255,0.8); 
+            border-radius: 0 0 15px 15px; padding: 15px; border: 1px solid #ddd;
+            border-top: none; animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-nivel {
+            display: block; width: 100%; padding: 12px; margin-bottom: 8px;
+            border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
+            text-align: center; text-decoration: none; font-size: 0.95rem; transition: 0.2s;
+        }
+        .btn-nivel:active { transform: scale(0.96); }
+        .n-bajo { background-color: var(--m-green); color: white; }
+        .n-medio { background-color: #E67E22; color: white; }
+        .n-alto { background-color: #C0392B; color: white; }
+        
+        .indicador-fase {
+            text-align: center; font-size: 0.8rem; color: var(--t-blue);
+            margin-bottom: 15px; font-weight: bold; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="ejercicios.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <span style="font-weight: bold;">ENTRENAMIENTO DE MEMORIA</span>
+</header>
+
+<div class="container">
+    <div class="indicador-fase">Fase 2: Retención y Evocación</div>
+    <div id="lista-sesiones"></div>
+</div>
+
+<script>
+    // Configuración de sesiones de memoria activas
+    // Por ahora dejamos la 1 activa para empezar las pruebas
+    const estadoSesiones = {
+        1: true,
+        2: false, 
+        3: false,
+        4: false,  
+        5: false,  
+        6: false,  
+        7: false, 
+        8: false, 
+        9: false, 
+        10:false,
+    };
+
+    const contenedor = document.getElementById('lista-sesiones');
+
+    function cargarSesiones() {
+        contenedor.innerHTML = "";
+        for (let i = 1; i <= 10; i++) {
+            const estaAbierta = estadoSesiones[i];
+            
+            const htmlSesion = `
+                <div class="sesion-wrapper">
+                    <div class="sesion-card ${estaAbierta ? '' : 'bloqueada'}" onclick="toggleNiveles(${i}, ${estaAbierta})">
+                        <span>SESIÓN DE MEMORIA ${i}</span>
+                        <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'}" 
+                           style="color: ${estaAbierta ? 'var(--m-purple)' : '#999'};"></i>
+                    </div>
+                    ${estaAbierta ? `
+                    <div id="niveles-${i}" class="niveles-container">
+                        <p style="font-size: 0.85rem; margin-bottom: 12px; text-align: center; color: #444;">Elige el nivel de recordación:</p>
+                        <button class="btn-nivel n-bajo" onclick="irA(${i}, 'bajo')">NIVEL BAJO</button>
+                        <button class="btn-nivel n-medio" onclick="irA(${i}, 'medio')">NIVEL MEDIO</button>
+                        <button class="btn-nivel n-alto" onclick="irA(${i}, 'alto')">NIVEL ALTO</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            contenedor.innerHTML += htmlSesion;
+        }
+    }
+
+    function toggleNiveles(num, abierta) {
+        if (!abierta) return; 
+
+        const contenedorNiveles = document.getElementById(`niveles-${num}`);
+        const icono = document.getElementById(`icono-${num}`);
+        
+        // Cerrar otros niveles abiertos
+        document.querySelectorAll('.niveles-container').forEach(el => {
+            if(el.id !== `niveles-${num}`) {
+                el.style.display = 'none';
+                const idOtro = el.id.split('-')[1];
+                const iconoOtro = document.getElementById(`icono-${idOtro}`);
+                if(iconoOtro && iconoOtro.classList.contains("fa-chevron-up")) {
+                    iconoOtro.classList.replace("fa-chevron-up", "fa-chevron-down");
+                }
+            }
+        });
+
+        if (contenedorNiveles.style.display === "block") {
+            contenedorNiveles.style.display = "none";
+            icono.classList.replace("fa-chevron-up", "fa-chevron-down");
+        } else {
+            contenedorNiveles.style.display = "block";
+            icono.classList.replace("fa-chevron-down", "fa-chevron-up");
+        }
+    }
+
+    function irA(sesion, dificultad) {
+        // Redirige a archivos tipo memoria1.html, memoria2.html...
+        window.location.href = `memoria${sesion}.html?nivel=${dificultad}`;
+    }
+
+    cargarSesiones();
+</script>
+
+</body>
+</html>
 
