@@ -73,14 +73,12 @@
     function iniciarEntrenamiento() { prepararSesion(); }
 
     function prepararSesion() {
-        // RESET DE CONTADOR AL INICIO DE CADA NIVEL
-        colocadasEnNivel = 0; 
         const c = niveles[nivelActual];
         const puntos = [...cuadricula].sort(() => Math.random() - 0.5);
         const items = [...repo].sort(() => Math.random() - 0.5).slice(0, c.memoriza);
         
-        // Marcamos cada objeto como NO COLOCADO
-        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y, puesto: false }));
+        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y }));
+        colocadasEnNivel = 0;
         
         document.getElementById('guias-layer').innerHTML = "";
         document.getElementById('objetos-layer').innerHTML = "";
@@ -160,21 +158,16 @@
             document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
             
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
-            // Solo buscamos el objeto si NO ha sido puesto ya en este nivel
-            const objInfo = objetosReto.find(o => o.id === el.dataset.id && o.puesto === false);
+            const objInfo = objetosReto.find(o => o.id === el.dataset.id);
             const area = document.getElementById('zona-juego').getBoundingClientRect();
-            
             const pctX = ((st.clientX - area.left) / area.width) * 100;
             const pctY = ((st.clientY - area.top) / area.height) * 100;
             
             if(objInfo) {
                 const dist = Math.sqrt(Math.pow(pctX - objInfo.x, 2) + Math.pow(pctY - objInfo.y, 2));
-                // MARGEN DE ERROR DE 12% (Más cómodo para Juan)
-                if(dist < 12) { 
-                    objInfo.puesto = true; // Bloqueamos este objeto
-                    aciertosGlobales++; 
-                    colocadasEnNivel++;
-                    
+                // Mantengo el umbral de 7 que tenías en tu código original
+                if(dist < 7) {
+                    aciertosGlobales++; colocadasEnNivel++;
                     hablar("¡Muy bien!");
                     const fija = document.createElement('img');
                     fija.src = el.src; fija.className = 'pieza';
@@ -182,15 +175,13 @@
                     document.getElementById('objetos-layer').appendChild(fija);
                     el.style.visibility = 'hidden';
                     
-                    // COMPROBACIÓN CRÍTICA: ¿Están todos los del nivel?
+                    // EL ÚNICO CAMBIO: Comparamos contra el número de objetos que memorizó Juan
                     if(colocadasEnNivel === niveles[nivelActual].memoriza) {
-                        setTimeout(siguiente, 1500);
+                        setTimeout(siguiente, 1200);
                     }
                     return;
                 }
             }
-            
-            // Si el código llega aquí, es un error (distractor o mal puesto)
             erroresGlobales++;
             hablar("Ese no va ahí.");
             el.style.position = 'static';
@@ -207,7 +198,7 @@
             document.getElementById('overlay-final').style.display = 'flex';
             const total = aciertosGlobales + erroresGlobales;
             document.getElementById('resumen-final').innerText = `Precisión: ${Math.round((aciertosGlobales/total)*100)}% | Errores: ${erroresGlobales}`;
-            hablar("¡Excelente Juan! Has terminado todos los niveles.");
+            hablar("¡Excelente Juan! Has terminado.");
         }
     }
 </script>
