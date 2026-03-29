@@ -43,8 +43,6 @@
     let nivelActual = 1;
     let objetosReto = []; 
     let colocadasEnNivel = 0;
-    let erroresGlobales = 0;
-    let aciertosGlobales = 0;
 
     const cuadricula = [
         {x: 35, y: 30}, {x: 45, y: 30}, {x: 55, y: 30}, {x: 65, y: 30},
@@ -71,7 +69,7 @@
     function iniciarEntrenamiento() { prepararSesion(); }
 
     function prepararSesion() {
-        colocadasEnNivel = 0; // Reinicio obligatorio del contador
+        colocadasEnNivel = 0; 
         const c = niveles[nivelActual];
         const puntos = [...cuadricula].sort(() => Math.random() - 0.5);
         const items = [...repo].sort(() => Math.random() - 0.5).slice(0, c.memoriza);
@@ -116,7 +114,7 @@
 
         const pool = [...objetosReto.map(o => o.id), ...repo.filter(i => !objetosReto.some(o => o.id === i)).sort(() => Math.random() - 0.5).slice(0, c.distractores)].sort(() => Math.random() - 0.5);
 
-        hablar("Colócalos en su marca.");
+        hablar("Juan, pon los que recuerdes.");
         pool.forEach(id => {
             const img = document.createElement('img');
             img.src = `mem1/${id}.png`; img.className = 'draggable'; img.dataset.id = id;
@@ -153,13 +151,15 @@
             const px = ((st.clientX - area.left) / area.width) * 100;
             const py = ((st.clientY - area.top) / area.height) * 100;
             
+            // BUSCAR SI EL OBJETO ES UNO DE LOS QUE MEMORIZÓ
             const objInfo = objetosReto.find(o => o.id === el.dataset.id && !o.puesto);
             
             if(objInfo) {
                 const dist = Math.sqrt(Math.pow(px - objInfo.x, 2) + Math.pow(py - objInfo.y, 2));
                 if(dist < 10) {
                     objInfo.puesto = true;
-                    aciertosGlobales++; colocadasEnNivel++;
+                    colocadasEnNivel++; // SOLO SUMA SI ES CORRECTO
+                    
                     hablar("¡Bien!");
                     const f = document.createElement('img');
                     f.src = el.src; f.className = 'pieza';
@@ -167,14 +167,14 @@
                     document.getElementById('objetos-layer').appendChild(f);
                     el.style.visibility = 'hidden';
                     
-                    // VALIDACIÓN POR NIVEL: Solo pasa si colocó el número requerido (2, 4 o 6)
-                    if(colocadasEnNivel === niveles[nivelActual].memoriza) {
+                    // SI YA PUSO LOS QUE MEMORIZÓ, PASA DE NIVEL
+                    if(colocadasEnNivel >= niveles[nivelActual].memoriza) {
                         setTimeout(siguiente, 1200);
                     }
                     return;
                 }
             }
-            erroresGlobales++;
+            // SI NO ES CORRECTO, NO SUMA NADA Y SE REPOSICIONA
             el.style.position = 'static';
         }
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
@@ -185,12 +185,9 @@
         if(nivelActual < 3) { nivelActual++; prepararSesion(); }
         else {
             document.getElementById('overlay-final').style.display = 'flex';
-            const total = aciertosGlobales + erroresGlobales;
-            document.getElementById('resumen-final').innerText = `Aciertos: ${aciertosGlobales} | Errores: ${erroresGlobales}`;
             hablar("¡Excelente Juan!");
         }
     }
 </script>
 </body>
 </html>
-
