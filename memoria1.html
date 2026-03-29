@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 1 - Juan: Sistema Imán</title>
+    <title>Memoria 1 - Juan: Entrenamiento de Precisión</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #222; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #333; height: 100vh; }
         #escena-total { width: 100vw; height: 100vh; background: url('mem1/fondo.jpg') no-repeat center center; background-size: cover; position: relative; }
-        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; z-index: 1000; position: relative; }
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; position: relative; z-index: 1000; }
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
         #panel-objetos { width: 150px; background: rgba(255,255,255,0.92); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 12px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 500; }
         .draggable { width: 75px; height: 75px; object-fit: contain; cursor: grab; }
         #zona-juego { position: relative; height: calc(100vh - 84px); overflow: hidden; }
         .pieza { position: absolute; width: 85px; transform: translate(-50%, -50%); z-index: 20; pointer-events: none; }
-        .guia-sombra { position: absolute; width: 95px; height: 95px; border: 3px dashed rgba(108, 91, 123, 0.8); border-radius: 12px; background: rgba(255,255,255,0.3); transform: translate(-50%, -50%); display: none; z-index: 10; }
+        .guia-sombra { position: absolute; width: 90px; height: 90px; border: 3px dashed rgba(108, 91, 123, 0.8); border-radius: 12px; background: rgba(255,255,255,0.3); transform: translate(-50%, -50%); display: none; z-index: 10; }
         #timer-box { background: #E67E22; color: white; padding: 8px 20px; border-radius: 12px; font-size: 1.5rem; font-weight: bold; display: none; }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
@@ -25,6 +26,7 @@
         <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
         <div id="timer-box">00:00</div>
     </div>
+
     <div id="panel-objetos"></div>
     <div id="zona-juego">
         <div id="guias-layer"></div>
@@ -32,10 +34,18 @@
     </div>
 </div>
 
+<div id="overlay-final">
+    <h1 style="font-size: 3rem; color: #FFD700;">¡ENTRENAMIENTO COMPLETADO!</h1>
+    <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
+    <button onclick="window.location.reload()" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">REINTENTAR</button>
+</div>
+
 <script>
     let nivelActual = 1;
     let objetosReto = []; 
     let colocadasEnNivel = 0;
+    let erroresGlobales = 0;
+    let aciertosGlobales = 0;
 
     const cuadricula = [
         {x: 35, y: 30}, {x: 45, y: 30}, {x: 55, y: 30}, {x: 65, y: 30},
@@ -44,7 +54,12 @@
     ];
 
     const repo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
-    const niveles = { 1: { mem: 2, dist: 4 }, 2: { mem: 4, dist: 4 }, 3: { mem: 6, dist: 6 } };
+
+    const niveles = {
+        1: { memoriza: 2, distractores: 4, tiempo: 10 },
+        2: { memoriza: 4, distractores: 4, tiempo: 15 },
+        3: { memoriza: 6, distractores: 6, tiempo: 20 }
+    };
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
@@ -58,31 +73,34 @@
     function iniciarEntrenamiento() { prepararSesion(); }
 
     function prepararSesion() {
+        // RESET DE CONTADOR AL INICIO DE CADA NIVEL
+        colocadasEnNivel = 0; 
         const c = niveles[nivelActual];
         const puntos = [...cuadricula].sort(() => Math.random() - 0.5);
-        const items = [...repo].sort(() => Math.random() - 0.5).slice(0, c.mem);
+        const items = [...repo].sort(() => Math.random() - 0.5).slice(0, c.memoriza);
         
-        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y, colocado: false }));
-        colocadasEnNivel = 0;
+        // Marcamos cada objeto como NO COLOCADO
+        objetosReto = items.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y, puesto: false }));
         
         document.getElementById('guias-layer').innerHTML = "";
         document.getElementById('objetos-layer').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'none';
 
-        hablar(`Juan, memoriza estos ${c.mem} objetos.`, () => {
+        hablar(`Juan, memoriza estos ${c.memoriza} objetos.`, () => {
             objetosReto.forEach(obj => {
                 const img = document.createElement('img');
                 img.src = `mem1/${obj.id}.png`; img.className = 'pieza';
                 img.style.left = obj.x + '%'; img.style.top = obj.y + '%';
                 document.getElementById('objetos-layer').appendChild(img);
             });
-            setTimeout(() => iniciarReloj(10), 500);
+            setTimeout(() => iniciarReloj(c.tiempo), 500);
         });
     }
 
     function iniciarReloj(s) {
         const box = document.getElementById('timer-box');
         box.style.display = 'block';
+        box.innerText = `00:${s<10?'0'+s:s}`;
         const t = setInterval(() => {
             s--; box.innerText = `00:${s<10?'0'+s:s}`;
             if(s<=0) { clearInterval(t); box.style.display='none'; faseReconocimiento(); }
@@ -92,22 +110,27 @@
     function faseReconocimiento() {
         document.getElementById('objetos-layer').innerHTML = "";
         const panel = document.getElementById('panel-objetos');
-        panel.style.display = 'flex'; panel.innerHTML = "";
+        panel.style.display = 'flex';
+        panel.innerHTML = "";
         
         const c = niveles[nivelActual];
         const puntosUsados = objetosReto.map(o => o.x + '-' + o.y);
         const puntosLibres = cuadricula.filter(p => !puntosUsados.includes(p.x + '-' + p.y)).sort(() => Math.random() - 0.5);
         
         objetosReto.forEach(obj => crearGuia(obj.x, obj.y));
-        puntosLibres.slice(0, c.dist).forEach(p => crearGuia(p.x, p.y));
+        puntosLibres.slice(0, c.distractores).forEach(p => crearGuia(p.x, p.y));
 
         const itemsCorrectos = objetosReto.map(o => o.id);
-        const pool = [...itemsCorrectos, ...repo.filter(i => !itemsCorrectos.includes(i)).sort(() => Math.random() - 0.5).slice(0, c.dist)].sort(() => Math.random() - 0.5);
+        const distractoresDisponibles = repo.filter(item => !itemsCorrectos.includes(item));
+        const itemsDistractores = distractoresDisponibles.sort(() => Math.random() - 0.5).slice(0, c.distractores);
+        const poolSeleccion = [...itemsCorrectos, ...itemsDistractores].sort(() => Math.random() - 0.5);
 
-        hablar("Ahora Juan, colócalos en su marca.");
-        pool.forEach(id => {
+        hablar("Ahora Juan, elige los objetos correctos y ponlos en su marca.");
+
+        poolSeleccion.forEach(id => {
             const img = document.createElement('img');
-            img.src = `mem1/${id}.png`; img.className = 'draggable'; img.dataset.id = id;
+            img.src = `mem1/${id}.png`; img.className = 'draggable';
+            img.dataset.id = id;
             img.onmousedown = img.ontouchstart = drag;
             panel.appendChild(img);
         });
@@ -137,32 +160,39 @@
             document.removeEventListener('touchmove', mover); document.removeEventListener('touchend', soltar);
             
             const st = se.type.includes('touch') ? se.changedTouches[0] : se;
+            // Solo buscamos el objeto si NO ha sido puesto ya en este nivel
+            const objInfo = objetosReto.find(o => o.id === el.dataset.id && o.puesto === false);
             const area = document.getElementById('zona-juego').getBoundingClientRect();
             
-            // Convertimos la posición de soltado a porcentaje relativo a la zona de juego
-            const px = ((st.clientX - area.left) / area.width) * 100;
-            const py = ((st.clientY - area.top) / area.height) * 100;
-            
-            // Buscamos si el objeto es correcto
-            const objInfo = objetosReto.find(o => o.id === el.dataset.id && !o.colocado);
+            const pctX = ((st.clientX - area.left) / area.width) * 100;
+            const pctY = ((st.clientY - area.top) / area.height) * 100;
             
             if(objInfo) {
-                const d = Math.sqrt(Math.pow(px - objInfo.x, 2) + Math.pow(py - objInfo.y, 2));
-                // UMBRAL DE TOLERANCIA MUY AMPLIO (25% del área)
-                if(d < 25) {
-                    objInfo.colocado = true; colocadasEnNivel++;
-                    hablar("¡Excelente!");
-                    const f = document.createElement('img');
-                    f.src = el.src; f.className = 'pieza';
-                    f.style.left = objInfo.x + '%'; f.style.top = objInfo.y + '%';
-                    document.getElementById('objetos-layer').appendChild(f);
+                const dist = Math.sqrt(Math.pow(pctX - objInfo.x, 2) + Math.pow(pctY - objInfo.y, 2));
+                // MARGEN DE ERROR DE 12% (Más cómodo para Juan)
+                if(dist < 12) { 
+                    objInfo.puesto = true; // Bloqueamos este objeto
+                    aciertosGlobales++; 
+                    colocadasEnNivel++;
+                    
+                    hablar("¡Muy bien!");
+                    const fija = document.createElement('img');
+                    fija.src = el.src; fija.className = 'pieza';
+                    fija.style.left = objInfo.x + '%'; fija.style.top = objInfo.y + '%';
+                    document.getElementById('objetos-layer').appendChild(fija);
                     el.style.visibility = 'hidden';
-                    if(colocadasEnNivel === objetosReto.length) setTimeout(siguiente, 1000);
+                    
+                    // COMPROBACIÓN CRÍTICA: ¿Están todos los del nivel?
+                    if(colocadasEnNivel === niveles[nivelActual].memoriza) {
+                        setTimeout(siguiente, 1500);
+                    }
                     return;
                 }
             }
-            // Si llega aquí es porque falló o es distractor
-            hablar("Esa no es su marca.");
+            
+            // Si el código llega aquí, es un error (distractor o mal puesto)
+            erroresGlobales++;
+            hablar("Ese no va ahí.");
             el.style.position = 'static';
         }
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
@@ -170,11 +200,16 @@
     }
 
     function siguiente() {
-        if(nivelActual < 3) { nivelActual++; prepararSesion(); }
-        else { hablar("¡Muy bien Juan! Completaste el ejercicio."); }
+        if(nivelActual < 3) { 
+            nivelActual++; 
+            prepararSesion(); 
+        } else {
+            document.getElementById('overlay-final').style.display = 'flex';
+            const total = aciertosGlobales + erroresGlobales;
+            document.getElementById('resumen-final').innerText = `Precisión: ${Math.round((aciertosGlobales/total)*100)}% | Errores: ${erroresGlobales}`;
+            hablar("¡Excelente Juan! Has terminado todos los niveles.");
+        }
     }
 </script>
 </body>
 </html>
-
-
