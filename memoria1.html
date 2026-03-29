@@ -3,27 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 1 - Juan: Ubicación Espacial</title>
+    <title>Memoria 1 - Juan: Retención Espacial</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: url('mem1/fondo.jpg') no-repeat center center fixed; background-size: cover; height: 100vh; }
-        
         #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid #307B8E; z-index: 1000; position: relative; }
         #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; max-width: 70%; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-        
         #panel-objetos { width: 170px; background: rgba(255,255,255,0.9); border-right: 4px solid #6C5B7B; display: none; flex-direction: column; gap: 10px; padding: 15px; align-items: center; overflow-y: auto; height: calc(100vh - 84px); float: left; z-index: 100; }
         .draggable { width: 85px; height: 85px; object-fit: contain; cursor: grab; }
-        
         #escena-central { margin-left: 0; height: calc(100vh - 84px); position: relative; transition: margin 0.3s; }
         #habitacion-area { position: relative; width: 100%; height: 100%; }
-        
-        .pieza { position: absolute; width: 110px; transform: translate(-50%, -50%); z-index: 10; }
-        
-        /* Guías de ubicación (Siluetas sutiles) */
-        .guia-sombra { position: absolute; width: 110px; height: 110px; border: 3px dashed rgba(108, 91, 123, 0.4); border-radius: 15px; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%); display: none; z-index: 5; }
-
+        .pieza { position: absolute; width: 100px; transform: translate(-50%, -50%); z-index: 10; }
+        .guia-sombra { position: absolute; width: 105px; height: 105px; border: 3px dashed rgba(108, 91, 123, 0.5); border-radius: 15px; background: rgba(255,255,255,0.15); transform: translate(-50%, -50%); display: none; z-index: 5; }
         #timer-box { position: absolute; top: 20px; right: 20px; background: #E67E22; color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; display: none; z-index: 2000; }
-        
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
     </style>
 </head>
@@ -48,7 +40,7 @@
     <h1 style="font-size: 3.5rem; color: #FFD700;">¡MUY BIEN HECHO!</h1>
     <p id="resumen-final" style="font-size: 1.8rem; margin: 20px 0;"></p>
     <blockquote style="font-style: italic; color: #CEE5D6; font-size: 1.4rem;">"Lo estás logrando, el éxito es la respuesta de un esfuerzo constante"</blockquote>
-    <button onclick="window.location.href='memoria_sesiones.html'" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer;">CONTINUAR</button>
+    <button onclick="window.location.href='memoria_sesiones.html'" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 10px; background: #366B2B; color: white; border: none; cursor: pointer; font-weight: bold;">CONTINUAR</button>
 </div>
 
 <script>
@@ -56,29 +48,29 @@
     const nivelActual = params.get('nivel') || 'bajo';
 
     let objetosReto = [];
-    let colocadas = 0;
-    let errores = 0;
+    let intentosHechos = 0;
+    let aciertos = 0;
 
-    // COORDENADAS REDISTRIBUIDAS (Lejos del panel izquierdo)
+    // COORDENADAS DISPERSAS POR TODA LA HABITACIÓN
     const db = {
-        "billetera": { nom: "la billetera", x: 450, y: 550 },
-        "camisa": { nom: "la camisa", x: 750, y: 500 },
-        "celular": { nom: "el celular", x: 600, y: 350 },
-        "crema_dental": { nom: "la crema dental", x: 400, y: 350 },
-        "frasco_gotas": { nom: "el frasco de gotas", x: 850, y: 320 },
-        "gafas": { nom: "las gafas", x: 550, y: 520 },
-        "libro": { nom: "el libro", x: 800, y: 580 },
-        "pantalon": { nom: "el pantalón", x: 650, y: 700 },
-        "pastillero": { nom: "el pastillero", x: 500, y: 420 },
-        "reloj": { nom: "el reloj", x: 720, y: 360 },
-        "toalla_manos": { nom: "la toalla", x: 820, y: 450 },
-        "vaso": { nom: "el vaso", x: 680, y: 560 }
+        "billetera": { nom: "la billetera", x: 300, y: 250 },
+        "camisa": { nom: "la camisa", x: 850, y: 600 },
+        "celular": { nom: "el celular", x: 700, y: 220 },
+        "crema_dental": { nom: "la crema dental", x: 250, y: 700 },
+        "frasco_gotas": { nom: "el frasco de gotas", x: 900, y: 150 },
+        "gafas": { nom: "las gafas", x: 500, y: 180 },
+        "libro": { nom: "el libro", x: 820, y: 420 },
+        "pantalon": { nom: "el pantalón", x: 450, y: 650 },
+        "pastillero": { nom: "el pastillero", x: 920, y: 350 },
+        "reloj": { nom: "el reloj", x: 550, y: 400 },
+        "toalla_manos": { nom: "la toalla", x: 150, y: 400 },
+        "vaso": { nom: "el vaso", x: 650, y: 550 }
     };
 
     const config = {
-        'bajo': { cant: 2, tiempo: 10, errorMax: 100, distractores: 1 },
-        'medio': { cant: 4, tiempo: 15, errorMax: 80, distractores: 3 },
-        'alto': { cant: 6, tiempo: 20, errorMax: 60, distractores: 6 }
+        'bajo': { cant: 2, tiempo: 12, distractoresSennal: 2 },
+        'medio': { cant: 4, tiempo: 18, distractoresSennal: 4 },
+        'alto': { cant: 6, tiempo: 25, distractoresSennal: 6 }
     };
 
     function hablar(t, callback) {
@@ -95,32 +87,27 @@
         const keys = Object.keys(db).sort(() => Math.random() - 0.5);
         objetosReto = keys.slice(0, c.cant);
 
-        // PRIMERO LA INSTRUCCIÓN, luego el tiempo
-        hablar(`Juan, memoriza dónde están estos ${c.cant} objetos. Fíjate bien en las marcas del suelo.`, () => {
-            iniciarMemorizacion();
+        hablar(`Juan, memoriza estos ${c.cant} objetos y su lugar. Fíjate bien en las señales.`, () => {
+            mostrarEstimulos();
         });
     }
 
-    function iniciarMemorizacion() {
+    function mostrarEstimulos() {
         const c = config[nivelActual];
         const contenedor = document.getElementById('objetos-memorizar');
         const guias = document.getElementById('guias-contenedor');
 
         objetosReto.forEach(id => {
-            // Mostrar objeto
             const img = document.createElement('img');
             img.src = `mem1/${id}.png`;
             img.className = 'pieza';
-            img.style.left = db[id].x + 'px';
-            img.style.top = db[id].y + 'px';
+            img.style.left = db[id].x + 'px'; img.style.top = db[id].y + 'px';
             contenedor.appendChild(img);
 
-            // Mostrar guía (sombra)
             const guia = document.createElement('div');
             guia.className = 'guia-sombra';
             guia.style.display = 'block';
-            guia.style.left = db[id].x + 'px';
-            guia.style.top = db[id].y + 'px';
+            guia.style.left = db[id].x + 'px'; guia.style.top = db[id].y + 'px';
             guias.appendChild(guia);
         });
 
@@ -136,25 +123,34 @@
             if(s <= 0) {
                 clearInterval(interval);
                 timer.style.display = 'none';
-                empezarReto();
+                faseRecuerdo();
             }
         }, 1000);
     }
 
-    function empezarReto() {
+    function faseRecuerdo() {
         document.getElementById('objetos-memorizar').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'flex';
         document.getElementById('escena-central').style.marginLeft = '174px';
         
-        hablar("Ahora Juan, arrastra los objetos a su lugar correspondiente.");
-
+        // AGREGAR SEÑALES DISTRACTORAS (Marcas donde NO había nada)
         const c = config[nivelActual];
-        // Solo tomamos los del reto + los distractores definidos
-        const otros = Object.keys(db).filter(x => !objetosReto.includes(x)).slice(0, c.distractores);
-        const pool = [...objetosReto, ...otros].sort(() => Math.random() - 0.5);
+        const disponibles = Object.keys(db).filter(k => !objetosReto.includes(k));
+        const distractores = disponibles.sort(() => Math.random() - 0.5).slice(0, c.distractoresSennal);
+        
+        distractores.forEach(id => {
+            const guiaExtra = document.createElement('div');
+            guiaExtra.className = 'guia-sombra';
+            guiaExtra.style.display = 'block';
+            guiaExtra.style.left = db[id].x + 'px'; guiaExtra.style.top = db[id].y + 'px';
+            document.getElementById('guias-contenedor').appendChild(guiaExtra);
+        });
 
+        hablar("Ahora Juan, coloca cada objeto en la marca donde lo viste originalmente.");
+
+        const poolPanel = [...objetosReto].sort(() => Math.random() - 0.5);
         const panel = document.getElementById('panel-objetos');
-        pool.forEach(id => {
+        poolPanel.forEach(id => {
             const img = document.createElement('img');
             img.src = `mem1/${id}.png`;
             img.className = 'draggable';
@@ -186,29 +182,24 @@
             const posX = st.clientX - area.left;
             const posY = st.clientY - area.top;
 
-            if (objetosReto.includes(id)) {
-                const dist = Math.sqrt(Math.pow(posX - db[id].x, 2) + Math.pow(posY - db[id].y, 2));
-                if (dist < config[nivelActual].errorMax) {
-                    colocadas++;
-                    hablar(`¡Muy bien Juan!`);
-                    const fija = document.createElement('img');
-                    fija.src = el.src; fija.className = 'pieza';
-                    fija.style.left = db[id].x + 'px'; fija.style.top = db[id].y + 'px';
-                    document.getElementById('objetos-evocar').appendChild(fija);
-                    el.style.visibility = 'hidden';
-                    if (colocadas === objetosReto.length) finalizar();
-                } else {
-                    errores++;
-                    hablar("Casi, pero no estaba ahí.");
-                    el.style.position = 'static';
-                }
+            // Validación de distancia a su marca correcta
+            const dist = Math.sqrt(Math.pow(posX - db[id].x, 2) + Math.pow(posY - db[id].y, 2));
+            
+            intentosHechos++;
+            if (dist < 80) {
+                aciertos++;
+                hablar("¡Bien hecho!");
+                const fija = document.createElement('img');
+                fija.src = el.src; fija.className = 'pieza';
+                fija.style.left = db[id].x + 'px'; fija.style.top = db[id].y + 'px';
+                document.getElementById('objetos-evocar').appendChild(fija);
+                el.style.visibility = 'hidden';
             } else {
-                if (st.clientX > 200) { 
-                    errores++;
-                    hablar("Ese no va ahí.");
-                }
-                el.style.position = 'static';
+                hablar("Lo registramos.");
+                el.style.position = 'static'; // Regresa al panel para que el nivel no se bloquee
             }
+
+            if (aciertos === objetosReto.length) setTimeout(finalizar, 1000);
         }
         document.addEventListener('mousemove', mover); document.addEventListener('mouseup', soltar);
         document.addEventListener('touchmove', mover, {passive:false}); document.addEventListener('touchend', soltar);
@@ -216,12 +207,11 @@
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        const total = colocadas + errores;
-        const porc = Math.round((colocadas/total)*100);
-        document.getElementById('resumen-final').innerText = `Aciertos: ${colocadas} | Precisión: ${porc}%`;
-        hablar("¡Excelente! Has completado tu rutina de hoy.");
+        // El porcentaje se basa en cuántos intentos necesitó vs cuántos eran correctos
+        const precision = Math.round((objetosReto.length / intentosHechos) * 100);
+        document.getElementById('resumen-final').innerText = `Aciertos: ${aciertos} | Retención: ${precision}%`;
+        hablar("¡Excelente Juan! Has completado tu entrenamiento de memoria. Lo estás logrando.");
     }
 </script>
 </body>
 </html>
-
