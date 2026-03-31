@@ -5,38 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Memoria 5 - Juan: Span Visual</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #2980B9; text-align: center; color: white; }
+        /* Azul más claro y centrado */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #3498DB; text-align: center; color: white; height: 100vh; display: flex; flex-direction: column; }
         
-        #cabecera { background: rgba(255, 255, 255, 0.1); height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 2px solid #FFD700; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #2980B9; display: flex; align-items: center; font-weight: bold; width: 80%; max-width: 800px; }
-        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
+        #cabecera { background: rgba(255, 255, 255, 0.15); height: 80px; display: flex; align-items: center; justify-content: center; padding: 0 20px; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
+        #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #2980B9; display: flex; align-items: center; font-weight: bold; width: fit-content; min-width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
 
-        #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
 
-        /* RELOJ */
-        #reloj-visual { font-size: 2.5rem; background: rgba(0,0,0,0.3); padding: 5px 20px; border-radius: 30px; margin-bottom: 10px; display: none; align-items: center; gap: 10px; }
+        /* RELOJ MEJORADO */
+        #reloj-visual { font-size: 3rem; background: rgba(255,255,255,0.2); padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; display: none; align-items: center; gap: 15px; border: 2px solid white; transition: 0.3s; }
+        .urgente { color: #FF4757; border-color: #FF4757 !important; animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* FASE APRENDIZAJE */
-        #display-memorizar { display: none; flex-direction: column; align-items: center; }
-        .img-memoria { width: 500px; height: 350px; object-fit: contain; border: 6px solid white; border-radius: 15px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        #display-memorizar { display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .img-memoria { width: auto; max-width: 80%; max-height: 50vh; border: 8px solid white; border-radius: 20px; background: white; box-shadow: 0 15px 45px rgba(0,0,0,0.3); }
 
         /* FASE RETO */
-        #panel-reto { display: none; width: 100%; flex-direction: column; align-items: center; }
-        #grid-opciones { display: flex; gap: 25px; justify-content: center; margin-top: 20px; }
-        .btn-tarjeta { background: white; padding: 12px; border-radius: 15px; cursor: pointer; border: 4px solid #34495E; transition: 0.2s; }
-        .btn-tarjeta img { width: 400px; height: 300px; object-fit: contain; }
-        .btn-tarjeta:hover { transform: scale(1.02); border-color: #FFD700; }
+        #panel-reto { display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; }
+        #grid-opciones { display: flex; gap: 40px; justify-content: center; margin-top: 30px; width: 90%; }
+        .btn-tarjeta { background: white; padding: 15px; border-radius: 20px; cursor: pointer; border: 6px solid #2C3E50; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .btn-tarjeta img { width: auto; max-width: 400px; max-height: 35vh; border-radius: 10px; display: block; }
+        .btn-tarjeta:hover { transform: translateY(-10px); border-color: #FFD700; }
 
-        #pantalla-paso { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #2980B9; z-index:4000; flex-direction:column; justify-content:center; align-items:center; }
-        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index:5000; flex-direction:column; justify-content:center; align-items:center; }
+        #pantalla-paso { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #3498DB; z-index:4000; flex-direction:column; justify-content:center; align-items:center; }
+        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; }
     </style>
 </head>
 <body onload="iniciarNivel()">
 
 <div id="cabecera">
     <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG">
-        <span id="label-guia">Cargando...</span>
+        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <span id="label-guia">Hola Juan, ¡vamos a empezar!</span>
     </div>
 </div>
 
@@ -45,11 +48,11 @@
 
     <div id="display-memorizar">
         <img id="img-target" class="img-memoria" src="">
-        <h2 id="contador-secuencia" style="margin-top:15px; background: rgba(255,255,255,0.2); padding: 5px 20px; border-radius: 15px;"></h2>
+        <h2 id="contador-secuencia" style="margin-top:20px; font-size: 1.8rem;"></h2>
     </div>
 
     <div id="panel-reto">
-        <h2 id="pregunta-texto" style="font-size: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);"></h2>
+        <h2 id="pregunta-texto" style="font-size: 2.5rem; margin-bottom: 10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.3);"></h2>
         <div id="grid-opciones"></div>
     </div>
 </div>
@@ -60,10 +63,10 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3.5rem;">¡SESIÓN FINALIZADA!</h1>
-    <div id="resumen-final" style="font-size: 2rem; margin: 30px; border-top: 1px solid white; padding-top: 20px;"></div>
-    <p style="font-size: 2.2rem; width: 85%; font-weight: bold;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
-    <button onclick="location.reload()" style="padding: 20px 50px; background: #27AE60; color: white; border: none; border-radius: 15px; font-size: 2rem; cursor: pointer; margin-top: 20px;">REPETIR NIVEL</button>
+    <h1 style="color: #FFD700; font-size: 4rem;">¡LO LOGRASTE!</h1>
+    <div id="resumen-final" style="font-size: 2.5rem; margin: 30px; color: #BDC3C7;"></div>
+    <p style="font-size: 2.5rem; width: 80%; font-weight: bold; line-height: 1.4;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
+    <button onclick="location.reload()" style="padding: 25px 60px; background: #27AE60; color: white; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 40px; font-weight: bold;">REPETIR TODO</button>
 </div>
 
 <script>
@@ -116,13 +119,16 @@
         
         if(idx < secuenciaActual.length) {
             const num = secuenciaActual[idx];
-            document.getElementById('img-target').src = `mem5/escena${num}.png`;
-            document.getElementById('contador-secuencia').innerText = `Imagen ${idx + 1} de ${secuenciaActual.length}`;
+            const imgEl = document.getElementById('img-target');
             
-            const txtMem = "Memoriza esta imagen con todos sus detalles";
-            document.getElementById('label-guia').innerText = txtMem;
+            // Aseguramos ruta correcta
+            imgEl.src = `mem5/escena${num}.png`;
+            document.getElementById('contador-secuencia').innerText = `Tarjeta ${idx + 1} de ${secuenciaActual.length}`;
             
-            hablar(txtMem, () => {
+            const msg = "Memoriza esta imagen con todos sus detalles";
+            document.getElementById('label-guia').innerText = msg;
+            
+            hablar(msg, () => {
                 iniciarReloj(8, () => mostrarSecuencia(idx + 1));
             });
         } else {
@@ -134,6 +140,7 @@
         clearInterval(timerInterval);
         const reloj = document.getElementById('reloj-visual');
         const span = document.getElementById('segundos');
+        reloj.classList.remove('urgente');
         reloj.style.display = 'flex';
         let restante = segundos;
         span.innerText = restante;
@@ -141,6 +148,7 @@
         timerInterval = setInterval(() => {
             restante--;
             span.innerText = restante;
+            if(restante <= 3) reloj.classList.add('urgente');
             if(restante <= 0) {
                 clearInterval(timerInterval);
                 reloj.style.display = 'none';
@@ -156,7 +164,7 @@
         
         const numCorrecto = secuenciaActual[pasoReconocimiento];
         const textos = ["¿Cuál fue la que te mostré primero?", "¿Cuál fue la segunda?", "¿Cuál fue la tercera?"];
-        const pregunta = textos[pasoReconocimiento];
+        const pregunta = textos[pasoReconocimiento] || "¿Cuál era la imagen?";
         
         document.getElementById('pregunta-texto').innerText = pregunta;
         document.getElementById('label-guia').innerText = pregunta;
@@ -164,6 +172,7 @@
         const grid = document.getElementById('grid-opciones');
         grid.innerHTML = "";
 
+        // Nomenclatura exacta: escena1.png y escena1b.png
         let opciones = [
             { img: `escena${numCorrecto}.png`, esCorrecta: true },
             { img: `escena${numCorrecto}b.png`, esCorrecta: false }
@@ -172,7 +181,7 @@
         opciones.sort(() => 0.5 - Math.random()).forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
-            btn.innerHTML = `<img src="mem5/${opt.img}">`;
+            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Error+de+Imagen'">`;
             btn.onclick = () => verificar(opt.esCorrecta);
             grid.appendChild(btn);
         });
@@ -187,11 +196,11 @@
             if(pasoReconocimiento < secuenciaActual.length) {
                 prepararReconocimiento();
             } else {
-                hablar("¡Excelente!", proximoIntento);
+                hablar("¡Excelente Juan!", proximoIntento);
             }
         } else {
             stats[nivelActual].e++;
-            hablar("Esa no era la correcta", proximoIntento);
+            hablar("Fíjate bien, esa tenía un error", proximoIntento);
         }
     }
 
@@ -206,9 +215,9 @@
 
     function finalizarNivel() {
         if(nivelActual < 3) {
-            const total = stats[nivelActual].a + stats[nivelActual].e;
-            const p = Math.round((stats[nivelActual].a / total) * 100);
-            document.getElementById('txt-porcentaje').innerText = `Aciertos: ${p}%`;
+            const tot = stats[nivelActual].a + stats[nivelActual].e;
+            const p = Math.round((stats[nivelActual].a / tot) * 100);
+            document.getElementById('txt-porcentaje').innerText = `Lograste un ${p}% de acierto`;
             document.getElementById('pantalla-paso').style.display = 'flex';
             setTimeout(() => { nivelActual++; iniciarNivel(); }, 4000);
         } else {
@@ -226,9 +235,8 @@
         res.innerHTML = `Nivel 1: ${calc(1)}% | Nivel 2: ${calc(2)}% | Nivel 3: ${calc(3)}%`;
         document.getElementById('overlay-final').style.display = 'flex';
         document.getElementById('label-guia').innerText = "¡Misión Cumplida!";
-        hablar("Lo estás logrando, el éxito es la respuesta de un esfuerzo constante");
+        hablar("¡Muy bien Juan! Lo estás logrando, el éxito es la respuesta de un esfuerzo constante.");
     }
 </script>
 </body>
 </html>
-
