@@ -7,7 +7,6 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
         
-        /* CORREGIDO A MAYÚSCULAS */
         #escena-total { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: url('mem4/FONDO.jpg') no-repeat center center; 
@@ -29,6 +28,9 @@
         .btn-opcion { background: white; border: 3px solid #BDC3C7; border-radius: 15px; width: 140px; height: 140px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
         .btn-opcion img { width: 120px; height: 120px; object-fit: contain; }
         
+        /* PANTALLA TRANSICIÓN NIVEL */
+        #pantalla-paso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(54, 107, 43, 0.95); z-index: 4000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+
         #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
         .linea-resumen { margin: 10px 0; width: 350px; display: flex; justify-content: space-between; font-size: 1.8rem; border-bottom: 2px solid #FFD700; padding-bottom: 5px; }
     </style>
@@ -47,7 +49,7 @@
 <div id="contenedor-juego">
     <div id="display-aprendizaje">
         <img id="img-aprendizaje" src="">
-        <div id="onda-visual" style="font-size: 60px;">🔊</div>
+        <div style="font-size: 60px;">🔊</div>
     </div>
 
     <div id="panel-reto">
@@ -56,19 +58,24 @@
     </div>
 </div>
 
+<div id="pantalla-paso">
+    <h2 id="txt-paso-nivel" style="font-size: 3rem; color: #FFD700;">¡Nivel Completado!</h2>
+    <p id="txt-puntos-paso" style="font-size: 2rem;"></p>
+    <div style="font-size: 1.5rem; margin-top: 20px;">Cargando siguiente nivel...</div>
+</div>
+
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 3.5rem;">¡LOGRADO!</h1>
     <div id="resumen-lista"></div>
     <p style="font-size: 1.4rem; margin: 30px; text-align: center;">"Recordar lo cotidiano te acerca a tu independencia, cada intento cuenta"</p>
-    <button onclick="location.reload()" style="padding: 15px 45px; background: #366B2B; color: white; border: none; border-radius: 12px; font-size: 1.6rem; cursor: pointer;">REPETIR</button>
+    <button onclick="location.reload()" style="padding: 15px 45px; background: #366B2B; color: white; border: none; border-radius: 12px; font-size: 1.6rem; cursor: pointer;">REPETIR TODO</button>
 </div>
 
 <script>
-    // Configuración de IDs basada en tus fotos
     const banco = [
         {id: "agua", img2: "agua2.png"}, {id: "ambulancia", img2: "ambulancia2.png"}, 
         {id: "aplauso", img2: "aplauso2.png"}, {id: "bebe", img2: "bebe2.png"}, 
-        {id: "beso", img2: "beso2.png"}, {id: "campana", img2: "capana2.png"}, // capana sin M por tu foto
+        {id: "beso", img2: "beso2.png"}, {id: "campana", img2: "capana2.png"}, 
         {id: "elefante", img2: "elefante2.png"}, {id: "gallo", img2: "gallo2.png"}, 
         {id: "gato", img2: "gato2.png"}, {id: "helicoptero", img2: "helicoptero2.png"}, 
         {id: "leon", img2: "leon2.png"}, {id: "moto", img2: "moto2.png"}, 
@@ -83,9 +90,18 @@
     let actualIdx = 0;
     let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
     const metas = { 1: 4, 2: 8, 3: 12 };
+    let audioActivo = null;
+
+    function detenerTodo() {
+        if(audioActivo) {
+            audioActivo.pause();
+            audioActivo.currentTime = 0;
+        }
+        window.speechSynthesis.cancel();
+    }
 
     function hablar(t, callback) {
-        window.speechSynthesis.cancel();
+        detenerTodo();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
         msg.rate = 0.9;
@@ -94,12 +110,13 @@
     }
 
     function iniciarNivel() {
+        document.getElementById('pantalla-paso').style.display = 'none';
         actualIdx = 0;
         itemsNivel = [...banco].sort(() => 0.5 - Math.random()).slice(0, metas[nivelActual]);
         document.getElementById('panel-reto').style.display = 'none';
         document.getElementById('display-aprendizaje').style.display = 'flex';
         
-        hablar(`Juan, memoriza bien la foto y el sonido.`, () => {
+        hablar(`Juan, memoriza bien la foto y el sonido del Nivel ${nivelActual}.`, () => {
             setTimeout(() => mostrarAprendizaje(0), 1000);
         });
     }
@@ -108,13 +125,16 @@
         if (idx < itemsNivel.length) {
             const item = itemsNivel[idx];
             document.getElementById('img-aprendizaje').src = `mem4/${item.id}.png`;
-            const audio = new Audio(`mem4/${item.id}.mp3`);
-            audio.play();
             
+            detenerTodo();
+            audioActivo = new Audio(`mem4/${item.id}.mp3`);
+            audioActivo.play();
+            
+            // Forzamos el corte a los 4 segundos máximo
             setTimeout(() => {
-                audio.pause();
-                setTimeout(() => mostrarAprendizaje(idx + 1), 1000);
-            }, 3500);
+                detenerTodo();
+                setTimeout(() => mostrarAprendizaje(idx + 1), 800);
+            }, 4000);
         } else {
             prepararReto();
         }
@@ -130,8 +150,11 @@
     }
 
     function reproducirPregunta() {
-        const audio = new Audio(`mem4/${itemsNivel[actualIdx].id}.mp3`);
-        audio.play();
+        detenerTodo();
+        audioActivo = new Audio(`mem4/${itemsNivel[actualIdx].id}.mp3`);
+        audioActivo.play();
+        // También limitamos la pregunta a 4 segundos
+        setTimeout(() => { if(audioActivo) audioActivo.pause(); }, 4000);
     }
 
     function dibujarOpciones() {
@@ -161,14 +184,13 @@
         if (esCorrecta) {
             el.style.borderColor = "#27AE60";
             stats[nivelActual].a++;
-            hablar("¡Bien!", () => {
+            hablar("¡Bien hecho!", () => {
                 actualIdx++;
                 if (actualIdx < itemsNivel.length) {
                     reproducirPregunta();
                     dibujarOpciones();
                 } else {
-                    if (nivelActual < 3) { nivelActual++; setTimeout(iniciarNivel, 1200); }
-                    else { finalizar(); }
+                    gestionarPasoNivel();
                 }
             });
         } else {
@@ -176,6 +198,24 @@
             el.style.borderColor = "#C0392B";
             hablar("Intenta de nuevo.");
             reproducirPregunta();
+        }
+    }
+
+    function gestionarPasoNivel() {
+        if (nivelActual < 3) {
+            const total = stats[nivelActual].a + stats[nivelActual].e;
+            const porc = Math.round((stats[nivelActual].a / total) * 100);
+            
+            document.getElementById('txt-puntos-paso').innerText = `Aciertos: ${porc}%`;
+            document.getElementById('txt-paso-nivel').innerText = `Nivel ${nivelActual} Superado`;
+            document.getElementById('pantalla-paso').style.display = 'flex';
+            
+            setTimeout(() => {
+                nivelActual++;
+                iniciarNivel();
+            }, 3500);
+        } else {
+            finalizar();
         }
     }
 
@@ -192,7 +232,7 @@
             <div class="linea-resumen"><span>Nivel 3:</span> <b>${calc(3)}%</b></div>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente Juan! Recordar lo cotidiano te acerca a tu independencia, cada intento cuenta.");
+        hablar("¡Excelente Juan! Sesión terminada.");
     }
 </script>
 </body>
