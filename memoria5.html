@@ -3,38 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 5 - Juan: Span Visual</title>
+    <title>Memoria 5 - Juan: Baby Blue Edition</title>
     <style>
-        /* AZUL MÁS CLARO (Celeste App) */
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #5DADE2; text-align: center; color: white; height: 100vh; display: flex; flex-direction: column; }
+        /* COLOR BABY BLUE */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
         
-        #cabecera { background: rgba(255, 255, 255, 0.2); height: 80px; display: flex; align-items: center; justify-content: center; padding: 0 20px; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
-        #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #2E86C1; display: flex; align-items: center; font-weight: bold; width: fit-content; min-width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; padding: 0 20px; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
+        #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #0288D1; display: flex; align-items: center; font-weight: bold; width: fit-content; min-width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; position: relative; }
 
-        #reloj-visual { font-size: 3rem; background: rgba(255,255,255,0.3); padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; display: none; align-items: center; gap: 15px; border: 3px solid white; }
-        .urgente { color: #EC7063; border-color: #EC7063 !important; animation: pulse 0.6s infinite; }
+        #reloj-visual { font-size: 3rem; background: white; padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; display: none; align-items: center; gap: 15px; border: 3px solid #0288D1; color: #0288D1; font-weight: bold; }
+        .urgente { color: #E53935; border-color: #E53935 !important; animation: pulse 0.6s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* FASE APRENDIZAJE */
         #display-memorizar { display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .img-memoria { width: auto; max-width: 85%; max-height: 55vh; border: 10px solid white; border-radius: 25px; background: white; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .img-memoria { width: auto; max-width: 85%; max-height: 55vh; border: 10px solid white; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
         /* FASE RETO */
         #panel-reto { display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; }
         #grid-opciones { display: flex; gap: 40px; justify-content: center; margin-top: 30px; width: 95%; }
         
-        .btn-tarjeta { background: white; padding: 15px; border-radius: 25px; cursor: pointer; border: 8px solid transparent; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .btn-tarjeta { background: white; padding: 15px; border-radius: 25px; cursor: pointer; border: 8px solid #CFD8DC; transition: 0.3s; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
         .btn-tarjeta img { width: auto; max-width: 420px; max-height: 38vh; border-radius: 15px; display: block; }
         
-        /* ESTADOS DE RETROALIMENTACIÓN */
-        .correcto { border-color: #28B463 !important; background: #D5F5E3; transform: scale(1.05); }
-        .incorrecto { border-color: #CB4335 !important; background: #FADBD8; transform: shake 0.5s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        /* RETROALIMENTACIÓN */
+        .correcto { border-color: #43A047 !important; background: #E8F5E9; transform: scale(1.05); }
+        .incorrecto { border-color: #E53935 !important; background: #FFEBEE; }
 
-        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; }
+        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.95); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; color: white; }
     </style>
 </head>
 <body onload="iniciarNivel()">
@@ -51,20 +50,20 @@
 
     <div id="display-memorizar">
         <img id="img-target" class="img-memoria" src="">
-        <h2 id="contador-secuencia" style="margin-top:20px; font-size: 2rem; color: #1B4F72;"></h2>
+        <h2 id="contador-secuencia" style="margin-top:20px; font-size: 2rem; color: #01579B;"></h2>
     </div>
 
     <div id="panel-reto">
-        <h2 id="pregunta-texto" style="font-size: 2.8rem; margin-bottom: 15px; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);"></h2>
+        <h2 id="pregunta-texto" style="font-size: 2.8rem; margin-bottom: 15px; color: #01579B;"></h2>
         <div id="grid-opciones"></div>
     </div>
 </div>
 
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 4rem;">¡EXCELENTE TRABAJO!</h1>
-    <div id="resumen-final" style="font-size: 2.2rem; margin: 30px; color: white;"></div>
+    <div id="resumen-final" style="font-size: 2.2rem; margin: 30px;"></div>
     <p style="font-size: 2.5rem; width: 80%; font-weight: bold;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
-    <button onclick="location.reload()" style="padding: 25px 60px; background: #28B463; color: white; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 40px;">REPETIR NIVEL</button>
+    <button onclick="location.reload()" style="padding: 25px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 40px; font-weight: bold;">REPETIR NIVEL</button>
 </div>
 
 <script>
@@ -77,7 +76,10 @@
     let pasoReconocimiento = 0;
     let stats = { 1:{a:0, e:0}, 2:{a:0, e:0}, 3:{a:0, e:0} };
     let timerInterval;
-    let bloqueado = false; // Para evitar múltiples clics
+    let bloqueado = false;
+    
+    // Para evitar repeticiones:
+    let bolsaActual = [];
 
     const config = {
         1: { intentos: 5, carga: 1, banco: bancoSencillo },
@@ -96,6 +98,8 @@
 
     function iniciarNivel() {
         intentoActual = 0;
+        // Reiniciamos bolsa de imágenes para el nivel
+        bolsaActual = [...config[nivelActual].banco].sort(() => 0.5 - Math.random());
         iniciarIntento();
     }
 
@@ -103,9 +107,13 @@
         pasoReconocimiento = 0;
         secuenciaActual = [];
         const c = config[nivelActual];
-        let copiaBanco = [...c.banco].sort(() => 0.5 - Math.random());
+        
         for(let i=0; i<c.carga; i++) {
-            secuenciaActual.push(copiaBanco[i]);
+            // Si la bolsa se vacía, la rellenamos
+            if(bolsaActual.length === 0) {
+                bolsaActual = [...c.banco].sort(() => 0.5 - Math.random());
+            }
+            secuenciaActual.push(bolsaActual.shift());
         }
         mostrarSecuencia(0);
     }
@@ -168,14 +176,14 @@
         grid.innerHTML = "";
 
         let opciones = [
-            { id: numCorrecto, img: `escena${numCorrecto}.png`, esCorrecta: true },
-            { id: numCorrecto, img: `escena${numCorrecto}b.png`, esCorrecta: false }
+            { img: `escena${numCorrecto}.png`, esCorrecta: true },
+            { img: `escena${numCorrecto}b.png`, esCorrecta: false }
         ];
 
         opciones.sort(() => 0.5 - Math.random()).forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
-            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Error+Imagen'">`;
+            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Cargando...'">`;
             btn.onclick = () => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
             grid.appendChild(btn);
         });
@@ -184,11 +192,11 @@
     }
 
     function verificar(esCorrecta, el) {
-        bloqueado = true; // Bloquea clics extra
+        bloqueado = true;
         if(esCorrecta) {
             el.classList.add('correcto');
             stats[nivelActual].a++;
-            hablar("¡Muy bien!", () => {
+            hablar("¡Muy bien hecho!", () => {
                 setTimeout(() => {
                     pasoReconocimiento++;
                     if(pasoReconocimiento < secuenciaActual.length) {
@@ -201,8 +209,14 @@
         } else {
             el.classList.add('incorrecto');
             stats[nivelActual].e++;
-            hablar("Esa tenía un error.", () => {
-                setTimeout(proximoIntento, 1000);
+            const errores = [
+                "Presta más atención a los detalles, esa no es.",
+                "Mira bien, esa tenía un pequeño cambio.",
+                "Casi, pero fíjate mejor la próxima vez."
+            ];
+            const msgError = errores[Math.floor(Math.random() * errores.length)];
+            hablar(msgError, () => {
+                setTimeout(proximoIntento, 1200);
             });
         }
     }
@@ -232,7 +246,7 @@
             let total = stats[n].a + stats[n].e;
             return total > 0 ? Math.round((stats[n].a / total) * 100) : 0;
         };
-        res.innerHTML = `Nivel 1: ${calc(1)}% | Nivel 2: ${calc(2)}% | Nivel 3: ${calc(3)}% de Acierto`;
+        res.innerHTML = `Nivel Bajo: ${calc(1)}% | Nivel Medio: ${calc(2)}% | Nivel Alto: ${calc(3)}%`;
         document.getElementById('overlay-final').style.display = 'flex';
         hablar("¡Lo estás logrando Juan, el éxito es la respuesta de un esfuerzo constante!");
     }
