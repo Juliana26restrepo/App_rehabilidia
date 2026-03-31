@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 5 - Juan: Baby Blue Edition</title>
+    <title>Memoria 5 - Juan: Baby Blue</title>
     <style>
-        /* COLOR BABY BLUE */
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
         
         #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; padding: 0 20px; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
@@ -18,30 +17,30 @@
         .urgente { color: #E53935; border-color: #E53935 !important; animation: pulse 0.6s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* FASE APRENDIZAJE */
-        #display-memorizar { display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .img-memoria { width: auto; max-width: 85%; max-height: 55vh; border: 10px solid white; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        /* FASES */
+        #display-memorizar, #panel-reto { display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .img-memoria { width: auto; max-width: 85%; max-height: 50vh; border: 10px solid white; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
-        /* FASE RETO */
-        #panel-reto { display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; }
         #grid-opciones { display: flex; gap: 40px; justify-content: center; margin-top: 30px; width: 95%; }
-        
         .btn-tarjeta { background: white; padding: 15px; border-radius: 25px; cursor: pointer; border: 8px solid #CFD8DC; transition: 0.3s; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
-        .btn-tarjeta img { width: auto; max-width: 420px; max-height: 38vh; border-radius: 15px; display: block; }
+        .btn-tarjeta img { width: auto; max-width: 420px; max-height: 35vh; border-radius: 15px; display: block; }
         
-        /* RETROALIMENTACIÓN */
         .correcto { border-color: #43A047 !important; background: #E8F5E9; transform: scale(1.05); }
         .incorrecto { border-color: #E53935 !important; background: #FFEBEE; }
 
-        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.95); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; color: white; }
+        /* PANTALLAS ESPECIALES */
+        #pantalla-cambio-nivel { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:4500; flex-direction:column; justify-content:center; align-items:center; color: white; }
+        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; color: white; }
+        
+        .badge-nivel { background: #FFD700; color: #01579B; padding: 10px 30px; border-radius: 50px; font-size: 2.5rem; font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
-<body onload="iniciarNivel()">
+<body onload="iniciarEntrenamiento()">
 
 <div id="cabecera">
     <div id="instruccion-box">
         <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia">Hola Juan, ¡atento a la pantalla!</span>
+        <span id="label-guia">¡Bienvenido Juan!</span>
     </div>
 </div>
 
@@ -54,16 +53,21 @@
     </div>
 
     <div id="panel-reto">
-        <h2 id="pregunta-texto" style="font-size: 2.8rem; margin-bottom: 15px; color: #01579B;"></h2>
+        <h2 id="pregunta-texto" style="font-size: 2.5rem; margin-bottom: 15px; color: #01579B;"></h2>
         <div id="grid-opciones"></div>
     </div>
 </div>
 
+<div id="pantalla-cambio-nivel">
+    <div class="badge-nivel" id="num-nivel-tit">NIVEL 1</div>
+    <h1 id="desc-nivel" style="font-size: 2.8rem; width: 80%;">Prepárate...</h1>
+</div>
+
 <div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 4rem;">¡EXCELENTE TRABAJO!</h1>
-    <div id="resumen-final" style="font-size: 2.2rem; margin: 30px;"></div>
-    <p style="font-size: 2.5rem; width: 80%; font-weight: bold;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
-    <button onclick="location.reload()" style="padding: 25px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 40px; font-weight: bold;">REPETIR NIVEL</button>
+    <h1 style="color: #FFD700; font-size: 3.5rem;">¡ENTRENAMIENTO LOGRADO!</h1>
+    <div id="resumen-final" style="font-size: 1.8rem; margin: 20px;"></div>
+    <p style="font-size: 2.2rem; width: 85%; font-weight: bold; line-height: 1.3;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 30px; font-weight: bold;">REPETIR</button>
 </div>
 
 <script>
@@ -77,14 +81,12 @@
     let stats = { 1:{a:0, e:0}, 2:{a:0, e:0}, 3:{a:0, e:0} };
     let timerInterval;
     let bloqueado = false;
-    
-    // Para evitar repeticiones:
     let bolsaActual = [];
 
     const config = {
-        1: { intentos: 5, carga: 1, banco: bancoSencillo },
-        2: { intentos: 8, carga: 2, banco: bancoComplejo },
-        3: { intentos: 11, carga: 3, banco: bancoComplejo }
+        1: { nombre: "Nivel Bajo", intentos: 5, carga: 1, banco: bancoSencillo, desc: "Debes recordar 1 imagen." },
+        2: { nombre: "Nivel Medio", intentos: 8, carga: 2, banco: bancoComplejo, desc: "Ahora recuerda 2 imágenes seguidas." },
+        3: { nombre: "Nivel Alto", intentos: 11, carga: 3, banco: bancoComplejo, desc: "¡Reto máximo! Recuerda 3 imágenes seguidas." }
     };
 
     function hablar(t, callback) {
@@ -96,23 +98,35 @@
         window.speechSynthesis.speak(msg);
     }
 
-    function iniciarNivel() {
+    function iniciarEntrenamiento() {
+        nivelActual = 1;
+        presentarCambioNivel();
+    }
+
+    function presentarCambioNivel() {
+        const c = config[nivelActual];
+        const pantalla = document.getElementById('pantalla-cambio-nivel');
+        document.getElementById('num-nivel-tit').innerText = c.nombre.toUpperCase();
+        document.getElementById('desc-nivel').innerText = c.desc;
+        
+        pantalla.style.display = 'flex';
         intentoActual = 0;
-        // Reiniciamos bolsa de imágenes para el nivel
-        bolsaActual = [...config[nivelActual].banco].sort(() => 0.5 - Math.random());
-        iniciarIntento();
+        bolsaActual = [...c.banco].sort(() => 0.5 - Math.random());
+
+        hablar(`Juan, vamos a empezar el ${c.nombre}. ${c.desc}`, () => {
+            setTimeout(() => {
+                pantalla.style.display = 'none';
+                iniciarIntento();
+            }, 2000);
+        });
     }
 
     function iniciarIntento() {
         pasoReconocimiento = 0;
         secuenciaActual = [];
         const c = config[nivelActual];
-        
         for(let i=0; i<c.carga; i++) {
-            // Si la bolsa se vacía, la rellenamos
-            if(bolsaActual.length === 0) {
-                bolsaActual = [...c.banco].sort(() => 0.5 - Math.random());
-            }
+            if(bolsaActual.length === 0) bolsaActual = [...c.banco].sort(() => 0.5 - Math.random());
             secuenciaActual.push(bolsaActual.shift());
         }
         mostrarSecuencia(0);
@@ -127,7 +141,6 @@
             const num = secuenciaActual[idx];
             document.getElementById('img-target').src = `mem5/escena${num}.png`;
             document.getElementById('contador-secuencia').innerText = `Imagen ${idx + 1} de ${secuenciaActual.length}`;
-            
             const msg = "Memoriza esta imagen con todos sus detalles";
             document.getElementById('label-guia').innerText = msg;
             
@@ -183,7 +196,7 @@
         opciones.sort(() => 0.5 - Math.random()).forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
-            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Cargando...'">`;
+            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Error'">`;
             btn.onclick = () => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
             grid.appendChild(btn);
         });
@@ -209,13 +222,8 @@
         } else {
             el.classList.add('incorrecto');
             stats[nivelActual].e++;
-            const errores = [
-                "Presta más atención a los detalles, esa no es.",
-                "Mira bien, esa tenía un pequeño cambio.",
-                "Casi, pero fíjate mejor la próxima vez."
-            ];
-            const msgError = errores[Math.floor(Math.random() * errores.length)];
-            hablar(msgError, () => {
+            const errores = ["Presta más atención a los detalles, esa no es.", "Mira bien, esa tenía un cambio.", "Casi, pero fíjate mejor."];
+            hablar(errores[Math.floor(Math.random()*errores.length)], () => {
                 setTimeout(proximoIntento, 1200);
             });
         }
@@ -226,16 +234,12 @@
         if(intentoActual < config[nivelActual].intentos) {
             iniciarIntento();
         } else {
-            finalizarNivel();
-        }
-    }
-
-    function finalizarNivel() {
-        if(nivelActual < 3) {
-            nivelActual++;
-            iniciarNivel();
-        } else {
-            mostrarCierre();
+            if(nivelActual < 3) {
+                nivelActual++;
+                presentarCambioNivel();
+            } else {
+                mostrarCierre();
+            }
         }
     }
 
@@ -246,7 +250,7 @@
             let total = stats[n].a + stats[n].e;
             return total > 0 ? Math.round((stats[n].a / total) * 100) : 0;
         };
-        res.innerHTML = `Nivel Bajo: ${calc(1)}% | Nivel Medio: ${calc(2)}% | Nivel Alto: ${calc(3)}%`;
+        res.innerHTML = `Bajo: ${calc(1)}% | Medio: ${calc(2)}% | Alto: ${calc(3)}%`;
         document.getElementById('overlay-final').style.display = 'flex';
         hablar("¡Lo estás logrando Juan, el éxito es la respuesta de un esfuerzo constante!");
     }
