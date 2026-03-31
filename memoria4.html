@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria 4 - Juan: Discriminación</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
+        #escena-total { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: url('mem4/fondo.jpg') no-repeat center center; 
+            background-size: cover; z-index: -1; 
+        }
+        #cabecera { background: rgba(54, 107, 43, 0.9); color: white; height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid #FFD700; }
+        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #366B2B; display: flex; align-items: center; border: 3px solid #FFD700; font-weight: bold; }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
+
+        #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* FASE 1: APRENDIZAJE (Onda + Imagen) */
+        #display-aprendizaje { background: rgba(255,255,255,0.9); border: 5px solid #FFD700; border-radius: 25px; padding: 30px; display: none; flex-direction: column; align-items: center; }
+        #img-aprendizaje { width: 250px; height: 250px; object-fit: contain; margin-bottom: 15px; }
+        
+        /* FASE 2: RETO */
+        #panel-reto { display: none; width: 90%; height: 85%; background: rgba(255,255,255,0.85); border-radius: 20px; padding: 20px; flex-direction: column; align-items: center; }
+        #grid-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 100%; margin-top: 20px; justify-items: center; }
+
+        .btn-opcion { background: white; border: 3px solid #366B2B; border-radius: 15px; width: 130px; height: 130px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-opcion img { width: 100px; height: 100px; object-fit: contain; }
+        
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .linea-resumen { margin: 10px 0; width: 350px; display: flex; justify-content: space-between; font-size: 1.8rem; border-bottom: 1px solid #FFD700; }
+    </style>
+</head>
+<body onload="iniciarNivel()">
+
+<div id="escena-total"></div>
+
+<div id="cabecera">
+    <div id="instruccion-box">
+        <img src="COTERAPEUTA.JPG">
+        <span id="label-guia">Juan, escucha y memoriza...</span>
+    </div>
+</div>
+
+<div id="contenedor-juego">
+    <div id="display-aprendizaje">
+        <img id="img-aprendizaje" src="">
+        <div id="onda-visual" style="font-size: 50px;">🔊</div>
+    </div>
+
+    <div id="panel-reto">
+        <div onclick="reproducirPregunta()" style="font-size: 60px; cursor: pointer; background: #FFD700; border-radius: 50%; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center;">👂</div>
+        <div id="grid-opciones"></div>
+    </div>
+</div>
+
+<div id="overlay-final">
+    <h1 style="color: #FFD700; font-size: 3rem;">¡NIVEL 4 LOGRADO!</h1>
+    <div id="resumen-lista"></div>
+    <p style="font-style: italic; font-size: 1.4rem; margin: 30px; text-align: center;">"Recordar lo cotidiano te acerca a tu independencia, cada intento cuenta"</p>
+    <button onclick="location.reload()" style="padding: 15px 40px; background: #366B2B; color: white; border: none; border-radius: 10px; font-size: 1.5rem; cursor: pointer;">REINTENTAR</button>
+</div>
+
+<script>
+    // Lista basada exactamente en tus archivos de GitHub
+    const banco = ["agua", "ambulancia", "aplauso", "bebe", "beso", "campana", "elefante", "gallo", "gato", "helicoptero", "leon", "moto", "perro", "piano", "sierra", "tambor", "tren", "trueno", "vaca", "vidrio"];
+    
+    let nivelActual = 1;
+    let itemsNivel = [];
+    let actualIdx = 0;
+    let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
+    const metas = { 1: 4, 2: 8, 3: 12 };
+
+    function hablar(t, callback) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(t);
+        msg.lang = 'es-ES';
+        msg.rate = 0.85;
+        if(callback) msg.onend = callback;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function iniciarNivel() {
+        actualIdx = 0;
+        itemsNivel = [...banco].sort(() => 0.5 - Math.random()).slice(0, metas[nivelActual]);
+        document.getElementById('panel-reto').style.display = 'none';
+        document.getElementById('display-aprendizaje').style.display = 'flex';
+        
+        hablar(`Juan, memoriza qué objeto emite cada sonido.`, () => {
+            setTimeout(() => mostrarAprendizaje(0), 1000);
+        });
+    }
+
+    function mostrarAprendizaje(idx) {
+        if (idx < itemsNivel.length) {
+            const id = itemsNivel[idx];
+            document.getElementById('img-aprendizaje').src = `mem4/${id}.png`;
+            const audio = new Audio(`mem4/${id}.mp3`);
+            audio.play();
+            setTimeout(() => {
+                audio.pause();
+                setTimeout(() => mostrarAprendizaje(idx + 1), 1000);
+            }, 3500);
+        } else {
+            prepararReto();
+        }
+    }
+
+    function prepararReto() {
+        document.getElementById('display-aprendizaje').style.display = 'none';
+        document.getElementById('panel-reto').style.display = 'flex';
+        hablar("¿Cuál de estos viste y escuchaste?", () => {
+            reproducirPregunta();
+            dibujarOpciones();
+        });
+    }
+
+    function reproducirPregunta() {
+        const audio = new Audio(`mem4/${itemsNivel[actualIdx]}.mp3`);
+        audio.play();
+        setTimeout(() => audio.pause(), 3500);
+    }
+
+    function dibujarOpciones() {
+        const grid = document.getElementById('grid-opciones');
+        grid.innerHTML = "";
+        const idCorrecto = itemsNivel[actualIdx];
+
+        // Opción correcta (la imagen original)
+        let opciones = [{ id: idCorrecto, img: idCorrecto + '.png', esCorrecta: true }];
+
+        // Distractor difícil (la imagen 2 de ese mismo objeto)
+        opciones.push({ id: idCorrecto, img: idCorrecto + '2.png', esCorrecta: false });
+
+        // Distractores fáciles (otros objetos)
+        let otros = banco.filter(x => x !== idCorrecto).sort(() => 0.5 - Math.random());
+        while(opciones.length < (nivelActual === 1 ? 4 : 6)) {
+            let idOtro = otros.pop();
+            opciones.push({ id: idOtro, img: idOtro + '.png', esCorrecta: false });
+        }
+
+        opciones.sort(() => 0.5 - Math.random()).forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'btn-opcion';
+            btn.innerHTML = `<img src="mem4/${opt.img}">`;
+            btn.onclick = () => verificar(opt.esCorrecta, btn);
+            grid.appendChild(btn);
+        });
+    }
+
+    function verificar(esCorrecta, el) {
+        if (esCorrecta) {
+            el.style.borderColor = "#27AE60";
+            stats[nivelActual].a++;
+            hablar("¡Correcto!", () => {
+                actualIdx++;
+                if (actualIdx < itemsNivel.length) {
+                    reproducirPregunta();
+                    dibujarOpciones();
+                } else {
+                    if (nivelActual < 3) {
+                        nivelActual++;
+                        setTimeout(iniciarNivel, 1500);
+                    } else {
+                        finalizar();
+                    }
+                }
+            });
+        } else {
+            stats[nivelActual].e++;
+            el.style.borderColor = "#C0392B";
+            hablar("Ese no era, escucha de nuevo.");
+            reproducirPregunta();
+        }
+    }
+
+    function finalizar() {
+        document.getElementById('panel-reto').style.display = 'none';
+        const resumen = document.getElementById('resumen-lista');
+        const getP = (n) => {
+            let total = stats[n].a + stats[n].e;
+            return total > 0 ? Math.round((stats[n].a / total) * 100) : 0;
+        };
+        resumen.innerHTML = `
+            <div class="linea-resumen"><span>Nivel Bajo:</span> <b>${getP(1)}%</b></div>
+            <div class="linea-resumen"><span>Nivel Medio:</span> <b>${getP(2)}%</b></div>
+            <div class="linea-resumen"><span>Nivel Alto:</span> <b>${getP(3)}%</b></div>
+        `;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("¡Excelente trabajo Juan! Has completado el entrenamiento.");
+    }
+</script>
+</body>
+</html>
 
