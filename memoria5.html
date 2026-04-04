@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 5 - Juan: Baby Blue</title>
+    <title>Memoria 5 - Juan: Entrenamiento 70 Escenas</title>
     <style>
+        /* Fondo Baby Blue */
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
         
         #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; padding: 0 20px; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
-        #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #0288D1; display: flex; align-items: center; font-weight: bold; width: fit-content; min-width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #0288D1; display: flex; align-items: center; font-weight: bold; min-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; position: relative; }
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
 
         #reloj-visual { font-size: 3rem; background: white; padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; display: none; align-items: center; gap: 15px; border: 3px solid #0288D1; color: #0288D1; font-weight: bold; }
         .urgente { color: #E53935; border-color: #E53935 !important; animation: pulse 0.6s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* FASES */
-        #display-memorizar, #panel-reto { display: none; flex-direction: column; align-items: center; justify-content: center; }
+        /* Estilos de Imagen y Tarjetas */
+        #display-memorizar, #panel-reto { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
         .img-memoria { width: auto; max-width: 85%; max-height: 50vh; border: 10px solid white; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
         #grid-opciones { display: flex; gap: 40px; justify-content: center; margin-top: 30px; width: 95%; }
@@ -28,7 +29,7 @@
         .correcto { border-color: #43A047 !important; background: #E8F5E9; transform: scale(1.05); }
         .incorrecto { border-color: #E53935 !important; background: #FFEBEE; }
 
-        /* PANTALLAS ESPECIALES */
+        /* Pantallas de Transición y Final */
         #pantalla-cambio-nivel { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:4500; flex-direction:column; justify-content:center; align-items:center; color: white; }
         #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; color: white; }
         
@@ -40,7 +41,7 @@
 <div id="cabecera">
     <div id="instruccion-box">
         <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia">¡Bienvenido Juan!</span>
+        <span id="label-guia">¡Hola Juan! Prepárate.</span>
     </div>
 </div>
 
@@ -64,16 +65,18 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3.5rem;">¡ENTRENAMIENTO LOGRADO!</h1>
+    <h1 style="color: #FFD700; font-size: 3.5rem;">¡ENTRENAMIENTO COMPLETADO!</h1>
     <div id="resumen-final" style="font-size: 1.8rem; margin: 20px;"></div>
     <p style="font-size: 2.2rem; width: 85%; font-weight: bold; line-height: 1.3;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 30px; font-weight: bold;">REPETIR</button>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold;">REPETIR SESIÓN</button>
 </div>
 
 <script>
-    const bancoSencillo = [1,2,3,4,5,6,7,8,9,10];
-    const bancoComplejo = [11,12,13,14,15,16,17,18,19,20];
-    
+    // Configuración de los 70 estímulos
+    const TOTAL_ESCENAS = 70;
+    let bancoTotal = Array.from({length: TOTAL_ESCENAS}, (_, i) => i + 1);
+    let bolsaGlobal = [];
+
     let nivelActual = 1;
     let intentoActual = 0;
     let secuenciaActual = [];
@@ -81,25 +84,25 @@
     let stats = { 1:{a:0, e:0}, 2:{a:0, e:0}, 3:{a:0, e:0} };
     let timerInterval;
     let bloqueado = false;
-    let bolsaActual = [];
 
     const config = {
-        1: { nombre: "Nivel Bajo", intentos: 5, carga: 1, banco: bancoSencillo, desc: "Debes recordar 1 imagen." },
-        2: { nombre: "Nivel Medio", intentos: 8, carga: 2, banco: bancoComplejo, desc: "Ahora recuerda 2 imágenes seguidas." },
-        3: { nombre: "Nivel Alto", intentos: 11, carga: 3, banco: bancoComplejo, desc: "¡Reto máximo! Recuerda 3 imágenes seguidas." }
+        1: { nombre: "Nivel Bajo", intentos: 5, carga: 1, desc: "Vamos a memorizar de a 1 imagen." },
+        2: { nombre: "Nivel Medio", intentos: 8, carga: 2, desc: "Ahora recuerda 2 imágenes seguidas." },
+        3: { nombre: "Nivel Alto", intentos: 11, carga: 3, desc: "¡Máxima atención! Recuerda 3 imágenes." }
     };
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
+        msg.rate = 0.95;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarEntrenamiento() {
-        nivelActual = 1;
+        // Barajamos todas las 70 imágenes al inicio
+        bolsaGlobal = [...bancoTotal].sort(() => 0.5 - Math.random());
         presentarCambioNivel();
     }
 
@@ -108,16 +111,14 @@
         const pantalla = document.getElementById('pantalla-cambio-nivel');
         document.getElementById('num-nivel-tit').innerText = c.nombre.toUpperCase();
         document.getElementById('desc-nivel').innerText = c.desc;
-        
         pantalla.style.display = 'flex';
-        intentoActual = 0;
-        bolsaActual = [...c.banco].sort(() => 0.5 - Math.random());
-
-        hablar(`Juan, vamos a empezar el ${c.nombre}. ${c.desc}`, () => {
+        
+        hablar(`Juan, iniciamos el ${c.nombre}. ${c.desc}`, () => {
             setTimeout(() => {
                 pantalla.style.display = 'none';
+                intentoActual = 0;
                 iniciarIntento();
-            }, 2000);
+            }, 2500);
         });
     }
 
@@ -125,22 +126,25 @@
         pasoReconocimiento = 0;
         secuenciaActual = [];
         const c = config[nivelActual];
+        
         for(let i=0; i<c.carga; i++) {
-            if(bolsaActual.length === 0) bolsaActual = [...c.banco].sort(() => 0.5 - Math.random());
-            secuenciaActual.push(bolsaActual.shift());
+            if(bolsaGlobal.length === 0) {
+                bolsaGlobal = [...bancoTotal].sort(() => 0.5 - Math.random());
+            }
+            secuenciaActual.push(bolsaGlobal.shift());
         }
         mostrarSecuencia(0);
     }
 
     function mostrarSecuencia(idx) {
         document.getElementById('panel-reto').style.display = 'none';
-        document.getElementById('reloj-visual').style.display = 'none';
         document.getElementById('display-memorizar').style.display = 'flex';
         
         if(idx < secuenciaActual.length) {
             const num = secuenciaActual[idx];
             document.getElementById('img-target').src = `mem5/escena${num}.png`;
             document.getElementById('contador-secuencia').innerText = `Imagen ${idx + 1} de ${secuenciaActual.length}`;
+            
             const msg = "Memoriza esta imagen con todos sus detalles";
             document.getElementById('label-guia').innerText = msg;
             
@@ -180,7 +184,7 @@
         
         const numCorrecto = secuenciaActual[pasoReconocimiento];
         const textos = ["¿Cuál fue la que te mostré primero?", "¿Cuál fue la segunda?", "¿Cuál fue la tercera?"];
-        const pregunta = textos[pasoReconocimiento] || "¿Cuál era la correcta?";
+        const pregunta = (secuenciaActual.length === 1) ? "¿Cuál fue la que te mostré?" : (textos[pasoReconocimiento] || "¿Cuál sigue?");
         
         document.getElementById('pregunta-texto').innerText = pregunta;
         document.getElementById('label-guia').innerText = pregunta;
@@ -196,7 +200,7 @@
         opciones.sort(() => 0.5 - Math.random()).forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
-            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Error'">`;
+            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Cargando...'">`;
             btn.onclick = () => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
             grid.appendChild(btn);
         });
@@ -222,8 +226,12 @@
         } else {
             el.classList.add('incorrecto');
             stats[nivelActual].e++;
-            const errores = ["Presta más atención a los detalles, esa no es.", "Mira bien, esa tenía un cambio.", "Casi, pero fíjate mejor."];
-            hablar(errores[Math.floor(Math.random()*errores.length)], () => {
+            const errores = [
+                "Presta más atención a los detalles, esa no es.",
+                "Mira bien, esa tenía un pequeño cambio.",
+                "¡Casi! Pero fíjate mejor en la próxima."
+            ];
+            hablar(errores[Math.floor(Math.random() * errores.length)], () => {
                 setTimeout(proximoIntento, 1200);
             });
         }
@@ -250,9 +258,10 @@
             let total = stats[n].a + stats[n].e;
             return total > 0 ? Math.round((stats[n].a / total) * 100) : 0;
         };
-        res.innerHTML = `Bajo: ${calc(1)}% | Medio: ${calc(2)}% | Alto: ${calc(3)}%`;
+        res.innerHTML = `Nivel Bajo: ${calc(1)}% | Nivel Medio: ${calc(2)}% | Nivel Alto: ${calc(3)}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Lo estás logrando Juan, el éxito es la respuesta de un esfuerzo constante!");
+        document.getElementById('label-guia').innerText = "¡Misión Cumplida!";
+        hablar("¡Increíble Juan! Lo estás logrando, el éxito es la respuesta de un esfuerzo constante.");
     }
 </script>
 </body>
