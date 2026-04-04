@@ -3,37 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 6 - Juan: Memoria Inmediata Verbal</title>
+    <title>Memoria 6 - Juan</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
-        
         #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
         #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #0288D1; font-weight: bold; min-width: 450px; display: flex; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px; }
-
-        /* VISUALIZACIÓN DE PALABRAS */
-        #palabra-display { font-size: 5.5rem; font-weight: bold; color: #01579B; background: white; padding: 50px 100px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 6px solid #0288D1; display: none; margin-bottom: 20px; text-transform: uppercase; }
-        
-        /* ENSALADA DE PALABRAS */
-        #ensalada-container { display: none; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 95%; max-width: 1100px; margin-top: 10px; }
-        .word-card { background: white; padding: 22px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; cursor: pointer; border: 4px solid #CFD8DC; transition: 0.2s; color: #01579B; display: flex; align-items: center; justify-content: center; }
-        .word-card.selected { background: #B3E5FC; border-color: #0288D1; transform: scale(0.98); }
-
-        #btn-confirmar { margin-top: 30px; padding: 20px 50px; font-size: 1.8rem; background: #28B463; color: white; border: none; border-radius: 20px; cursor: pointer; display: none; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-
-        /* PANTALLAS DE FLUJO */
+        #palabra-display { font-size: 5rem; font-weight: bold; color: #01579B; background: white; padding: 40px 80px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 6px solid #0288D1; display: none; margin-bottom: 20px; text-transform: uppercase; }
+        #ensalada-container { display: none; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 95%; max-width: 1100px; }
+        .word-card { background: white; padding: 20px; border-radius: 15px; font-size: 1.6rem; font-weight: bold; cursor: pointer; border: 4px solid #CFD8DC; color: #01579B; }
+        .word-card.selected { background: #B3E5FC; border-color: #0288D1; }
+        #btn-confirmar { margin-top: 30px; padding: 20px 50px; font-size: 1.8rem; background: #28B463; color: white; border: none; border-radius: 20px; cursor: pointer; display: none; font-weight: bold; }
         #pantalla-transicion { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:1000; flex-direction:column; justify-content:center; align-items:center; color: white; }
-        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:2000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; color: white; }
+        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:2000; flex-direction:column; justify-content:center; align-items:center; color: white; }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
 
 <div id="cabecera">
     <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia">Cargando instrucciones...</span>
+        <img src="logo.jpg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <span id="label-guia">Cargando...</span>
     </div>
 </div>
 
@@ -44,164 +35,30 @@
 </div>
 
 <div id="pantalla-transicion">
-    <div style="background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px; font-size: 2.5rem; font-weight: bold; margin-bottom: 20px;" id="txt-nivel-tit">NIVEL BAJO</div>
-    <h2 id="txt-nivel-desc" style="font-size: 2.2rem; width: 80%;"></h2>
+    <h1 id="txt-nivel-tit" style="background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px;"></h1>
+    <h2 id="txt-nivel-desc" style="font-size: 2rem; margin-top: 20px;"></h2>
 </div>
 
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
-    <div id="resumen-stats" style="font-size: 2rem; margin: 30px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 20px;"></div>
-    <p style="font-size: 2.5rem; width: 80%; font-weight: bold; line-height: 1.4; color: #FFF;">“Los logros no son magia, ni suerte, son esfuerzo y dedicación”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; margin-top: 40px; font-weight: bold;">REPETIR NIVEL</button>
+    <div id="resumen-stats" style="font-size: 2rem; margin: 30px;"></div>
+    <p style="font-size: 2.2rem; width: 80%; font-weight: bold;">“Los logros no son magia, ni suerte, son esfuerzo y dedicación”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none;">REPETIR</button>
 </div>
 
 <script>
-    const listaPalabras = ["Casa", "Perro", "Gato", "Mesa", "Silla", "Agua", "Pan", "Sol", "Luna", "Flor", "Árbol", "Cielo", "Mar", "Río", "Libro", "Lápiz", "Zapato", "Camisa", "Puerta", "Ventana", "Niño", "Niña", "Mamá", "Papá", "Abuelo", "Abuela", "Amigo", "Comida", "Fruta", "Leche", "Queso", "Huevo", "Café", "Té", "Azúcar", "Sal", "Dulce", "Frío", "Calor", "Viento", "Lluvia", "Nube", "Rayo", "Trueno", "Montaña", "Playa", "Isla", "Barco", "Carro", "Moto", "Bus", "Calle", "Camino", "Parque", "Jardín", "Escuela", "Clase", "Tarea", "Juego", "Pelota", "Muñeca", "Robot", "Caja", "Bolsa", "Llave", "Reloj", "Teléfono", "Foto", "Música", "Canción", "Baile", "Risa", "Llanto", "Voz", "Mano", "Pie", "Cabeza", "Ojo", "Boca", "Nariz", "Oreja", "Pelo", "Cara", "Cuerpo", "Salud", "Médico", "Pastilla", "Hospital", "Dolor", "Sueño", "Cama", "Almohada", "Sábana", "Luz", "Oscuro", "Día", "Noche", "Mañana", "Tarde", "Tiempo", "Hora", "Minuto", "Segundo", "Número", "Color", "Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco", "Gris", "Rosa", "Morado", "Naranja", "Feliz", "Triste", "Enojado", "Miedo", "Amor", "Paz", "Guerra", "Trabajo", "Dinero", "Banco", "Compra", "Venta", "Mercado", "Tienda", "Precio", "Regalo", "Sorpresa", "Fiesta", "Cumpleaños", "Navidad", "Viaje", "Maleta", "Avión", "Hotel", "Playa", "Campo", "Ciudad", "Pueblo", "Vecino", "Familia", "Historia", "Cuento", "Palabra", "Idioma", "Letra", "Número", "Forma", "Línea", "Punto", "Dibujo", "Pintura", "Arte", "Imagen", "Pantalla", "Computador", "Internet", "Video", "Cámara", "Radio", "Televisión", "Control", "Botón", "Puente", "Torre", "Castillo", "Rey", "Reina", "Príncipe", "Dragón", "Espada", "Escudo", "Héroe", "Villano", "Aventura", "Misterio", "Secreto", "Camino", "Meta", "Sueño", "Idea", "Pensamiento", "Recuerdo", "Olvido", "Atención", "Memoria", "Aprender", "Enseñar", "Escuchar", "Hablar", "Mirar", "Sentir", "Tocar", "Probar", "Oler", "Vivir"];
+    const lista = ["Casa", "Perro", "Gato", "Mesa", "Silla", "Agua", "Pan", "Sol", "Luna", "Flor", "Árbol", "Cielo", "Mar", "Río", "Libro", "Lápiz", "Zapato", "Camisa", "Puerta", "Ventana", "Niño", "Niña", "Mamá", "Papá", "Abuelo", "Abuela", "Amigo", "Comida", "Fruta", "Leche", "Queso", "Huevo", "Café", "Té", "Azúcar", "Sal", "Dulce", "Frío", "Calor", "Viento", "Lluvia", "Nube", "Rayo", "Trueno", "Montaña", "Playa", "Isla", "Barco", "Carro", "Moto", "Bus", "Calle", "Camino", "Parque", "Jardín", "Escuela", "Clase", "Tarea", "Juego", "Pelota", "Muñeca", "Robot", "Caja", "Bolsa", "Llave", "Reloj", "Teléfono", "Foto", "Música", "Canción", "Baile", "Risa", "Llanto", "Voz", "Mano", "Pie", "Cabeza", "Ojo", "Boca", "Nariz", "Oreja", "Pelo", "Cara", "Cuerpo", "Salud", "Médico", "Pastilla", "Hospital", "Dolor", "Sueño", "Cama", "Almohada", "Sábana", "Luz", "Oscuro", "Día", "Noche", "Mañana", "Tarde", "Tiempo", "Hora", "Minuto", "Segundo", "Número", "Color", "Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco", "Gris", "Rosa", "Morado", "Naranja", "Feliz", "Triste", "Enojado", "Miedo", "Amor", "Paz", "Guerra", "Trabajo", "Dinero", "Banco", "Compra", "Venta", "Mercado", "Tienda", "Precio", "Regalo", "Sorpresa", "Fiesta", "Cumpleaños", "Navidad", "Viaje", "Maleta", "Avión", "Hotel", "Playa", "Campo", "Ciudad", "Pueblo", "Vecino", "Familia", "Historia", "Cuento", "Palabra", "Idioma", "Letra", "Número", "Forma", "Línea", "Punto", "Dibujo", "Pintura", "Arte", "Imagen", "Pantalla", "Computador", "Internet", "Video", "Cámara", "Radio", "Televisión", "Control", "Botón", "Puente", "Torre", "Castillo", "Rey", "Reina", "Príncipe", "Dragón", "Espada", "Escudo", "Héroe", "Villano", "Aventura", "Misterio", "Secreto", "Camino", "Meta", "Sueño", "Idea", "Pensamiento", "Recuerdo", "Olvido", "Atención", "Memoria", "Aprender", "Enseñar", "Escuchar", "Hablar", "Mirar", "Sentir", "Tocar", "Probar", "Oler", "Vivir"];
+    let nivel = 1, ronda = 1, objetivo = [], seleccion = [], aciertos = 0, total = 0;
+    const config = { 1: { n: "Bajo", c: 3, e: 8, r: 3, d: "Memoriza 3 palabras." }, 2: { n: "Medio", c: 6, e: 12, r: 4, d: "Memoriza 6 palabras." }, 3: { n: "Alto", c: 12, e: 20, r: 5, d: "Memoriza 12 palabras." } };
 
-    let nivelActual = 1;
-    let rondaActual = 1;
-    let palabrasObjetivo = [];
-    let seleccionUsuario = [];
-    let aciertosTotales = 0;
-    let totalEsperado = 0;
-
-    const config = {
-        1: { nombre: "Nivel Bajo", carga: 3, ensalada: 8, rondas: 3, desc: "Memoriza estas 3 palabras para luego identificarlas." },
-        2: { nombre: "Nivel Medio", carga: 6, ensalada: 12, rondas: 4, desc: "Memoriza estas 6 palabras. ¡Atención a los detalles!" },
-        3: { nombre: "Nivel Alto", carga: 12, ensalada: 20, rondas: 5, desc: "Máximo reto: 12 palabras para discriminar." }
-    };
-
-    function hablar(t, cb) {
-        window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t);
-        m.lang = 'es-ES'; m.rate = 0.9;
-        if(cb) m.onend = cb;
-        window.speechSynthesis.speak(m);
-    }
-
-    function iniciarEntrenamiento() {
-        nivelActual = 1;
-        aciertosTotales = 0;
-        totalEsperado = 0;
-        prepararNivel();
-    }
-
-    function prepararNivel() {
-        rondaActual = 1;
-        const c = config[nivelActual];
-        const trans = document.getElementById('pantalla-transicion');
-        document.getElementById('txt-nivel-tit').innerText = c.nombre.toUpperCase();
-        document.getElementById('txt-nivel-desc').innerText = c.desc;
-        trans.style.display = 'flex';
-
-        hablar(`Juan, ${c.nombre}. ${c.desc}`, () => {
-            setTimeout(() => {
-                trans.style.display = 'none';
-                nuevaRonda();
-            }, 2500);
-        });
-    }
-
-    function nuevaRonda() {
-        palabrasObjetivo = [];
-        seleccionUsuario = [];
-        document.getElementById('ensalada-container').style.display = 'none';
-        document.getElementById('btn-confirmar').style.display = 'none';
-        
-        // Seleccionar palabras únicas para esta ronda
-        let baraja = [...listaPalabras].sort(() => 0.5 - Math.random());
-        palabrasObjetivo = baraja.slice(0, config[nivelActual].carga);
-        totalEsperado += palabrasObjetivo.length;
-        
-        mostrarPalabrasSecuencia(0);
-    }
-
-    function mostrarPalabrasSecuencia(idx) {
-        const display = document.getElementById('palabra-display');
-        if(idx < palabrasObjetivo.length) {
-            const p = palabrasObjetivo[idx];
-            display.innerText = p;
-            display.style.display = 'block';
-            document.getElementById('label-guia').innerText = `Memoriza: ${idx + 1} de ${palabrasObjetivo.length}`;
-            
-            hablar(p, () => {
-                setTimeout(() => {
-                    display.style.display = 'none';
-                    setTimeout(() => mostrarPalabrasSecuencia(idx + 1), 400);
-                }, 1500); // 1.5 segundos visible después de hablar
-            });
-        } else {
-            generarEnsalada();
-        }
-    }
-
-    function generarEnsalada() {
-        const container = document.getElementById('ensalada-container');
-        container.innerHTML = "";
-        container.style.display = 'grid';
-        document.getElementById('btn-confirmar').style.display = 'block';
-        document.getElementById('label-guia').innerText = "¿Cuáles fueron las palabras escogidas anteriormente?";
-
-        // Distractores
-        let distractores = listaPalabras.filter(p => !palabrasObjetivo.includes(p))
-                                       .sort(() => 0.5 - Math.random())
-                                       .slice(0, config[nivelActual].ensalada - palabrasObjetivo.length);
-        
-        let mix = [...palabrasObjetivo, ...distractores].sort(() => 0.5 - Math.random());
-
-        mix.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerText = p;
-            card.onclick = () => {
-                if(seleccionUsuario.includes(p)) {
-                    seleccionUsuario = seleccionUsuario.filter(x => x !== p);
-                    card.classList.remove('selected');
-                } else {
-                    if(seleccionUsuario.length < palabrasObjetivo.length) {
-                        seleccionUsuario.push(p);
-                        card.classList.add('selected');
-                    }
-                }
-            };
-            container.appendChild(card);
-        });
-        hablar("Ahora, identifica las palabras en la ensalada.");
-    }
-
-    function evaluarRonda() {
-        let correctasRonda = seleccionUsuario.filter(p => palabrasObjetivo.includes(p)).length;
-        aciertosTotales += correctasRonda;
-
-        if(correctasRonda === palabrasObjetivo.length) {
-            hablar("¡Excelente memoria, Juan!");
-        } else {
-            hablar("Buen intento, fíjate bien en la próxima.");
-        }
-
-        setTimeout(() => {
-            rondaActual++;
-            if(rondaActual <= config[nivelActual].rondas) {
-                nuevaRonda();
-            } else if(nivelActual < 3) {
-                nivelActual++;
-                prepararNivel();
-            } else {
-                mostrarCierre();
-            }
-        }, 1500);
-    }
-
-    function mostrarCierre() {
-        const perc = Math.round((aciertosTotales / totalEsperado) * 100);
-        document.getElementById('resumen-stats').innerHTML = `
-            <p>Porcentaje de acierto: <strong>${perc}%</strong></p>
-            <p>Palabras recordadas: ${aciertosTotales} de ${totalEsperado}</p>
-        `;
-        document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Los logros no son magia, ni suerte, son esfuerzo y dedicación.");
-    }
+    function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
+    function iniciarEntrenamiento() { nivel = 1; aciertos = 0; total = 0; prepararNivel(); }
+    function prepararNivel() { ronda = 1; const c = config[nivel]; document.getElementById('txt-nivel-tit').innerText = "NIVEL " + c.n.toUpperCase(); document.getElementById('txt-nivel-desc').innerText = c.d; document.getElementById('pantalla-transicion').style.display = 'flex'; hablar("Juan, Nivel " + c.n + ". " + c.d, () => { setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; nuevaRonda(); }, 2000); }); }
+    function nuevaRonda() { objetivo = []; seleccion = []; document.getElementById('ensalada-container').style.display = 'none'; document.getElementById('btn-confirmar').style.display = 'none'; let b = [...lista].sort(() => 0.5 - Math.random()); objetivo = b.slice(0, config[nivel].c); total += objetivo.length; mostrarSecuencia(0); }
+    function mostrarSecuencia(i) { const d = document.getElementById('palabra-display'); if(i < objetivo.length) { d.innerText = objetivo[i]; d.style.display = 'block'; document.getElementById('label-guia').innerText = "Memoriza: " + (i+1) + "/" + objetivo.length; hablar(objetivo[i], () => { setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), 400); }, 1500); }); } else { generarEnsalada(); } }
+    function generarEnsalada() { const container = document.getElementById('ensalada-container'); container.innerHTML = ""; container.style.display = 'grid'; document.getElementById('btn-confirmar').style.display = 'block'; document.getElementById('label-guia').innerText = "¿Cuáles eran?"; let distractores = lista.filter(p => !objetivo.includes(p)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].e - objetivo.length); let mix = [...objetivo, ...distractores].sort(() => 0.5 - Math.random()); mix.forEach(p => { const card = document.createElement('div'); card.className = 'word-card'; card.innerText = p; card.onclick = () => { if(seleccion.includes(p)) { seleccion = seleccion.filter(x => x !== p); card.classList.remove('selected'); } else if(seleccion.length < objetivo.length) { seleccion.push(p); card.classList.add('selected'); } }; container.appendChild(card); }); hablar("Busca las palabras."); }
+    function evaluarRonda() { aciertos += seleccion.filter(p => objetivo.includes(p)).length; hablar("Siguiente ronda."); setTimeout(() => { ronda++; if(ronda <= config[nivel].r) nuevaRonda(); else if(nivel < 3) { nivel++; prepararNivel(); } else mostrarCierre(); }, 1000); }
+    function mostrarCierre() { const p = Math.round((aciertos / total) * 100); document.getElementById('resumen-stats').innerHTML = "Porcentaje: " + p + "%"; document.getElementById('overlay-final').style.display = 'flex'; hablar("Los logros no son magia, ni suerte, son esfuerzo y dedicación."); }
 </script>
 </body>
 </html>
-
