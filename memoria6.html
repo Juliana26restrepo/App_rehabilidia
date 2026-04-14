@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 6 - Juan (Versión Final Optimizada)</title>
+    <title>Memoria 6 - Juan</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
         #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
@@ -37,27 +37,22 @@
 
 <div id="pantalla-transicion">
     <h1 id="txt-nivel-tit" style="background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px; font-size: 3.5rem;"></h1>
-    <h2 id="txt-nivel-desc" style="font-size: 2.5rem; margin-top: 25px; width: 80%;"></h2>
+    <h2 id="txt-nivel-desc" style="font-size: 2.5rem; margin-top: 25px;"></h2>
 </div>
 
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
     <div id="resumen-stats"></div>
     <p style="font-size: 2.2rem; width: 80%; font-weight: bold; line-height: 1.4; margin-top: 30px;">“Los logros no son magia, ni suerte, son esfuerzo y dedicación”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none; margin-top: 25px;">REPETIR ENTRENAMIENTO</button>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none; margin-top: 25px;">REPETIR</button>
 </div>
 
 <script>
     const lista = ["Casa", "Perro", "Gato", "Mesa", "Silla", "Agua", "Pan", "Sol", "Luna", "Flor", "Árbol", "Cielo", "Mar", "Río", "Libro", "Lápiz", "Zapato", "Camisa", "Puerta", "Ventana", "Niño", "Niña", "Mamá", "Papá", "Abuelo", "Abuela", "Amigo", "Comida", "Fruta", "Leche", "Queso", "Huevo", "Café", "Té", "Azúcar", "Sal", "Dulce", "Frío", "Calor", "Viento", "Lluvia", "Nube", "Rayo", "Trueno", "Montaña", "Playa", "Isla", "Barco", "Carro", "Moto", "Bus", "Calle", "Camino", "Parque", "Jardín", "Escuela", "Clase", "Tarea", "Juego", "Pelota", "Muñeca", "Robot", "Caja", "Bolsa", "Llave", "Reloj", "Teléfono", "Foto", "Música", "Canción", "Baile", "Risa", "Llanto", "Voz", "Mano", "Pie", "Cabeza", "Ojo", "Boca", "Nariz", "Oreja", "Pelo", "Cara", "Cuerpo", "Salud", "Médico", "Pastilla", "Hospital", "Dolor", "Sueño", "Cama", "Almohada", "Sábana", "Luz", "Oscuro", "Día", "Noche", "Mañana", "Tarde", "Tiempo", "Hora", "Minuto", "Segundo", "Número", "Color", "Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco", "Gris", "Rosa", "Morado", "Naranja", "Feliz", "Triste", "Enojado", "Miedo", "Amor", "Paz", "Guerra", "Trabajo", "Dinero", "Banco", "Compra", "Venta", "Mercado", "Tienda", "Precio", "Regalo", "Sorpresa", "Fiesta", "Cumpleaños", "Navidad", "Viaje", "Maleta", "Avión", "Hotel", "Playa", "Campo", "Ciudad", "Pueblo", "Vecino", "Familia", "Historia", "Cuento", "Palabra", "Idioma", "Letra", "Número", "Forma", "Línea", "Punto", "Dibujo", "Pintura", "Arte", "Imagen", "Pantalla", "Computador", "Internet", "Video", "Cámara", "Radio", "Televisión", "Control", "Botón", "Puente", "Torre", "Castillo", "Rey", "Reina", "Príncipe", "Dragón", "Espada", "Escudo", "Héroe", "Villano", "Aventura", "Misterio", "Secreto", "Camino", "Meta", "Sueño", "Idea", "Pensamiento", "Recuerdo", "Olvido", "Atención", "Memoria", "Aprender", "Enseñar", "Escuchar", "Hablar", "Mirar", "Sentir", "Tocar", "Probar", "Oler", "Vivir"];
     let nivel = 1, ronda = 1, objetivo = [], encontrados = 0, aciertosTotales = 0, erroresTotales = 0, totalOportunidades = 0;
-    
-    const config = { 
-        1: { n: "Bajo", c: 3, e: 8, r: 3 }, 
-        2: { n: "Medio", c: 6, e: 12, r: 4 }, 
-        3: { n: "Alto", c: 12, e: 20, r: 5 } 
-    };
+    const config = { 1: { n: "Bajo", c: 3, e: 8, r: 3 }, 2: { n: "Medio", c: 6, e: 12, r: 4 }, 3: { n: "Alto", c: 12, e: 20, r: 5 } };
 
-    function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
+    function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
     
     function iniciarEntrenamiento() { nivel = 1; ronda = 1; aciertosTotales = 0; erroresTotales = 0; totalOportunidades = 0; prepararNivel(); }
     
@@ -66,9 +61,11 @@
         document.getElementById('txt-nivel-tit').innerText = "NIVEL " + c.n.toUpperCase(); 
         document.getElementById('txt-nivel-desc').innerText = "Memoriza estas " + c.c + " palabras."; 
         document.getElementById('pantalla-transicion').style.display = 'flex'; 
-        hablar("Nivel " + c.n + ". Memoriza estas " + c.c + " palabras.", () => { 
-            setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; nuevaRonda(); }, 2500); 
-        }); 
+        hablar("Nivel " + c.n + ". Memoriza " + c.c + " palabras.");
+        setTimeout(() => { 
+            document.getElementById('pantalla-transicion').style.display = 'none'; 
+            nuevaRonda(); 
+        }, 3000); 
     }
     
     function nuevaRonda() { 
@@ -82,22 +79,18 @@
     
     function mostrarSecuencia(i) { 
         const d = document.getElementById('palabra-display'); 
-        const tiempoVisible = (nivel === 3) ? 1800 : 1500;
-        const tiempoPausa = (nivel === 3) ? 1000 : 500;
-
         if(i < objetivo.length) { 
             d.innerText = objetivo[i]; d.style.display = 'block'; 
-            document.getElementById('label-guia').innerText = "Ronda " + ronda + " - Palabra " + (i+1) + "/" + objetivo.length; 
-            hablar(objetivo[i], () => { 
-                setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), tiempoPausa); }, tiempoVisible); 
-            }); 
+            document.getElementById('label-guia').innerText = "Memoriza: " + (i+1) + "/" + objetivo.length; 
+            hablar(objetivo[i]); 
+            setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), 500); }, 1500); 
         } else { generarEnsalada(); } 
     }
     
     function generarEnsalada() { 
         const container = document.getElementById('ensalada-container'); 
         container.innerHTML = ""; container.style.display = 'grid'; 
-        document.getElementById('label-guia').innerText = "¿Cuáles eran las palabras?"; 
+        document.getElementById('label-guia').innerText = "¿Cuáles eran?"; 
         let distractores = lista.filter(p => !objetivo.includes(p)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].e - objetivo.length); 
         let mix = [...objetivo, ...distractores].sort(() => 0.5 - Math.random()); 
         mix.forEach(p => { 
@@ -115,9 +108,7 @@
                 card.classList.add('correct-hit');
                 encontrados++; aciertosTotales++;
                 hablar("¡Bien!");
-                if(encontrados === objetivo.length) { 
-                    setTimeout(() => { hablar("Excelente.", saltarARonda); }, 800); 
-                }
+                if(encontrados === objetivo.length) setTimeout(saltarARonda, 1000);
             }
         } else {
             if(!card.classList.contains('error-hit')){
@@ -148,13 +139,13 @@
         const p = Math.round((aciertosTotales / totalOportunidades) * 100); 
         document.getElementById('resumen-stats').innerHTML = `
             <div class="stat-box">
-                <div class="stat-item" style="color: #FFF;">Aciertos: ${aciertosTotales}</div>
-                <div class="stat-item" style="color: #FFD700;">Errores: ${erroresTotales}</div>
+                <div class="stat-item" style="color: #4CAF50;">Aciertos: ${aciertosTotales}</div>
+                <div class="stat-item" style="color: #FF5252;">Errores: ${erroresTotales}</div>
             </div>
-            <p style="font-size: 2.8rem; margin-top: 30px; color: #FFD700;">Precisión: ${p}%</p>
+            <p style="font-size: 2.5rem; margin-top: 20px;">Precisión: ${p}%</p>
         `; 
         document.getElementById('overlay-final').style.display = 'flex'; 
-        hablar("¡Entrenamiento finalizado! Los logros no son magia, ni suerte, son esfuerzo y dedicación."); 
+        hablar("Entrenamiento finalizado."); 
     }
 </script>
 </body>
