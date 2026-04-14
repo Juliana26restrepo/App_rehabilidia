@@ -12,9 +12,13 @@
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px; }
         #palabra-display { font-size: 5rem; font-weight: bold; color: #01579B; background: white; padding: 40px 80px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 6px solid #0288D1; display: none; margin-bottom: 20px; text-transform: uppercase; }
         #ensalada-container { display: none; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 95%; max-width: 1100px; }
-        .word-card { background: white; padding: 20px; border-radius: 15px; font-size: 1.6rem; font-weight: bold; cursor: pointer; border: 4px solid #CFD8DC; color: #01579B; }
-        .word-card.selected { background: #B3E5FC; border-color: #0288D1; }
-        #btn-confirmar { margin-top: 30px; padding: 20px 50px; font-size: 1.8rem; background: #28B463; color: white; border: none; border-radius: 20px; cursor: pointer; display: none; font-weight: bold; }
+        
+        /* Estilos de las tarjetas con retroalimentación */
+        .word-card { background: white; padding: 20px; border-radius: 15px; font-size: 1.6rem; font-weight: bold; cursor: pointer; border: 4px solid #CFD8DC; color: #01579B; transition: 0.3s; }
+        .word-card.correct-hit { background: #C8E6C9 !important; border-color: #43A047 !important; transform: scale(1.05); color: #1B5E20; }
+        .word-card.error-hit { background: #FFCDD2 !important; border-color: #E53935 !important; color: #B71C1C; }
+        .word-card.disabled { pointer-events: none; opacity: 0.8; }
+
         #pantalla-transicion { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:1000; flex-direction:column; justify-content:center; align-items:center; color: white; }
         #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:2000; flex-direction:column; justify-content:center; align-items:center; color: white; }
     </style>
@@ -31,7 +35,6 @@
 <div id="contenedor-juego">
     <div id="palabra-display"></div>
     <div id="ensalada-container"></div>
-    <button id="btn-confirmar" onclick="evaluarRonda()">LISTO, LAS RECUERDO</button>
 </div>
 
 <div id="pantalla-transicion">
@@ -48,17 +51,70 @@
 
 <script>
     const lista = ["Casa", "Perro", "Gato", "Mesa", "Silla", "Agua", "Pan", "Sol", "Luna", "Flor", "Árbol", "Cielo", "Mar", "Río", "Libro", "Lápiz", "Zapato", "Camisa", "Puerta", "Ventana", "Niño", "Niña", "Mamá", "Papá", "Abuelo", "Abuela", "Amigo", "Comida", "Fruta", "Leche", "Queso", "Huevo", "Café", "Té", "Azúcar", "Sal", "Dulce", "Frío", "Calor", "Viento", "Lluvia", "Nube", "Rayo", "Trueno", "Montaña", "Playa", "Isla", "Barco", "Carro", "Moto", "Bus", "Calle", "Camino", "Parque", "Jardín", "Escuela", "Clase", "Tarea", "Juego", "Pelota", "Muñeca", "Robot", "Caja", "Bolsa", "Llave", "Reloj", "Teléfono", "Foto", "Música", "Canción", "Baile", "Risa", "Llanto", "Voz", "Mano", "Pie", "Cabeza", "Ojo", "Boca", "Nariz", "Oreja", "Pelo", "Cara", "Cuerpo", "Salud", "Médico", "Pastilla", "Hospital", "Dolor", "Sueño", "Cama", "Almohada", "Sábana", "Luz", "Oscuro", "Día", "Noche", "Mañana", "Tarde", "Tiempo", "Hora", "Minuto", "Segundo", "Número", "Color", "Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco", "Gris", "Rosa", "Morado", "Naranja", "Feliz", "Triste", "Enojado", "Miedo", "Amor", "Paz", "Guerra", "Trabajo", "Dinero", "Banco", "Compra", "Venta", "Mercado", "Tienda", "Precio", "Regalo", "Sorpresa", "Fiesta", "Cumpleaños", "Navidad", "Viaje", "Maleta", "Avión", "Hotel", "Playa", "Campo", "Ciudad", "Pueblo", "Vecino", "Familia", "Historia", "Cuento", "Palabra", "Idioma", "Letra", "Número", "Forma", "Línea", "Punto", "Dibujo", "Pintura", "Arte", "Imagen", "Pantalla", "Computador", "Internet", "Video", "Cámara", "Radio", "Televisión", "Control", "Botón", "Puente", "Torre", "Castillo", "Rey", "Reina", "Príncipe", "Dragón", "Espada", "Escudo", "Héroe", "Villano", "Aventura", "Misterio", "Secreto", "Camino", "Meta", "Sueño", "Idea", "Pensamiento", "Recuerdo", "Olvido", "Atención", "Memoria", "Aprender", "Enseñar", "Escuchar", "Hablar", "Mirar", "Sentir", "Tocar", "Probar", "Oler", "Vivir"];
-    let nivel = 1, ronda = 1, objetivo = [], seleccion = [], aciertos = 0, total = 0;
+    let nivel = 1, ronda = 1, objetivo = [], encontrados = 0, aciertosTotales = 0, totalOportunidades = 0;
     const config = { 1: { n: "Bajo", c: 3, e: 8, r: 3, d: "Memoriza 3 palabras." }, 2: { n: "Medio", c: 6, e: 12, r: 4, d: "Memoriza 6 palabras." }, 3: { n: "Alto", c: 12, e: 20, r: 5, d: "Memoriza 12 palabras." } };
 
     function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
-    function iniciarEntrenamiento() { nivel = 1; aciertos = 0; total = 0; prepararNivel(); }
+    
+    function iniciarEntrenamiento() { nivel = 1; aciertosTotales = 0; totalOportunidades = 0; prepararNivel(); }
+    
     function prepararNivel() { ronda = 1; const c = config[nivel]; document.getElementById('txt-nivel-tit').innerText = "NIVEL " + c.n.toUpperCase(); document.getElementById('txt-nivel-desc').innerText = c.d; document.getElementById('pantalla-transicion').style.display = 'flex'; hablar("Juan, Nivel " + c.n + ". " + c.d, () => { setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; nuevaRonda(); }, 2000); }); }
-    function nuevaRonda() { objetivo = []; seleccion = []; document.getElementById('ensalada-container').style.display = 'none'; document.getElementById('btn-confirmar').style.display = 'none'; let b = [...lista].sort(() => 0.5 - Math.random()); objetivo = b.slice(0, config[nivel].c); total += objetivo.length; mostrarSecuencia(0); }
+    
+    function nuevaRonda() { objetivo = []; encontrados = 0; document.getElementById('ensalada-container').style.display = 'none'; let b = [...lista].sort(() => 0.5 - Math.random()); objetivo = b.slice(0, config[nivel].c); totalOportunidades += objetivo.length; mostrarSecuencia(0); }
+    
     function mostrarSecuencia(i) { const d = document.getElementById('palabra-display'); if(i < objetivo.length) { d.innerText = objetivo[i]; d.style.display = 'block'; document.getElementById('label-guia').innerText = "Memoriza: " + (i+1) + "/" + objetivo.length; hablar(objetivo[i], () => { setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), 400); }, 1500); }); } else { generarEnsalada(); } }
-    function generarEnsalada() { const container = document.getElementById('ensalada-container'); container.innerHTML = ""; container.style.display = 'grid'; document.getElementById('btn-confirmar').style.display = 'block'; document.getElementById('label-guia').innerText = "¿Cuáles eran?"; let distractores = lista.filter(p => !objetivo.includes(p)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].e - objetivo.length); let mix = [...objetivo, ...distractores].sort(() => 0.5 - Math.random()); mix.forEach(p => { const card = document.createElement('div'); card.className = 'word-card'; card.innerText = p; card.onclick = () => { if(seleccion.includes(p)) { seleccion = seleccion.filter(x => x !== p); card.classList.remove('selected'); } else if(seleccion.length < objetivo.length) { seleccion.push(p); card.classList.add('selected'); } }; container.appendChild(card); }); hablar("Busca las palabras."); }
-    function evaluarRonda() { aciertos += seleccion.filter(p => objetivo.includes(p)).length; hablar("Siguiente ronda."); setTimeout(() => { ronda++; if(ronda <= config[nivel].r) nuevaRonda(); else if(nivel < 3) { nivel++; prepararNivel(); } else mostrarCierre(); }, 1000); }
-    function mostrarCierre() { const p = Math.round((aciertos / total) * 100); document.getElementById('resumen-stats').innerHTML = "Porcentaje: " + p + "%"; document.getElementById('overlay-final').style.display = 'flex'; hablar("Los logros no son magia, ni suerte, son esfuerzo y dedicación."); }
+    
+    function generarEnsalada() { 
+        const container = document.getElementById('ensalada-container'); 
+        container.innerHTML = ""; 
+        container.style.display = 'grid'; 
+        document.getElementById('label-guia').innerText = "¿Cuáles eran?"; 
+        let distractores = lista.filter(p => !objetivo.includes(p)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].e - objetivo.length); 
+        let mix = [...objetivo, ...distractores].sort(() => 0.5 - Math.random()); 
+        
+        mix.forEach(p => { 
+            const card = document.createElement('div'); 
+            card.className = 'word-card'; 
+            card.innerText = p; 
+            card.onclick = () => verificar(p, card); 
+            container.appendChild(card); 
+        }); 
+        hablar("Busca las palabras que memorizaste."); 
+    }
+
+    function verificar(p, card) {
+        if(objetivo.includes(p)) {
+            if(!card.classList.contains('correct-hit')) {
+                card.classList.add('correct-hit');
+                encontrados++;
+                aciertosTotales++;
+                hablar("¡Esa palabra sí!");
+                if(encontrados === objetivo.length) {
+                    setTimeout(() => {
+                        hablar("¡Muy bien hecho Juan! Las encontraste todas.", siguienteRonda);
+                    }, 800);
+                }
+            }
+        } else {
+            card.classList.add('error-hit');
+            hablar("Esa palabra no estaba.");
+            setTimeout(() => card.classList.remove('error-hit'), 800);
+        }
+    }
+
+    function siguienteRonda() {
+        ronda++;
+        if(ronda <= config[nivel].r) nuevaRonda();
+        else if(nivel < 3) { nivel++; prepararNivel(); }
+        else mostrarCierre();
+    }
+
+    function mostrarCierre() { 
+        const p = Math.round((aciertosTotales / totalOportunidades) * 100); 
+        document.getElementById('resumen-stats').innerHTML = "Porcentaje de acierto: " + p + "%"; 
+        document.getElementById('overlay-final').style.display = 'flex'; 
+        hablar("Los logros no son magia, ni suerte, son esfuerzo y dedicación."); 
+    }
 </script>
 </body>
 </html>
