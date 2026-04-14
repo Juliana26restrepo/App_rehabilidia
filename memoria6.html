@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 6 - Juan (Versión Corregida)</title>
+    <title>Memoria 6 - Juan (Versión Final)</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
         #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
@@ -17,13 +17,15 @@
         .word-card.error-hit { background: #FFCDD2 !important; border-color: #E53935 !important; }
         #pantalla-transicion { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:1000; flex-direction:column; justify-content:center; align-items:center; color: white; }
         #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:2000; flex-direction:column; justify-content:center; align-items:center; color: white; }
+        .stat-box { display: flex; gap: 20px; margin-top: 20px; }
+        .stat-item { background: rgba(255,255,255,0.1); padding: 15px 30px; border-radius: 15px; font-weight: bold; }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
 
 <div id="cabecera">
     <div id="instruccion-box">
-        <img src="logo.jpg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
         <span id="label-guia">Cargando...</span>
     </div>
 </div>
@@ -47,7 +49,7 @@
 
 <script>
     const lista = ["Casa", "Perro", "Gato", "Mesa", "Silla", "Agua", "Pan", "Sol", "Luna", "Flor", "Árbol", "Cielo", "Mar", "Río", "Libro", "Lápiz", "Zapato", "Camisa", "Puerta", "Ventana", "Niño", "Niña", "Mamá", "Papá", "Abuelo", "Abuela", "Amigo", "Comida", "Fruta", "Leche", "Queso", "Huevo", "Café", "Té", "Azúcar", "Sal", "Dulce", "Frío", "Calor", "Viento", "Lluvia", "Nube", "Rayo", "Trueno", "Montaña", "Playa", "Isla", "Barco", "Carro", "Moto", "Bus", "Calle", "Camino", "Parque", "Jardín", "Escuela", "Clase", "Tarea", "Juego", "Pelota", "Muñeca", "Robot", "Caja", "Bolsa", "Llave", "Reloj", "Teléfono", "Foto", "Música", "Canción", "Baile", "Risa", "Llanto", "Voz", "Mano", "Pie", "Cabeza", "Ojo", "Boca", "Nariz", "Oreja", "Pelo", "Cara", "Cuerpo", "Salud", "Médico", "Pastilla", "Hospital", "Dolor", "Sueño", "Cama", "Almohada", "Sábana", "Luz", "Oscuro", "Día", "Noche", "Mañana", "Tarde", "Tiempo", "Hora", "Minuto", "Segundo", "Número", "Color", "Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco", "Gris", "Rosa", "Morado", "Naranja", "Feliz", "Triste", "Enojado", "Miedo", "Amor", "Paz", "Guerra", "Trabajo", "Dinero", "Banco", "Compra", "Venta", "Mercado", "Tienda", "Precio", "Regalo", "Sorpresa", "Fiesta", "Cumpleaños", "Navidad", "Viaje", "Maleta", "Avión", "Hotel", "Playa", "Campo", "Ciudad", "Pueblo", "Vecino", "Familia", "Historia", "Cuento", "Palabra", "Idioma", "Letra", "Número", "Forma", "Línea", "Punto", "Dibujo", "Pintura", "Arte", "Imagen", "Pantalla", "Computador", "Internet", "Video", "Cámara", "Radio", "Televisión", "Control", "Botón", "Puente", "Torre", "Castillo", "Rey", "Reina", "Príncipe", "Dragón", "Espada", "Escudo", "Héroe", "Villano", "Aventura", "Misterio", "Secreto", "Camino", "Meta", "Sueño", "Idea", "Pensamiento", "Recuerdo", "Olvido", "Atención", "Memoria", "Aprender", "Enseñar", "Escuchar", "Hablar", "Mirar", "Sentir", "Tocar", "Probar", "Oler", "Vivir"];
-    let nivel = 1, ronda = 1, objetivo = [], encontrados = 0, aciertosTotales = 0, totalOportunidades = 0;
+    let nivel = 1, ronda = 1, objetivo = [], encontrados = 0, aciertosTotales = 0, erroresTotales = 0, totalOportunidades = 0;
     
     const config = { 
         1: { n: "Bajo", c: 3, e: 8, r: 3, d: "Fortalecer la memoria visual inmediata. Memoriza 3 palabras." }, 
@@ -57,7 +59,7 @@
 
     function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
     
-    function iniciarEntrenamiento() { nivel = 1; aciertosTotales = 0; totalOportunidades = 0; prepararNivel(); }
+    function iniciarEntrenamiento() { nivel = 1; aciertosTotales = 0; erroresTotales = 0; totalOportunidades = 0; prepararNivel(); }
     
     function prepararNivel() { 
         ronda = 1; 
@@ -81,11 +83,14 @@
     
     function mostrarSecuencia(i) { 
         const d = document.getElementById('palabra-display'); 
+        const tiempoVisible = (nivel === 3) ? 1800 : 1500;
+        const tiempoPausa = (nivel === 3) ? 1000 : 500;
+
         if(i < objetivo.length) { 
             d.innerText = objetivo[i]; d.style.display = 'block'; 
             document.getElementById('label-guia').innerText = "Memoriza: " + (i+1) + "/" + objetivo.length; 
             hablar(objetivo[i], () => { 
-                setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), 500); }, 1500); 
+                setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), tiempoPausa); }, tiempoVisible); 
             }); 
         } else { generarEnsalada(); } 
     }
@@ -116,9 +121,12 @@
                 }
             }
         } else {
-            card.classList.add('error-hit');
-            hablar("Esa no.");
-            setTimeout(() => card.classList.remove('error-hit'), 800);
+            if(!card.classList.contains('error-hit')){
+                card.classList.add('error-hit');
+                erroresTotales++;
+                hablar("Esa no.");
+                setTimeout(() => card.classList.remove('error-hit'), 800);
+            }
         }
     }
 
@@ -138,11 +146,18 @@
 
     function mostrarCierre() { 
         const p = Math.round((aciertosTotales / totalOportunidades) * 100); 
-        document.getElementById('resumen-stats').innerHTML = "Aciertos: " + p + "% (" + aciertosTotales + "/" + totalOportunidades + ")"; 
+        document.getElementById('resumen-stats').innerHTML = `
+            <div class="stat-box">
+                <div class="stat-item" style="color: #43A047;">Aciertos: ${aciertosTotales}</div>
+                <div class="stat-item" style="color: #E53935;">Errores: ${erroresTotales}</div>
+            </div>
+            <p style="margin-top: 20px;">Porcentaje de acierto: <strong>${p}%</strong></p>
+        `; 
         document.getElementById('overlay-final').style.display = 'flex'; 
-        hablar("Los logros no son magia, ni suerte, son esfuerzo y dedicación."); 
+        hablar("¡Logros alcanzados! Los logros no son magia, ni suerte, son esfuerzo y dedicación."); 
     }
 </script>
 </body>
 </html>
+
 
