@@ -1,1 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria 8 - Reconocimiento y Evocación</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #F3E5F5; text-align: center; color: #4A148C; height: 100vh; display: flex; flex-direction: column; }
+        #cabecera { background: white; height: 75px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; flex-shrink: 0; }
+        #instruccion-box { display: flex; align-items: center; font-weight: bold; font-size: 1.2rem; }
+        #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid #7B1FA2; }
+        #contenedor-rostros { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #rostro-individual { width: 280px; height: 320px; background: white; border: 8px solid #7B1FA2; border-radius: 20px; display: none; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        #rostro-individual img { width: 100%; height: 100%; object-fit: cover; }
+        #rejilla-reconocimiento { display: none; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 95%; max-width: 1100px; }
+        .cara-card { background: white; border-radius: 12px; border: 4px solid #CE93D8; overflow: hidden; cursor: pointer; transition: 0.2s; aspect-ratio: 1/1.2; }
+        .cara-card img { width: 100%; height: 100%; object-fit: cover; }
+        .cara-card.correct { border-color: #4CAF50; background: #C8E6C9; pointer-events: none; transform: scale(0.95); }
+        .cara-card.error { border-color: #F44336; background: #FFCDD2; }
+        #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
+        #pantalla-transicion { background: #7B1FA2; color: white; }
+        #overlay-final { background: rgba(74, 20, 140, 0.98); color: white; }
+        .stat-item { background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 15px; font-weight: bold; font-size: 1.8rem; margin: 10px; }
+    </style>
+</head>
+<body onload="iniciarJuego()">
+
+<div id="cabecera">
+    <div id="instruccion-box">
+        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <span id="label-guia">Cargando...</span>
+    </div>
+</div>
+
+<div id="contenedor-rostros">
+    <div id="rostro-individual"><img id="img-target" src=""></div>
+    <div id="rejilla-reconocimiento"></div>
+</div>
+
+<div id="pantalla-transicion">
+    <h1 id="tit-nivel" style="font-size: 4rem; background: #FFD700; color: #4A148C; padding: 10px 50px; border-radius: 50px;"></h1>
+    <p id="desc-nivel" style="font-size: 2.5rem; margin-top: 20px;"></p>
+</div>
+
+<div id="overlay-final">
+    <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
+    <div id="stats" style="display:flex;"></div>
+    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; margin-top: 30px;">“Reconocer es recordar y recordar te conecta”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #4A148C; border-radius: 20px; font-size: 2rem; border:none; cursor:pointer;">REPETIR</button>
+</div>
+
+<script>
+    let nivel = 1, ronda = 1, aciertos = 0, errores = 0, totalOportunidades = 0;
+    let rostrosRonda1 = [], rostrosRonda2 = [], objetivosActuales = [];
+    const pool = Array.from({length: 55}, (_, i) => `rostro${i + 1}.jpg`);
+
+    const config = {
+        1: { n: "Bajo", cant: 3, ensalada: 10 },
+        2: { n: "Medio", cant: 5, ensalada: 15 },
+        3: { n: "Alto", cant: 7, ensalada: 20 }
+    };
+
+    function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
+
+    function iniciarJuego() { prepararNivel(); }
+
+    function prepararNivel() {
+        ronda = 1; rostrosRonda1 = []; rostrosRonda2 = [];
+        const c = config[nivel];
+        document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
+        document.getElementById('desc-nivel').innerText = "Visualiza y recuerda los rostros.";
+        document.getElementById('pantalla-transicion').style.display = 'flex';
+        hablar("Juan, Nivel " + c.n + ". Visualiza y recuerda los rostros.", () => {
+            setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; flujoRondas(); }, 2000);
+        });
+    }
+
+    function flujoRondas() {
+        let shuffle = [...pool].sort(() => 0.5 - Math.random());
+        if (ronda === 1) {
+            objetivosActuales = shuffle.slice(0, config[nivel].cant);
+            rostrosRonda1 = [...objetivosActuales];
+            totalOportunidades += objetivosActuales.length;
+            mostrarSecuencia(0);
+        } else if (ronda === 2) {
+            // Rostros diferentes para la ronda 2
+            objetivosActuales = shuffle.filter(r => !rostrosRonda1.includes(r)).slice(0, config[nivel].cant);
+            rostrosRonda2 = [...objetivosActuales];
+            totalOportunidades += objetivosActuales.length;
+            mostrarSecuencia(0);
+        } else if (ronda === 3) {
+            // Evocación de la Ronda 1
+            objetivosActuales = [...rostrosRonda1];
+            totalOportunidades += objetivosActuales.length;
+            preguntaEvocacion();
+        }
+    }
+
+    function mostrarSecuencia(idx) {
+        if (idx < objetivosActuales.length) {
+            const img = document.getElementById('img-target');
+            img.src = `mem8/${objetivosActuales[idx]}`;
+            document.getElementById('rostro-individual').style.display = 'block';
+            document.getElementById('label-guia').innerText = "Memoriza: " + (idx + 1) + "/" + objetivosActuales.length;
+            setTimeout(() => {
+                document.getElementById('rostro-individual').style.display = 'none';
+                setTimeout(() => mostrarSecuencia(idx + 1), 500);
+            }, 2000);
+        } else {
+            faseReconocimiento();
+        }
+    }
+
+    function faseReconocimiento() {
+        document.getElementById('rejilla-reconocimiento').style.display = 'grid';
+        document.getElementById('label-guia').innerText = "¿Cuál de estos rostros viste hace un momento?";
+        let distractores = pool.filter(r => !objetivosActuales.includes(r)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].ensalada - objetivosActuales.length);
+        generarRejilla([...objetivosActuales, ...distractores]);
+        hablar("¿Cuáles de estos rostros acabas de ver?");
+    }
+
+    function preguntaEvocacion() {
+        document.getElementById('rejilla-reconocimiento').style.display = 'grid';
+        document.getElementById('label-guia').innerText = "Ronda de Evocación: ¿Recuerdas los rostros de la PRIMERA ronda?";
+        let distractores = pool.filter(r => !rostrosRonda1.includes(r)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].ensalada - rostrosRonda1.length);
+        generarRejilla([...rostrosRonda1, ...distractores]);
+        hablar("Juan, ¿te acuerdas de los rostros de la primera ronda? ¿Cuáles eran?");
+    }
+
+    function generarRejilla(lista) {
+        const rejilla = document.getElementById('rejilla-reconocimiento');
+        rejilla.innerHTML = "";
+        let encontradosEnRonda = 0;
+        lista.sort(() => 0.5 - Math.random()).forEach(src => {
+            const card = document.createElement('div');
+            card.className = 'cara-card';
+            card.innerHTML = `<img src="mem8/${src}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1160/1160358.png'">`;
+            card.onclick = () => {
+                if (objetivosActuales.includes(src)) {
+                    if (!card.classList.contains('correct')) {
+                        card.classList.add('correct');
+                        aciertos++; encontradosEnRonda++;
+                        hablar("¡Es correcto!");
+                        if (encontradosEnRonda === objetivosActuales.length) saltarRonda();
+                    }
+                } else {
+                    if (!card.classList.contains('error')) {
+                        card.classList.add('error'); errores++;
+                        hablar("Es incorrecto.");
+                        setTimeout(() => card.classList.remove('error'), 800);
+                    }
+                }
+            };
+            rejilla.appendChild(card);
+        });
+    }
+
+    function saltarRonda() {
+        setTimeout(() => {
+            document.getElementById('rejilla-reconocimiento').style.display = 'none';
+            if (ronda < 3) {
+                ronda++;
+                flujoRondas();
+            } else {
+                if (nivel < 3) { nivel++; prepararNivel(); }
+                else { mostrarCierre(); }
+            }
+        }, 1500);
+    }
+
+    function mostrarCierre() {
+        const porc = Math.round((aciertos / (aciertos + errores)) * 100);
+        document.getElementById('stats').innerHTML = `
+            <div class="stat-item">Aciertos: ${aciertos}</div>
+            <div class="stat-item">Errores: ${errores}</div>
+            <div class="stat-item">Precisión: ${porc}%</div>
+        `;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("Objetivo logrado. Reconocer es recordar y recordar te conecta.");
+    }
+</script>
+</body>
+</html>
 
