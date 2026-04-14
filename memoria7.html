@@ -1,1 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria 7 - Concéntrese Pro</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #01579B; height: 100vh; display: flex; flex-direction: column; }
+        #cabecera { background: white; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; flex-shrink: 0; }
+        #instruccion-box { display: flex; align-items: center; font-weight: bold; font-size: 1.2rem; }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid #0288D1; }
+
+        #tablero-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
+        #tablero { display: grid; gap: 10px; justify-content: center; }
+
+        /* Ajustes de rejilla específicos por nivel */
+        .grid-bajo { grid-template-columns: repeat(5, 130px); } /* 5x2 */
+        .grid-medio { grid-template-columns: repeat(5, 115px); } /* 5x4 */
+        .grid-alto { grid-template-columns: repeat(6, 105px); }  /* 6x5 */
+
+        .carta { width: 100%; aspect-ratio: 3/4; position: relative; cursor: pointer; transform-style: preserve-3d; transition: transform 0.4s; }
+        .carta.flipped { transform: rotateY(180deg); }
+        
+        .cara { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; border: 3px solid #0288D1; background: white; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .atras { background: #0288D1; color: white; font-size: 2.5rem; font-weight: bold; }
+        .frente { transform: rotateY(180deg); }
+        .frente img { width: 92%; height: 92%; object-fit: cover; border-radius: 8px; }
+
+        .matched { visibility: hidden; opacity: 0; transition: 0.6s; pointer-events: none; }
+
+        #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
+        #pantalla-transicion { background: #0288D1; color: white; }
+        #overlay-final { background: rgba(1, 87, 155, 0.98); color: white; }
+        .stat-item { background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 15px; font-weight: bold; font-size: 1.8rem; margin: 10px; }
+    </style>
+</head>
+<body onload="iniciarJuego()">
+
+<div id="cabecera">
+    <div id="instruccion-box">
+        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <span id="label-guia">Encuentra las fichas pares</span>
+    </div>
+</div>
+
+<div id="tablero-container">
+    <div id="tablero"></div>
+</div>
+
+<div id="pantalla-transicion">
+    <h1 id="tit-nivel" style="font-size: 4rem; margin: 0; background: #FFD700; color: #0288D1; padding: 10px 50px; border-radius: 50px;"></h1>
+    <p id="desc-nivel" style="font-size: 2.5rem; margin-top: 20px;"></p>
+</div>
+
+<div id="overlay-final">
+    <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
+    <div id="resumen-stats" style="display:flex;"></div>
+    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; margin-top: 30px;">“Recordar los detalles hacen más fácil tu día, sigue así”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none; margin-top: 25px;">REPETIR</button>
+</div>
+
+<script>
+    let nivel = 1, cartasVolteadas = [], parejasEncontradas = 0, intentosTotal = 0, erroresTotal = 0, bloqueado = false;
+    const pool = Array.from({length: 70}, (_, i) => `escena${i + 1}.png`);
+    const config = { 1: { n: "Bajo", p: 5, c: "grid-bajo" }, 2: { n: "Medio", p: 10, c: "grid-medio" }, 3: { n: "Alto", p: 15, c: "grid-alto" } };
+
+    function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
+
+    function iniciarJuego() { prepararNivel(); }
+
+    function prepararNivel() {
+        const c = config[nivel];
+        document.getElementById('tablero').innerHTML = "";
+        document.getElementById('pantalla-transicion').style.display = 'flex';
+        document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
+        document.getElementById('desc-nivel').innerText = "Encuentra " + c.p + " pares de fichas.";
+        
+        hablar("Juan, Nivel " + c.n + ". Presta atención a las tarjetas y su ubicación.", () => {
+            setTimeout(() => {
+                document.getElementById('pantalla-transicion').style.display = 'none';
+                crearTablero();
+            }, 2500);
+        });
+    }
+
+    function crearTablero() {
+        const c = config[nivel];
+        const tablero = document.getElementById('tablero');
+        tablero.className = c.c;
+        parejasEncontradas = 0;
+        
+        let seleccion = [...pool].sort(() => 0.5 - Math.random()).slice(0, c.p);
+        let mazo = [...seleccion, ...seleccion].sort(() => 0.5 - Math.random());
+
+        mazo.forEach(img => {
+            const card = document.createElement('div');
+            card.className = 'carta';
+            card.dataset.v = img;
+            card.innerHTML = `<div class="cara atras">?</div><div class="cara frente"><img src="mem5/${img}"></div>`;
+            card.onclick = () => {
+                if(bloqueado || card.classList.contains('flipped')) return;
+                card.classList.add('flipped');
+                cartasVolteadas.push(card);
+                if(cartasVolteadas.length === 2) {
+                    bloqueado = true;
+                    intentosTotal++;
+                    setTimeout(chequear, 700);
+                }
+            };
+            tablero.appendChild(card);
+        });
+    }
+
+    function chequear() {
+        const [a, b] = cartasVolteadas;
+        if(a.dataset.v === b.dataset.v) {
+            parejasEncontradas++;
+            hablar("¡Bien!");
+            a.classList.add('matched'); b.classList.add('matched');
+            if(parejasEncontradas === config[nivel].p) {
+                setTimeout(() => {
+                    if(nivel < 3) { nivel++; prepararNivel(); }
+                    else { mostrarCierre(); }
+                }, 1000);
+            }
+        } else {
+            erroresTotal++;
+            hablar("No.");
+            a.classList.remove('flipped'); b.classList.remove('flipped');
+        }
+        cartasVolteadas = [];
+        bloqueado = false;
+    }
+
+    function mostrarCierre() {
+        const porc = Math.round(((5+10+15) / intentosTotal) * 100);
+        document.getElementById('resumen-stats').innerHTML = `
+            <div class="stat-item">Aciertos: ${5+10+15}</div>
+            <div class="stat-item">Errores: ${erroresTotal}</div>
+            <div class="stat-item">Precisión: ${porc}%</div>
+        `;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("Recordar los detalles hacen más fácil tu día, sigue así");
+    }
+</script>
+</body>
+</html>
 
