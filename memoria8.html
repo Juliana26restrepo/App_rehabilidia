@@ -12,18 +12,15 @@
         
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         
-        /* FASE MEMORIZACIÓN */
         #rostro-individual { width: 280px; height: 320px; background: white; border: 8px solid #7B1FA2; border-radius: 20px; display: none; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         #rostro-individual img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* FASE RECONOCIMIENTO */
         #rejilla-reconocimiento { display: none; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 95%; max-width: 1100px; }
         .cara-card { background: white; border-radius: 12px; border: 4px solid #CE93D8; overflow: hidden; cursor: pointer; transition: 0.2s; aspect-ratio: 1/1.2; }
         .cara-card img { width: 100%; height: 100%; object-fit: cover; }
         .cara-card.correct { border-color: #4CAF50; background: #C8E6C9; pointer-events: none; transform: scale(0.95); }
         .cara-card.error { border-color: #F44336; background: #FFCDD2; }
 
-        /* PANTALLAS */
         #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
         #pantalla-transicion { background: #7B1FA2; color: white; }
         #overlay-final { background: rgba(74, 20, 140, 0.98); color: white; }
@@ -52,14 +49,16 @@
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
     <div id="stats" style="display:flex;"></div>
-    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; margin-top: 30px; line-height: 1.4;">“Reconocer es recordar y recordar te conecta”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #4A148C; border-radius: 20px; font-size: 2rem; border:none; cursor:pointer; font-weight:bold;">REPETIR NIVEL</button>
+    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; margin-top: 30px;">“Reconocer es recordar y recordar te conecta”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #4A148C; border-radius: 20px; font-size: 2rem; border:none; cursor:pointer; font-weight:bold;">REPETIR</button>
 </div>
 
 <script>
     let nivel = 1, ronda = 1, aciertos = 0, errores = 0;
     let rostrosRonda1 = [], objetivosActuales = [];
-    const pool = Array.from({length: 55}, (_, i) => `rostro${i + 1}.jpg`);
+    
+    // CAMBIO IMPORTANTE: Ahora usa .png segun tus archivos de GitHub
+    const pool = Array.from({length: 55}, (_, i) => `rostro${i + 1}.png`);
 
     const config = {
         1: { n: "Bajo", cant: 3, ensalada: 10 },
@@ -81,7 +80,7 @@
         ronda = 1; rostrosRonda1 = [];
         const c = config[nivel];
         document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
-        document.getElementById('desc-nivel').innerText = "Fortalecer la memoria mediante el proceso de codificación, almacenamiento y recuperación.";
+        document.getElementById('desc-nivel').innerText = "Presta atención a los rostros para luego reconocerlos.";
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
         hablar("Juan, Nivel " + c.n + ". Visualiza y recuerda los rostros que se presentarán.", () => {
@@ -112,9 +111,10 @@
     function mostrarSecuencia(idx) {
         if (idx < objetivosActuales.length) {
             const img = document.getElementById('img-target');
+            // Aseguramos la carpeta mem8 y extension .png
             img.src = `mem8/${objetivosActuales[idx]}`;
             document.getElementById('rostro-individual').style.display = 'block';
-            document.getElementById('label-guia').innerText = "Memoriza este rostro: " + (idx + 1) + "/" + objetivosActuales.length;
+            document.getElementById('label-guia').innerText = "Memoriza: " + (idx + 1) + "/" + objetivosActuales.length;
             
             setTimeout(() => {
                 document.getElementById('rostro-individual').style.display = 'none';
@@ -127,24 +127,20 @@
 
     function faseReconocimiento() {
         document.getElementById('rejilla-reconocimiento').style.display = 'grid';
-        document.getElementById('label-guia').innerText = "¿Cuáles de estos rostros acabas de ver?";
-        
+        document.getElementById('label-guia').innerText = "¿Cuáles rostros acabas de ver?";
         let distractores = pool.filter(r => !objetivosActuales.includes(r))
                             .sort(() => 0.5 - Math.random())
                             .slice(0, config[nivel].ensalada - objetivosActuales.length);
-        
         generarRejilla([...objetivosActuales, ...distractores]);
-        hablar("Identifica los rostros que se te presentaron.");
+        hablar("Marca los rostros que se te presentaron.");
     }
 
     function preguntaEvocacion() {
         document.getElementById('rejilla-reconocimiento').style.display = 'grid';
         document.getElementById('label-guia').innerText = "¿Recuerdas los rostros de la PRIMERA ronda?";
-        
         let distractores = pool.filter(r => !rostrosRonda1.includes(r))
                             .sort(() => 0.5 - Math.random())
                             .slice(0, config[nivel].ensalada - rostrosRonda1.length);
-                            
         generarRejilla([...rostrosRonda1, ...distractores]);
         hablar("Juan, ¿te acuerdas de los rostros de la primera ronda? ¿Cuáles eran?");
     }
@@ -153,10 +149,10 @@
         const rejilla = document.getElementById('rejilla-reconocimiento');
         rejilla.innerHTML = "";
         let encontradosRonda = 0;
-        
         lista.sort(() => 0.5 - Math.random()).forEach(src => {
             const card = document.createElement('div');
             card.className = 'cara-card';
+            // Ruta corregida a .png
             card.innerHTML = `<img src="mem8/${src}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1160/1160358.png'">`;
             card.onclick = () => {
                 if (objetivosActuales.includes(src)) {
@@ -180,10 +176,8 @@
 
     function finalizarRonda() {
         setTimeout(() => {
-            if (ronda < 3) {
-                ronda++;
-                flujoRondas();
-            } else {
+            if (ronda < 3) { ronda++; flujoRondas(); }
+            else {
                 if (nivel < 3) { nivel++; prepararNivel(); }
                 else { mostrarCierre(); }
             }
@@ -191,9 +185,7 @@
     }
 
     function mostrarCierre() {
-        const totalObjetivos = (3+5+7) * 3; // Total de rostros correctos en todo el juego
         const porc = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
         document.getElementById('stats').innerHTML = `
             <div class="stat-item">Aciertos: ${aciertos}</div>
             <div class="stat-item">Errores: ${errores}</div>
@@ -205,3 +197,4 @@
 </script>
 </body>
 </html>
+
