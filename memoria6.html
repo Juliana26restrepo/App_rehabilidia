@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 6 - Juan (Versión Final)</title>
+    <title>Memoria 6 - Juan (Versión Final Optimizada)</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
         #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
@@ -17,8 +17,8 @@
         .word-card.error-hit { background: #FFCDD2 !important; border-color: #E53935 !important; }
         #pantalla-transicion { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:1000; flex-direction:column; justify-content:center; align-items:center; color: white; }
         #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:2000; flex-direction:column; justify-content:center; align-items:center; color: white; }
-        .stat-box { display: flex; gap: 20px; margin-top: 20px; }
-        .stat-item { background: rgba(255,255,255,0.1); padding: 15px 30px; border-radius: 15px; font-weight: bold; }
+        .stat-box { display: flex; gap: 20px; margin-top: 20px; justify-content: center; }
+        .stat-item { background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 15px; font-weight: bold; font-size: 1.8rem; }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
@@ -36,15 +36,15 @@
 </div>
 
 <div id="pantalla-transicion">
-    <h1 id="txt-nivel-tit" style="background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px; font-size: 3rem;"></h1>
-    <h2 id="txt-nivel-desc" style="font-size: 2rem; margin-top: 20px; width: 80%;"></h2>
+    <h1 id="txt-nivel-tit" style="background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px; font-size: 3.5rem;"></h1>
+    <h2 id="txt-nivel-desc" style="font-size: 2.5rem; margin-top: 25px; width: 80%;"></h2>
 </div>
 
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
-    <div id="resumen-stats" style="font-size: 2rem; margin: 20px;"></div>
-    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; line-height: 1.4;">“Los logros no son magia, ni suerte, son esfuerzo y dedicación”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none; margin-top: 20px;">REPETIR</button>
+    <div id="resumen-stats"></div>
+    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; line-height: 1.4; margin-top: 30px;">“Los logros no son magia, ni suerte, son esfuerzo y dedicación”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none; margin-top: 25px;">REPETIR ENTRENAMIENTO</button>
 </div>
 
 <script>
@@ -52,23 +52,22 @@
     let nivel = 1, ronda = 1, objetivo = [], encontrados = 0, aciertosTotales = 0, erroresTotales = 0, totalOportunidades = 0;
     
     const config = { 
-        1: { n: "Bajo", c: 3, e: 8, r: 3, d: "Fortalecer la memoria visual inmediata. Memoriza 3 palabras." }, 
-        2: { n: "Medio", c: 6, e: 12, r: 4, d: "Mayor cantidad de palabras similares. Memoriza 6 palabras." }, 
-        3: { n: "Alto", c: 12, e: 20, r: 5, d: "Máxima discriminación y codificación. Memoriza 12 palabras." } 
+        1: { n: "Bajo", c: 3, e: 8, r: 3 }, 
+        2: { n: "Medio", c: 6, e: 12, r: 4 }, 
+        3: { n: "Alto", c: 12, e: 20, r: 5 } 
     };
 
     function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
     
-    function iniciarEntrenamiento() { nivel = 1; aciertosTotales = 0; erroresTotales = 0; totalOportunidades = 0; prepararNivel(); }
+    function iniciarEntrenamiento() { nivel = 1; ronda = 1; aciertosTotales = 0; erroresTotales = 0; totalOportunidades = 0; prepararNivel(); }
     
     function prepararNivel() { 
-        ronda = 1; 
         const c = config[nivel]; 
         document.getElementById('txt-nivel-tit').innerText = "NIVEL " + c.n.toUpperCase(); 
-        document.getElementById('txt-nivel-desc').innerText = c.d; 
+        document.getElementById('txt-nivel-desc').innerText = "Memoriza estas " + c.c + " palabras."; 
         document.getElementById('pantalla-transicion').style.display = 'flex'; 
-        hablar("Juan, Nivel " + c.n + ". " + c.d, () => { 
-            setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; nuevaRonda(); }, 3000); 
+        hablar("Nivel " + c.n + ". Memoriza estas " + c.c + " palabras.", () => { 
+            setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; nuevaRonda(); }, 2500); 
         }); 
     }
     
@@ -88,7 +87,7 @@
 
         if(i < objetivo.length) { 
             d.innerText = objetivo[i]; d.style.display = 'block'; 
-            document.getElementById('label-guia').innerText = "Memoriza: " + (i+1) + "/" + objetivo.length; 
+            document.getElementById('label-guia').innerText = "Ronda " + ronda + " - Palabra " + (i+1) + "/" + objetivo.length; 
             hablar(objetivo[i], () => { 
                 setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), tiempoPausa); }, tiempoVisible); 
             }); 
@@ -98,7 +97,7 @@
     function generarEnsalada() { 
         const container = document.getElementById('ensalada-container'); 
         container.innerHTML = ""; container.style.display = 'grid'; 
-        document.getElementById('label-guia').innerText = "¿Cuáles fueron las palabras escogidas?"; 
+        document.getElementById('label-guia').innerText = "¿Cuáles eran las palabras?"; 
         let distractores = lista.filter(p => !objetivo.includes(p)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].e - objetivo.length); 
         let mix = [...objetivo, ...distractores].sort(() => 0.5 - Math.random()); 
         mix.forEach(p => { 
@@ -107,7 +106,7 @@
             card.onclick = () => verificar(p, card); 
             container.appendChild(card); 
         }); 
-        hablar("Identifica las palabras en la ensalada."); 
+        hablar("¿Cuáles eran?"); 
     }
 
     function verificar(p, card) {
@@ -115,28 +114,29 @@
             if(!card.classList.contains('correct-hit')) {
                 card.classList.add('correct-hit');
                 encontrados++; aciertosTotales++;
-                hablar("¡Esa sí!");
+                hablar("¡Bien!");
                 if(encontrados === objetivo.length) { 
-                    setTimeout(() => { hablar("¡Excelente!", saltarARonda); }, 800); 
+                    setTimeout(() => { hablar("Excelente.", saltarARonda); }, 800); 
                 }
             }
         } else {
             if(!card.classList.contains('error-hit')){
                 card.classList.add('error-hit');
                 erroresTotales++;
-                hablar("Esa no.");
+                hablar("No.");
                 setTimeout(() => card.classList.remove('error-hit'), 800);
             }
         }
     }
 
     function saltarARonda() {
-        ronda++;
-        if(ronda <= config[nivel].r) {
+        if(ronda < config[nivel].r) {
+            ronda++;
             nuevaRonda();
         } else {
             if(nivel < 3) {
                 nivel++;
+                ronda = 1;
                 prepararNivel();
             } else {
                 mostrarCierre();
@@ -148,16 +148,14 @@
         const p = Math.round((aciertosTotales / totalOportunidades) * 100); 
         document.getElementById('resumen-stats').innerHTML = `
             <div class="stat-box">
-                <div class="stat-item" style="color: #43A047;">Aciertos: ${aciertosTotales}</div>
-                <div class="stat-item" style="color: #E53935;">Errores: ${erroresTotales}</div>
+                <div class="stat-item" style="color: #FFF;">Aciertos: ${aciertosTotales}</div>
+                <div class="stat-item" style="color: #FFD700;">Errores: ${erroresTotales}</div>
             </div>
-            <p style="margin-top: 20px;">Porcentaje de acierto: <strong>${p}%</strong></p>
+            <p style="font-size: 2.8rem; margin-top: 30px; color: #FFD700;">Precisión: ${p}%</p>
         `; 
         document.getElementById('overlay-final').style.display = 'flex'; 
-        hablar("¡Logros alcanzados! Los logros no son magia, ni suerte, son esfuerzo y dedicación."); 
+        hablar("¡Entrenamiento finalizado! Los logros no son magia, ni suerte, son esfuerzo y dedicación."); 
     }
 </script>
 </body>
 </html>
-
-
