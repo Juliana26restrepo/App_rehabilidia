@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria 9 - Detalles</title>
+    <title>Memoria 9 - Tres Rondas</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #E8F5E9; text-align: center; color: #1B5E20; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #cabecera { background: white; height: 75px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; }
+        #cabecera { background: white; height: 75px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; flex-shrink: 0; }
         #contenedor-principal { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         #display-imagen { max-width: 85%; max-height: 60vh; border: 10px solid white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: none; }
         #timer { font-size: 3.5rem; font-weight: bold; color: #2E7D32; margin-top: 15px; display: none; background: white; padding: 10px 40px; border-radius: 50px; border: 3px solid #FFD700; }
@@ -22,7 +22,7 @@
 <div id="cabecera">
     <div style="display:flex; align-items:center;">
         <img src="COTERAPEUTA.JPG" style="width:50px; height:50px; border-radius:50%; margin-right:15px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span style="font-weight:bold; font-size: 1.2rem;">Observa los detalles...</span>
+        <span id="label-guia" style="font-weight:bold; font-size: 1.2rem;">Observa los detalles...</span>
     </div>
 </div>
 
@@ -48,7 +48,11 @@
 </div>
 
 <script>
-    let nivel = 1, aciertos = 0, errores = 0, escenaActual = null;
+    let nivel = 1;
+    let rondaEnNivel = 1; // Contador para las 3 rondas
+    let aciertos = 0;
+    let errores = 0;
+    let escenaActual = null;
     
     const configNivel = {
         1: { n: "Bajo", t: 15, r: [1, 10] },
@@ -72,7 +76,7 @@
         13: { p: "¿Cuántos lápices viste?", o: ["2", "3", "5"], r: 1 },
         14: { p: "¿De qué color era la toalla?", o: ["Naranja", "Azul", "Verde"], r: 0 },
         15: { p: "¿De qué color eran los cojines?", o: ["Azules", "Rojos", "Amarillos"], r: 2 },
-        16: { p: "¿De qué color era la mermelada?", o: ["Fresa (Roja)", "Piña", "Mora"], r: 0 },
+        16: { p: "¿De qué color era la mermelada?", o: ["Fresa", "Piña", "Mora"], r: 0 },
         17: { p: "¿De qué color era el libro del medio?", o: ["Azul", "Rojo", "Verde"], r: 1 },
         18: { p: "¿De qué color era la regadera?", o: ["Verde", "Roja", "Amarilla"], r: 1 },
         19: { p: "¿Qué tipo de reloj era?", o: ["Digital", "De pulsera", "De campana"], r: 2 },
@@ -100,12 +104,13 @@
     function iniciarJuego() { prepararNivel(); }
 
     function prepararNivel() {
+        rondaEnNivel = 1; // Reiniciamos rondas al cambiar de nivel
         const c = configNivel[nivel];
         document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
-        document.getElementById('desc-nivel').innerText = "Memoriza los detalles de la imagen.";
+        document.getElementById('desc-nivel').innerText = "Completaremos 3 ejercicios en este nivel.";
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
-        hablar(`Juan, Nivel ${c.n}. Observa la imagen con atención.`, () => {
+        hablar(`Juan, Nivel ${c.n}. Vamos a realizar tres ejercicios. Observa con atención.`, () => {
             setTimeout(() => {
                 document.getElementById('pantalla-transicion').style.display = 'none';
                 iniciarObservacion();
@@ -115,14 +120,12 @@
 
     function iniciarObservacion() {
         const c = configNivel[nivel];
+        // Seleccionar imagen aleatoria dentro del rango
         const idImg = Math.floor(Math.random() * (c.r[1] - c.r[0] + 1)) + c.r[0];
         escenaActual = idImg;
         
         const imgDisplay = document.getElementById('display-imagen');
-        
-        // CORRECCIÓN DE RUTA Y EXTENSIÓN .jpeg
         imgDisplay.src = `mem9/imagen${idImg}.jpeg`; 
-        
         imgDisplay.style.display = 'block';
         
         const timerTxt = document.getElementById('timer');
@@ -143,11 +146,11 @@
     }
 
     function iniciarQuiz() {
-        document.getElementById('quiz-box').style.display = 'block';
         const data = bancoPreguntas[escenaActual];
         document.getElementById('pregunta-texto').innerText = data.p;
         const box = document.getElementById('opciones-box');
         box.innerHTML = "";
+        
         data.o.forEach((opt, index) => {
             const btn = document.createElement('button');
             btn.className = 'btn-opcion';
@@ -155,17 +158,36 @@
             btn.onclick = () => verificar(index, data.r);
             box.appendChild(btn);
         });
-        hablar(data.p);
+
+        document.getElementById('quiz-box').style.display = 'block';
+        
+        // El coterapeuta dice la pregunta y luego "Selecciona la respuesta"
+        hablar(data.p + ". Selecciona la respuesta.");
     }
 
     function verificar(elegido, correcto) {
-        if(elegido === correcto) { aciertos++; hablar("¡Excelente!"); } 
-        else { errores++; hablar("No era ese."); }
+        if(elegido === correcto) {
+            aciertos++;
+            hablar("¡Muy bien!");
+        } else {
+            errores++;
+            hablar("Casi lo logras.");
+        }
         
         setTimeout(() => {
             document.getElementById('quiz-box').style.display = 'none';
-            if(nivel < 3) { nivel++; prepararNivel(); } 
-            else { mostrarCierre(); }
+            
+            if(rondaEnNivel < 3) {
+                rondaEnNivel++;
+                iniciarObservacion(); // Siguiente ronda del mismo nivel
+            } else {
+                if(nivel < 3) {
+                    nivel++;
+                    prepararNivel(); // Subir de nivel
+                } else {
+                    mostrarCierre(); // Fin del juego
+                }
+            }
         }, 2000);
     }
 
@@ -180,4 +202,3 @@
 </script>
 </body>
 </html>
-
