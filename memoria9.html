@@ -2,24 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 9 - Codificación y Evocación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria 9 - Detalles</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E8F5E9; text-align: center; color: #1B5E20; height: 100vh; display: flex; flex-direction: column; }
-        #cabecera { background: white; height: 75px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; flex-shrink: 0; }
-        #instruccion-box { display: flex; align-items: center; font-weight: bold; font-size: 1.2rem; }
-        #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid #2E7D32; }
-        
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #E8F5E9; text-align: center; color: #1B5E20; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #cabecera { background: white; height: 75px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; }
         #contenedor-principal { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        
-        #display-imagen { max-width: 80%; max-height: 60vh; border: 10px solid white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: none; }
+        #display-imagen { max-width: 85%; max-height: 60vh; border: 10px solid white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: none; }
         #timer { font-size: 3.5rem; font-weight: bold; color: #2E7D32; margin-top: 15px; display: none; background: white; padding: 10px 40px; border-radius: 50px; border: 3px solid #FFD700; }
-
         #quiz-box { display: none; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 650px; }
-        #pregunta-texto { font-size: 1.8rem; margin-bottom: 25px; font-weight: bold; color: #333; }
-        .btn-opcion { display: block; width: 100%; padding: 18px; margin: 12px 0; font-size: 1.5rem; border: 3px solid #C8E6C9; border-radius: 15px; cursor: pointer; background: #F1F8E9; color: #1B5E20; font-weight: bold; transition: 0.2s; }
-        .btn-opcion:hover { background: #C8E6C9; transform: scale(1.01); }
-
+        .btn-opcion { display: block; width: 100%; padding: 18px; margin: 12px 0; font-size: 1.5rem; border: 3px solid #C8E6C9; border-radius: 15px; cursor: pointer; background: #F1F8E9; color: #1B5E20; font-weight: bold; }
         #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
         #pantalla-transicion { background: #2E7D32; color: white; }
         #overlay-final { background: rgba(27, 94, 32, 0.98); color: white; }
@@ -28,9 +20,9 @@
 <body onload="iniciarJuego()">
 
 <div id="cabecera">
-    <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia">Observa los detalles...</span>
+    <div style="display:flex; align-items:center;">
+        <img src="COTERAPEUTA.JPG" style="width:50px; height:50px; border-radius:50%; margin-right:15px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <span style="font-weight:bold; font-size: 1.2rem;">Observa los detalles...</span>
     </div>
 </div>
 
@@ -38,7 +30,7 @@
     <img id="display-imagen" src="">
     <div id="timer">0</div>
     <div id="quiz-box">
-        <div id="pregunta-texto"></div>
+        <div id="pregunta-texto" style="font-size: 1.8rem; font-weight: bold; margin-bottom: 25px;"></div>
         <div id="opciones-box"></div>
     </div>
 </div>
@@ -50,9 +42,9 @@
 
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
-    <div id="stats" style="display:flex; gap: 20px;"></div>
-    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; margin-top: 30px;">“Tu mente recuerda más de lo que imaginas, sigue practicando”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #1B5E20; border-radius: 20px; font-size: 2rem; border:none; cursor:pointer; font-weight:bold; margin-top: 20px;">REPETIR</button>
+    <div id="stats" style="display:flex; gap: 20px; margin: 20px;"></div>
+    <p style="font-size: 2.2rem; width: 80%; font-weight: bold;">“Tu mente recuerda más de lo que imaginas, sigue practicando”</p>
+    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #1B5E20; border-radius: 20px; font-size: 2rem; border:none; cursor:pointer; font-weight:bold;">REPETIR</button>
 </div>
 
 <script>
@@ -65,39 +57,36 @@
     };
 
     const bancoPreguntas = {
-        // NIVEL BAJO
         1: { p: "¿De qué color era el florero?", o: ["Rojo", "Azul", "Blanco"], r: 1 },
-        2: { p: "¿Sobre qué color de alfombra dormía el perro?", o: ["Verde", "Café", "Azul"], r: 0 },
-        3: { p: "¿Qué color era la camiseta del niño?", o: ["Roja", "Verde", "Amarilla"], r: 2 },
-        4: { p: "¿Qué animal estaba sobre la silla?", o: ["Un perro", "Un gato blanco", "Un conejo"], r: 1 },
-        5: { p: "¿Qué comida había en el plato?", o: ["Huevo frito y tostada", "Fruta", "Pasta"], r: 0 },
-        6: { p: "¿De qué color eran las cortinas de la ventana?", o: ["Rojas", "Blancas", "Azules"], r: 1 },
-        7: { p: "¿De qué color era el zapato?", o: ["Negro", "Azul", "Rojo"], r: 2 },
-        8: { p: "¿Qué había encima del libro?", o: ["Una pluma", "Unas gafas", "Una taza"], r: 1 },
-        9: { p: "¿De qué color era la cinta del regalo?", o: ["Dorada", "Roja", "Verde"], r: 0 },
-        10: { p: "¿Qué objeto estaba recostado en el árbol?", o: ["Una escalera", "Una bicicleta", "Una pala"], r: 1 },
-        // NIVEL MEDIO
-        11: { p: "¿Qué hora marcaba el reloj de la cocina?", o: ["8:00", "10:00", "12:00"], r: 1 },
-        12: { p: "¿Qué animal viste en el césped del parque?", o: ["Un gato", "Un pato", "Un pájaro"], r: 1 },
-        13: { p: "¿Cuántos lápices había en el portalápices?", o: ["1 lápiz", "3 lápices", "5 lápices"], r: 1 },
-        14: { p: "¿De qué color era la toalla colgada?", o: ["Blanca", "Azul", "Naranja"], r: 2 },
-        15: { p: "¿Cuántos cojines amarillos había en el sofá?", o: ["1 cojín", "2 cojines", "Ninguno"], r: 1 },
-        16: { p: "¿De qué material era la tetera?", o: ["Cerámica", "Plástico", "Plateada/Metal"], r: 2 },
-        17: { p: "¿De qué color eran los 3 libros del estante?", o: ["Blanco, Negro, Gris", "Azul, Rojo, Verde", "Amarillo y café"], r: 1 },
-        18: { p: "¿De qué color era la regadera del jardín?", o: ["Roja", "Verde", "Azul"], r: 0 },
-        19: { p: "¿De qué tipo era el despertador?", o: ["Digital", "De campana", "De pulsera"], r: 1 },
-        20: { p: "¿Qué prenda de vestir había en la maleta?", o: ["Un pantalón", "Una camiseta a rayas", "Una chaqueta"], r: 1 },
-        // NIVEL ALTO
-        21: { p: "¿Qué decía el letrero de la oferta?", o: ["Oferta 2x1", "Fruta Barata", "Solo hoy"], r: 0 },
-        22: { p: "¿Qué objeto estaba en el suelo del taller?", o: ["Agua", "Un charco de aceite", "Herramientas"], r: 1 },
-        23: { p: "¿Cuántos pisos tenía el pastel?", o: ["2 pisos", "3 pisos", "5 pisos"], r: 1 },
-        24: { p: "¿Qué nombre tenía la panadería?", o: ["El Trigo", "El Sol", "La Espiga"], r: 1 },
-        25: { p: "¿Qué frase estaba escrita en la pizarra?", o: ["Hola Juan", "Clase A", "Bienvenidos"], r: 0 },
-        26: { p: "¿Qué cartel de anatomía había en la pared?", o: ["El Esqueleto", "El Corazón", "Músculos Humanos"], r: 2 },
-        27: { p: "¿Qué había encendido al centro?", o: ["Una fogata", "Una linterna", "Una vela"], r: 0 },
-        28: { p: "¿De qué color era el teclado de la oficina?", o: ["Blanco", "Gris", "Negro"], r: 2 },
-        29: { p: "¿De qué color era el balde en la playa?", o: ["Rojo", "Azul", "Verde"], r: 1 },
-        30: { p: "¿De qué color era la lámpara de la mesa?", o: ["Roja", "Verde", "Dorada"], r: 1 }
+        2: { p: "¿Sobre qué dormía el perro?", o: ["Alfombra verde", "Sofá", "Cesta"], r: 0 },
+        3: { p: "¿Qué color era la camiseta del niño?", o: ["Azul", "Amarilla", "Roja"], r: 1 },
+        4: { p: "¿Qué animal estaba sobre la silla?", o: ["Un perro", "Un gato blanco", "Un ave"], r: 1 },
+        5: { p: "¿Qué había en el plato?", o: ["Huevo y tostada", "Fruta", "Sopa"], r: 0 },
+        6: { p: "¿De qué color eran las cortinas?", o: ["Rojas", "Blancas", "Verdes"], r: 1 },
+        7: { p: "¿De qué color era el zapato?", o: ["Café", "Negro", "Rojo"], r: 2 },
+        8: { p: "¿Qué había sobre el libro?", o: ["Gafas", "Lápiz", "Taza"], r: 0 },
+        9: { p: "¿De qué color era la cinta del regalo?", o: ["Plateada", "Dorada", "Roja"], r: 1 },
+        10: { p: "¿Qué objeto estaba en el árbol?", o: ["Una red", "Una bicicleta", "Una silla"], r: 1 },
+        11: { p: "¿Qué hora marcaba el reloj?", o: ["10:00", "12:00", "8:00"], r: 0 },
+        12: { p: "¿Qué animal viste en el parque?", o: ["Un cisne", "Un pato", "Un perro"], r: 1 },
+        13: { p: "¿Cuántos lápices viste?", o: ["2", "3", "5"], r: 1 },
+        14: { p: "¿De qué color era la toalla?", o: ["Naranja", "Azul", "Verde"], r: 0 },
+        15: { p: "¿De qué color eran los cojines?", o: ["Azules", "Rojos", "Amarillos"], r: 2 },
+        16: { p: "¿De qué color era la mermelada?", o: ["Fresa (Roja)", "Piña", "Mora"], r: 0 },
+        17: { p: "¿De qué color era el libro del medio?", o: ["Azul", "Rojo", "Verde"], r: 1 },
+        18: { p: "¿De qué color era la regadera?", o: ["Verde", "Roja", "Amarilla"], r: 1 },
+        19: { p: "¿Qué tipo de reloj era?", o: ["Digital", "De pulsera", "De campana"], r: 2 },
+        20: { p: "¿Cómo era la camiseta de la maleta?", o: ["Lisa", "A rayas", "De flores"], r: 1 },
+        21: { p: "¿Qué decía el letrero?", o: ["Oferta 2x1", "Liquidación", "Cerrado"], r: 0 },
+        22: { p: "¿Qué había en el suelo del taller?", o: ["Agua", "Aceite", "Arena"], r: 1 },
+        23: { p: "¿Cuántos niños tenían gorritos?", o: ["2", "4", "6"], r: 1 },
+        24: { p: "¿Cómo se llamaba la panadería?", o: ["El Sol", "La Luna", "Pan Rico"], r: 0 },
+        25: { p: "¿Qué decía la pizarra?", o: ["Hola Juan", "Tarea", "Dibujo"], r: 0 },
+        26: { p: "¿Qué cartel había en la pared?", o: ["Huesos", "Músculos", "Anatomía Humana"], r: 2 },
+        27: { p: "¿De qué color era la carpa?", o: ["Verde", "Roja", "Azul"], r: 2 },
+        28: { p: "¿De qué color era el teclado?", o: ["Gris", "Blanco", "Negro"], r: 2 },
+        29: { p: "¿De qué color era el balde?", o: ["Rojo", "Azul", "Amarillo"], r: 1 },
+        30: { p: "¿De qué color era la lámpara?", o: ["Roja", "Verde", "Blanca"], r: 1 }
     };
 
     function hablar(t, cb) { 
@@ -113,10 +102,10 @@
     function prepararNivel() {
         const c = configNivel[nivel];
         document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
-        document.getElementById('desc-nivel').innerText = "Observa la imagen. Tienes " + c.t + " segundos para memorizar los detalles.";
+        document.getElementById('desc-nivel').innerText = "Memoriza los detalles de la imagen.";
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
-        hablar(`Juan, Nivel ${c.n}. Observa la imagen con mucha atención.`, () => {
+        hablar(`Juan, Nivel ${c.n}. Observa la imagen con atención.`, () => {
             setTimeout(() => {
                 document.getElementById('pantalla-transicion').style.display = 'none';
                 iniciarObservacion();
@@ -126,16 +115,18 @@
 
     function iniciarObservacion() {
         const c = configNivel[nivel];
-        // Seleccionamos una imagen al azar dentro del rango del nivel
         const idImg = Math.floor(Math.random() * (c.r[1] - c.r[0] + 1)) + c.r[0];
         escenaActual = idImg;
         
         const imgDisplay = document.getElementById('display-imagen');
-        imgDisplay.src = `memo/imagen${idImg}.jpeg`;
+        
+        // CORRECCIÓN DE RUTA Y EXTENSIÓN .jpeg
+        imgDisplay.src = `mem9/imagen${idImg}.jpeg`; 
+        
         imgDisplay.style.display = 'block';
         
         const timerTxt = document.getElementById('timer');
-        timerTxt.style.display = 'inline-block';
+        timerTxt.style.display = 'block';
         let segundos = c.t;
         timerTxt.innerText = segundos;
 
@@ -154,11 +145,9 @@
     function iniciarQuiz() {
         document.getElementById('quiz-box').style.display = 'block';
         const data = bancoPreguntas[escenaActual];
-        
         document.getElementById('pregunta-texto').innerText = data.p;
         const box = document.getElementById('opciones-box');
         box.innerHTML = "";
-        
         data.o.forEach((opt, index) => {
             const btn = document.createElement('button');
             btn.className = 'btn-opcion';
@@ -170,34 +159,25 @@
     }
 
     function verificar(elegido, correcto) {
-        if(elegido === correcto) {
-            aciertos++;
-            hablar("¡Excelente memoria, Juan! Así es.");
-        } else {
-            errores++;
-            hablar("Casi lo logras, pero ese no era el detalle.");
-        }
+        if(elegido === correcto) { aciertos++; hablar("¡Excelente!"); } 
+        else { errores++; hablar("No era ese."); }
         
         setTimeout(() => {
             document.getElementById('quiz-box').style.display = 'none';
-            if(nivel < 3) {
-                nivel++;
-                prepararNivel();
-            } else {
-                mostrarCierre();
-            }
+            if(nivel < 3) { nivel++; prepararNivel(); } 
+            else { mostrarCierre(); }
         }, 2000);
     }
 
     function mostrarCierre() {
-        const porc = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
         document.getElementById('stats').innerHTML = `
-            <div style="background:#1B5E20; color:white; padding:20px; border-radius:15px; font-size:1.5rem;">Aciertos: ${aciertos}</div>
-            <div style="background:#B71C1C; color:white; padding:20px; border-radius:15px; font-size:1.5rem;">Errores: ${errores}</div>
+            <div style="background:#1B5E20; color:white; padding:15px; border-radius:10px;">Aciertos: ${aciertos}</div>
+            <div style="background:#B71C1C; color:white; padding:15px; border-radius:10px;">Errores: ${errores}</div>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Objetivo logrado! Tu mente recuerda más de lo que imaginas, sigue practicando.");
+        hablar("Tu mente recuerda más de lo que imaginas, sigue practicando");
     }
 </script>
 </body>
 </html>
+
