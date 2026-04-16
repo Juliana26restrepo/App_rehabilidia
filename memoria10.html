@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria 10 - Final</title>
+    <title>Memoria 10 - Video Controlado</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #ECEFF1; text-align: center; color: #263238; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         #cabecera { background: white; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #0288D1; }
@@ -21,7 +21,7 @@
 <div id="cabecera">
     <div style="display:flex; align-items:center;">
         <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span style="font-weight:bold; font-size: 1.1rem;">Nivel 10: Memoria Visual</span>
+        <span style="font-weight:bold; font-size: 1.1rem;">Nivel 10: Memoria Detallada</span>
     </div>
 </div>
 
@@ -35,7 +35,7 @@
 
 <div id="pantalla-transicion">
     <h1 id="tit-nivel" style="font-size: 3.5rem; background: #FFD700; color: #01579B; padding: 10px 50px; border-radius: 50px;"></h1>
-    <p id="desc-nivel" style="font-size: 2rem; margin-top: 20px;"></p>
+    <p id="desc-nivel" style="font-size: 2rem; margin-top: 20px;">Prepárate...</p>
 </div>
 
 <div id="overlay-final">
@@ -47,12 +47,12 @@
 
 <script>
     let nivel = 1, aciertos = 0, errores = 0, videoActualId = 0, preguntaIndice = 0;
-    let videosUsados = []; // Para asegurar que NO se repitan
+    let videosUsados = [];
 
     const configNiveles = {
-        1: { n: "Bajo", d: "Video de 20s. Pon atención.", videos: [1, 2, 3] },
-        2: { n: "Medio", d: "Video de 40s. Más detalles.", videos: [4, 5, 6, 7] },
-        3: { n: "Alto", d: "Video de 60s. Máximo nivel.", videos: [8, 9, 10] }
+        1: { n: "1", videos: [1, 2, 3] },
+        2: { n: "2", videos: [4, 5, 6, 7] },
+        3: { n: "3", videos: [8, 9, 10] }
     };
 
     const bancoDatos = {
@@ -121,7 +121,7 @@
     function hablar(t, cb) { 
         window.speechSynthesis.cancel(); 
         const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'es-ES'; m.rate = 0.9; 
+        m.lang = 'es-ES'; m.rate = 0.85; 
         if(cb) m.onend = cb; 
         window.speechSynthesis.speak(m); 
     }
@@ -130,25 +130,21 @@
 
     function prepararNivel() {
         const c = configNiveles[nivel];
-        // Formato pedido: "NIVEL X"
         document.getElementById('tit-nivel').innerText = "NIVEL " + nivel;
-        document.getElementById('desc-nivel').innerText = c.d;
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
-        hablar(`Juan, Nivel ${nivel}. Observa con atención el video.`, () => {
+        // Instrucción inicial pedida
+        hablar("Juan observa el siguiente video, y concéntrate en todos sus detalles", () => {
             setTimeout(() => {
                 document.getElementById('pantalla-transicion').style.display = 'none';
                 lanzarVideo();
-            }, 3000);
+            }, 2000);
         });
     }
 
     function lanzarVideo() {
         const pool = configNiveles[nivel].videos;
-        // Filtrar videos que no se hayan usado
         let disponibles = pool.filter(v => !videosUsados.includes(v));
-        
-        // Si por alguna razón se acabaron los del pool (no debería pasar), resetear
         if(disponibles.length === 0) disponibles = pool;
 
         videoActualId = disponibles[Math.floor(Math.random() * disponibles.length)];
@@ -159,6 +155,7 @@
         v.style.display = 'block';
         v.play();
 
+        // El video dura lo que tenga que durar, se activa el quiz al terminar
         v.onended = () => {
             v.style.display = 'none';
             preguntaIndice = 0;
@@ -176,16 +173,20 @@
             const btn = document.createElement('button');
             btn.className = 'btn-opcion';
             btn.innerText = opt;
+            // Solo avanza si hace clic
             btn.onclick = () => verificar(index, data.r);
             box.appendChild(btn);
         });
 
         document.getElementById('quiz-box').style.display = 'block';
-        // Instrucción del coterapeuta pedida
         hablar(data.p + ". Selecciona la respuesta.");
     }
 
     function verificar(elegido, correcto) {
+        // Bloqueamos clics extras para evitar que se pase solo
+        const botones = document.querySelectorAll('.btn-opcion');
+        botones.forEach(b => b.style.pointerEvents = 'none');
+
         if(elegido === correcto) { aciertos++; hablar("¡Muy bien!"); } 
         else { errores++; hablar("Incorrecto."); }
         
@@ -202,7 +203,7 @@
                     mostrarCierre();
                 }
             }
-        }, 1500);
+        }, 2000);
     }
 
     function mostrarCierre() {
@@ -213,3 +214,4 @@
 </script>
 </body>
 </html>
+
