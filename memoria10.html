@@ -1,1 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria 10 - Videos Detallados</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #ECEFF1; text-align: center; color: #263238; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #cabecera { background: white; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #0288D1; }
+        #contenedor-principal { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
+        video { max-width: 90%; max-height: 60vh; border: 8px solid white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; }
+        #quiz-box { display: none; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
+        .btn-opcion { display: block; width: 100%; padding: 15px; margin: 10px 0; font-size: 1.3rem; border: 2px solid #CFD8DC; border-radius: 12px; cursor: pointer; background: #F8F9FA; color: #37474F; font-weight: bold; }
+        .btn-opcion:active { background: #E1F5FE; }
+        #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
+        #pantalla-transicion { background: #01579B; color: white; }
+        #overlay-final { background: rgba(38, 50, 56, 0.98); color: white; }
+    </style>
+</head>
+<body onload="iniciarJuego()">
+
+<div id="cabecera">
+    <div style="display:flex; align-items:center;">
+        <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+        <span id="label-guia" style="font-weight:bold; font-size: 1.1rem;">Nivel 10: Análisis de Video</span>
+    </div>
+</div>
+
+<div id="contenedor-principal">
+    <video id="display-video" disablePictureInPicture controlsList="nodownload"></video>
+    
+    <div id="quiz-box">
+        <div id="pregunta-texto" style="font-size: 1.6rem; font-weight: bold; margin-bottom: 20px; color: #01579B;"></div>
+        <div id="opciones-box"></div>
+    </div>
+</div>
+
+<div id="pantalla-transicion">
+    <h1 id="tit-nivel" style="font-size: 3rem; background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px;"></h1>
+    <p id="desc-nivel" style="font-size: 1.8rem; margin-top: 20px; width: 80%;"></p>
+</div>
+
+<div id="overlay-final">
+    <h1 style="color: #FFD700; font-size: 3rem;">¡SESIÓN COMPLETADA!</h1>
+    <div id="stats" style="font-size: 1.8rem; margin: 20px;"></div>
+    <p style="font-size: 1.8rem; width: 80%;">“Cada vez que recuerdas un detalle fortaleces tu mente”</p>
+    <button onclick="location.reload()" style="padding: 15px 50px; background: #0288D1; color: white; border-radius: 15px; font-size: 1.5rem; border:none; cursor:pointer; font-weight:bold; margin-top: 20px;">REPETIR</button>
+</div>
+
+<script>
+    let nivel = 1, aciertos = 0, errores = 0, videoActualId = 0, preguntaIndice = 0;
+    
+    const configNiveles = {
+        1: { n: "Bajo", d: "Video de 20s. Observa objetos básicos.", videos: [1, 2, 3] },
+        2: { n: "Medio", d: "Video de 40s. Presta atención a colores y personas.", videos: [4, 5, 6, 7] },
+        3: { n: "Alto", d: "Video de 60s. Máxima concentración en detalles rápidos.", videos: [8, 9, 10] }
+    };
+
+    const bancoDatos = {
+        1: [
+            {p: "¿De qué color eran los guantes?", o: ["Azules", "Negros", "Grises"], r: 1},
+            {p: "¿Estaba picando una fruta o un vegetal?", o: ["Fruta", "Vegetal", "No picaba nada"], r: 0},
+            {p: "¿Cuántos tomates había?", o: ["5", "7", "10"], r: 1},
+            {p: "¿Cuántas zanahorias habían?", o: ["1", "3", "5"], r: 1}
+        ],
+        2: [
+            {p: "¿Cuántas bicicletas pasaron?", o: ["1", "3", "5"], r: 1},
+            {p: "¿Cuántos niños habían?", o: ["2", "5", "8"], r: 1},
+            {p: "¿Color de la chaqueta de la niña que corría?", o: ["Rojo", "Azul", "Amarillo"], r: 2},
+            {p: "¿Color del pantalón de la niña de la bici?", o: ["Verde", "Rojo", "Negro"], r: 1}
+        ],
+        3: [
+            {p: "¿Cuántos computadores tenía la chica de rojo?", o: ["1", "2", "3"], r: 1},
+            {p: "¿Cuántas personas habían en la oficina?", o: ["2", "4", "6"], r: 1},
+            {p: "¿Cuántos libros se veían en la estantería?", o: ["3", "7", "12"], r: 1},
+            {p: "¿De qué color eran las sillas?", o: ["Verdes", "Azules", "Gris"], r: 0}
+        ],
+        4: [
+            {p: "¿Color del traje de baño del papá?", o: ["Verde y blanco", "Blanco azul y rojo", "Negro"], r: 1},
+            {p: "¿Color del traje de baño del niño?", o: ["Azul", "Rojo", "Verde"], r: 0},
+            {p: "¿Color del traje de baño de la niña?", o: ["Rosado", "Verde", "Amarillo"], r: 1},
+            {p: "¿Color del traje de baño de la mamá?", o: ["Rosado", "Azul", "Blanco"], r: 0}
+        ],
+        5: [
+            {p: "¿Cuántos hombres juegan dominó?", o: ["2", "4", "6"], r: 1},
+            {p: "¿Cuántas mujeres hablaban atrás?", o: ["1", "2", "3"], r: 1},
+            {p: "¿Cuántos hombres tenían gorra?", o: ["Ninguno", "2", "4"], r: 1},
+            {p: "¿Color de camisa de la mujer pelirroja?", o: ["Azul", "Blanca", "Roja"], r: 0}
+        ],
+        6: [
+            {p: "¿Cuántos carros pasaban?", o: ["2", "4", "6"], r: 1},
+            {p: "¿Había un letrero de Stop?", o: ["Si", "No", "No se vio"], r: 0},
+            {p: "¿Color del último carro?", o: ["Blanco", "Negro", "Amarillo"], r: 2},
+            {p: "¿Color del primer carro?", o: ["Negro", "Azul", "Gris"], r: 0}
+        ],
+        7: [
+            {p: "¿Color del chaleco del cajero?", o: ["Azul", "Morado", "Verde"], r: 1},
+            {p: "¿Cuántos productos empacó?", o: ["2", "4", "1"], r: 0},
+            {p: "¿Cuál fue la última fruta?", o: ["Manzana", "Piña", "Pera"], r: 1},
+            {p: "¿Color de la chaqueta del cliente?", o: ["Blanca", "Café", "Negra"], r: 0}
+        ],
+        8: [
+            {p: "¿El soldador se puso protección en ojos?", o: ["Si", "No", "Se la quitó"], r: 0},
+            {p: "¿Color de la gorra del soldador?", o: ["Azul", "Verde", "Negra"], r: 1},
+            {p: "¿Color de láminas atrás en la pared?", o: ["Blanco y Gris", "Amarillo y naranja", "Rojo"], r: 1},
+            {p: "¿Usaba guantes de protección?", o: ["Si", "No", "Solo uno"], r: 1}
+        ],
+        9: [
+            {p: "¿Color de la falda de la profesora?", o: ["Negra", "Azul", "Gris"], r: 1},
+            {p: "¿Cuántas flores había en el tablero?", o: ["1", "2", "3"], r: 1},
+            {p: "¿Qué hacía la profesora?", o: ["Escribiendo", "Archivando documentos", "Bailando"], r: 1},
+            {p: "¿Color de la carpeta de archivos?", o: ["Blanca y roja", "Azul", "Verde"], r: 0}
+        ],
+        10: [
+            {p: "¿Cuántas personas salen de la puerta E?", o: ["1", "2", "4"], r: 1},
+            {p: "¿De qué color era la puerta A?", o: ["Morada", "Roja", "Verde"], r: 0},
+            {p: "¿Qué objeto llevaba el muchacho?", o: ["Un libro", "Un celular", "Una bolsa"], r: 0},
+            {p: "¿Número en el cuadro con billete al fondo?", o: ["50", "100", "500"], r: 1}
+        ]
+    };
+
+    function hablar(t, cb) { 
+        window.speechSynthesis.cancel(); 
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES'; m.rate = 0.9; 
+        if(cb) m.onend = cb; 
+        window.speechSynthesis.speak(m); 
+    }
+
+    function iniciarJuego() { prepararNivel(); }
+
+    function prepararNivel() {
+        const c = configNiveles[nivel];
+        document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
+        document.getElementById('desc-nivel').innerText = c.d;
+        document.getElementById('pantalla-transicion').style.display = 'flex';
+        
+        hablar(`Juan, Nivel ${c.n}. ${c.d}. Presta atención al video.`, () => {
+            setTimeout(() => {
+                document.getElementById('pantalla-transicion').style.display = 'none';
+                lanzarVideo();
+            }, 3500);
+        });
+    }
+
+    function lanzarVideo() {
+        const c = configNiveles[nivel];
+        // Seleccionamos un video del pool del nivel
+        videoActualId = c.videos[Math.floor(Math.random() * c.videos.length)];
+        const v = document.getElementById('display-video');
+        v.src = `mem10/video${videoActualId}.mp4`;
+        v.style.display = 'block';
+        v.play();
+
+        v.onended = () => {
+            v.style.display = 'none';
+            preguntaIndice = 0;
+            lanzarPregunta();
+        };
+    }
+
+    function lanzarPregunta() {
+        const preguntas = bancoDatos[videoActualId];
+        const data = preguntas[preguntaIndice];
+        
+        document.getElementById('pregunta-texto').innerText = data.p;
+        const box = document.getElementById('opciones-box');
+        box.innerHTML = "";
+        
+        data.o.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-opcion';
+            btn.innerText = opt;
+            btn.onclick = () => verificar(index, data.r);
+            box.appendChild(btn);
+        });
+
+        document.getElementById('quiz-box').style.display = 'block';
+        hablar(data.p + ". Selecciona la respuesta.");
+    }
+
+    function verificar(elegido, correcto) {
+        if(elegido === correcto) {
+            aciertos++;
+            hablar("¡Correcto!");
+        } else {
+            errores++;
+            hablar("No, esa no era.");
+        }
+        
+        setTimeout(() => {
+            preguntaIndice++;
+            const preguntas = bancoDatos[videoActualId];
+            
+            if(preguntaIndice < preguntas.length) {
+                lanzarPregunta();
+            } else {
+                document.getElementById('quiz-box').style.display = 'none';
+                if(nivel < 3) {
+                    nivel++;
+                    prepararNivel();
+                } else {
+                    mostrarCierre();
+                }
+            }
+        }, 1500);
+    }
+
+    function mostrarCierre() {
+        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("Cada vez que recuerdas un detalle fortaleces tu mente");
+    }
+</script>
+</body>
+</html>
 
