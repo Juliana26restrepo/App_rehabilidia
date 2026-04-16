@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria 10 - Videos Detallados</title>
+    <title>Memoria 10 - Final</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #ECEFF1; text-align: center; color: #263238; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         #cabecera { background: white; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #0288D1; }
@@ -11,7 +11,6 @@
         video { max-width: 90%; max-height: 60vh; border: 8px solid white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; }
         #quiz-box { display: none; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
         .btn-opcion { display: block; width: 100%; padding: 15px; margin: 10px 0; font-size: 1.3rem; border: 2px solid #CFD8DC; border-radius: 12px; cursor: pointer; background: #F8F9FA; color: #37474F; font-weight: bold; }
-        .btn-opcion:active { background: #E1F5FE; }
         #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
         #pantalla-transicion { background: #01579B; color: white; }
         #overlay-final { background: rgba(38, 50, 56, 0.98); color: white; }
@@ -22,13 +21,12 @@
 <div id="cabecera">
     <div style="display:flex; align-items:center;">
         <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia" style="font-weight:bold; font-size: 1.1rem;">Nivel 10: Análisis de Video</span>
+        <span style="font-weight:bold; font-size: 1.1rem;">Nivel 10: Memoria Visual</span>
     </div>
 </div>
 
 <div id="contenedor-principal">
-    <video id="display-video" disablePictureInPicture controlsList="nodownload"></video>
-    
+    <video id="display-video"></video>
     <div id="quiz-box">
         <div id="pregunta-texto" style="font-size: 1.6rem; font-weight: bold; margin-bottom: 20px; color: #01579B;"></div>
         <div id="opciones-box"></div>
@@ -36,86 +34,87 @@
 </div>
 
 <div id="pantalla-transicion">
-    <h1 id="tit-nivel" style="font-size: 3rem; background: #FFD700; color: #01579B; padding: 10px 40px; border-radius: 50px;"></h1>
-    <p id="desc-nivel" style="font-size: 1.8rem; margin-top: 20px; width: 80%;"></p>
+    <h1 id="tit-nivel" style="font-size: 3.5rem; background: #FFD700; color: #01579B; padding: 10px 50px; border-radius: 50px;"></h1>
+    <p id="desc-nivel" style="font-size: 2rem; margin-top: 20px;"></p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3rem;">¡SESIÓN COMPLETADA!</h1>
+    <h1 style="color: #FFD700; font-size: 3rem;">¡OBJETIVO LOGRADO!</h1>
     <div id="stats" style="font-size: 1.8rem; margin: 20px;"></div>
     <p style="font-size: 1.8rem; width: 80%;">“Cada vez que recuerdas un detalle fortaleces tu mente”</p>
-    <button onclick="location.reload()" style="padding: 15px 50px; background: #0288D1; color: white; border-radius: 15px; font-size: 1.5rem; border:none; cursor:pointer; font-weight:bold; margin-top: 20px;">REPETIR</button>
+    <button onclick="location.reload()" style="padding: 15px 50px; background: #0288D1; color: white; border-radius: 15px; font-size: 1.5rem; border:none; cursor:pointer; font-weight:bold;">REPETIR</button>
 </div>
 
 <script>
     let nivel = 1, aciertos = 0, errores = 0, videoActualId = 0, preguntaIndice = 0;
-    
+    let videosUsados = []; // Para asegurar que NO se repitan
+
     const configNiveles = {
-        1: { n: "Bajo", d: "Video de 20s. Observa objetos básicos.", videos: [1, 2, 3] },
-        2: { n: "Medio", d: "Video de 40s. Presta atención a colores y personas.", videos: [4, 5, 6, 7] },
-        3: { n: "Alto", d: "Video de 60s. Máxima concentración en detalles rápidos.", videos: [8, 9, 10] }
+        1: { n: "Bajo", d: "Video de 20s. Pon atención.", videos: [1, 2, 3] },
+        2: { n: "Medio", d: "Video de 40s. Más detalles.", videos: [4, 5, 6, 7] },
+        3: { n: "Alto", d: "Video de 60s. Máximo nivel.", videos: [8, 9, 10] }
     };
 
     const bancoDatos = {
         1: [
             {p: "¿De qué color eran los guantes?", o: ["Azules", "Negros", "Grises"], r: 1},
-            {p: "¿Estaba picando una fruta o un vegetal?", o: ["Fruta", "Vegetal", "No picaba nada"], r: 0},
-            {p: "¿Cuántos tomates había?", o: ["5", "7", "10"], r: 1},
-            {p: "¿Cuántas zanahorias habían?", o: ["1", "3", "5"], r: 1}
+            {p: "¿Estaba picando una fruta o un vegetal?", o: ["Fruta", "Vegetal", "Nada"], r: 0},
+            {p: "¿Cuántos tomates había?", o: ["5", "7", "3"], r: 1},
+            {p: "¿Cuántas zanahorias habían?", o: ["1", "3", "0"], r: 1}
         ],
         2: [
-            {p: "¿Cuántas bicicletas pasaron?", o: ["1", "3", "5"], r: 1},
-            {p: "¿Cuántos niños habían?", o: ["2", "5", "8"], r: 1},
+            {p: "¿Cuántas bicicletas pasaron?", o: ["1", "3", "2"], r: 1},
+            {p: "¿Cuántos niños habían?", o: ["3", "5", "4"], r: 1},
             {p: "¿Color de la chaqueta de la niña que corría?", o: ["Rojo", "Azul", "Amarillo"], r: 2},
             {p: "¿Color del pantalón de la niña de la bici?", o: ["Verde", "Rojo", "Negro"], r: 1}
         ],
         3: [
             {p: "¿Cuántos computadores tenía la chica de rojo?", o: ["1", "2", "3"], r: 1},
-            {p: "¿Cuántas personas habían en la oficina?", o: ["2", "4", "6"], r: 1},
-            {p: "¿Cuántos libros se veían en la estantería?", o: ["3", "7", "12"], r: 1},
-            {p: "¿De qué color eran las sillas?", o: ["Verdes", "Azules", "Gris"], r: 0}
+            {p: "¿Cuántas personas habían en la oficina?", o: ["2", "4", "5"], r: 1},
+            {p: "¿Cuántos libros se veían en la estantería?", o: ["5", "7", "10"], r: 1},
+            {p: "¿De qué color eran las sillas?", o: ["Verdes", "Azules", "Blancas"], r: 0}
         ],
         4: [
-            {p: "¿Color del traje de baño del papá?", o: ["Verde y blanco", "Blanco azul y rojo", "Negro"], r: 1},
-            {p: "¿Color del traje de baño del niño?", o: ["Azul", "Rojo", "Verde"], r: 0},
-            {p: "¿Color del traje de baño de la niña?", o: ["Rosado", "Verde", "Amarillo"], r: 1},
-            {p: "¿Color del traje de baño de la mamá?", o: ["Rosado", "Azul", "Blanco"], r: 0}
+            {p: "¿Color del traje de baño del papá?", o: ["Verde", "Blanco azul y rojo", "Negro"], r: 1},
+            {p: "¿Color del traje de baño del niño?", o: ["Azul", "Rojo", "Amarillo"], r: 0},
+            {p: "¿Color del traje de baño de la niña?", o: ["Verde", "Rosado", "Naranja"], r: 0},
+            {p: "¿Color del traje de baño de la mamá?", o: ["Morado", "Rosado", "Blanco"], r: 1}
         ],
         5: [
-            {p: "¿Cuántos hombres juegan dominó?", o: ["2", "4", "6"], r: 1},
-            {p: "¿Cuántas mujeres hablaban atrás?", o: ["1", "2", "3"], r: 1},
-            {p: "¿Cuántos hombres tenían gorra?", o: ["Ninguno", "2", "4"], r: 1},
-            {p: "¿Color de camisa de la mujer pelirroja?", o: ["Azul", "Blanca", "Roja"], r: 0}
+            {p: "¿Cuántos hombres están jugando al dominó?", o: ["2", "4", "5"], r: 1},
+            {p: "¿Cuántas mujeres habían atrás hablando?", o: ["1", "2", "4"], r: 1},
+            {p: "¿Cuántos hombres tenían gorra?", o: ["1", "2", "3"], r: 1},
+            {p: "¿De qué color era la camisa de la mujer del pelo rojo?", o: ["Azul", "Blanca", "Verde"], r: 0}
         ],
         6: [
-            {p: "¿Cuántos carros pasaban?", o: ["2", "4", "6"], r: 1},
+            {p: "¿Cuántos carros pasaban en el video?", o: ["3", "4", "5"], r: 1},
             {p: "¿Había un letrero de Stop?", o: ["Si", "No", "No se vio"], r: 0},
-            {p: "¿Color del último carro?", o: ["Blanco", "Negro", "Amarillo"], r: 2},
-            {p: "¿Color del primer carro?", o: ["Negro", "Azul", "Gris"], r: 0}
+            {p: "¿De qué color era el último carro que pasó?", o: ["Blanco", "Negro", "Amarillo"], r: 2},
+            {p: "¿De qué color era el primer carro que pasó?", o: ["Negro", "Azul", "Rojo"], r: 0}
         ],
         7: [
-            {p: "¿Color del chaleco del cajero?", o: ["Azul", "Morado", "Verde"], r: 1},
-            {p: "¿Cuántos productos empacó?", o: ["2", "4", "1"], r: 0},
-            {p: "¿Cuál fue la última fruta?", o: ["Manzana", "Piña", "Pera"], r: 1},
-            {p: "¿Color de la chaqueta del cliente?", o: ["Blanca", "Café", "Negra"], r: 0}
+            {p: "¿De qué color era el chaleco del cajero?", o: ["Azul", "Morado", "Rojo"], r: 1},
+            {p: "¿Cuántos productos empacó el cajero?", o: ["2", "3", "1"], r: 0},
+            {p: "¿Cuál fue la última fruta que empacó?", o: ["Manzana", "Piña", "Mango"], r: 1},
+            {p: "¿De qué color era la chaqueta del cliente?", o: ["Blanca", "Negra", "Gris"], r: 0}
         ],
         8: [
-            {p: "¿El soldador se puso protección en ojos?", o: ["Si", "No", "Se la quitó"], r: 0},
-            {p: "¿Color de la gorra del soldador?", o: ["Azul", "Verde", "Negra"], r: 1},
-            {p: "¿Color de láminas atrás en la pared?", o: ["Blanco y Gris", "Amarillo y naranja", "Rojo"], r: 1},
-            {p: "¿Usaba guantes de protección?", o: ["Si", "No", "Solo uno"], r: 1}
+            {p: "¿El soldador se puso la protección para los ojos?", o: ["Si", "No", "A veces"], r: 0},
+            {p: "¿De qué color era la gorra del soldador?", o: ["Negra", "Verde", "Azul"], r: 1},
+            {p: "¿Color de las dos láminas atrás en la pared?", o: ["Blanco/Gris", "Amarillo y naranja", "Rojo"], r: 1},
+            {p: "¿El soldador estaba utilizando guantes?", o: ["Si", "No", "Solo uno"], r: 1}
         ],
         9: [
-            {p: "¿Color de la falda de la profesora?", o: ["Negra", "Azul", "Gris"], r: 1},
-            {p: "¿Cuántas flores había en el tablero?", o: ["1", "2", "3"], r: 1},
-            {p: "¿Qué hacía la profesora?", o: ["Escribiendo", "Archivando documentos", "Bailando"], r: 1},
-            {p: "¿Color de la carpeta de archivos?", o: ["Blanca y roja", "Azul", "Verde"], r: 0}
+            {p: "¿De qué color era la falda de la profesora?", o: ["Negra", "Azul", "Café"], r: 1},
+            {p: "¿Cuántas flores habían en el tablero?", o: ["1", "2", "3"], r: 1},
+            {p: "¿Qué estaba haciendo la profesora?", o: ["Escribiendo", "Archivando documentos", "Limpiando"], r: 1},
+            {p: "¿Color de la carpeta de archivos?", o: ["Blanca y roja", "Azul", "Gris"], r: 0}
         ],
         10: [
-            {p: "¿Cuántas personas salen de la puerta E?", o: ["1", "2", "4"], r: 1},
-            {p: "¿De qué color era la puerta A?", o: ["Morada", "Roja", "Verde"], r: 0},
-            {p: "¿Qué objeto llevaba el muchacho?", o: ["Un libro", "Un celular", "Una bolsa"], r: 0},
-            {p: "¿Número en el cuadro con billete al fondo?", o: ["50", "100", "500"], r: 1}
+            {p: "¿Cuántas personas salen de la puerta E?", o: ["1", "2", "3"], r: 1},
+            {p: "¿De qué color era la puerta A?", o: ["Morada", "Roja", "Amarilla"], r: 0},
+            {p: "¿Qué objeto llevaba el muchacho en la mano?", o: ["Un libro", "Un mapa", "Un bolso"], r: 0},
+            {p: "¿Qué número aparecía en el cuadro del billete?", o: ["50", "100", "20"], r: 1}
         ]
     };
 
@@ -131,22 +130,30 @@
 
     function prepararNivel() {
         const c = configNiveles[nivel];
-        document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
+        // Formato pedido: "NIVEL X"
+        document.getElementById('tit-nivel').innerText = "NIVEL " + nivel;
         document.getElementById('desc-nivel').innerText = c.d;
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
-        hablar(`Juan, Nivel ${c.n}. ${c.d}. Presta atención al video.`, () => {
+        hablar(`Juan, Nivel ${nivel}. Observa con atención el video.`, () => {
             setTimeout(() => {
                 document.getElementById('pantalla-transicion').style.display = 'none';
                 lanzarVideo();
-            }, 3500);
+            }, 3000);
         });
     }
 
     function lanzarVideo() {
-        const c = configNiveles[nivel];
-        // Seleccionamos un video del pool del nivel
-        videoActualId = c.videos[Math.floor(Math.random() * c.videos.length)];
+        const pool = configNiveles[nivel].videos;
+        // Filtrar videos que no se hayan usado
+        let disponibles = pool.filter(v => !videosUsados.includes(v));
+        
+        // Si por alguna razón se acabaron los del pool (no debería pasar), resetear
+        if(disponibles.length === 0) disponibles = pool;
+
+        videoActualId = disponibles[Math.floor(Math.random() * disponibles.length)];
+        videosUsados.push(videoActualId);
+
         const v = document.getElementById('display-video');
         v.src = `mem10/video${videoActualId}.mp4`;
         v.style.display = 'block';
@@ -160,9 +167,7 @@
     }
 
     function lanzarPregunta() {
-        const preguntas = bancoDatos[videoActualId];
-        const data = preguntas[preguntaIndice];
-        
+        const data = bancoDatos[videoActualId][preguntaIndice];
         document.getElementById('pregunta-texto').innerText = data.p;
         const box = document.getElementById('opciones-box');
         box.innerHTML = "";
@@ -176,23 +181,17 @@
         });
 
         document.getElementById('quiz-box').style.display = 'block';
+        // Instrucción del coterapeuta pedida
         hablar(data.p + ". Selecciona la respuesta.");
     }
 
     function verificar(elegido, correcto) {
-        if(elegido === correcto) {
-            aciertos++;
-            hablar("¡Correcto!");
-        } else {
-            errores++;
-            hablar("No, esa no era.");
-        }
+        if(elegido === correcto) { aciertos++; hablar("¡Muy bien!"); } 
+        else { errores++; hablar("Incorrecto."); }
         
         setTimeout(() => {
             preguntaIndice++;
-            const preguntas = bancoDatos[videoActualId];
-            
-            if(preguntaIndice < preguntas.length) {
+            if(preguntaIndice < 4) {
                 lanzarPregunta();
             } else {
                 document.getElementById('quiz-box').style.display = 'none';
@@ -214,4 +213,3 @@
 </script>
 </body>
 </html>
-
