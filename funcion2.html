@@ -8,18 +8,13 @@
         :root { --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { background: #103A57; height: 60px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
-        
         #contenedor-juego { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: 0.3s; }
-
+        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 500px; width: 100%; }
-        
         .objeto { background: white; border-radius: 15px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .objeto img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 5px; }
-        .objeto span { font-size: 0.8rem; font-weight: bold; color: #333; }
+        .objeto img { width: 90px; height: 90px; object-fit: contain; margin-bottom: 5px; }
+        .objeto span { font-size: 0.9rem; font-weight: bold; color: #333; }
         .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); transition: 0.3s; }
-
         #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; text-align: center; padding: 25px; background: rgba(16, 58, 87, 0.95); color: white; }
     </style>
 </head>
@@ -33,55 +28,52 @@
 </div>
 
 <div id="overlay-transicion">
-    <h1 style="color: var(--gold);">¡CAMBIO!</h1>
-    <p style="font-size: 1.5rem;">Atento a la nueva instrucción...</p>
+    <h1 style="color: var(--gold);">¡CAMBIO DE REGLA!</h1>
+    <p style="font-size: 1.5rem;">Juan, olvida lo anterior. Ahora atento a esto:</p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold); font-size: 2.5rem;">SESIÓN FINALIZADA</h1>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">META CUMPLIDA</h1>
     <div id="stats" style="font-size: 1.5rem; margin: 20px 0;"></div>
-    <p style="font-style: italic; font-size: 1.3rem;">"Cambiar de plan también es avanzar"</p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: var(--gold); border:none; border-radius:30px; font-weight:bold; cursor:pointer;">VOLVER</button>
+    <p style="font-style: italic; font-size: 1.4rem;">"Cambiar de plan también es avanzar"</p>
+    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: var(--gold); border:none; border-radius:30px; font-weight:bold; cursor:pointer;">FINALIZAR</button>
 </div>
 
 <script>
     let aciertos = 0, errores = 0, ronda = 1;
     let reglaActual = "", valorObjetivo = "";
 
-    // BANCO REUTILIZANDO TUS IMÁGENES
+    // BANCO DE DATOS VINCULADO A TUS CARPETAS (IMG5, IMG6, IMG7, IMG8)
     const banco = [
-        // Comida (img6 y img7)
-        { src: "img6/manzana.png", n: "Manzana", c: "rojo", t: "Comida" },
-        { src: "img6/banano.png", n: "Banano", c: "amarillo", t: "Comida" },
-        { src: "img7/hamburguesa.png", n: "Hamburguesa", c: "cafe", t: "Comida" },
-        { src: "img7/pizza.png", n: "Pizza", c: "amarillo", t: "Comida" },
-        // Ropa (img5 y img8)
-        { src: "img5/camiseta.png", n: "Camiseta", c: "azul", t: "Ropa" },
-        { src: "img5/pantalon.png", n: "Pantalón", c: "azul", t: "Ropa" },
-        { src: "img8/chaqueta.png", n: "Chaqueta", c: "rojo", t: "Ropa" },
-        { src: "img8/medias.png", n: "Medias", c: "blanco", t: "Ropa" },
-        // Distractores (Añade aquí rutas de otros elementos que tengas en esas carpetas)
-        { src: "img5/reloj.png", n: "Reloj", c: "cafe", t: "Accesorio" },
-        { src: "img7/refresco.png", n: "Refresco", c: "rojo", t: "Bebida" }
+        { folder: "img6", file: "manzana.png", n: "Manzana", c: "rojo", t: "Comida" },
+        { folder: "img6", file: "banano.png", n: "Banano", c: "amarillo", t: "Comida" },
+        { folder: "img7", file: "hamburguesa.png", n: "Hamburguesa", c: "cafe", t: "Comida" },
+        { folder: "img7", file: "pizza.png", n: "Pizza", c: "amarillo", t: "Comida" },
+        { folder: "img5", file: "camiseta.png", n: "Camiseta", c: "azul", t: "Ropa" },
+        { folder: "img5", file: "pantalon.png", n: "Pantalón", c: "azul", t: "Ropa" },
+        { folder: "img8", file: "chaqueta.png", n: "Chaqueta", c: "rojo", t: "Ropa" },
+        { folder: "img8", file: "medias.png", n: "Medias", c: "blanco", t: "Ropa" },
+        { folder: "img7", file: "refresco.png", n: "Refresco", c: "rojo", t: "Bebida" },
+        { folder: "img5", file: "reloj.png", n: "Reloj", c: "cafe", t: "Accesorio" }
     ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85;
         window.speechSynthesis.speak(m);
     }
 
     function iniciarJuego() {
-        hablar("Juan, vamos a organizar los objetos. Presta mucha atención si cambio la regla.");
+        hablar("Juan, clasifica los objetos. Escucha bien, porque cuando suene el cambio, la regla será distinta.");
         setTimeout(nuevaRonda, 2000);
     }
 
     function nuevaRonda() {
         document.getElementById('overlay-transicion').style.display = 'none';
         
-        const tiposRegla = ["t", "c"]; // t = categoría, c = color
-        reglaActual = tiposRegla[Math.floor(Math.random() * tiposRegla.length)];
-        const ref = banco[Math.floor(Math.random() * (banco.length - 2))]; // Evitar distractores como referencia
+        // Alternamos entre Categoría (t) y Color (c)
+        reglaActual = Math.random() > 0.5 ? "t" : "c";
+        const ref = banco[Math.floor(Math.random() * (banco.length - 2))]; 
         valorObjetivo = ref[reglaActual];
 
         let msg = reglaActual === "t" ? "el grupo: " + valorObjetivo : "el color: " + valorObjetivo;
@@ -96,54 +88,61 @@
         zona.innerHTML = "";
         let seleccion = [...banco].sort(() => Math.random() - 0.5).slice(0, 9);
         
-        // Validar que haya al menos 2 correctos
+        // Verificación de seguridad: al menos 2 objetivos presentes
         const correctos = seleccion.filter(o => o[reglaActual] === valorObjetivo);
         if(correctos.length < 2) return pintarObjetos();
 
         seleccion.forEach(obj => {
             const div = document.createElement('div');
             div.className = 'objeto';
-            div.innerHTML = `<img src="${obj.src}" onerror="this.src='https://via.placeholder.com/80?text=IMG'"><span>${obj.n}</span>`;
+            // Construcción de ruta absoluta basada en tu repositorio para evitar el 404
+            const fullPath = `./${obj.folder}/${obj.file}`;
+            
+            div.innerHTML = `<img src="${fullPath}" onerror="this.src='https://via.placeholder.com/90?text=${obj.n}'"><span>${obj.n}</span>`;
+            
             div.onclick = () => {
                 if(obj[reglaActual] === valorObjetivo) {
                     aciertos++;
                     div.classList.add('seleccionado');
-                    chequearFinalRonda();
+                    revisarFinRonda();
                 } else {
                     errores++;
                     div.style.borderColor = "red";
                     hablar("Ese no es " + valorObjetivo);
-                    setTimeout(() => div.style.borderColor = "transparent", 500);
+                    setTimeout(() => div.style.borderColor = "transparent", 600);
                 }
             };
             zona.appendChild(div);
         });
     }
 
-    function chequearFinalRonda() {
-        const restantes = [...document.querySelectorAll('.objeto:not(.seleccionado)')].filter(el => {
-            const imgSrc = el.querySelector('img').getAttribute('src');
-            const datos = banco.find(b => b.src === imgSrc);
-            return datos[reglaActual] === valorObjetivo;
+    function revisarFinRonda() {
+        const faltantes = [...document.querySelectorAll('.objeto:not(.seleccionado)')].filter(el => {
+            const nombre = el.querySelector('span').innerText;
+            const item = banco.find(b => b.n === nombre);
+            return item[reglaActual] === valorObjetivo;
         });
 
-        if(restantes.length === 0) {
+        if(faltantes.length === 0) {
             ronda++;
             if(ronda > 4) {
                 finalizar();
             } else {
                 document.getElementById('overlay-transicion').style.display = 'flex';
-                hablar("¡Muy bien! Vamos a cambiar.");
-                setTimeout(nuevaRonda, 2500);
+                hablar("¡Muy bien! Cambiamos de plan.");
+                setTimeout(nuevaRonda, 3000);
             }
         }
     }
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
-        hablar("Terminamos, Juan. Cambiar de plan también es avanzar.");
+        const total = aciertos + errores;
+        const porc = Math.round((aciertos / total) * 100);
+        document.getElementById('stats').innerHTML = `Aciertos: ${aciertos} <br> Precisión: ${porc}%`;
+        hablar("Excelente sesión Juan. Recuerda: cambiar de plan también es avanzar.");
     }
 </script>
 </body>
 </html>
+
