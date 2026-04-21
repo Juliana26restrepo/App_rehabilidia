@@ -9,162 +9,152 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { background: #103A57; height: 60px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
         
-        #contenedor-juego { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #contenedor-juego { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s ease; }
-        .regla-nueva { background: #C0392B; transform: scale(1.05); }
+        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 450px; width: 100%; transition: opacity 0.5s; }
+        #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 450px; width: 100%; }
         
-        .objeto { background: white; border-radius: 15px; padding: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .objeto .emoji { font-size: 3rem; }
-        .objeto .nombre { font-size: 0.8rem; font-weight: bold; margin-top: 5px; color: #333; }
-        .seleccionado { opacity: 0.2; pointer-events: none; transform: scale(0.9); }
+        .objeto { background: white; border-radius: 15px; padding: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
+        .objeto .emoji { font-size: 3.2rem; }
+        .objeto .nombre { font-size: 0.85rem; font-weight: bold; margin-top: 5px; color: #333; }
+        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); }
 
-        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; text-align: center; padding: 25px; box-sizing: border-box; }
-        #overlay-transicion { background: rgba(74, 20, 140, 0.9); color: white; }
+        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; text-align: center; padding: 25px; }
+        #overlay-transicion { background: rgba(74, 20, 140, 0.95); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
-        .btn-grande { padding: 18px 45px; background: var(--gold); color: var(--p-purple); border-radius: 50px; font-size: 1.3rem; border:none; font-weight:bold; cursor:pointer; margin-top: 20px; }
+        .btn-grande { padding: 18px 45px; background: var(--gold); color: var(--p-purple); border-radius: 50px; font-size: 1.3rem; border:none; font-weight:bold; cursor:pointer; }
     </style>
 </head>
-<body onload="iniciarSesion()">
+<body onload="iniciarJuego()">
 
 <header><span style="font-weight:bold;">SESIÓN 2: FLEXIBILIDAD COGNITIVA</span></header>
 
 <div id="contenedor-juego">
-    <div id="panel-regla" class="panel-regla">PREPÁRATE...</div>
+    <div id="panel-regla" class="panel-regla">ESPERA...</div>
     <div id="zona-objetos"></div>
 </div>
 
 <div id="overlay-transicion">
-    <h1 id="txt-transicion" style="color: var(--gold);">¡BIEN HECHO!</h1>
-    <p style="font-size: 1.4rem;">La regla va a cambiar. ¡Atento!</p>
+    <h1 style="color: var(--gold);">¡CAMBIO DE REGLA!</h1>
+    <p style="font-size: 1.5rem;">Juan, respira y prepárate para el siguiente grupo.</p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold); font-size: 2.5rem;">SESIÓN FINALIZADA</h1>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">ENTRENAMIENTO COMPLETADO</h1>
     <div id="stats" style="font-size: 1.5rem; margin: 20px 0;"></div>
     <p style="font-style: italic; font-size: 1.4rem; color: #CEE5D6;">"Cambiar de plan también es avanzar"</p>
     <button class="btn-grande" onclick="window.location.href='funcion_sesiones.html'">VOLVER AL MENÚ</button>
 </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const nivel = urlParams.get('nivel') || 'bajo';
-
-    let aciertos = 0, errores = 0, actividadActual = 1;
+    let aciertos = 0, errores = 0, rondaActual = 1;
     let reglaActual = "", valorObjetivo = "";
-    let objetosEnPantalla = [];
 
-    // Base de datos corregida y ampliada
+    // Banco de datos con categorías LÓGICAS y CLARAS
     const banco = [
-        { e: "🍎", n: "Manzana", c: "rojo", t: "comida", z: "pequeño" },
-        { e: "🍅", n: "Tomate", c: "rojo", t: "comida", z: "pequeño" },
-        { e: "👕", n: "Camisa", c: "azul", t: "ropa", z: "grande" },
-        { e: "👖", n: "Pantalón", c: "azul", t: "ropa", z: "grande" },
-        { e: "🧸", n: "Oso", c: "marron", t: "juguete", z: "pequeño" },
-        { e: "🍌", n: "Plátano", c: "amarillo", t: "comida", z: "pequeño" },
-        { e: "🥦", n: "Brócoli", c: "verde", t: "comida", z: "pequeño" },
-        { e: "🚖", n: "Taxi", c: "amarillo", t: "vehiculo", z: "grande" },
-        { e: "⚽", n: "Balón", c: "blanco", t: "juguete", z: "grande" },
-        { e: "👗", n: "Vestido", c: "rosa", t: "ropa", z: "grande" },
-        { e: "🌊", n: "Agua", c: "azul", t: "cosa", z: "grande" },
-        { e: "🍋", n: "Limón", c: "verde", t: "comida", z: "pequeño" } // Corregido a verde
+        { e: "🍎", n: "Manzana", c: "rojo", t: "Fruta", z: "pequeño" },
+        { e: "🍌", n: "Plátano", c: "amarillo", t: "Fruta", z: "pequeño" },
+        { e: "🍇", n: "Uvas", c: "morado", t: "Fruta", z: "pequeño" },
+        { e: "👕", n: "Camisa", c: "azul", t: "Ropa", z: "grande" },
+        { e: "👖", n: "Pantalón", c: "azul", t: "Ropa", z: "grande" },
+        { e: "👗", n: "Vestido", c: "rosa", t: "Ropa", z: "grande" },
+        { e: "👞", n: "Zapato", c: "cafe", t: "Ropa", z: "pequeño" },
+        { e: "🚖", n: "Taxi", c: "amarillo", t: "Vehículo", z: "grande" },
+        { e: "🚲", n: "Bici", c: "rojo", t: "Vehículo", z: "grande" },
+        { e: "✈️", n: "Avión", c: "blanco", t: "Vehículo", z: "grande" },
+        { e: "🧸", n: "Oso", c: "cafe", t: "Juguete", z: "pequeño" },
+        { e: "⚽", n: "Balón", c: "blanco", t: "Juguete", z: "grande" },
+        { e: "🥄", n: "Cuchara", c: "gris", t: "Cubierto", z: "pequeño" },
+        { e: "🔪", n: "Cuchillo", c: "gris", t: "Cubierto", z: "pequeño" },
+        { e: "🍴", n: "Tenedor", c: "gris", t: "Cubierto", z: "pequeño" }
     ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85;
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() {
-        hablar("Juan, ordena los objetos. Pero cuidado, si la regla cambia, debes adaptarte.");
-        setTimeout(nuevaActividad, 2000);
+    function iniciarJuego() {
+        hablar("Juan, vamos a clasificar objetos por grupos. Presta atención a la regla.");
+        setTimeout(lanzarRonda, 2000);
     }
 
-    function nuevaActividad() {
+    function lanzarRonda() {
         document.getElementById('overlay-transicion').style.display = 'none';
         
-        // Seleccionamos la regla
-        const tipos = ["color", "tipo", "tamaño"];
-        reglaActual = tipos[Math.floor(Math.random() * tipos.length)];
-        const ref = banco[Math.floor(Math.random() * banco.length)];
-        valorObjetivo = ref[reglaActual.charAt(0)];
+        // Seleccionar regla lógica (Tipo o Color)
+        const tiposRegla = ["t", "c"];
+        const tipoElegido = tiposRegla[Math.floor(Math.random() * tiposRegla.length)];
+        const objetoRef = banco[Math.floor(Math.random() * banco.length)];
+        
+        reglaActual = tipoElegido;
+        valorObjetivo = objetoRef[tipoElegido];
 
-        const textos = { "color": `Color ${ref.c}`, "tipo": `Tipo: ${ref.t}`, "tamaño": `Tamaño ${ref.z}` };
-        const panel = document.getElementById('panel-regla');
-        panel.innerText = "BUSCA: " + textos[reglaActual].toUpperCase();
-        panel.classList.add('regla-nueva');
+        let nombreRegra = tipoElegido === "t" ? "el grupo: " + valorObjetivo : "el color: " + valorObjetivo;
+        document.getElementById('panel-regla').innerText = "BUSCA " + nombreRegra.toUpperCase();
         
-        hablar("Ahora busca " + textos[reglaActual]);
-        
-        renderizarTablero();
-        setTimeout(() => panel.classList.remove('regla-nueva'), 1000);
+        hablar("Ahora busca todos los del " + nombreRegra);
+        generarTablero();
     }
 
-    function renderizarTablero() {
+    function generarTablero() {
         const zona = document.getElementById('zona-objetos');
-        zona.style.opacity = "1";
         zona.innerHTML = "";
         
-        // Mezclamos y sacamos 9 objetos
-        objetosEnPantalla = [...banco].sort(() => Math.random() - 0.5).slice(0, 9);
+        // Mezclamos y sacamos 9 objetos asegurando que haya objetivos y distractores
+        let baraja = [...banco].sort(() => Math.random() - 0.5).slice(0, 9);
         
-        // Aseguramos que al menos 2 cumplan la regla para que no se bloquee
-        const cumplen = objetosEnPantalla.filter(o => o[reglaActual.charAt(0)] === valorObjetivo);
-        if(cumplen.length === 0) return renderizarTablero(); 
+        // Validación: que al menos existan 2 objetivos en pantalla
+        const objetivos = baraja.filter(o => o[reglaActual] === valorObjetivo);
+        if(objetivos.length < 2) return generarTablero();
 
-        objetosEnPantalla.forEach((obj, i) => {
+        baraja.forEach(obj => {
             const div = document.createElement('div');
             div.className = 'objeto';
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="nombre">${obj.n}</span>`;
-            div.onclick = () => verificar(obj, div);
+            div.onclick = () => comprobar(obj, div);
             zona.appendChild(div);
         });
     }
 
-    function verificar(obj, elemento) {
-        const val = obj[reglaActual.charAt(0)];
-        if(val === valorObjetivo) {
+    function comprobar(obj, elemento) {
+        if(obj[reglaActual] === valorObjetivo) {
             aciertos++;
             elemento.classList.add('seleccionado');
             
-            // ¿Quedan más de esta regla en pantalla?
-            const restantes = [...document.querySelectorAll('.objeto:not(.seleccionado)')]
-                              .filter(el => {
-                                  const nombre = el.querySelector('.nombre').innerText;
-                                  const datos = banco.find(b => b.n === nombre);
-                                  return datos[reglaActual.charAt(0)] === valorObjetivo;
-                              });
+            // ¿Quedan más objetivos?
+            const faltan = [...document.querySelectorAll('.objeto:not(.seleccionado)')]
+                .some(el => {
+                    const nombre = el.querySelector('.nombre').innerText;
+                    return banco.find(b => b.n === nombre)[reglaActual] === valorObjetivo;
+                });
 
-            if(restantes.length === 0) {
-                // ACTIVIDAD COMPLETADA -> CAMBIO DE REGLA
-                actividadActual++;
-                if(actividadActual > 6) { // Final tras 6 cambios de regla
+            if(!faltan) {
+                rondaActual++;
+                if(rondaActual > 5) {
                     finalizar();
                 } else {
-                    document.getElementById('zona-objetos').style.opacity = "0";
                     document.getElementById('overlay-transicion').style.display = 'flex';
-                    hablar("¡Muy bien! Cambiamos la regla.");
-                    setTimeout(nuevaActividad, 2500);
+                    hablar("¡Excelente! Prepárate para el cambio.");
+                    setTimeout(lanzarRonda, 3000);
                 }
             }
         } else {
             errores++;
             elemento.style.borderColor = "red";
-            hablar("Ese no, Juan. Busca " + reglaActual + " " + valorObjetivo);
-            setTimeout(() => elemento.style.borderColor = "transparent", 700);
+            hablar("Ese no pertenece al grupo, Juan. Sigue buscando.");
+            setTimeout(() => elemento.style.borderColor = "transparent", 800);
         }
     }
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        const total = aciertos + errores;
-        const porc = Math.round((aciertos / total) * 100);
+        const porc = Math.round((aciertos / (aciertos + errores)) * 100);
         document.getElementById('stats').innerHTML = `Aciertos: ${aciertos} <br> Precisión: ${porc}%`;
-        hablar("Sesión terminada. Juan, recuerda que cambiar de plan también es avanzar.");
+        hablar("Muy bien Juan. Has demostrado una gran flexibilidad hoy.");
     }
 </script>
 </body>
