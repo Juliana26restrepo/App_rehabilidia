@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flexibilidad Avanzada - REHABILIDIA</title>
+    <title>Flexibilidad Cognitiva - REHABILIDIA</title>
     <style>
-        :root { --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; --gold: #FFD700; }
+        :root { --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { background: #103A57; height: 60px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
         
         #contenedor-juego { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.4rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: 0.3s; }
 
-        #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 450px; width: 100%; }
+        #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 500px; width: 100%; }
         
-        .objeto { background: white; border-radius: 15px; padding: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
-        .objeto .emoji { font-size: 3.2rem; }
-        .objeto .nombre { font-size: 0.85rem; font-weight: bold; margin-top: 5px; color: #333; }
-        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); }
+        .objeto { background: white; border-radius: 15px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .objeto img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 5px; }
+        .objeto span { font-size: 0.8rem; font-weight: bold; color: #333; }
+        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); transition: 0.3s; }
 
-        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; text-align: center; padding: 25px; }
-        #overlay-transicion { background: rgba(74, 20, 140, 0.95); color: white; }
-        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
-        
-        .btn-grande { padding: 18px 45px; background: var(--gold); color: var(--p-purple); border-radius: 50px; font-size: 1.3rem; border:none; font-weight:bold; cursor:pointer; }
+        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; text-align: center; padding: 25px; background: rgba(16, 58, 87, 0.95); color: white; }
     </style>
 </head>
 <body onload="iniciarJuego()">
@@ -37,124 +33,116 @@
 </div>
 
 <div id="overlay-transicion">
-    <h1 style="color: var(--gold);">¡CAMBIO DE REGLA!</h1>
-    <p style="font-size: 1.5rem;">Juan, respira y prepárate para el siguiente grupo.</p>
+    <h1 style="color: var(--gold);">¡CAMBIO!</h1>
+    <p style="font-size: 1.5rem;">Atento a la nueva instrucción...</p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold); font-size: 2.5rem;">ENTRENAMIENTO COMPLETADO</h1>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">SESIÓN FINALIZADA</h1>
     <div id="stats" style="font-size: 1.5rem; margin: 20px 0;"></div>
-    <p style="font-style: italic; font-size: 1.4rem; color: #CEE5D6;">"Cambiar de plan también es avanzar"</p>
-    <button class="btn-grande" onclick="window.location.href='funcion_sesiones.html'">VOLVER AL MENÚ</button>
+    <p style="font-style: italic; font-size: 1.3rem;">"Cambiar de plan también es avanzar"</p>
+    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: var(--gold); border:none; border-radius:30px; font-weight:bold; cursor:pointer;">VOLVER</button>
 </div>
 
 <script>
-    let aciertos = 0, errores = 0, rondaActual = 1;
+    let aciertos = 0, errores = 0, ronda = 1;
     let reglaActual = "", valorObjetivo = "";
 
-    // Banco de datos con categorías LÓGICAS y CLARAS
+    // BANCO REUTILIZANDO TUS IMÁGENES
     const banco = [
-        { e: "🍎", n: "Manzana", c: "rojo", t: "Fruta", z: "pequeño" },
-        { e: "🍌", n: "Plátano", c: "amarillo", t: "Fruta", z: "pequeño" },
-        { e: "🍇", n: "Uvas", c: "morado", t: "Fruta", z: "pequeño" },
-        { e: "👕", n: "Camisa", c: "azul", t: "Ropa", z: "grande" },
-        { e: "👖", n: "Pantalón", c: "azul", t: "Ropa", z: "grande" },
-        { e: "👗", n: "Vestido", c: "rosa", t: "Ropa", z: "grande" },
-        { e: "👞", n: "Zapato", c: "cafe", t: "Ropa", z: "pequeño" },
-        { e: "🚖", n: "Taxi", c: "amarillo", t: "Vehículo", z: "grande" },
-        { e: "🚲", n: "Bici", c: "rojo", t: "Vehículo", z: "grande" },
-        { e: "✈️", n: "Avión", c: "blanco", t: "Vehículo", z: "grande" },
-        { e: "🧸", n: "Oso", c: "cafe", t: "Juguete", z: "pequeño" },
-        { e: "⚽", n: "Balón", c: "blanco", t: "Juguete", z: "grande" },
-        { e: "🥄", n: "Cuchara", c: "gris", t: "Cubierto", z: "pequeño" },
-        { e: "🔪", n: "Cuchillo", c: "gris", t: "Cubierto", z: "pequeño" },
-        { e: "🍴", n: "Tenedor", c: "gris", t: "Cubierto", z: "pequeño" }
+        // Comida (img6 y img7)
+        { src: "img6/manzana.png", n: "Manzana", c: "rojo", t: "Comida" },
+        { src: "img6/banano.png", n: "Banano", c: "amarillo", t: "Comida" },
+        { src: "img7/hamburguesa.png", n: "Hamburguesa", c: "cafe", t: "Comida" },
+        { src: "img7/pizza.png", n: "Pizza", c: "amarillo", t: "Comida" },
+        // Ropa (img5 y img8)
+        { src: "img5/camiseta.png", n: "Camiseta", c: "azul", t: "Ropa" },
+        { src: "img5/pantalon.png", n: "Pantalón", c: "azul", t: "Ropa" },
+        { src: "img8/chaqueta.png", n: "Chaqueta", c: "rojo", t: "Ropa" },
+        { src: "img8/medias.png", n: "Medias", c: "blanco", t: "Ropa" },
+        // Distractores (Añade aquí rutas de otros elementos que tengas en esas carpetas)
+        { src: "img5/reloj.png", n: "Reloj", c: "cafe", t: "Accesorio" },
+        { src: "img7/refresco.png", n: "Refresco", c: "rojo", t: "Bebida" }
     ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
         window.speechSynthesis.speak(m);
     }
 
     function iniciarJuego() {
-        hablar("Juan, vamos a clasificar objetos por grupos. Presta atención a la regla.");
-        setTimeout(lanzarRonda, 2000);
+        hablar("Juan, vamos a organizar los objetos. Presta mucha atención si cambio la regla.");
+        setTimeout(nuevaRonda, 2000);
     }
 
-    function lanzarRonda() {
+    function nuevaRonda() {
         document.getElementById('overlay-transicion').style.display = 'none';
         
-        // Seleccionar regla lógica (Tipo o Color)
-        const tiposRegla = ["t", "c"];
-        const tipoElegido = tiposRegla[Math.floor(Math.random() * tiposRegla.length)];
-        const objetoRef = banco[Math.floor(Math.random() * banco.length)];
-        
-        reglaActual = tipoElegido;
-        valorObjetivo = objetoRef[tipoElegido];
+        const tiposRegla = ["t", "c"]; // t = categoría, c = color
+        reglaActual = tiposRegla[Math.floor(Math.random() * tiposRegla.length)];
+        const ref = banco[Math.floor(Math.random() * (banco.length - 2))]; // Evitar distractores como referencia
+        valorObjetivo = ref[reglaActual];
 
-        let nombreRegra = tipoElegido === "t" ? "el grupo: " + valorObjetivo : "el color: " + valorObjetivo;
-        document.getElementById('panel-regla').innerText = "BUSCA " + nombreRegra.toUpperCase();
+        let msg = reglaActual === "t" ? "el grupo: " + valorObjetivo : "el color: " + valorObjetivo;
+        document.getElementById('panel-regla').innerText = "BUSCA " + msg.toUpperCase();
         
-        hablar("Ahora busca todos los del " + nombreRegra);
-        generarTablero();
+        hablar("Ahora busca " + msg);
+        pintarObjetos();
     }
 
-    function generarTablero() {
+    function pintarObjetos() {
         const zona = document.getElementById('zona-objetos');
         zona.innerHTML = "";
+        let seleccion = [...banco].sort(() => Math.random() - 0.5).slice(0, 9);
         
-        // Mezclamos y sacamos 9 objetos asegurando que haya objetivos y distractores
-        let baraja = [...banco].sort(() => Math.random() - 0.5).slice(0, 9);
-        
-        // Validación: que al menos existan 2 objetivos en pantalla
-        const objetivos = baraja.filter(o => o[reglaActual] === valorObjetivo);
-        if(objetivos.length < 2) return generarTablero();
+        // Validar que haya al menos 2 correctos
+        const correctos = seleccion.filter(o => o[reglaActual] === valorObjetivo);
+        if(correctos.length < 2) return pintarObjetos();
 
-        baraja.forEach(obj => {
+        seleccion.forEach(obj => {
             const div = document.createElement('div');
             div.className = 'objeto';
-            div.innerHTML = `<span class="emoji">${obj.e}</span><span class="nombre">${obj.n}</span>`;
-            div.onclick = () => comprobar(obj, div);
+            div.innerHTML = `<img src="${obj.src}" onerror="this.src='https://via.placeholder.com/80?text=IMG'"><span>${obj.n}</span>`;
+            div.onclick = () => {
+                if(obj[reglaActual] === valorObjetivo) {
+                    aciertos++;
+                    div.classList.add('seleccionado');
+                    chequearFinalRonda();
+                } else {
+                    errores++;
+                    div.style.borderColor = "red";
+                    hablar("Ese no es " + valorObjetivo);
+                    setTimeout(() => div.style.borderColor = "transparent", 500);
+                }
+            };
             zona.appendChild(div);
         });
     }
 
-    function comprobar(obj, elemento) {
-        if(obj[reglaActual] === valorObjetivo) {
-            aciertos++;
-            elemento.classList.add('seleccionado');
-            
-            // ¿Quedan más objetivos?
-            const faltan = [...document.querySelectorAll('.objeto:not(.seleccionado)')]
-                .some(el => {
-                    const nombre = el.querySelector('.nombre').innerText;
-                    return banco.find(b => b.n === nombre)[reglaActual] === valorObjetivo;
-                });
+    function chequearFinalRonda() {
+        const restantes = [...document.querySelectorAll('.objeto:not(.seleccionado)')].filter(el => {
+            const imgSrc = el.querySelector('img').getAttribute('src');
+            const datos = banco.find(b => b.src === imgSrc);
+            return datos[reglaActual] === valorObjetivo;
+        });
 
-            if(!faltan) {
-                rondaActual++;
-                if(rondaActual > 5) {
-                    finalizar();
-                } else {
-                    document.getElementById('overlay-transicion').style.display = 'flex';
-                    hablar("¡Excelente! Prepárate para el cambio.");
-                    setTimeout(lanzarRonda, 3000);
-                }
+        if(restantes.length === 0) {
+            ronda++;
+            if(ronda > 4) {
+                finalizar();
+            } else {
+                document.getElementById('overlay-transicion').style.display = 'flex';
+                hablar("¡Muy bien! Vamos a cambiar.");
+                setTimeout(nuevaRonda, 2500);
             }
-        } else {
-            errores++;
-            elemento.style.borderColor = "red";
-            hablar("Ese no pertenece al grupo, Juan. Sigue buscando.");
-            setTimeout(() => elemento.style.borderColor = "transparent", 800);
         }
     }
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        const porc = Math.round((aciertos / (aciertos + errores)) * 100);
-        document.getElementById('stats').innerHTML = `Aciertos: ${aciertos} <br> Precisión: ${porc}%`;
-        hablar("Muy bien Juan. Has demostrado una gran flexibilidad hoy.");
+        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
+        hablar("Terminamos, Juan. Cambiar de plan también es avanzar.");
     }
 </script>
 </body>
