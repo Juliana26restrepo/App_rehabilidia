@@ -3,191 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesión 2: Flexibilidad Cognitiva</title>
+    <title>Flexibilidad Avanzada - REHABILIDIA</title>
     <style>
         :root { --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; --gold: #FFD700; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         header { background: #103A57; height: 60px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
         
-        #contenedor-juego { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #contenedor-juego { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         
-        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .cambio-alerta { animation: flash 0.6s infinite alternate; }
-        @keyframes flash { from { border-color: var(--gold); } to { border-color: #C0392B; } }
+        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 20px; font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; border: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s ease; }
+        .regla-nueva { background: #C0392B; transform: scale(1.05); }
 
-        #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 450px; width: 100%; }
+        #zona-objetos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 450px; width: 100%; transition: opacity 0.5s; }
         
-        .objeto { background: white; border-radius: 15px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-        .objeto:active { transform: scale(0.9); }
-        .objeto .emoji { font-size: 2.8rem; }
-        .objeto .nombre { font-size: 0.75rem; font-weight: bold; margin-top: 5px; color: #333; }
+        .objeto { background: white; border-radius: 15px; padding: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; border: 3px solid transparent; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .objeto .emoji { font-size: 3rem; }
+        .objeto .nombre { font-size: 0.8rem; font-weight: bold; margin-top: 5px; color: #333; }
+        .seleccionado { opacity: 0.2; pointer-events: none; transform: scale(0.9); }
 
-        #pantalla-info, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:1000; text-align: center; padding: 25px; box-sizing: border-box; }
-        #pantalla-info { background: var(--p-purple); color: white; }
-        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; display: none; }
+        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; text-align: center; padding: 25px; box-sizing: border-box; }
+        #overlay-transicion { background: rgba(74, 20, 140, 0.9); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
-        .progreso-bar { width: 80%; height: 10px; background: #ddd; border-radius: 5px; margin-top: 10px; overflow: hidden; }
-        .progreso-fill { height: 100%; background: var(--gold); width: 0%; transition: 0.3s; }
+        .btn-grande { padding: 18px 45px; background: var(--gold); color: var(--p-purple); border-radius: 50px; font-size: 1.3rem; border:none; font-weight:bold; cursor:pointer; margin-top: 20px; }
     </style>
 </head>
-<body onload="mostrarIntroduccion()">
+<body onload="iniciarSesion()">
 
-<header><span style="font-weight:bold;">MÓDULO 3: FLEXIBILIDAD COGNITIVA</span></header>
+<header><span style="font-weight:bold;">SESIÓN 2: FLEXIBILIDAD COGNITIVA</span></header>
 
 <div id="contenedor-juego">
-    <div id="panel-regla" class="panel-regla">ESCUCHA LA REGLA</div>
-    <div class="progreso-bar"><div id="fill" class="progreso-fill"></div></div>
-    <p id="txt-actividad" style="font-weight: bold; font-size: 0.9rem; margin: 10px 0;">Actividad 1 de 2</p>
+    <div id="panel-regla" class="panel-regla">PREPÁRATE...</div>
     <div id="zona-objetos"></div>
 </div>
 
-<div id="pantalla-info">
-    <h1 style="color: var(--gold); font-size: 2rem;">¿CAMBIAMOS EL PLAN?</h1>
-    <p id="instruccion-texto" style="font-size: 1.2rem; line-height: 1.4;">Juan, vamos a clasificar objetos. Pero ¡cuidado! Cuando escuches una campana, la regla cambiará y deberás buscar cosas diferentes.</p>
-    <button onclick="iniciarActividad(1)" style="padding: 18px 45px; background: var(--gold); color: var(--p-purple); border-radius: 50px; font-size: 1.3rem; border:none; font-weight:bold; cursor:pointer;">EMPEZAR SESIÓN</button>
+<div id="overlay-transicion">
+    <h1 id="txt-transicion" style="color: var(--gold);">¡BIEN HECHO!</h1>
+    <p style="font-size: 1.4rem;">La regla va a cambiar. ¡Atento!</p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold);">SESIÓN COMPLETADA</h1>
-    <div id="stats" style="font-size: 1.4rem; margin: 20px 0;"></div>
-    <p style="font-style: italic; font-size: 1.2rem; color: #CEE5D6; padding: 0 20px;">"Cambiar de plan también es avanzar"</p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="margin-top:20px; padding: 15px 40px; background: var(--gold); color: var(--p-purple); border-radius: 50px; font-size: 1.2rem; border:none; font-weight:bold;">VOLVER A SESIONES</button>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">SESIÓN FINALIZADA</h1>
+    <div id="stats" style="font-size: 1.5rem; margin: 20px 0;"></div>
+    <p style="font-style: italic; font-size: 1.4rem; color: #CEE5D6;">"Cambiar de plan también es avanzar"</p>
+    <button class="btn-grande" onclick="window.location.href='funcion_sesiones.html'">VOLVER AL MENÚ</button>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const nivelDificultad = urlParams.get('nivel') || 'bajo';
+    const nivel = urlParams.get('nivel') || 'bajo';
 
-    let actividadActual = 1;
-    let aciertosTotales = 0;
-    let erroresTotales = 0;
-    let aciertosEnRonda = 0;
-    let reglaActual = "";
-    let valorObjetivo = "";
+    let aciertos = 0, errores = 0, actividadActual = 1;
+    let reglaActual = "", valorObjetivo = "";
+    let objetosEnPantalla = [];
 
-    const bancoCompleto = [
+    // Base de datos corregida y ampliada
+    const banco = [
         { e: "🍎", n: "Manzana", c: "rojo", t: "comida", z: "pequeño" },
+        { e: "🍅", n: "Tomate", c: "rojo", t: "comida", z: "pequeño" },
         { e: "👕", n: "Camisa", c: "azul", t: "ropa", z: "grande" },
-        { e: "🧸", n: "Oso", c: "azul", t: "juguete", z: "pequeño" },
-        { e: "🍌", n: "Plátano", c: "amarillo", t: "comida", z: "pequeño" },
         { e: "👖", n: "Pantalón", c: "azul", t: "ropa", z: "grande" },
+        { e: "🧸", n: "Oso", c: "marron", t: "juguete", z: "pequeño" },
+        { e: "🍌", n: "Plátano", c: "amarillo", t: "comida", z: "pequeño" },
         { e: "🥦", n: "Brócoli", c: "verde", t: "comida", z: "pequeño" },
-        { e: "👗", n: "Vestido", c: "rojo", t: "ropa", z: "grande" },
-        { e: "🚖", n: "Carrito", c: "amarillo", t: "juguete", z: "pequeño" },
-        { e: "⚽", n: "Pelota", c: "blanco", t: "juguete", z: "grande" },
-        { e: "🍉", n: "Sandía", c: "rojo", t: "comida", z: "grande" },
-        { e: "👟", n: "Tenis", c: "blanco", t: "ropa", z: "pequeño" },
-        { e: "🪁", n: "Cometa", c: "rojo", t: "juguete", z: "grande" },
-        { e: "🧊", n: "Hielo", c: "azul", t: "cosa", z: "pequeño" },
-        { e: "🐘", n: "Elefante", c: "gris", t: "animal", z: "grande" },
-        { e: "🐭", n: "Ratón", c: "gris", t: "animal", z: "pequeño" },
-        { e: "🍋", n: "Limón", c: "verde", t: "comida", z: "pequeño" }
+        { e: "🚖", n: "Taxi", c: "amarillo", t: "vehiculo", z: "grande" },
+        { e: "⚽", n: "Balón", c: "blanco", t: "juguete", z: "grande" },
+        { e: "👗", n: "Vestido", c: "rosa", t: "ropa", z: "grande" },
+        { e: "🌊", n: "Agua", c: "azul", t: "cosa", z: "grande" },
+        { e: "🍋", n: "Limón", c: "verde", t: "comida", z: "pequeño" } // Corregido a verde
     ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
         window.speechSynthesis.speak(m);
     }
 
-    function mostrarIntroduccion() {
-        hablar("Juan, vamos a entrenar tu flexibilidad. Clasifica los objetos, pero atento a los cambios de regla.");
+    function iniciarSesion() {
+        hablar("Juan, ordena los objetos. Pero cuidado, si la regla cambia, debes adaptarte.");
+        setTimeout(nuevaActividad, 2000);
     }
 
-    function iniciarActividad(num) {
-        actividadActual = num;
-        aciertosEnRonda = 0;
-        document.getElementById('pantalla-info').style.display = 'none';
-        document.getElementById('txt-actividad').innerText = `Actividad ${num} de 2`;
-        document.getElementById('fill').style.width = num === 1 ? "0%" : "50%";
-        definirNuevaRegla();
-        renderizarObjetos();
-    }
-
-    function definirNuevaRegla() {
-        const tiposRegla = ["color", "tipo"];
-        if (nivelDificultad !== 'bajo') tiposRegla.push("tamaño");
+    function nuevaActividad() {
+        document.getElementById('overlay-transicion').style.display = 'none';
         
-        reglaActual = tiposRegla[Math.floor(Math.random() * tiposRegla.length)];
-        const referencia = bancoCompleto[Math.floor(Math.random() * bancoCompleto.length)];
-        
-        let texto = "";
-        if(reglaActual === "color") { valorObjetivo = referencia.c; texto = "Busca el color " + valorObjetivo; }
-        if(reglaActual === "tipo") { valorObjetivo = referencia.t; texto = "Busca cosas de " + valorObjetivo; }
-        if(reglaActual === "tamaño") { valorObjetivo = referencia.z; texto = "Busca lo que sea " + valorObjetivo; }
+        // Seleccionamos la regla
+        const tipos = ["color", "tipo", "tamaño"];
+        reglaActual = tipos[Math.floor(Math.random() * tipos.length)];
+        const ref = banco[Math.floor(Math.random() * banco.length)];
+        valorObjetivo = ref[reglaActual.charAt(0)];
 
+        const textos = { "color": `Color ${ref.c}`, "tipo": `Tipo: ${ref.t}`, "tamaño": `Tamaño ${ref.z}` };
         const panel = document.getElementById('panel-regla');
-        panel.innerText = texto.toUpperCase();
-        panel.classList.add('cambio-alerta');
-        hablar("Nueva regla: " + texto);
-        setTimeout(() => panel.classList.remove('cambio-alerta'), 1000);
+        panel.innerText = "BUSCA: " + textos[reglaActual].toUpperCase();
+        panel.classList.add('regla-nueva');
+        
+        hablar("Ahora busca " + textos[reglaActual]);
+        
+        renderizarTablero();
+        setTimeout(() => panel.classList.remove('regla-nueva'), 1000);
     }
 
-    function renderizarObjetos() {
+    function renderizarTablero() {
         const zona = document.getElementById('zona-objetos');
+        zona.style.opacity = "1";
         zona.innerHTML = "";
         
-        // Seleccionar 6 u 9 objetos aleatorios del banco
-        let cantidad = nivelDificultad === 'bajo' ? 6 : 9;
-        let seleccion = [...bancoCompleto].sort(() => Math.random() - 0.5).slice(0, cantidad);
+        // Mezclamos y sacamos 9 objetos
+        objetosEnPantalla = [...banco].sort(() => Math.random() - 0.5).slice(0, 9);
+        
+        // Aseguramos que al menos 2 cumplan la regla para que no se bloquee
+        const cumplen = objetosEnPantalla.filter(o => o[reglaActual.charAt(0)] === valorObjetivo);
+        if(cumplen.length === 0) return renderizarTablero(); 
 
-        seleccion.forEach(obj => {
+        objetosEnPantalla.forEach((obj, i) => {
             const div = document.createElement('div');
             div.className = 'objeto';
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="nombre">${obj.n}</span>`;
-            div.onclick = () => procesarSeleccion(obj, div);
+            div.onclick = () => verificar(obj, div);
             zona.appendChild(div);
         });
     }
 
-    function procesarSeleccion(obj, elemento) {
-        let valorObjeto = obj[reglaActual.charAt(0)]; // c, t o z
-        
-        if(valorObjeto === valorObjetivo) {
-            aciertosTotales++;
-            aciertosEnRonda++;
-            elemento.style.borderColor = "#2E7D32";
-            elemento.style.opacity = "0.2";
-            elemento.style.pointerEvents = "none";
+    function verificar(obj, elemento) {
+        const val = obj[reglaActual.charAt(0)];
+        if(val === valorObjetivo) {
+            aciertos++;
+            elemento.classList.add('seleccionado');
             
-            // Condición de cambio de regla o fin de actividad
-            if(aciertosEnRonda >= 3) {
-                if(actividadActual === 1) {
-                    finalizarActividad1();
+            // ¿Quedan más de esta regla en pantalla?
+            const restantes = [...document.querySelectorAll('.objeto:not(.seleccionado)')]
+                              .filter(el => {
+                                  const nombre = el.querySelector('.nombre').innerText;
+                                  const datos = banco.find(b => b.n === nombre);
+                                  return datos[reglaActual.charAt(0)] === valorObjetivo;
+                              });
+
+            if(restantes.length === 0) {
+                // ACTIVIDAD COMPLETADA -> CAMBIO DE REGLA
+                actividadActual++;
+                if(actividadActual > 6) { // Final tras 6 cambios de regla
+                    finalizar();
                 } else {
-                    if(aciertosEnRonda >= 6) finalizarSesion();
-                    else { definirNuevaRegla(); renderizarObjetos(); }
+                    document.getElementById('zona-objetos').style.opacity = "0";
+                    document.getElementById('overlay-transicion').style.display = 'flex';
+                    hablar("¡Muy bien! Cambiamos la regla.");
+                    setTimeout(nuevaActividad, 2500);
                 }
             }
         } else {
-            erroresTotales++;
+            errores++;
             elemento.style.borderColor = "red";
-            hablar("Ese no sigue la regla, Juan.");
-            setTimeout(() => elemento.style.borderColor = "transparent", 600);
+            hablar("Ese no, Juan. Busca " + reglaActual + " " + valorObjetivo);
+            setTimeout(() => elemento.style.borderColor = "transparent", 700);
         }
     }
 
-    function finalizarActividad1() {
-        hablar("¡Primera actividad lista! Vamos a cambiar los objetos para la segunda.");
-        document.getElementById('instruccion-texto').innerText = "¡Muy bien Juan! Ahora la segunda actividad. Los objetos serán diferentes y las reglas cambiarán más rápido.";
-        document.getElementById('pantalla-info').style.display = 'flex';
-        const btn = document.querySelector('#pantalla-info button');
-        btn.innerText = "CONTINUAR";
-        btn.onclick = () => iniciarActividad(2);
-    }
-
-    function finalizarSesion() {
+    function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('fill').style.width = "100%";
-        const total = aciertosTotales + erroresTotales;
-        const eficacia = Math.round((aciertosTotales / total) * 100);
-        document.getElementById('stats').innerHTML = `
-            <p>Aciertos: ${aciertosTotales}</p>
-            <p>Eficacia: ${eficacia}%</p>
-        `;
-        hablar("Sesión terminada Juan. Cambiar de plan también es avanzar.");
+        const total = aciertos + errores;
+        const porc = Math.round((aciertos / total) * 100);
+        document.getElementById('stats').innerHTML = `Aciertos: ${aciertos} <br> Precisión: ${porc}%`;
+        hablar("Sesión terminada. Juan, recuerda que cambiar de plan también es avanzar.");
     }
 </script>
 </body>
 </html>
-
