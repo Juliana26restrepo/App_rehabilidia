@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planificación - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--p-purple); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -13,12 +14,12 @@
         .instruccion-reto { font-size: 1.2rem; font-weight: bold; margin: 10px 0; color: white; background: var(--p-purple); padding: 15px; border-radius: 15px; width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
         #area-opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .tarjeta { width: 120px; padding: 12px; background: white; border: 3px solid var(--s-purple); border-radius: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tarjeta { width: 120px; padding: 12px; background: white; border: 3px solid var(--s-purple); border-radius: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
         .tarjeta .emoji { font-size: 2.5rem; }
         .tarjeta .texto { font-size: 0.85rem; font-weight: bold; margin-top: 5px; }
-        .tarjeta.seleccionada { opacity: 0.3; pointer-events: none; }
+        .tarjeta.seleccionada { opacity: 0.3; pointer-events: none; transform: scale(0.9); }
         
-        #area-secuencia { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: rgba(255,255,255,0.7); border: 3px dashed var(--s-purple); border-radius: 20px; min-height: 100px; width: 90%; margin-bottom: 80px; }
+        #area-secuencia { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: rgba(255,255,255,0.7); border: 3px dashed var(--s-purple); border-radius: 20px; min-height: 100px; width: 90%; margin-bottom: 90px; }
         .item-ordenado { width: 95%; display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; border: 2px solid var(--p-purple); animation: slideIn 0.3s ease-out; }
         .num-orden { background: var(--p-purple); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 0.8rem; }
 
@@ -26,13 +27,15 @@
 
         #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; padding: 20px; text-align: center; }
         #pantalla-transicion { background: var(--p-purple); color: white; }
-        #overlay-final { background: rgba(16, 58, 87, 0.95); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body onload="iniciarEjercicio()">
 
 <header>
-    <span style="font-weight:bold;">MODULO 3: PLANIFICACIÓN</span>
+    <span style="font-weight:bold;">MÓDULO 3: PLANIFICACIÓN</span>
 </header>
 
 <div id="contenedor-principal">
@@ -49,21 +52,20 @@
 
 <div id="overlay-final">
     <h1 style="color: #FFD700; font-size: 2.5rem;">¡META CUMPLIDA!</h1>
-    <p style="font-size: 1.3rem;">Juan, has completado todos los niveles de planificación.</p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="margin-top:20px; padding: 15px 40px; background: #FFD700; color: #4A148C; border-radius: 50px; font-size: 1.2rem; border:none; font-weight:bold;">FINALIZAR SESIÓN</button>
+    <p style="font-size: 1.3rem; margin: 20px 0;">Juan, has completado todos los niveles de planificación con éxito.</p>
+    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: #FFD700; color: #4A148C; border-radius: 50px; font-size: 1.2rem; border:none; font-weight:bold; cursor:pointer;">FINALIZAR SESIÓN</button>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const nivelURL = urlParams.get('nivel') || 'bajo';
     
-    // Estado del juego
     let nivelActual = nivelURL === 'alto' ? 3 : (nivelURL === 'medio' ? 2 : 1);
     let intentoEnNivel = 1; 
     let fallosEnReto = 0;
     let secuenciaUsuario = [];
     let retoActual = null;
-    let retosVistos = []; // Para no repetir el mismo reto en el segundo intento
+    let retosVistos = [];
 
     const banco = {
         1: [
@@ -73,8 +75,7 @@
         ],
         2: [
             { t: "Sacar al Perro", pasos: [{e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Bolsas de desechos"}, {e:"🚪", p:"Abrir puerta"}, {e:"🌳", p:"Ir al parque"}, {e:"🏠", p:"Regresar"}], dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🎷", p:"Tocar música"}] },
-            { t: "Hacer Sándwich", pasos: [{e:"🍞", p:"Sacar pan"}, {e:"🥓", p:"Poner jamón"}, {e:"🧀", p:"Poner queso"}, {e:"🥪", p:"Cerrar pan"}, {e:"🔪", p:"Cortar"}, {e:"🍽️", p:"Servir"}], dist: [{e:"👟", p:"Atar zapatos"}, {e:"🚿", p:"Bañarse"}] },
-            { t: "Lavar la Ropa", pasos: [{e:"🧺", p:"Meter ropa"}, {e:"🧼", p:"Poner jabón"}, {e:"🔘", p:"Encender"}, {e:"🌀", p:"Centrifugar"}, {e:"🔔", p:"Esperar timbre"}, {e:"👕", p:"Sacar ropa"}], dist: [{e:"🚗", p:"Conducir"}, {e:"📖", p:"Leer"}] }
+            { t: "Hacer Sándwich", pasos: [{e:"🍞", p:"Sacar pan"}, {e:"🥓", p:"Poner jamón"}, {e:"🧀", p:"Poner queso"}, {e:"🥪", p:"Cerrar pan"}, {e:"🍽️", p:"Servir"}], dist: [{e:"👟", p:"Atar zapatos"}, {e:"🚿", p:"Bañarse"}] }
         ],
         3: [
             { t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Poner dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Ir al correo"}, {e:"⚖️", p:"Pesar envío"}, {e:"💰", p:"Pagar"}, {e:"📬", p:"Depositar"}], dist: [{e:"🍕", p:"Pedir pizza"}, {e:"🚲", p:"Inflar llanta"}] },
@@ -95,6 +96,7 @@
         document.getElementById('btn-verificar').style.display = "none";
 
         const opciones = banco[nivelActual].filter(r => !retosVistos.includes(r.t));
+        if (opciones.length === 0) retosVistos = []; // Reset si se acaban
         retoActual = opciones[Math.floor(Math.random() * opciones.length)];
         retosVistos.push(retoActual.t);
 
@@ -103,7 +105,7 @@
         document.getElementById('desc-nivel').innerText = `Reto ${intentoEnNivel} de 2: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, nivel ${textoNivel}. Organiza los pasos para ${retoActual.t}`);
+        hablar(`Juan, nivel ${textoNivel}. Vamos a ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
@@ -121,7 +123,7 @@
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="texto">${obj.p}</span>`;
             div.onclick = () => {
                 if(retoActual.dist.some(d => d.p === obj.p)) {
-                    hablar("Ese paso no es necesario aquí.");
+                    hablar("Ese paso no es necesario para esta tarea.");
                     return;
                 }
                 div.classList.add('seleccionada');
@@ -141,36 +143,49 @@
     }
 
     function verificarSecuencia() {
-        const correcto = retoActual.pasos.every((p, i) => p.p === secuenciaUsuario[i]);
-        if (correcto) {
-            hablar("¡Muy bien hecho!");
-            
+        let indiceError = -1;
+        for (let i = 0; i < secuenciaUsuario.length; i++) {
+            if (secuenciaUsuario[i] !== retoActual.pasos[i].p) {
+                indiceError = i;
+                break;
+            }
+        }
+
+        if (indiceError === -1) {
+            hablar("¡Excelente orden Juan!");
             if(intentoEnNivel < 2) {
-                // Segundo intento del mismo nivel
                 intentoEnNivel++;
                 setTimeout(iniciarEjercicio, 2000);
             } else {
-                // Ya hizo 2 intentos, ¿sube de nivel o termina?
                 if(nivelActual < 3) {
-                    nivelActual++; // Sube de 1 a 2, o de 2 a 3
+                    nivelActual++;
                     intentoEnNivel = 1;
-                    retosVistos = []; // Limpiar para el nuevo nivel
-                    hablar("Nivel completado. Subiendo de dificultad.");
+                    retosVistos = [];
+                    hablar("Nivel completado. Subamos la dificultad.");
                     setTimeout(iniciarEjercicio, 2000);
                 } else {
-                    // Final absoluto (Nivel 3 terminado)
                     document.getElementById('overlay-final').style.display = "flex";
-                    hablar("Increíble, Juan. Has completado todo el entrenamiento.");
+                    hablar("Entrenamiento finalizado. ¡Lo lograste!");
                 }
             }
         } else {
             fallosEnReto++;
+            const listaUI = document.getElementById('area-secuencia').children;
+            if(listaUI[indiceError]) {
+                listaUI[indiceError].style.borderColor = "red";
+                listaUI[indiceError].style.background = "#FFEBEE";
+            }
+
             if(fallosEnReto >= 2) {
-                let indice = secuenciaUsuario.findIndex((p, i) => p !== retoActual.pasos[i].p);
-                if(indice === -1) indice = secuenciaUsuario.length;
-                hablar("Pista: el siguiente paso es " + retoActual.pasos[indice].p);
+                const anterior = indiceError > 0 ? retoActual.pasos[indiceError - 1].p : null;
+                const correcto = retoActual.pasos[indiceError].p;
+                if(anterior) {
+                    hablar(`Juan, fíjate. Después de ${anterior}, lo correcto es ${correcto}.`);
+                } else {
+                    hablar(`Juan, el primer paso debería ser ${correcto}.`);
+                }
             } else {
-                hablar("El orden no es correcto. Inténtalo otra vez.");
+                hablar("El orden no es el correcto. Mira la tarjeta marcada en rojo.");
             }
             
             setTimeout(() => {
@@ -178,7 +193,7 @@
                 document.getElementById('area-secuencia').innerHTML = "";
                 document.getElementById('btn-verificar').style.display = "none";
                 document.querySelectorAll('.tarjeta').forEach(t => t.classList.remove('seleccionada'));
-            }, 2500);
+            }, 3500);
         }
     }
 </script>
