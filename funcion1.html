@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Función Ejecutiva 1 - REHABILIDIA</title>
+    <title>Función Ejecutiva - REHABILIDIA</title>
     <style>
         :root { --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--p-purple); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -22,7 +22,10 @@
         .item-ordenado { width: 95%; display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; border: 2px solid var(--p-purple); animation: slideIn 0.3s ease-out; }
         .num-orden { background: var(--p-purple); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 0.8rem; }
 
-        #btn-verificar { position: fixed; bottom: 20px; padding: 15px 40px; font-size: 1.3rem; background: #2E7D32; color: white; border: none; border-radius: 50px; cursor: pointer; display: none; font-weight: bold; }
+        /* Estilo del botón de comprobación */
+        #btn-verificar { position: fixed; bottom: 20px; padding: 15px 40px; font-size: 1.3rem; background: #2E7D32; color: white; border: none; border-radius: 50px; cursor: pointer; display: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10; }
+        #btn-verificar:active { transform: scale(0.95); }
+
         #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; padding: 20px; text-align: center; }
         #pantalla-transicion { background: var(--p-purple); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.95); color: white; }
@@ -62,6 +65,7 @@
     let secuenciaUsuario = [];
     let retoActual = null;
 
+    // Banco de ejercicios ampliado según tus requerimientos
     const banco = {
         1: [
             { t: "Lavar los platos", pasos: [{e:"🧼", p:"Poner jabón"}, {e:"🍽️", p:"Fregar plato"}, {e:"💧", p:"Enjuagar"}], dist: [] },
@@ -97,7 +101,10 @@
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
         hablar("Juan, organiza los pasos para " + retoActual.t);
-        setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; dibujarTarjetas(); }, 3000);
+        setTimeout(() => { 
+            document.getElementById('pantalla-transicion').style.display = 'none'; 
+            dibujarTarjetas(); 
+        }, 3000);
     }
 
     function dibujarTarjetas() {
@@ -127,7 +134,12 @@
         item.className = 'item-ordenado';
         item.innerHTML = `<div class="num-orden">${secuenciaUsuario.length}</div> <strong>${obj.e} ${obj.p}</strong>`;
         document.getElementById('area-secuencia').appendChild(item);
-        if(secuenciaUsuario.length === retoActual.pasos.length) document.getElementById('btn-verificar').style.display = "block";
+        
+        // Lógica clave: El botón aparece solo cuando se completa la cantidad de pasos requeridos
+        if(secuenciaUsuario.length === retoActual.pasos.length) {
+            document.getElementById('btn-verificar').style.display = "block";
+            hablar("Has terminado. Pulsa el botón verde para comprobar.");
+        }
     }
 
     function verificarSecuencia() {
@@ -143,22 +155,25 @@
             }
         } else {
             fallosEnReto++;
+            // Pistas dinámicas tras el segundo fallo
             if(fallosEnReto >= 2) {
-                const siguienteCorrecto = retoActual.pasos[secuenciaUsuario.findIndex((p, i) => p !== secuenciaUsuario[i]) || 0];
-                hablar("Casi lo tienes Juan. Una pista: el siguiente paso debería ser " + siguienteCorrecto.p);
+                let indiceError = secuenciaUsuario.findIndex((p, i) => p !== retoActual.pasos[i].p);
+                if (indiceError === -1) indiceError = secuenciaUsuario.length;
+                const pista = retoActual.pasos[indiceError];
+                hablar("Casi lo tienes Juan. Una pista: el siguiente paso debería ser " + pista.p);
             } else {
                 hablar("El orden no es el correcto. Inténtalo de nuevo.");
             }
+            
+            // Reiniciar para nuevo intento
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
                 document.getElementById('btn-verificar').style.display = "none";
                 document.querySelectorAll('.tarjeta').forEach(t => t.classList.remove('seleccionada'));
-            }, 2000);
+            }, 2500);
         }
     }
 </script>
 </body>
 </html>
-
-
