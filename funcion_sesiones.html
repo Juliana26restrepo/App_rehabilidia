@@ -7,23 +7,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --p-blue: #103A57; 
-            --t-blue: #307B8E; 
-            --silver: #CEE5D6; 
-            --m-green: #366B2B;
-            --p-purple: #4A148C;
+            --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; --m-green: #366B2B;
+            --p-purple: #4A148C; /* Color temático para Funciones Ejecutivas */
         }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--silver); color: var(--p-blue); }
-        
-        header { 
-            background-color: var(--p-purple); /* Cambiado a morado para distinguir Funciones Ejecutivas */
-            color: white; 
-            padding: 15px; 
-            display: flex; 
-            align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
+        header { background-color: var(--p-purple); color: white; padding: 15px; display: flex; align-items: center; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; margin-right: 15px; }
         
         .container { padding: 20px; max-width: 500px; margin: auto; }
@@ -37,10 +25,10 @@
             border-left: 10px solid var(--p-purple); transition: 0.3s;
         }
         .sesion-card.bloqueada { border-left-color: #95a5a5; opacity: 0.7; cursor: not-allowed; }
-        .sesion-card span { font-weight: bold; font-size: 1.1rem; color: #333; }
+        .sesion-card span { font-weight: bold; font-size: 1rem; color: #333; }
 
         .niveles-container {
-            display: none; background: rgba(255,255,255,0.8); 
+            display: none; background: rgba(255,255,255,0.6); 
             border-radius: 0 0 15px 15px; padding: 15px; border: 1px solid #ddd;
             border-top: none; animation: slideDown 0.3s ease-out;
         }
@@ -48,17 +36,14 @@
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-nivel {
-            display: block; width: 100%; padding: 14px; margin-bottom: 10px;
-            border-radius: 12px; border: none; font-weight: bold; cursor: pointer;
-            text-align: center; text-decoration: none; font-size: 1rem; transition: 0.2s;
+            display: block; width: 100%; padding: 12px; margin-bottom: 8px;
+            border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
+            text-align: center; text-decoration: none; font-size: 0.9rem; transition: 0.2s;
         }
         .btn-nivel:active { transform: scale(0.96); }
-        
         .n-bajo { background-color: var(--m-green); color: white; }
         .n-medio { background-color: #E67E22; color: white; }
         .n-alto { background-color: #C0392B; color: white; }
-
-        .icono-cerrado { color: var(--p-purple); font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -68,14 +53,13 @@
     <span style="font-weight: bold;">SESIONES DE FUNCIONES EJECUTIVAS</span>
 </header>
 
-<div class="container" id="lista-sesiones">
-    </div>
+<div class="container" id="lista-sesiones"></div>
 
 <script>
-    // Configuración de las 10 sesiones (true = abierta, false = bloqueada)
+    // Configuración de sesiones activas
     const estadoSesiones = {
-        1: true, 2: true, 3: true, 4: true, 5: true, 
-        6: true, 7: true, 8: true, 9: true, 10: true
+        1: true, 2: true, 3: true, 4: true, 5: true,  
+        6: true, 7: true, 8: true, 9: true, 10:true,
     };
 
     const contenedor = document.getElementById('lista-sesiones');
@@ -89,11 +73,12 @@
                 <div class="sesion-wrapper">
                     <div class="sesion-card ${estaAbierta ? '' : 'bloqueada'}" onclick="toggleNiveles(${i}, ${estaAbierta})">
                         <span>SESIÓN ${i}</span>
-                        <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'} icono-cerrado"></i>
+                        <i id="icono-${i}" class="fas ${estaAbierta ? 'fa-chevron-down' : 'fa-lock'}" 
+                           style="color: ${estaAbierta ? 'var(--p-purple)' : '#999'};"></i>
                     </div>
                     ${estaAbierta ? `
                     <div id="niveles-${i}" class="niveles-container">
-                        <p style="font-size: 0.9rem; margin-bottom: 12px; text-align: center; color: #444; font-weight: 500;">Escoge el nivel de dificultad:</p>
+                        <p style="font-size: 0.8rem; margin-bottom: 10px; text-align: center; color: #555;">Selecciona la dificultad:</p>
                         <button class="btn-nivel n-bajo" onclick="irA(${i}, 'bajo')">NIVEL BAJO</button>
                         <button class="btn-nivel n-medio" onclick="irA(${i}, 'medio')">NIVEL MEDIO</button>
                         <button class="btn-nivel n-alto" onclick="irA(${i}, 'alto')">NIVEL ALTO</button>
@@ -111,7 +96,6 @@
         const contenedorNiveles = document.getElementById(`niveles-${num}`);
         const icono = document.getElementById(`icono-${num}`);
         
-        // Cerrar otros menús abiertos para mantener orden
         document.querySelectorAll('.niveles-container').forEach(el => {
             if(el.id !== `niveles-${num}`) {
                 el.style.display = 'none';
@@ -123,7 +107,6 @@
             }
         });
 
-        // Alternar el actual
         if (contenedorNiveles.style.display === "block") {
             contenedorNiveles.style.display = "none";
             icono.classList.replace("fa-chevron-up", "fa-chevron-down");
@@ -133,9 +116,8 @@
         }
     }
 
-    // REDIRECCIÓN CLAVE
+    // FUNCIÓN CORREGIDA: Ahora busca archivos funcionX.html
     function irA(sesion, dificultad) {
-        // Redirige a funcion1.html, funcion2.html... pasando el nivel como parámetro
         window.location.href = `funcion${sesion}.html?nivel=${dificultad}`;
     }
 
@@ -144,3 +126,4 @@
 
 </body>
 </html>
+
