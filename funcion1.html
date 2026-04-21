@@ -3,184 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funciones Ejecutivas - Rutinas</title>
+    <title>Función Ejecutiva 1 - REHABILIDIA</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #F3E5F5; text-align: center; color: #4A148C; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #cabecera { background: white; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #AB47BC; flex-shrink: 0; }
+        :root { --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--p-purple); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: #103A57; height: 60px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+        
         #contenedor-principal { flex-grow: 1; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-y: auto; }
+        .instruccion-reto { font-size: 1.2rem; font-weight: bold; margin: 10px 0; color: white; background: var(--p-purple); padding: 15px; border-radius: 15px; width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
-        .instruccion-reto { font-size: 1.4rem; font-weight: bold; margin: 10px 0; color: #6A1B9A; background: white; padding: 10px; border-radius: 15px; width: 90%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #area-opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .tarjeta { width: 120px; padding: 12px; background: white; border: 3px solid var(--s-purple); border-radius: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tarjeta .emoji { font-size: 2.5rem; }
+        .tarjeta .texto { font-size: 0.85rem; font-weight: bold; margin-top: 5px; }
+        .tarjeta.seleccionada { opacity: 0.3; pointer-events: none; }
         
-        #area-opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px; padding: 10px; }
-        #area-secuencia { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: rgba(255,255,255,0.6); border: 3px dashed #AB47BC; border-radius: 20px; min-height: 150px; width: 90%; margin-bottom: 80px; }
+        #area-secuencia { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: rgba(255,255,255,0.7); border: 3px dashed var(--s-purple); border-radius: 20px; min-height: 100px; width: 90%; margin-bottom: 80px; }
+        .item-ordenado { width: 95%; display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; border: 2px solid var(--p-purple); animation: slideIn 0.3s ease-out; }
+        .num-orden { background: var(--p-purple); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 0.8rem; }
 
-        .tarjeta { width: 140px; padding: 12px; background: white; border: 2px solid #AB47BC; border-radius: 15px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; }
-        .tarjeta .emoji { font-size: 2.5rem; margin-bottom: 5px; }
-        .tarjeta .texto { font-size: 0.9rem; font-weight: bold; color: #4A148C; }
-        .tarjeta.seleccionada { opacity: 0.3; transform: scale(0.9); pointer-events: none; }
-        
-        .item-ordenado { width: 90%; display: flex; align-items: center; background: #E1BEE7; padding: 10px; border-radius: 10px; border: 1px solid #7B1FA2; animation: entrar 0.3s ease-out; }
-        .num-orden { background: #7B1FA2; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold; }
-
-        @keyframes entrar { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        #btn-verificar { position: fixed; bottom: 20px; padding: 15px 40px; font-size: 1.4rem; background: #4CAF50; color: white; border: none; border-radius: 50px; cursor: pointer; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); font-weight: bold; }
-        
+        #btn-verificar { position: fixed; bottom: 20px; padding: 15px 40px; font-size: 1.3rem; background: #2E7D32; color: white; border: none; border-radius: 50px; cursor: pointer; display: none; font-weight: bold; }
         #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; padding: 20px; text-align: center; }
-        #pantalla-transicion { background: #6A1B9A; color: white; }
-        #overlay-final { background: rgba(74, 20, 140, 0.98); color: white; }
+        #pantalla-transicion { background: var(--p-purple); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.95); color: white; }
     </style>
 </head>
 <body onload="iniciarEjercicio()">
 
-<div id="cabecera">
-    <div style="display:flex; align-items:center;">
-        <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1643/1643231.png'">
-        <span style="font-weight:bold;">Planificación: Rutinas Diarias</span>
-    </div>
-</div>
+<header>
+    <span style="font-weight:bold;">MODULO 3: PLANIFICACIÓN</span>
+</header>
 
 <div id="contenedor-principal">
-    <div id="reto-texto" class="instruccion-reto"></div>
+    <div id="reto-texto" class="instruccion-reto">Cargando...</div>
     <div id="area-opciones"></div>
-    <div style="font-weight: bold; margin-bottom: 5px;">Tu secuencia ordenada:</div>
     <div id="area-secuencia"></div>
-    <button id="btn-verificar" onclick="verificarSecuencia()">LISTO, COMPROBAR</button>
+    <button id="btn-verificar" onclick="verificarSecuencia()">COMPROBAR ORDEN</button>
 </div>
 
 <div id="pantalla-transicion">
-    <h1 id="tit-nivel" style="font-size: 3rem; background: #FFD700; color: #4A148C; padding: 10px 40px; border-radius: 50px;"></h1>
-    <p id="desc-nivel" style="font-size: 1.6rem; margin-top: 20px;"></p>
+    <h1 id="tit-nivel" style="font-size: 2.5rem; background: #FFD700; color: #4A148C; padding: 10px 30px; border-radius: 30px;"></h1>
+    <p id="desc-nivel" style="font-size: 1.4rem; margin-top: 20px;"></p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3rem;">¡MUY BIEN HECHO!</h1>
-    <p id="stats" style="font-size: 1.6rem; margin-bottom: 20px;"></p>
-    <p style="font-size: 1.8rem; font-weight: bold; width: 80%;">“Planear es anticiparse al éxito”</p>
-    <button onclick="location.reload()" style="margin-top:20px; padding: 15px 40px; background: #FFD700; color: #4A148C; border-radius: 50px; font-size: 1.5rem; border:none; cursor:pointer; font-weight:bold;">REPETIR MÓDULO</button>
+    <h1 style="color: #FFD700; font-size: 2.5rem;">¡LOGRADO!</h1>
+    <p style="font-size: 1.3rem;">Has completado el entrenamiento de hoy.</p>
+    <button onclick="window.location.href='funcion_sesiones.html'" style="margin-top:20px; padding: 15px 40px; background: #FFD700; color: #4A148C; border-radius: 50px; font-size: 1.2rem; border:none; font-weight:bold;">VOLVER AL MENÚ</button>
 </div>
 
 <script>
-    let nivel = 1, secuenciaUsuario = [], retoActual = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const nivelURL = urlParams.get('nivel') || 'bajo';
+    let nivelActual = nivelURL === 'alto' ? 3 : (nivelURL === 'medio' ? 2 : 1);
+    
+    let intentoEnNivel = 1; 
+    let fallosEnReto = 0;
+    let secuenciaUsuario = [];
+    let retoActual = null;
 
-    const bancoRetos = {
+    const banco = {
         1: [
-            { t: "Lavarse los dientes", pasos: [{e:"🪥", p:"Poner pasta"}, {e:"🦷", p:"Cepillar"}, {e:"🥛", p:"Enjuagar"}], dist: [] },
-            { t: "Servir Cereal", pasos: [{e:"🥣", p:"Poner cereal"}, {e:"🥛", p:"Echar leche"}, {e:"🥄", p:"Coger cuchara"}], dist: [] }
+            { t: "Lavar los platos", pasos: [{e:"🧼", p:"Poner jabón"}, {e:"🍽️", p:"Fregar plato"}, {e:"💧", p:"Enjuagar"}], dist: [] },
+            { t: "Hacer un dibujo", pasos: [{e:"📝", p:"Coger papel"}, {e:"✏️", p:"Dibujar"}, {e:"🎨", p:"Colorear"}], dist: [] },
+            { t: "Beber agua", pasos: [{e:"🥛", p:"Coger vaso"}, {e:"🚰", p:"Llenar agua"}, {e:"😋", p:"Beber"}], dist: [] }
         ],
         2: [
-            { t: "Hacer un Café", pasos: [{e:"💧", p:"Llenar agua"}, {e:"☕", p:"Poner cápsula"}, {e:"🍵", p:"Poner taza"}, {e:"🔘", p:"Pulsar botón"}, {e:"🧂", p:"Echar azúcar"}, {e:"🥄", p:"Revolver"}], dist: [{e:"🪮", p:"Peinarse"}, {e:"🌂", p:"Abrir paraguas"}] },
-            { t: "Sacar al Perro", pasos: [{e:"🗣️", p:"Llamar perro"}, {e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Enganchar correa"}, {e:"🛍️", p:"Coger bolsas"}, {e:"🚪", p:"Abrir puerta"}, {e:"🌳", p:"Salir al parque"}], dist: [{e:"🍳", p:"Cocinar huevo"}, {e:"🔨", p:"Clavar clavo"}] }
+            { t: "Sacar al Perro", pasos: [{e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Bolsas de desechos"}, {e:"🚪", p:"Abrir puerta"}, {e:"🌳", p:"Ir al parque"}, {e:"🏠", p:"Regresar"}], dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🎷", p:"Tocar música"}] },
+            { t: "Hacer Sándwich", pasos: [{e:"🍞", p:"Sacar pan"}, {e:"🥓", p:"Poner jamón"}, {e:"🧀", p:"Poner queso"}, {e:"🥪", p:"Cerrar pan"}, {e:"🔪", p:"Cortar"}, {e:"🍽️", p:"Servir"}], dist: [{e:"👟", p:"Atar zapatos"}, {e:"🚿", p:"Bañarse"}] }
         ],
         3: [
-            { t: "Salir (Día Lluvioso)", pasos: [{e:"👕", p:"Vestirse"}, {e:"🍳", p:"Desayunar"}, {e:"🪥", p:"Lavar dientes"}, {e:"💡", p:"Apagar luces"}, {e:"🧥", p:"Impermeable"}, {e:"☂️", p:"Coger paraguas"}, {e:"🔑", p:"Buscar llaves"}, {e:"🔒", p:"Cerrar puerta"}], dist: [{e:"📺", p:"Ver película"}, {e:"😴", p:"Dormir siesta"}, {e:"🚿", p:"Regar jardín"}] }
+            { t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Poner dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Ir al correo"}, {e:"⚖️", p:"Pesar envío"}, {e:"💰", p:"Pagar"}, {e:"📬", p:"Depositar"}], dist: [{e:"🍕", p:"Pedir pizza"}, {e:"🚲", p:"Inflar llanta"}] }
         ]
     };
 
-    function hablar(t, cb) { 
-        window.speechSynthesis.cancel(); 
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9; 
-        if(cb) m.onend = cb; window.speechSynthesis.speak(m); 
+    function hablar(t) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        window.speechSynthesis.speak(m);
     }
 
-    function iniciarEjercicio() { prepararNivel(); }
-
-    function prepararNivel() {
+    function iniciarEjercicio() {
         secuenciaUsuario = [];
+        fallosEnReto = 0;
         document.getElementById('area-secuencia').innerHTML = "";
-        document.getElementById('btn-verificar').style.display = 'none';
-        
-        const lista = bancoRetos[nivel];
-        retoActual = lista[Math.floor(Math.random() * lista.length)];
+        document.getElementById('btn-verificar').style.display = "none";
 
-        document.getElementById('tit-nivel').innerText = "NIVEL " + nivel;
-        document.getElementById('desc-nivel').innerText = "Organiza los pasos para: " + retoActual.t;
+        const opcionesNivel = banco[nivelActual];
+        retoActual = opcionesNivel[Math.floor(Math.random() * opcionesNivel.length)];
+
+        document.getElementById('tit-nivel').innerText = "EJERCICIO " + intentoEnNivel + "/2";
+        document.getElementById('desc-nivel').innerText = "Juan, vamos a: " + retoActual.t;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, vamos al nivel ${nivel}. Organiza los pasos para ${retoActual.t}.`, () => {
-            setTimeout(() => {
-                document.getElementById('pantalla-transicion').style.display = 'none';
-                mostrarOpciones();
-            }, 2500);
-        });
+        hablar("Juan, organiza los pasos para " + retoActual.t);
+        setTimeout(() => { document.getElementById('pantalla-transicion').style.display = 'none'; dibujarTarjetas(); }, 3000);
     }
 
-    function mostrarOpciones() {
-        document.getElementById('reto-texto').innerText = "Reto: " + retoActual.t;
-        const box = document.getElementById('area-opciones');
-        box.innerHTML = "";
-
-        let todas = [...retoActual.pasos, ...retoActual.dist];
-        todas.sort(() => Math.random() - 0.5);
-
+    function dibujarTarjetas() {
+        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
+        const area = document.getElementById('area-opciones');
+        area.innerHTML = "";
+        let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
         todas.forEach(obj => {
             const div = document.createElement('div');
             div.className = 'tarjeta';
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="texto">${obj.p}</span>`;
-            div.onclick = () => manejarSeleccion(div, obj);
-            box.appendChild(div);
+            div.onclick = () => {
+                if(retoActual.dist.some(d => d.p === obj.p)) {
+                    hablar("Ese paso no pertenece a esta tarea, Juan.");
+                    return;
+                }
+                div.classList.add('seleccionada');
+                secuenciaUsuario.push(obj.p);
+                actualizarSecuenciaUI(obj);
+            };
+            area.appendChild(div);
         });
     }
 
-    function manejarSeleccion(div, obj) {
-        // Verificar si es distractor (Distractores agresivos)
-        const esDistractor = retoActual.dist.some(d => d.p === obj.p);
-        
-        if (esDistractor) {
-            hablar("Cuidado Juan, " + obj.p + " no es parte de esta rutina. Concéntrate.");
-            div.style.borderColor = "red";
-            setTimeout(() => div.style.borderColor = "#AB47BC", 1000);
-            return;
-        }
-
-        div.classList.add('seleccionada');
-        secuenciaUsuario.push(obj.p);
-        
+    function actualizarSecuenciaUI(obj) {
         const item = document.createElement('div');
         item.className = 'item-ordenado';
         item.innerHTML = `<div class="num-orden">${secuenciaUsuario.length}</div> <strong>${obj.e} ${obj.p}</strong>`;
         document.getElementById('area-secuencia').appendChild(item);
-
-        if (secuenciaUsuario.length === retoActual.pasos.length) {
-            document.getElementById('btn-verificar').style.display = 'block';
-            hablar("Muy bien, ahora comprueba si el orden es correcto.");
-        }
+        if(secuenciaUsuario.length === retoActual.pasos.length) document.getElementById('btn-verificar').style.display = "block";
     }
 
     function verificarSecuencia() {
-        const correctas = retoActual.pasos.map(p => p.p);
-        let error = false;
-
-        for (let i = 0; i < correctas.length; i++) {
-            if (secuenciaUsuario[i] !== correctas[i]) {
-                error = true;
-                break;
+        const correcto = retoActual.pasos.every((p, i) => p.p === secuenciaUsuario[i]);
+        if (correcto) {
+            hablar("¡Excelente trabajo!");
+            if(intentoEnNivel < 2) {
+                intentoEnNivel++;
+                setTimeout(iniciarEjercicio, 2000);
+            } else {
+                document.getElementById('overlay-final').style.display = "flex";
+                hablar("Has terminado todos los ejercicios con éxito.");
             }
-        }
-
-        if (!error) {
-            hablar("¡Excelente! Has planificado la rutina perfectamente.");
-            setTimeout(() => {
-                if (nivel < 3) { nivel++; prepararNivel(); }
-                else { mostrarFinal(); }
-            }, 2500);
         } else {
-            hablar("El orden no es del todo lógico, Juan. Vamos a intentarlo de nuevo.");
+            fallosEnReto++;
+            if(fallosEnReto >= 2) {
+                const siguienteCorrecto = retoActual.pasos[secuenciaUsuario.findIndex((p, i) => p !== secuenciaUsuario[i]) || 0];
+                hablar("Casi lo tienes Juan. Una pista: el siguiente paso debería ser " + siguienteCorrecto.p);
+            } else {
+                hablar("El orden no es el correcto. Inténtalo de nuevo.");
+            }
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
-                document.getElementById('btn-verificar').style.display = 'none';
+                document.getElementById('btn-verificar').style.display = "none";
                 document.querySelectorAll('.tarjeta').forEach(t => t.classList.remove('seleccionada'));
-            }, 2500);
+            }, 2000);
         }
-    }
-
-    function mostrarFinal() {
-        document.getElementById('stats').innerText = "Has completado los 3 niveles de organización.";
-        document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Planear es anticiparse al éxito. ¡Buen trabajo Juan!");
     }
 </script>
 </body>
 </html>
+
 
