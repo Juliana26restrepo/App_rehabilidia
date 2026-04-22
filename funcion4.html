@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesión 4: Memoria de Trabajo Pro - REHABILIDIA</title>
+    <title>Sesión 4: Memoria de Trabajo - REHABILIDIA</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #E8F5E9; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -11,19 +11,23 @@
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
         
-        .panel-lista { background: white; padding: 15px; border-radius: 20px; border: 4px dashed var(--p-purple); width: 85%; max-width: 350px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .item-lista { font-size: 1.5rem; font-weight: bold; color: var(--p-purple); margin: 8px 0; display: block; text-transform: uppercase; }
+        .progreso-txt { font-weight: bold; color: var(--p-purple); margin-bottom: 5px; }
+        .panel-lista { background: white; padding: 20px; border-radius: 20px; border: 4px dashed var(--p-purple); width: 80%; max-width: 350px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .item-lista { font-size: 1.6rem; font-weight: bold; color: var(--p-purple); margin: 10px 0; display: block; text-transform: uppercase; }
 
-        #zona-mercado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 500px; display: none; padding: 10px; overflow-y: auto; max-height: 60vh; }
-        .producto { background: white; border: 2px solid var(--navy); padding: 10px 5px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; min-height: 50px; }
-        .producto.selected { background: var(--gold); border-color: var(--p-purple); transform: scale(0.9); }
+        #zona-mercado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 500px; display: none; padding: 10px; }
+        .producto { background: white; border: 2px solid var(--navy); padding: 12px 5px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; min-height: 55px; box-shadow: 0 3px 0 var(--navy); }
+        .producto:active { transform: translateY(3px); box-shadow: none; }
+        .producto.selected { background: var(--gold); border-color: var(--p-purple); }
 
-        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 3px solid var(--p-purple); height: 90px; box-sizing: border-box; }
-        .avatar-img { width: 60px; height: 60px; border-radius: 50%; background: var(--p-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
-        .burbuja { background: #F5F5F5; padding: 8px; border-radius: 12px; font-size: 0.85rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 60px; overflow-y: auto; }
+        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; margin-top: auto; }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--p-purple); overflow: hidden; flex-shrink: 0; background: #eee; }
+        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 65px; overflow-y: auto; }
 
-        #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; background: rgba(16, 58, 87, 0.98); color: white; z-index: 2000; }
-        .btn-accion { background: var(--gold); border: none; padding: 15px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 15px; color: var(--p-purple); }
+        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
+        #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
+        .btn-accion { background: var(--gold); border: none; padding: 15px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem; margin-top: 20px; color: var(--p-purple); }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -31,11 +35,12 @@
 <header>SESIÓN 4: MEMORIA DE TRABAJO</header>
 
 <div id="contenedor-juego">
-    <h2 id="instruccion-pantalla" style="font-size: 1.2rem; margin: 10px 0;">MEMORIZA LA LISTA</h2>
+    <div class="progreso-txt" id="info-progreso">Nivel 1 - Ronda 1 de 3</div>
+    <h2 id="instruccion-pantalla">MEMORIZA LA LISTA</h2>
     
     <div id="pantalla-memorizar" class="panel-lista">
         <div id="lista-items"></div>
-        <button class="btn-accion" onclick="comenzarSeleccion()">¡LISTO!</button>
+        <button class="btn-accion" onclick="comenzarSeleccion()">¡YA ME LO SÉ!</button>
     </div>
 
     <div id="zona-mercado"></div>
@@ -43,16 +48,21 @@
 
 <div class="area-asistente">
     <div class="avatar-img">
-        <img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.parentElement.innerText='C'; this.style.display='none'">
+        <img src="COTERAPEUTA.JPG" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png';">
     </div>
-    <div class="burbuja" id="texto-asistente">¡Hola Juan! Vamos a ver qué tal está tu memoria hoy.</div>
+    <div class="burbuja" id="texto-asistente">¡Hola Juan! Vamos a entrenar la memoria.</div>
+</div>
+
+<div id="overlay-nivel">
+    <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3rem;">¡NIVEL 2!</h1>
+    <p id="lvl-mensaje" style="font-size: 1.5rem;"></p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold);">¡SESIÓN COMPLETADA!</h1>
-    <p id="stats" style="font-size: 1.3rem;"></p>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">¡EXCELENTE TRABAJO!</h1>
+    <p id="stats" style="font-size: 1.4rem;"></p>
     <p style="font-style: italic; margin: 20px; color: #CEE5D6;">"Recordar para actuar te hace más independiente"</p>
-    <button class="btn-accion" onclick="window.location.href='funcion_sesiones.html'">VOLVER A SESIONES</button>
+    <button class="btn-accion" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR</button>
 </div>
 
 <script>
@@ -60,26 +70,25 @@
         "Arroz", "frijoles", "lentejas", "pasta", "harina", "azúcar", "sal", "aceite", "mantequilla", "huevos", "leche", "queso", "yogur", "pan", "café", "chocolate", "atún", "pollo", "carne", "pescado", "jamón", "salchichas", "tomates", "cebolla", "ajo", "zanahoria", "papa", "yuca", "plátano", "banano", "manzana", "pera", "uvas", "naranja", "limón", "piña", "mango", "fresa", "lechuga", "espinaca", "pepino", "pimentón", "brócoli", "coliflor", "maíz", "avena", "cereal", "galletas", "miel", "mermelada", "mayonesa", "mostaza", "salsa de tomate", "vinagre", "caldo", "sopa instantánea", "jugo", "gaseosa", "agua", "té", "cerveza", "vino", "papel higiénico", "servilletas", "toallas de papel", "jabón", "shampoo", "acondicionador", "crema dental", "cepillo de dientes", "desodorante", "detergente", "suavizante", "cloro", "esponjas", "bolsas de basura", "aluminio", "plástico", "fósforos", "velas", "pilas", "encendedor", "azúcar morena", "panela", "coco", "almendras", "nueces", "pasas", "gelatina", "flan", "helado", "tortillas", "arepas", "queso crema", "crema de leche", "salsa soya", "pimienta", "comino", "orégano", "laurel"
     ];
 
-    let nivel = 1, aciertos = 0, listaActual = [], seleccionados = [];
+    let nivel = 1, ronda = 1, aciertos = 0, listaActual = [], seleccionados = [];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95;
         window.speechSynthesis.speak(m);
         document.getElementById('texto-asistente').innerText = t;
     }
 
     function iniciarSesion() {
-        hablar("Juan, memoriza esta lista. Luego deberás marcarlos en orden inverso, del último al primero.");
+        hablar("Juan, memoriza esta lista. Luego deberás marcarlos en orden inverso.");
         generarRonda();
     }
 
     function generarRonda() {
         document.getElementById('pantalla-memorizar').style.display = 'block';
         document.getElementById('zona-mercado').style.display = 'none';
-        document.getElementById('instruccion-pantalla').innerText = "MEMORIZA LA LISTA (Nivel " + nivel + ")";
+        document.getElementById('info-progreso').innerText = `Nivel ${nivel} - Ronda ${ronda} de 3`;
         
-        // Cantidad de items según nivel
         let cant = nivel === 1 ? 3 : (nivel === 2 ? 4 : 5);
         listaActual = [...bancoProductos].sort(() => 0.5 - Math.random()).slice(0, cant);
         
@@ -90,14 +99,13 @@
     function comenzarSeleccion() {
         document.getElementById('pantalla-memorizar').style.display = 'none';
         document.getElementById('zona-mercado').style.display = 'grid';
-        document.getElementById('instruccion-pantalla').innerText = "MÁRCALOS EN ORDEN INVERSO";
-        hablar("Ahora, ¿cuál era el último de la lista?");
+        document.getElementById('instruccion-pantalla').innerText = "¿CUÁL ERA EL ÚLTIMO?";
+        hablar("Dime los productos empezando por el final de la lista.");
         
         seleccionados = [];
         const mercado = document.getElementById('zona-mercado');
         mercado.innerHTML = "";
         
-        // Creamos una mezcla de los correctos + algunos distractores (9 opciones en total para no saturar)
         let distractores = bancoProductos.filter(p => !listaActual.includes(p)).sort(() => 0.5 - Math.random()).slice(0, 9 - listaActual.length);
         let opciones = [...listaActual, ...distractores].sort(() => 0.5 - Math.random());
         
@@ -112,37 +120,59 @@
 
     function validar(prod, el) {
         if(el.classList.contains('selected')) return;
-        
-        let objetivoIndex = (listaActual.length - 1) - seleccionados.length;
-        let objetivo = listaActual[objetivoIndex];
+        let objetivo = listaActual[(listaActual.length - 1) - seleccionados.length];
 
         if(prod.toLowerCase() === objetivo.toLowerCase()) {
             el.classList.add('selected');
             seleccionados.push(prod);
             aciertos++;
             if(seleccionados.length === listaActual.length) {
-                if(nivel < 3) {
-                    nivel++;
-                    hablar("¡Excelente! Vamos por una lista más larga.");
-                    setTimeout(generarRonda, 1500);
-                } else {
-                    finalizar();
-                }
+                manejarProgreso();
             } else {
-                hablar("Bien. ¿Cuál sigue hacia atrás?");
+                hablar("Bien. ¿Cuál iba antes?");
             }
         } else {
-            hablar("Ese no era. Piensa en el orden inverso.");
+            hablar("Ese no sigue el orden. Concéntrate Juan.");
             el.style.backgroundColor = "#FFCDD2";
             setTimeout(() => el.style.backgroundColor = "white", 500);
         }
     }
 
+    function manejarProgreso() {
+        if (ronda < 3) {
+            ronda++;
+            hablar("¡Muy bien! Siguiente lista.");
+            setTimeout(generarRonda, 1500);
+        } else {
+            if (nivel < 3) {
+                nivel++;
+                ronda = 1;
+                const msj = nivel === 2 ? "¡Excelente! Subimos al Nivel Medio con más productos." : "¡Increíble! Nivel Alto: Máxima dificultad.";
+                mostrarCambioNivel(msj);
+            } else {
+                finalizar();
+            }
+        }
+    }
+
+    function mostrarCambioNivel(mensaje) {
+        const overlay = document.getElementById('overlay-nivel');
+        document.getElementById('lvl-titulo').innerText = "¡NIVEL " + nivel + "!";
+        document.getElementById('lvl-mensaje').innerText = mensaje;
+        overlay.style.display = 'flex';
+        hablar(mensaje);
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            generarRonda();
+        }, 3500);
+    }
+
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Nivel Final: ${nivel}`;
-        hablar("¡Increíble memoria Juan! Recordar para actuar te hace más independiente.");
+        document.getElementById('stats').innerText = `Has completado los 3 niveles con éxito.`;
+        hablar("¡Terminamos la compra Juan! Recordar para actuar te hace más independiente.");
     }
 </script>
 </body>
 </html>
+
