@@ -7,18 +7,24 @@
     <style>
         :root { --p-purple: #4A148C; --bg: #F3E5F5; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy); color: white; padding: 10px; font-weight: bold; }
+        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
-        .panel-regla { background: var(--p-purple); color: white; padding: 10px 20px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; border: 3px solid var(--gold); }
-
-        #estimulo-central { font-size: 4rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; min-height: 100px; line-height: 100px; }
-
-        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 400px; }
-        .opcion { background: white; border: 2px solid var(--navy); padding: 15px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
-        #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; background: rgba(16, 58, 87, 0.98); color: white; z-index: 1000; padding: 20px; }
-        .btn-final { background: var(--gold); border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--p-purple); }
+        .indicador-nivel { color: var(--p-purple); font-weight: bold; margin-bottom: 5px; font-size: 1.1rem; }
+        .panel-regla { background: var(--p-purple); color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; border: 3px solid var(--gold); min-width: 250px; }
+
+        #estimulo-central { font-size: 4.5rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; min-height: 100px; transition: 0.2s; }
+
+        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 450px; }
+        .opcion { background: white; border: 3px solid var(--navy); padding: 18px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .opcion:active { background: #e0e0e0; transform: scale(0.95); }
+        
+        #overlay-aviso, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 1000; padding: 20px; text-align: center; }
+        #overlay-aviso { background: rgba(74, 20, 140, 0.95); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
+        
+        .btn-grande { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.3rem; font-weight: bold; cursor: pointer; margin-top: 25px; color: var(--p-purple); }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -26,55 +32,79 @@
 <header>SESIÓN 3: CONTROL DE IMPULSOS</header>
 
 <div id="contenedor-juego">
-    <div id="panel-regla" id="texto-instruccion">¡CARGANDO!</div>
-    <div id="estimulo-central" id="palabra-display">---</div>
-    <div id="zona-opciones" id="botones-contenedor"></div>
+    <div class="indicador-nivel" id="num-nivel">Nivel 1 de 3</div>
+    <div id="panel-regla" class="panel-regla">¡PREPÁRATE!</div>
+    <div id="estimulo-central">---</div>
+    <div id="zona-opciones"></div>
+</div>
+
+<div id="overlay-aviso">
+    <h1 id="titulo-aviso" style="color: var(--gold); font-size: 3rem;">¡NIVEL 2!</h1>
+    <p id="texto-aviso" style="font-size: 1.5rem;"></p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold);">¡SESIÓN FINALIZADA!</h1>
-    <p id="stats" style="font-size: 1.2rem;"></p>
-    <p style="font-style: italic; margin: 20px 0;">"Controlar tus impulsos también es una forma de cuidarte a ti."</p>
-    <button class="btn-final" onclick="window.location.href='index.html'">CONTINUAR</button>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">¡EXCELENTE SESIÓN!</h1>
+    <p id="stats" style="font-size: 1.4rem;"></p>
+    <p style="font-style: italic; margin: 20px 0; color: #CEE5D6;">"Controlar tus impulsos también es una forma de cuidarte a ti."</p>
+    <button class="btn-grande" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR</button>
 </div>
 
 <script>
     const colores = [
         { n: "ROJO", h: "#FF0000" }, { n: "AZUL", h: "#0000FF" },
-        { n: "VERDE", h: "#008000" }, { n: "AMARILLO", h: "#E6B800" },
+        { n: "VERDE", h: "#008000" }, { n: "AMARILLO", h: "#D4AF37" },
         { n: "NEGRO", h: "#000000" }
     ];
 
-    let intentos = 0, aciertos = 0, errores = 0, regla = "palabra";
+    let intentos = 0, aciertos = 0, errores = 0, nivelActual = 1, regla = "palabra";
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 1;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95;
         window.speechSynthesis.speak(m);
     }
 
     function iniciarSesion() {
-        // Sin esperas, arrancamos ya
-        hablar("Juan, selecciona la opción correcta según la instrucción.");
-        proxima();
+        hablar("Juan, lee la palabra, no te fijes en el color.");
+        proximaPregunta();
     }
 
-    function proxima() {
+    function mostrarCambioNivel(nuevoNivel, mensaje) {
+        const overlay = document.getElementById('overlay-aviso');
+        document.getElementById('titulo-aviso').innerText = "¡NIVEL " + nuevoNivel + "!";
+        document.getElementById('texto-aviso').innerText = mensaje;
+        overlay.style.display = 'flex';
+        hablar(mensaje);
+        setTimeout(() => { 
+            overlay.style.display = 'none';
+            proximaPregunta();
+        }, 3000);
+    }
+
+    function proximaPregunta() {
         if (intentos >= 15) { finalizar(); return; }
 
-        // Lógica de Niveles Directa
-        if (intentos < 5) { 
-            regla = "palabra"; 
-        } else if (intentos < 10) { 
-            regla = "color"; 
-        } else { 
-            regla = Math.random() > 0.5 ? "palabra" : "color"; 
+        // CAMBIO DE NIVELES
+        if (intentos === 5 && nivelActual === 1) {
+            nivelActual = 2; regla = "color";
+            mostrarCambioNivel(2, "¡Cambio! Ahora ignora la palabra y elige el color de la tinta.");
+            return;
+        }
+        if (intentos === 10 && nivelActual === 2) {
+            nivelActual = 3;
+            mostrarCambioNivel(3, "¡Atento! Ahora la regla cambiará en cada palabra.");
+            return;
         }
 
-        const textoRegla = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
-        document.getElementById('panel-regla').innerText = textoRegla;
+        if (nivelActual === 3) {
+            regla = Math.random() > 0.5 ? "palabra" : "color";
+        }
 
-        // Generar estímulo con interferencia (Stroop)
+        document.getElementById('num-nivel').innerText = "Nivel " + nivelActual + " de 3";
+        document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
+
+        // Crear interferencia
         const pRandom = colores[Math.floor(Math.random() * colores.length)];
         let cRandom;
         do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
@@ -83,14 +113,11 @@
         display.innerText = pRandom.n;
         display.style.color = cRandom.h;
 
-        // Definir respuesta correcta
         const correcta = regla === "palabra" ? pRandom : cRandom;
 
-        // Crear botones
+        // Botones
         const contenedor = document.getElementById('zona-opciones');
         contenedor.innerHTML = "";
-        
-        // Mezclar 4 opciones
         let opciones = [...colores].sort(() => 0.5 - Math.random()).slice(0, 4);
         if (!opciones.find(o => o.n === correcta.n)) { opciones[0] = correcta; }
         opciones.sort(() => 0.5 - Math.random());
@@ -103,15 +130,15 @@
                 intentos++;
                 if (col.n === correcta.n) {
                     aciertos++;
-                    document.body.style.backgroundColor = "#C8E6C9"; // Flash verde
+                    document.body.style.backgroundColor = "#C8E6C9";
                 } else {
                     errores++;
-                    document.body.style.backgroundColor = "#FFCDD2"; // Flash rojo
+                    document.body.style.backgroundColor = "#FFCDD2";
                 }
                 setTimeout(() => {
                     document.body.style.backgroundColor = "#F3E5F5";
-                    proxima();
-                }, 200);
+                    proximaPregunta();
+                }, 250);
             };
             contenedor.appendChild(btn);
         });
@@ -119,8 +146,10 @@
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
-        hablar("Muy bien Juan. Has terminado tu entrenamiento de hoy.");
+        const total = aciertos + errores;
+        const prec = Math.round((aciertos / total) * 100);
+        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores} | Precisión: ${prec}%`;
+        hablar("¡Excelente trabajo Juan! Controlar tus impulsos también es una forma de cuidarte.");
     }
 </script>
 </body>
