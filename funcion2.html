@@ -3,34 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flexibilidad Cognitiva - REHABILIDIA</title>
+    <title>Flexibilidad - REHABILIDIA</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: #103A57; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8rem; }
+        header { background: #103A57; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
         
         #contenedor-juego { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; margin-bottom: 10px; border: 4px solid var(--gold); }
         
-        #zona-objetos { display: grid; gap: 8px; max-width: 600px; width: 100%; padding: 5px; justify-content: center; }
+        #zona-objetos { display: grid; gap: 8px; max-width: 600px; width: 100%; justify-content: center; }
         .grid-1 { grid-template-columns: repeat(4, 1fr); }
         .grid-2 { grid-template-columns: repeat(4, 1fr); }
-        .grid-3 { grid-template-columns: repeat(5, 1fr); }
+        .grid-3 { grid-template-columns: repeat(5, 1fr); } /* 25 objetos - dificultad máxima */
 
         .objeto { background: white; border-radius: 10px; padding: 5px; cursor: pointer; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .objeto img { max-width: 85%; max-height: 85%; object-fit: contain; }
-        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); transition: 0.2s; }
+        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); }
 
-        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; flex-shrink: 0; }
-        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--p-purple); background: #eee; }
-        .burbuja { background: #f9f9f9; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 60px; overflow: hidden; }
+        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; }
+        .avatar-img { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--p-purple); object-fit: cover; }
+        .burbuja { background: #f9f9f9; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 60px; }
 
         #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; background: rgba(16, 58, 87, 0.98); color: white; }
     </style>
 </head>
-<body onload="iniciarTodo()">
+<body onload="iniciarJuego()">
 
-<header>SESIÓN 2: FLEXIBILIDAD COGNITIVA</header>
+<header>FLEXIBILIDAD COGNITIVA</header>
 
 <div id="contenedor-juego">
     <div id="panel-regla" class="panel-regla">CARGANDO...</div>
@@ -39,23 +39,23 @@
 
 <div class="area-asistente">
     <img src="coterapeuta.jpg" class="avatar-img" onerror="this.src='https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png'">
-    <div class="burbuja" id="texto-asistente">¡Hola Juan! Vamos a empezar.</div>
+    <div class="burbuja" id="texto-asistente">¡Hola Juan! Empecemos con el ejercicio.</div>
 </div>
 
 <div id="overlay-transicion">
     <h1 style="color: var(--gold); font-size: 3rem;">¡CAMBIO!</h1>
-    <p>Olvida la regla anterior y busca lo nuevo.</p>
+    <p>Ahora busca una categoría diferente.</p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold);">¡SESIÓN FINALIZADA!</h1>
+    <h1 style="color: var(--gold);">¡EXCELENTE TRABAJO!</h1>
     <p id="stats"></p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 30px; background: var(--gold); border:none; border-radius:20px; font-weight:bold; cursor:pointer;">FINALIZAR</button>
+    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 30px; background: var(--gold); border:none; border-radius:20px; font-weight:bold; cursor:pointer;">CONTINUAR</button>
 </div>
 
 <script>
     const niveles = { 1: {est: 12, camb: 2, grid: 'grid-1'}, 2: {est: 16, camb: 3, grid: 'grid-2'}, 3: {est: 25, camb: 4, grid: 'grid-3'} };
-    let nivel = 1, cambios = 0, aciertos = 0, errores = 0, aciertosRegla = 0;
+    let nivel = 1, cambios = 0, aciertosTotales = 0, erroresTotales = 0, aciertosRegla = 0;
     let rK = "", rV = "";
 
     const banco = [
@@ -66,25 +66,23 @@
         { f: "martillo.png", c: "cafe", t: "herramienta" }, { f: "destornillador.png", c: "amarillo", t: "herramienta" }, { f: "bicicleta.png", c: "rojo", t: "transporte" },
         { f: "camiseta.png", c: "azul", t: "ropa" }, { f: "calcetines.png", c: "blanco", t: "ropa" }, { f: "globo_azul.png", c: "azul", t: "forma" },
         { f: "arandanos.png", c: "azul", t: "fruta" }, { f: "elefante.png", c: "gris", t: "animal" }, { f: "sarten.png", c: "negro", t: "cocina" },
-        { f: "tenedor.png", c: "gris", t: "cocina" }, { f: "bate.png", c: "cafe", t: "deporte" }, { f: "cereza.png", c: "rojo", t: "fruta" }
+        { f: "tenedor.png", c: "gris", t: "cocina" }, { f: "bate.png", c: "cafe", t: "deporte" }, { f: "cereza.png", c: "rojo", t: "fruta" },
+        { f: "extintor.png", c: "rojo", t: "seguridad" }
     ];
 
     function hablar(t) {
-        try {
-            window.speechSynthesis.cancel();
-            const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
-            window.speechSynthesis.speak(m);
-        } catch(e) { console.log("Error voz"); }
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        window.speechSynthesis.speak(m);
         document.getElementById('texto-asistente').innerText = t;
     }
 
-    function iniciarTodo() {
-        hablar("Juan, busca los objetos.");
-        // SEGURO DE CARGA: Si en 2 seg no carga, forzamos
-        setTimeout(cargarNivel, 1500);
+    function iniciarJuego() {
+        hablar("Juan, nivel uno. Busca los objetos.");
+        generarNivel();
     }
 
-    function cargarNivel() {
+    function generarNivel() {
         document.getElementById('overlay-transicion').style.display = 'none';
         const config = niveles[nivel];
         const zona = document.getElementById('zona-objetos');
@@ -92,7 +90,8 @@
         
         const reglas = [
             {n:"ROJOS", k:"c", v:"rojo"}, {n:"ANIMALES", k:"t", v:"animal"},
-            {n:"FRUTAS", k:"t", v:"fruta"}, {n:"AZULES", k:"c", v:"azul"}
+            {n:"FRUTAS", k:"t", v:"fruta"}, {n:"AZULES", k:"c", v:"azul"},
+            {n:"TRANSPORTE", k:"t", v:"transporte"}, {n:"HERRAMIENTAS", k:"t", v:"herramienta"}
         ];
         const sel = reglas[Math.floor(Math.random()*reglas.length)];
         rK = sel.k; rV = sel.v;
@@ -102,8 +101,8 @@
         hablar("Busca " + sel.n);
 
         let objetivos = banco.filter(b => b[rK] === rV).sort(()=>0.5-Math.random()).slice(0, 5);
-        let distractores = banco.filter(b => b[rK] !== rV).sort(()=>0.5-Math.random()).slice(0, config.est - objetivos.length);
-        let mezcla = objetivos.concat(distractores).sort(()=>0.5-Math.random());
+        let dist = banco.filter(b => b[rK] !== rV).sort(()=>0.5-Math.random()).slice(0, config.est - objetivos.length);
+        let mezcla = objetivos.concat(dist).sort(()=>0.5-Math.random());
 
         zona.innerHTML = "";
         mezcla.forEach(item => {
@@ -113,15 +112,16 @@
             div.innerHTML = `<img src="./fun2/${item.f}" onerror="this.src='https://via.placeholder.com/80?text=OBJ'">`;
             div.onclick = () => {
                 if(item[rK] === rV) {
-                    aciertos++; aciertosRegla++;
+                    aciertosTotales++; aciertosRegla++;
                     div.classList.add('seleccionado');
+                    // Lógica de No Bloqueo: si limpia o si toca cambiar
                     if(aciertosRegla === 2 && cambios < niveles[nivel].camb) {
                         cambios++;
                         document.getElementById('overlay-transicion').style.display = 'flex';
-                        setTimeout(cargarNivel, 2000);
-                    } else { chequearVictoria(); }
+                        setTimeout(generarNivel, 2000);
+                    } else { verificarFin(); }
                 } else {
-                    errores++; div.style.borderColor = "red";
+                    erroresTotales++; div.style.borderColor = "red";
                     setTimeout(()=> div.style.borderColor="transparent", 400);
                 }
             };
@@ -129,21 +129,20 @@
         });
     }
 
-    function chequearVictoria() {
+    function verificarFin() {
         const quedan = Array.from(document.querySelectorAll('.objeto:not(.seleccionado)')).filter(div => {
             const d = banco.find(b => b.f === div.dataset.f);
             return d && d[rK] === rV;
         });
         if(quedan.length === 0) {
-            if(nivel < 3) { nivel++; cambios = 0; hablar("Siguiente nivel."); setTimeout(cargarNivel, 2000); }
+            if(nivel < 3) { nivel++; cambios = 0; hablar("¡Bien! Siguiente nivel."); setTimeout(generarNivel, 2000); }
             else { 
                 document.getElementById('overlay-final').style.display = 'flex';
-                document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
+                document.getElementById('stats').innerText = `Aciertos: ${aciertosTotales} | Errores: ${erroresTotales}`;
+                hablar("¡Terminamos, Juan! Muy buen trabajo.");
             }
         }
     }
 </script>
 </body>
 </html>
-
-
