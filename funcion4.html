@@ -10,24 +10,27 @@
         header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
-        
         .progreso-txt { font-weight: bold; color: var(--p-purple); margin-bottom: 5px; }
+        
         .panel-lista { background: white; padding: 20px; border-radius: 20px; border: 4px dashed var(--p-purple); width: 80%; max-width: 350px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .item-lista { font-size: 1.6rem; font-weight: bold; color: var(--p-purple); margin: 10px 0; display: block; text-transform: uppercase; }
 
         #zona-mercado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 500px; display: none; padding: 10px; }
-        .producto { background: white; border: 2px solid var(--navy); padding: 12px 5px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; min-height: 55px; box-shadow: 0 3px 0 var(--navy); }
-        .producto:active { transform: translateY(3px); box-shadow: none; }
+        .producto { background: white; border: 2px solid var(--navy); padding: 12px 5px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; min-height: 55px; }
         .producto.selected { background: var(--gold); border-color: var(--p-purple); }
 
         .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; margin-top: auto; }
         .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--p-purple); overflow: hidden; flex-shrink: 0; background: #eee; }
-        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 65px; overflow-y: auto; }
+        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.85rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 65px; overflow-y: auto; }
 
-        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
-        #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
-        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
-        .btn-accion { background: var(--gold); border: none; padding: 15px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem; margin-top: 20px; color: var(--p-purple); }
+        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; }
+        #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; text-align: center; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; overflow-y: auto; }
+
+        .tabla-stats { width: 100%; max-width: 300px; margin: 20px 0; border-collapse: collapse; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .tabla-stats th, .tabla-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 0.9rem; }
+        
+        .btn-accion { background: var(--gold); border: none; padding: 15px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.2rem; margin-top: 10px; color: var(--p-purple); }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -36,7 +39,7 @@
 
 <div id="contenedor-juego">
     <div class="progreso-txt" id="info-progreso">Nivel 1 - Ronda 1 de 3</div>
-    <h2 id="instruccion-pantalla">MEMORIZA LA LISTA</h2>
+    <h2 id="instruccion-pantalla" style="font-size: 1.1rem;">MEMORIZA LA LISTA</h2>
     
     <div id="pantalla-memorizar" class="panel-lista">
         <div id="lista-items"></div>
@@ -59,18 +62,34 @@
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold); font-size: 2.5rem;">¡EXCELENTE TRABAJO!</h1>
-    <p id="stats" style="font-size: 1.4rem;"></p>
-    <p style="font-style: italic; margin: 20px; color: #CEE5D6;">"Recordar para actuar te hace más independiente"</p>
+    <h1 style="color: var(--gold); margin-bottom: 5px;">¡SESIÓN FINALIZADA!</h1>
+    <p style="font-style: italic; color: #CEE5D6; margin-bottom: 10px;">"Recordar para actuar te hace más independiente"</p>
+    
+    <table class="tabla-stats" id="tabla-resultados">
+        <thead>
+            <tr style="color: var(--gold);">
+                <th>Nivel</th>
+                <th>A/E</th>
+                <th>%</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+    </table>
+
     <button class="btn-accion" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR</button>
 </div>
 
 <script>
-    const bancoProductos = [
-        "Arroz", "frijoles", "lentejas", "pasta", "harina", "azúcar", "sal", "aceite", "mantequilla", "huevos", "leche", "queso", "yogur", "pan", "café", "chocolate", "atún", "pollo", "carne", "pescado", "jamón", "salchichas", "tomates", "cebolla", "ajo", "zanahoria", "papa", "yuca", "plátano", "banano", "manzana", "pera", "uvas", "naranja", "limón", "piña", "mango", "fresa", "lechuga", "espinaca", "pepino", "pimentón", "brócoli", "coliflor", "maíz", "avena", "cereal", "galletas", "miel", "mermelada", "mayonesa", "mostaza", "salsa de tomate", "vinagre", "caldo", "sopa instantánea", "jugo", "gaseosa", "agua", "té", "cerveza", "vino", "papel higiénico", "servilletas", "toallas de papel", "jabón", "shampoo", "acondicionador", "crema dental", "cepillo de dientes", "desodorante", "detergente", "suavizante", "cloro", "esponjas", "bolsas de basura", "aluminio", "plástico", "fósforos", "velas", "pilas", "encendedor", "azúcar morena", "panela", "coco", "almendras", "nueces", "pasas", "gelatina", "flan", "helado", "tortillas", "arepas", "queso crema", "crema de leche", "salsa soya", "pimienta", "comino", "orégano", "laurel"
-    ];
+    const bancoProductos = ["Arroz", "frijoles", "lentejas", "pasta", "harina", "azúcar", "sal", "aceite", "mantequilla", "huevos", "leche", "queso", "yogur", "pan", "café", "chocolate", "atún", "pollo", "carne", "pescado", "jamón", "salchichas", "tomates", "cebolla", "ajo", "zanahoria", "papa", "yuca", "plátano", "banano", "manzana", "pera", "uvas", "naranja", "limón", "piña", "mango", "fresa", "lechuga", "espinaca", "pepino", "pimentón", "brócoli", "coliflor", "maíz", "avena", "cereal", "galletas", "miel", "mermelada", "mayonesa", "mostaza", "salsa de tomate", "vinagre", "caldo", "sopa instantánea", "jugo", "gaseosa", "agua", "té", "cerveza", "vino", "papel higiénico", "servilletas", "toallas de papel", "jabón", "shampoo", "acondicionador", "crema dental", "cepillo de dientes", "desodorante", "detergente", "suavizante", "cloro", "esponjas", "bolsas de basura", "aluminio", "plástico", "fósforos", "velas", "pilas", "encendedor", "azúcar morena", "panela", "coco", "almendras", "nueces", "pasas", "gelatina", "flan", "helado", "tortillas", "arepas", "queso crema", "crema de leche", "salsa soya", "pimienta", "comino", "orégano", "laurel"];
 
-    let nivel = 1, ronda = 1, aciertos = 0, listaActual = [], seleccionados = [];
+    let nivel = 1, ronda = 1, listaActual = [], seleccionados = [];
+    
+    // Contadores por nivel
+    let stats = {
+        1: { aciertos: 0, errores: 0 },
+        2: { aciertos: 0, errores: 0 },
+        3: { aciertos: 0, errores: 0 }
+    };
 
     function hablar(t) {
         window.speechSynthesis.cancel();
@@ -100,7 +119,7 @@
         document.getElementById('pantalla-memorizar').style.display = 'none';
         document.getElementById('zona-mercado').style.display = 'grid';
         document.getElementById('instruccion-pantalla').innerText = "¿CUÁL ERA EL ÚLTIMO?";
-        hablar("Dime los productos empezando por el final de la lista.");
+        hablar("Dime los productos desde el final hacia el inicio.");
         
         seleccionados = [];
         const mercado = document.getElementById('zona-mercado');
@@ -125,14 +144,15 @@
         if(prod.toLowerCase() === objetivo.toLowerCase()) {
             el.classList.add('selected');
             seleccionados.push(prod);
-            aciertos++;
+            stats[nivel].aciertos++;
             if(seleccionados.length === listaActual.length) {
                 manejarProgreso();
             } else {
                 hablar("Bien. ¿Cuál iba antes?");
             }
         } else {
-            hablar("Ese no sigue el orden. Concéntrate Juan.");
+            stats[nivel].errores++;
+            hablar("Ese no sigue el orden.");
             el.style.backgroundColor = "#FFCDD2";
             setTimeout(() => el.style.backgroundColor = "white", 500);
         }
@@ -147,20 +167,20 @@
             if (nivel < 3) {
                 nivel++;
                 ronda = 1;
-                const msj = nivel === 2 ? "¡Excelente! Subimos al Nivel Medio con más productos." : "¡Increíble! Nivel Alto: Máxima dificultad.";
-                mostrarCambioNivel(msj);
+                mostrarCambioNivel();
             } else {
                 finalizar();
             }
         }
     }
 
-    function mostrarCambioNivel(mensaje) {
+    function mostrarCambioNivel() {
         const overlay = document.getElementById('overlay-nivel');
+        const msj = nivel === 2 ? "¡Nivel Medio! Listas de 4 productos." : "¡Nivel Alto! Listas de 5 productos.";
         document.getElementById('lvl-titulo').innerText = "¡NIVEL " + nivel + "!";
-        document.getElementById('lvl-mensaje').innerText = mensaje;
+        document.getElementById('lvl-mensaje').innerText = msj;
         overlay.style.display = 'flex';
-        hablar(mensaje);
+        hablar(msj);
         setTimeout(() => {
             overlay.style.display = 'none';
             generarRonda();
@@ -169,10 +189,22 @@
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('stats').innerText = `Has completado los 3 niveles con éxito.`;
-        hablar("¡Terminamos la compra Juan! Recordar para actuar te hace más independiente.");
+        const cuerpo = document.getElementById('cuerpo-tabla');
+        cuerpo.innerHTML = "";
+
+        for (let i = 1; i <= 3; i++) {
+            let s = stats[i];
+            let total = s.aciertos + s.errores;
+            let perc = total > 0 ? Math.round((s.aciertos / total) * 100) : 0;
+            let fila = `<tr>
+                <td>Nivel ${i}</td>
+                <td>${s.aciertos}/${s.errores}</td>
+                <td>${perc}%</td>
+            </tr>`;
+            cuerpo.innerHTML += fila;
+        }
+        hablar("¡Terminamos Juan! Mira tus resultados de hoy.");
     }
 </script>
 </body>
 </html>
-
