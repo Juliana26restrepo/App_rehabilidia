@@ -3,146 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flexibilidad Cognitiva - REHABILIDIA</title>
+    <title>Entrenamiento de Flexibilidad - REHABILIDIA</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: #103A57; height: 50px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+        header { background: #103A57; height: 50px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-weight: bold; }
         
-        #contenedor-juego { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        #contenedor-juego { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; }
         
-        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 12px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; border: 3px solid var(--gold); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 15px; font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; border: 4px solid var(--gold); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
-        #zona-objetos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 600px; width: 100%; padding: 5px; }
+        #zona-objetos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; width: 100%; padding: 10px; }
         .grid-nivel3 { grid-template-columns: repeat(5, 1fr) !important; }
 
-        .objeto { background: white; border-radius: 10px; padding: 5px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; }
-        .objeto img { max-width: 85%; max-height: 85%; object-fit: contain; }
+        .objeto { background: white; border-radius: 12px; padding: 8px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .objeto img { max-width: 90%; max-height: 90%; object-fit: contain; }
         .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); transition: 0.3s; }
 
-        /* Estilo Coterapeuta */
-        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 3px solid var(--p-purple); }
-        .avatar-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--p-purple); }
-        .burbuja { background: #F0F0F0; padding: 10px; border-radius: 15px; font-size: 0.9rem; flex: 1; text-align: left; position: relative; }
+        /* ÁREA DEL COTERAPEUTA */
+        .area-asistente { width: 100%; background: white; padding: 12px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); flex-shrink: 0; }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--p-purple); object-fit: cover; }
+        .burbuja { background: #f0f0f0; padding: 12px; border-radius: 15px; font-size: 1rem; flex: 1; text-align: left; border: 1px solid #ddd; line-height: 1.2; }
 
-        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; background: rgba(16, 58, 87, 0.98); color: white; padding: 20px; }
+        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; background: rgba(16, 58, 87, 0.98); color: white; padding: 20px; text-align: center; }
     </style>
 </head>
-<body onload="iniciarEntrenamiento()">
+<body onload="iniciar()">
 
-<header><b>ENTRENAMIENTO DE FLEXIBILIDAD</b></header>
+<header>SESIÓN 2: FLEXIBILIDAD COGNITIVA</header>
 
 <div id="contenedor-juego">
-    <div id="panel-regla" class="panel-regla">ESPERA...</div>
+    <div id="panel-regla" class="panel-regla">CARGANDO...</div>
     <div id="zona-objetos"></div>
 </div>
 
 <div class="area-asistente">
-    <img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" class="avatar-img" alt="Asistente">
-    <div class="burbuja" id="texto-asistente">¡Hola Juan! Yo te guiaré en esta sesión.</div>
+    <img src="coterapeuta.png" class="avatar-img" alt="Coterapeuta" onerror="this.src='https://via.placeholder.com/70?text=Terapeuta'">
+    <div class="burbuja" id="texto-asistente">¡Hola Juan! Soy tu guía. Vamos a empezar el ejercicio.</div>
 </div>
 
 <div id="overlay-transicion">
-    <h1 style="color: var(--gold); font-size: 2.5rem;">¡CAMBIO!</h1>
-    <p style="font-size: 1.4rem;">Bien Juan, ahora olvida lo anterior y busca lo nuevo.</p>
+    <h1 style="color: var(--gold); font-size: 3rem;">¡CAMBIO!</h1>
+    <p style="font-size: 1.5rem;">Muy bien Juan, ahora olvida lo anterior y concéntrate en la nueva instrucción.</p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold); font-size: 2.2rem;">¡TERMINAMOS!</h1>
-    <p id="stats" style="font-size: 1.3rem; margin: 15px 0;"></p>
-    <p style="font-style: italic; color: #CEE5D6;">"Cambiar de plan también es avanzar"</p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: var(--gold); border:none; border-radius:30px; font-weight:bold; cursor:pointer;">VOLVER</button>
+    <h1 style="color: var(--gold); font-size: 2.5rem;">¡EXCELENTE TRABAJO!</h1>
+    <div id="stats" style="font-size: 1.4rem; margin: 20px 0;"></div>
+    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: var(--gold); border:none; border-radius:30px; font-weight:bold; cursor:pointer; font-size: 1.2rem;">VOLVER AL MENÚ</button>
 </div>
 
 <script>
-    const niveles = { 1: {est:12, camb:2}, 2: {est:16, camb:3}, 3: {est:20, camb:4} };
-    let nivel = 1, cambios = 0, aciertosRegla = 0, totalAciertos = 0, totalErrores = 0;
-    let reglaActual = "", valorObj = "";
+    const niveles = { 1: {est: 12, camb: 2}, 2: {est: 16, camb: 3}, 3: {est: 20, camb: 4} };
+    let nivel = 1, cambiosEfectuados = 0, aciertosTotales = 0, erroresTotales = 0;
+    let reglaActual = "", valorObj = "", objetivosEnPantalla = 0, aciertosEnRegraActual = 0;
 
     const banco = [
-        { f: "fresa.png", c: "rojo", t: "fruta" }, { f: "corazon.png", c: "rojo", t: "forma" }, { f: "extintor.png", c: "rojo", t: "seguridad" }, { f: "rosa.png", c: "rojo", t: "planta" }, { f: "cereza.png", c: "rojo", t: "fruta" },
-        { f: "avion.png", c: "gris", t: "transporte" }, { f: "barco.png", c: "blanco", t: "transporte" }, { f: "tren.png", c: "azul", t: "transporte" }, { f: "bicicleta.png", c: "rojo", t: "transporte" }, { f: "camion.png", c: "blanco", t: "transporte" },
-        { f: "camiseta.png", c: "azul", t: "ropa" }, { f: "pantalones.png", c: "azul", t: "ropa" }, { f: "gorra.png", c: "azul", t: "ropa" }, { f: "calcetines.png", c: "blanco", t: "ropa" }, { f: "falda.png", c: "rosa", t: "ropa" },
-        { f: "banano.png", c: "amarillo", t: "fruta" }, { f: "uva.png", c: "morado", t: "fruta" }, { f: "pina.png", c: "amarillo", t: "fruta" }, { f: "pera.png", c: "verde", t: "fruta" }, { f: "sandia.png", c: "verde", t: "fruta" },
-        { f: "martillo.png", c: "cafe", t: "herramienta" }, { f: "destornillador.png", c: "amarillo", t: "herramienta" }, { f: "llave_inglesa.png", c: "gris", t: "herramienta" }, { f: "serrucho.png", c: "gris", t: "herramienta" }, { f: "alicate.png", c: "rojo", t: "herramienta" },
-        { f: "perro.png", c: "cafe", t: "animal" }, { f: "gato.png", c: "gris", t: "animal" }, { f: "elefante.png", c: "gris", t: "animal" }, { f: "mono.png", c: "cafe", t: "animal" }, { f: "pajaro.png", c: "azul", t: "animal" },
-        { f: "guitarra.png", c: "cafe", t: "musica" }, { f: "piano.png", c: "negro", t: "musica" }, { f: "trompeta.png", c: "amarillo", t: "musica" }, { f: "tambores.png", c: "rojo", t: "musica" }, { f: "flauta.png", c: "cafe", t: "musica" },
-        { f: "globo_azul.png", c: "azul", t: "forma" }, { f: "mar.png", c: "azul", t: "lugar" }, { f: "arandanos.png", c: "azul", t: "fruta" }, { f: "diamante.png", c: "azul", t: "forma" }, { f: "nubes.png", c: "azul", t: "lugar" },
-        { f: "sarten.png", c: "negro", t: "cocina" }, { f: "olla.png", c: "gris", t: "cocina" }, { f: "cucharon.png", c: "gris", t: "cocina" }, { f: "tenedor.png", c: "gris", t: "cocina" }, { f: "cuchillo.png", c: "gris", t: "cocina" },
-        { f: "pelota.png", c: "blanco", t: "deporte" }, { f: "bate.png", c: "cafe", t: "deporte" }, { f: "raqueta.png", c: "blanco", t: "deporte" }, { f: "pesa.png", c: "negro", t: "deporte" }, { f: "trofeo.png", c: "amarillo", t: "deporte" }
+        { f: "alicate.png", c: "rojo", t: "herramienta" }, { f: "arandanos.png", c: "azul", t: "fruta" }, { f: "avion.png", c: "gris", t: "transporte" },
+        { f: "banano.png", c: "amarillo", t: "fruta" }, { f: "barco.png", c: "blanco", t: "transporte" }, { f: "bate.png", c: "cafe", t: "deporte" },
+        { f: "bicicleta.png", c: "rojo", t: "transporte" }, { f: "calcetines.png", c: "blanco", t: "ropa" }, { f: "camion.png", c: "blanco", t: "transporte" },
+        { f: "camiseta.png", c: "azul", t: "ropa" }, { f: "cereza.png", c: "rojo", t: "fruta" }, { f: "corazon.png", c: "rojo", t: "forma" },
+        { f: "destornillador.png", c: "amarillo", t: "herramienta" }, { f: "elefante.png", c: "gris", t: "animal" }, { f: "extintor.png", c: "rojo", t: "seguridad" },
+        { f: "falda.png", c: "azul", t: "ropa" }, { f: "fresa.png", c: "rojo", t: "fruta" }, { f: "gato.png", c: "gris", t: "animal" },
+        { f: "globo_azul.png", c: "azul", t: "forma" }, { f: "guitarra.png", c: "cafe", t: "instrumento" }, { f: "martillo.png", c: "cafe", t: "herramienta" },
+        { f: "pajaro.png", c: "azul", t: "animal" }, { f: "perro.png", c: "cafe", t: "animal" }, { f: "pina.png", c: "amarillo", t: "fruta" },
+        { f: "sandia.png", c: "verde", t: "fruta" }, { f: "tren.png", c: "azul", t: "transporte" }, { f: "uva.png", c: "morado", t: "fruta" }
+        // Agrega más si es necesario siguiendo este formato exacto
     ];
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
         window.speechSynthesis.speak(m);
         document.getElementById('texto-asistente').innerText = t;
     }
 
-    function iniciarEntrenamiento() {
-        hablar("Juan, nivel uno. Busca lo que te pida, pero atento a mis cambios de regla.");
-        setTimeout(cargarInstruccion, 2500);
+    function iniciar() {
+        hablar("Juan, nivel uno. Busca los objetos que te pida. ¡Comenzamos!");
+        setTimeout(nuevaRegla, 2500);
     }
 
-    function cargarInstruccion() {
+    function nuevaRegla() {
         document.getElementById('overlay-transicion').style.display = 'none';
-        aciertosRegla = 0;
+        aciertosEnRegraActual = 0;
         
-        const cats = [
-            {n:"cosas rojas", k:"c", v:"rojo"}, {n:"transporte", k:"t", v:"transporte"},
-            {n:"ropa", k:"t", v:"ropa"}, {n:"frutas", k:"t", v:"fruta"},
-            {n:"animales", k:"t", v:"animal"}, {n:"herramientas", k:"t", v:"herramienta"}
+        const opciones = [
+            {n:"cosas rojas", k:"c", v:"rojo"}, {n:"animales", k:"t", v:"animal"},
+            {n:"medios de transporte", k:"t", v:"transporte"}, {n:"frutas", k:"t", v:"fruta"},
+            {n:"herramientas", k:"t", v:"herramienta"}, {n:"cosas azules", k:"c", v:"azul"}
         ];
 
-        const s = cats[Math.floor(Math.random()*cats.length)];
-        reglaActual = s.k; valorObj = s.v;
-        document.getElementById('panel-regla').innerText = "BUSCA: " + s.n.toUpperCase();
-        hablar("Juan, ahora busca " + s.n);
+        const sel = opciones[Math.floor(Math.random() * opciones.length)];
+        reglaActual = sel.k; valorObj = sel.v;
         
-        if(cambios === 0) generarGrilla();
+        document.getElementById('panel-regla').innerText = "BUSCA: " + sel.n.toUpperCase();
+        hablar("Ahora busca " + sel.n);
+        
+        if(cambiosEfectuados === 0) armarTablero();
+        else contarObjetivos(); // Si ya hay tablero, solo contamos cuántos cumplen la nueva regla
     }
 
-    function generarGrilla() {
+    function armarTablero() {
         const zona = document.getElementById('zona-objetos');
         zona.innerHTML = "";
-        const max = niveles[nivel].est;
+        const config = niveles[nivel];
         if(nivel === 3) zona.classList.add('grid-nivel3');
 
-        // FORZAR 5 OBJETIVOS
-        let objs = banco.filter(b => b[reglaActual] === valorObj).sort(()=>Math.random()-0.5).slice(0,5);
-        let dist = banco.filter(b => b[reglaActual] !== valorObj).sort(()=>Math.random()-0.5).slice(0, max - objs.length);
+        // Asegurar que existan objetivos de la regla actual
+        let objetivos = banco.filter(b => b[reglaActual] === valorObj).sort(()=>0.5-Math.random()).slice(0, 5);
+        let otros = banco.filter(b => b[reglaActual] !== valorObj).sort(()=>0.5-Math.random()).slice(0, config.est - objetivos.length);
         
-        let final = objs.concat(dist).sort(()=>Math.random()-0.5);
+        let final = objetivos.concat(otros).sort(()=>0.5-Math.random());
 
-        final.forEach(o => {
-            const d = document.createElement('div');
-            d.className = 'objeto';
-            d.innerHTML = `<img src="./fun2/${o.f}" onerror="this.src='https://via.placeholder.com/60?text=${o.f}'">`;
-            d.onclick = () => {
-                if(o[reglaActual] === valorObj) {
-                    totalAciertos++; aciertosRegla++; d.classList.add('seleccionado');
-                    if(aciertosRegla === 2 && cambios < niveles[nivel].camb) {
-                        cambios++;
-                        document.getElementById('overlay-transicion').style.display = 'flex';
-                        setTimeout(cargarInstruccion, 2500);
-                    } else if(aciertosRegla === 5) { // Limpió los 5
-                        if(nivel < 3) { nivel++; cambios=0; hablar("¡Muy bien! Subimos de nivel."); setTimeout(cargarInstruccion, 2500); }
-                        else { finalizar(); }
-                    }
-                } else {
-                    totalErrores++; d.style.borderColor = "red";
-                    hablar("Ese no es, Juan. Sigue buscando " + valorObj);
-                    setTimeout(()=>d.style.borderColor="transparent", 500);
-                }
-            };
-            zona.appendChild(d);
+        final.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'objeto';
+            div.dataset.nombre = item.f;
+            div.innerHTML = `<img src="./fun2/${item.f}" onerror="this.src='https://via.placeholder.com/80?text=IMG'">`;
+            div.onclick = () => validar(item, div);
+            zona.appendChild(div);
         });
+        contarObjetivos();
     }
 
-    function finalizar() {
-        document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('stats').innerText = `Aciertos: ${totalAciertos} | Errores: ${totalErrores}`;
-        hablar("¡Excelente Juan! Has demostrado ser muy flexible hoy.");
+    function contarObjetivos() {
+        // Contamos cuántos objetos de los que NO están seleccionados cumplen la regla
+        const activos = document.querySelectorAll('.objeto:not(.seleccionado)');
+        objetivosEnPantalla = 0;
+        activos.forEach(div => {
+            const data = banco.find(b => b.f === div.dataset.nombre);
+            if(data[reglaActual] === valorObj) objetivosEnPantalla++;
+        });
+
+        // Seguridad: Si por azar no hay objetivos, forzamos nueva regla
+        if(objetivosEnPantalla === 0) nuevaRegla();
+    }
+
+    function validar(item, elemento) {
+        if(item[reglaActual] === valorObj) {
+            aciertosTotales++; aciertosEnRegraActual++;
+            elemento.classList.add('seleccionado');
+            objetivosEnPantalla--;
+            
+            // LÓGICA DE CAMBIO DE INSTRUCCIÓN
+            // Si Juan lleva 2 aciertos y aún quedan cambios pendientes en el nivel
+            if(aciertosEnRegraActual >= 2 && cambiosEfectuados < niveles[nivel].camb) {
+                cambiosEfectuados++;
+                document.getElementById('overlay-transicion').style.display = 'flex';
+                hablar("¡Excelente! Pero ahora cambiamos de plan.");
+                setTimeout(nuevaRegla, 2500);
+            } 
+            // Si ya no quedan objetivos de esta regla en pantalla, pasamos de nivel
+            else if(objetivosEnPantalla === 0) {
+                progresar();
+            }
+        } else {
+            erroresTotales++;
+            elemento.style.borderColor = "red";
+            hablar("Ese no es un " + valorObj + ", intenta con otro.");
+            setTimeout(()=>elemento.style.borderColor="transparent", 600);
+        }
+    }
+
+    function progresar() {
+        if(nivel < 3) {
+            nivel++;
+            cambiosEfectuados = 0;
+            hablar("¡Nivel superado! Vamos al nivel " + nivel + ". Más difícil.");
+            setTimeout(armarTablero, 2000);
+        } else {
+            document.getElementById('overlay-final').style.display = 'flex';
+            document.getElementById('stats').innerText = `Aciertos: ${aciertosTotales} | Errores: ${erroresTotales}`;
+            hablar("Sesión finalizada con éxito. ¡Eres muy flexible, Juan!");
+        }
     }
 </script>
 </body>
