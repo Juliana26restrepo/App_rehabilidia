@@ -11,27 +11,28 @@
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
         
-        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 3px solid var(--p-purple); width: 90%; max-width: 450px; margin-bottom: 10px; font-weight: bold; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 3px solid var(--p-purple); width: 90%; max-width: 450px; margin-bottom: 10px; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .texto-letras { display: block; color: var(--p-purple); font-size: 0.9rem; margin-top: 5px; }
 
-        .zona-dinero { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%; max-width: 700px; padding: 10px; overflow-y: auto; max-height: 55vh; }
-        .dinero-img { width: 140px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .moneda-img { width: 85px; }
-        .dinero-img:active { transform: scale(0.9); }
+        .zona-dinero { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; max-width: 700px; padding: 10px; overflow-y: auto; max-height: 55vh; }
+        .dinero-img { width: 130px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); border-radius: 8px; }
+        .moneda-img { width: 70px; }
+        .clickable { cursor: pointer; transition: 0.2s; }
+        .clickable:active { transform: scale(0.9); }
 
-        .zona-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; }
+        .zona-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; margin-top: 15px; }
 
-        #pago-actual { background: var(--gold); padding: 12px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; margin-top: 15px; border: 3px solid var(--p-purple); display: none; box-shadow: 0 4px 0 #b7950b; }
+        #pago-actual { background: var(--gold); padding: 10px 20px; border-radius: 15px; font-size: 1.6rem; font-weight: bold; margin-top: 10px; border: 2px solid var(--p-purple); display: none; color: var(--navy); }
 
-        /* Estilo Coterapeuta */
-        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 110px; box-sizing: border-box; }
-        .avatar-img { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; flex-shrink: 0; background: #eee; display: flex; align-items: center; justify-content: center; }
-        .burbuja { background: #F5F5F5; padding: 12px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 75px; overflow-y: auto; position: relative; }
-        .burbuja::before { content: ''; position: absolute; left: -10px; top: 20px; border-width: 10px 10px 10px 0; border-style: solid; border-color: transparent #ddd transparent transparent; }
+        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
+        #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
+        
+        .tabla-stats { width: 100%; max-width: 320px; margin: 15px 0; border-collapse: collapse; background: rgba(255,255,255,0.1); }
+        .tabla-stats th, .tabla-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
 
-        #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; background: rgba(16, 58, 87, 0.98); color: white; padding: 20px; }
-        .tabla-stats { width: 100%; max-width: 320px; margin: 20px 0; border-collapse: collapse; }
-        .tabla-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .btn-finalizar { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; color: var(--navy); font-size: 1.2rem; }
+        .btn-grande { background: #f0f0f0; border: 1px solid #ccc; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.95rem; color: var(--navy); }
+        .btn-finalizar { background: var(--gold); border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.2rem; }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -39,22 +40,23 @@
 <header>SESIÓN 5: ORGANIZACIÓN Y DINERO</header>
 
 <div id="contenedor-juego">
-    <div id="panel-instruccion" class="panel-instruccion">¡PREPARADOS!</div>
+    <div id="panel-instruccion" class="panel-instruccion">¡CARGANDO!</div>
     <div id="pantalla-juego" class="zona-dinero"></div>
-    <div id="pago-actual">Pagas: $<span id="suma-pago">0</span></div>
+    <div id="pago-actual">Llevas: $<span id="suma-pago">0</span></div>
 </div>
 
-<div class="area-asistente">
-    <div class="avatar-img">
-        <img id="img-coterapeuta" src="COTERAPEUTA.JPG" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/167/167750.png';">
-    </div>
-    <div class="burbuja" id="texto-asistente">¡Hola Juan! Soy tu asistente. Vamos a manejar el dinero con cuidado.</div>
+<div id="overlay-nivel">
+    <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3rem;">¡NIVEL 1!</h1>
+    <p id="lvl-mensaje" style="font-size: 1.5rem;"></p>
 </div>
 
 <div id="overlay-final">
-    <h1 style="color: var(--gold);">¡EXCELENTE TRABAJO!</h1>
-    <table class="tabla-stats" id="cuerpo-tabla"></table>
-    <p style="font-size: 1.3rem; margin: 15px;">"Tomar buenas decisiones te dan libertad."</p>
+    <h1 style="color: var(--gold);">RESUMEN DE SESIÓN</h1>
+    <table class="tabla-stats">
+        <thead><tr style="color: var(--gold);"><th>Nivel</th><th>A/E</th><th>%</th></tr></thead>
+        <tbody id="cuerpo-tabla"></tbody>
+    </table>
+    <p style="font-size: 1.1rem; font-weight: bold; margin: 10px;">"Tomar buenas decisiones te dan libertad."</p>
     <button class="btn-finalizar" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR</button>
 </div>
 
@@ -76,112 +78,154 @@
     ];
 
     let nivel = 1, ronda = 1, sumaActual = 0, objetivoPago = 0;
+    let usadosEnNivel = []; // Para evitar repeticiones
     let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
 
     function formatear(n) { return n.toLocaleString('es-CO'); }
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95;
         window.speechSynthesis.speak(m);
-        document.getElementById('texto-asistente').innerText = t;
     }
 
     function iniciarSesion() {
-        hablar("Juan, bienvenido. Vamos a organizar nuestro dinero para tomar mejores decisiones.");
+        hablar("Juan, vamos a organizar el dinero.");
         cargarRonda();
     }
 
     function cargarRonda() {
         const pantalla = document.getElementById('pantalla-juego');
+        const instruccion = document.getElementById('panel-instruccion');
         const displayPago = document.getElementById('pago-actual');
         pantalla.innerHTML = "";
         displayPago.style.display = "none";
         sumaActual = 0;
 
         if (nivel === 1) {
-            const target = billetes[Math.floor(Math.random() * billetes.length)];
-            objetivoPago = target.v;
-            document.getElementById('panel-instruccion').innerHTML = `Busca el Billete de $${formatear(target.v)}`;
-            hablar(`Busca el billete de ${target.t} pesos.`);
-            
-            [target, ...billetes.filter(b => b.v !== target.v).sort(()=>0.5-Math.random()).slice(0,3)]
-            .sort(()=>0.5-Math.random()).forEach(b => pantalla.appendChild(crearImg(b, true)));
-        } 
-        else if (nivel === 2) {
-            const pool = [...billetes, ...monedas];
+            // BUSCAR BILLETE ESPECÍFICO (Sin repetición)
+            let pool = billetes.filter(b => !usadosEnNivel.includes(b.v));
+            if(pool.length === 0) { usadosEnNivel = []; pool = billetes; }
             const target = pool[Math.floor(Math.random() * pool.length)];
             objetivoPago = target.v;
-            document.getElementById('panel-instruccion').innerHTML = `¿Cuánto vale este dinero?`;
-            hablar(`¿Qué valor tiene este dinero en pantalla?`);
+            usadosEnNivel.push(target.v);
+
+            instruccion.innerHTML = `Busca el Billete de $${formatear(target.v)} <span class="texto-letras">(${target.t} Pesos)</span>`;
+            hablar(`Juan, busca el billete de ${target.t} pesos.`);
             
-            pantalla.appendChild(crearImg(target, false));
+            let opciones = [target];
+            while(opciones.length < 4) {
+                let rB = billetes[Math.floor(Math.random() * billetes.length)];
+                if(!opciones.find(b => b.v === rB.v)) opciones.push(rB);
+            }
+            opciones.sort(()=>Math.random()-0.5).forEach(b => {
+                const img = crearImg(b);
+                img.classList.add('clickable');
+                img.onclick = () => {
+                    if(b.v === objetivoPago) { stats[1].a++; avanzar(); }
+                    else { stats[1].e++; hablar("Ese no es."); }
+                };
+                pantalla.appendChild(img);
+            });
+        } 
+        else if (nivel === 2) {
+            // RECONOCER VALOR
+            let pool = billetes.filter(b => !usadosEnNivel.includes(b.v));
+            if(pool.length === 0) { usadosEnNivel = []; pool = billetes; }
+            const target = pool[Math.floor(Math.random() * pool.length)];
+            objetivoPago = target.v;
+            usadosEnNivel.push(target.v);
+
+            instruccion.innerHTML = `¿Cuánto vale este dinero?`;
+            hablar(`¿Cuánto vale este billete?`);
+            pantalla.appendChild(crearImg(target));
+            
             const zonaBtn = document.createElement('div');
             zonaBtn.className = "zona-botones";
-            [target, ...pool.filter(d => d.v !== target.v).sort(()=>0.5-Math.random()).slice(0,3)]
-            .sort(()=>0.5-Math.random()).forEach(opt => {
+            let opcs = [target, ...billetes.filter(b => b.v !== objetivoPago).sort(()=>Math.random()-0.5).slice(0, 3)].sort(()=>Math.random()-0.5);
+
+            opcs.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = "btn-grande";
                 btn.innerHTML = `$${formatear(opt.v)}<br><small>${opt.t}</small>`;
-                btn.onclick = () => { if(opt.v === objetivoPago) { stats[2].a++; avanzar(); } else { stats[2].e++; hablar("Intenta de nuevo."); } };
+                btn.onclick = () => {
+                    if(opt.v === objetivoPago) { stats[2].a++; avanzar(); }
+                    else { stats[2].e++; hablar("Ese no es el valor."); }
+                };
                 zonaBtn.appendChild(btn);
             });
             pantalla.appendChild(zonaBtn);
         }
         else if (nivel === 3) {
-            // 6 compras con valores variados
-            const precios = [1200, 5500, 10700, 25300, 62000, 850];
+            // PAGO EXACTO (6 RONDAS + TODO EL DINERO)
+            const precios = [3500, 7200, 12500, 21100, 50550, 1600];
             objetivoPago = precios[ronda - 1];
-            document.getElementById('panel-instruccion').innerHTML = `Debes pagar: $${formatear(objetivoPago)}`;
-            hablar(`Juan, paga exactamente ${formatear(objetivoPago)} pesos.`);
+            
+            instruccion.innerHTML = `Debes pagar: $${formatear(objetivoPago)}`;
+            hablar(`Paga ${formatear(objetivoPago)} pesos tocando los billetes y monedas.`);
             displayPago.style.display = "block";
             document.getElementById('suma-pago').innerText = "0";
 
-            // Mostramos TODO el cono monetario para que sea dinámico y real
-            [...billetes, ...monedas].sort((a,b) => b.v - a.v).forEach(data => {
-                const img = crearImg(data, false);
+            // Mostrar TODOS los billetes y monedas
+            [...billetes, ...monedas].forEach(data => {
+                const img = crearImg(data);
+                img.classList.add('clickable');
                 img.onclick = () => {
                     sumaActual += data.v;
                     document.getElementById('suma-pago').innerText = formatear(sumaActual);
                     if(sumaActual === objetivoPago) { stats[3].a++; avanzar(); }
-                    else if(sumaActual > objetivoPago) { stats[3].e++; hablar("Te pasaste. Reiniciamos esta compra."); setTimeout(cargarRonda, 1000); }
+                    else if(sumaActual > objetivoPago) { 
+                        stats[3].e++; 
+                        hablar("Te pasaste. Intenta esta compra de nuevo."); 
+                        setTimeout(cargarRonda, 800); 
+                    }
                 };
                 pantalla.appendChild(img);
             });
         }
     }
 
-    function crearImg(data, clickable) {
+    function crearImg(data) {
         const img = document.createElement('img');
         img.src = `./fun5/${data.f}`;
         img.className = data.v < 2000 ? 'dinero-img moneda-img' : 'dinero-img';
-        if(clickable) {
-            img.onclick = () => { if(data.v === objetivoPago) { stats[1].a++; avanzar(); } else { stats[1].e++; hablar("Ese no es."); } };
-        }
         return img;
     }
 
     function avanzar() {
-        const limite = (nivel === 3) ? 6 : 3;
-        if (ronda < limite) { ronda++; hablar("¡Excelente!"); setTimeout(cargarRonda, 1000); }
-        else { 
-            if (nivel < 3) { nivel++; ronda = 1; mostrarCambio(); } 
-            else { finalizar(); }
+        const rMax = (nivel === 3) ? 6 : 3;
+        if (ronda < rMax) {
+            ronda++;
+            hablar("¡Muy bien!");
+            setTimeout(cargarRonda, 1000);
+        } else {
+            if (nivel < 3) {
+                nivel++; ronda = 1; usadosEnNivel = [];
+                mostrarCambioNivel();
+            } else {
+                finalizar();
+            }
         }
     }
 
-    function mostrarCambio() {
-        hablar("¡Nivel superado! Vamos al siguiente.");
-        setTimeout(cargarRonda, 1500);
+    function mostrarCambioNivel() {
+        const overlay = document.getElementById('overlay-nivel');
+        document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
+        document.getElementById('lvl-mensaje').innerText = nivel === 2 ? "Identifica el valor." : "¡6 compras finales!";
+        overlay.style.display = 'flex';
+        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 2500);
     }
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        const t = document.getElementById('cuerpo-tabla');
-        t.innerHTML = `<tr><td>Nivel 1</td><td>${stats[1].a} aciertos</td></tr>
-                       <tr><td>Nivel 2</td><td>${stats[2].a} aciertos</td></tr>
-                       <tr><td>Nivel 3</td><td>${stats[3].a} aciertos</td></tr>`;
-        hablar("¡Felicidades Juan! Has terminado la sesión de hoy.");
+        const cuerpo = document.getElementById('cuerpo-tabla');
+        cuerpo.innerHTML = "";
+        for (let i = 1; i <= 3; i++) {
+            let t = stats[i].a + stats[i].e;
+            let p = t > 0 ? Math.round((stats[i].a / t)*100) : 0;
+            cuerpo.innerHTML += `<tr><td>Nivel ${i}</td><td>${stats[i].a}/${stats[i].e}</td><td>${p}%</td></tr>`;
+        }
+        hablar("¡Excelente trabajo Juan!");
     }
 </script>
 </body>
