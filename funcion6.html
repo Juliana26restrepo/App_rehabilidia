@@ -10,37 +10,31 @@
         header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px; }
-        
         .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 3px solid var(--p-purple); width: 90%; max-width: 600px; margin-bottom: 10px; font-weight: bold; font-size: 1.1rem; }
 
-        .rejilla-numeros { 
-            display: grid; gap: 10px; width: 95%; max-width: 800px; margin: auto; 
-            padding: 10px; overflow-y: auto;
-        }
+        .rejilla-numeros { display: grid; gap: 8px; width: 95%; max-width: 900px; margin: auto; padding: 10px; overflow-y: auto; max-height: 60vh; }
 
-        /* Estilos de los botones de números */
         .num-card {
             background: white; border: 2px solid var(--navy); border-radius: 10px;
-            font-size: 1.8rem; font-weight: bold; padding: 15px; cursor: pointer;
-            transition: 0.3s; display: flex; align-items: center; justify-content: center;
-            min-height: 60px; position: relative;
+            font-size: 1.5rem; font-weight: bold; padding: 12px; cursor: pointer;
+            transition: background-color 1s ease; /* Transición de color más suave */
+            display: flex; align-items: center; justify-content: center; min-height: 50px;
         }
 
-        /* Animación de resaltado intermitente */
-        @keyframes parpadeoIntermitente {
+        /* Animación más lenta para no abrumar */
+        @keyframes parpadeoSuave {
             0% { background-color: white; color: var(--navy); }
-            33% { background-color: var(--red); color: white; border-color: var(--red); }
-            66% { background-color: var(--green); color: white; border-color: var(--green); }
+            40% { background-color: var(--red); color: white; }
+            60% { background-color: var(--green); color: white; }
             100% { background-color: white; color: var(--navy); }
         }
 
-        .resaltado { animation: parpadeoIntermitente 3s infinite; }
-        .seleccionado { opacity: 0.2; transform: scale(0.8); pointer-events: none; }
+        .resaltado { animation: parpadeoSuave 5s infinite; }
+        .seleccionado { visibility: hidden; opacity: 0; } /* Desaparecen al ser correctos para limpiar la vista */
 
         #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
         #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
-        
         .btn-finalizar { background: var(--gold); border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); }
     </style>
 </head>
@@ -50,7 +44,7 @@
 
 <div id="contenedor-juego">
     <div id="panel-instruccion" class="panel-instruccion">Cargando...</div>
-    <div id="contador-objetivos" style="font-weight: bold; margin-bottom: 5px;"></div>
+    <div id="contador-objetivos" style="font-weight: bold; margin-bottom: 5px; color: var(--p-purple);"></div>
     <div id="pantalla-juego" class="rejilla-numeros"></div>
 </div>
 
@@ -67,10 +61,12 @@
 </div>
 
 <script>
+    const baseDatos = [17, 482, 93, 205, 16, 378, 44, 129, 301, 78, 56, 410, 223, 19, 67, 288, 145, 399, 2, 350, 174, 82, 461, 37, 290, 115, 64, 418, 251, 9, 333, 147, 72, 396, 28, 184, 512, 6, 270, 134, 89, 455, 213, 48, 362, 101, 420, 76, 5, 398, 167, 244, 53, 309, 91, 402, 186, 73, 258, 14, 371, 120, 499, 32, 260, 87, 411, 155, 68, 305, 11, 472, 139, 57, 289, 200, 413, 96, 24, 361, 75, 182, 449, 30, 277, 108, 421, 66, 3, 354, 141, 88, 467, 21, 312, 50, 239, 104, 480, 265, 92, 336, 7, 390, 153, 47, 422, 81, 214, 59, 375, 26, 300, 98, 431, 63, 176, 285, 10, 460, 137, 70, 348, 29, 407, 122, 55, 492, 34, 218, 83, 369, 18, 445, 140, 71, 326, 94, 62, 380, 27, 415, 109, 52, 468, 35, 240, 84, 397, 13, 444, 162, 58, 320, 95, 276, 74, 408, 23, 356, 131, 69, 41, 219, 86, 364, 15, 430, 166, 60, 311, 99, 287, 45, 401, 22, 370, 135, 80, 459, 33, 206, 90, 338, 8, 419, 158, 61, 294, 102, 274, 49, 386, 25, 343, 126, 79, 473, 40, 212, 85, 355, 4, 438, 150, 65, 317, 103, 263, 54, 392];
+
     let nivel = 1, ronda = 1;
-    let aciertosTotales = 0, erroresTotales = 0;
-    let numerosEnPantalla = [];
-    let objetivosRestantes = 0;
+    let aciertos = 0, errores = 0;
+    let objetivosActuales = [];
+    let siguienteCorrecto = 0;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
@@ -79,7 +75,7 @@
     }
 
     function iniciarSesion() {
-        hablar("Juan, en esta actividad debes seleccionar los números más pequeños de la lista. No te dejes distraer por los colores o los números grandes.");
+        hablar("Juan, busca y toca siempre el número más pequeño que veas en la lista. Ignora los colores que cambian.");
         cargarRonda();
     }
 
@@ -88,52 +84,49 @@
         const instruccion = document.getElementById('panel-instruccion');
         pantalla.innerHTML = "";
         
-        let cantidadTotal, cantidadObjetivo, columnas;
+        let cantTotal = (nivel === 1) ? 6 : (nivel === 2) ? 12 : 24;
+        let cantObj = cantTotal / 2;
+        let cols = (nivel === 1) ? "repeat(3, 1fr)" : "repeat(4, 1fr)";
 
-        if (nivel === 1) { cantidadTotal = 6; cantidadObjetivo = 3; columnas = "repeat(3, 1fr)"; }
-        else if (nivel === 2) { cantidadTotal = 12; cantidadObjetivo = 6; columnas = "repeat(4, 1fr)"; }
-        else { cantidadTotal = 24; cantidadObjetivo = 12; columnas = "repeat(4, 1fr)"; }
+        pantalla.style.gridTemplateColumns = cols;
 
-        pantalla.style.gridTemplateColumns = columnas;
-        objetivosRestantes = cantidadObjetivo;
+        // Mezclar y sacar números de la base de datos
+        let pool = [...baseDatos].sort(() => Math.random() - 0.5).slice(0, cantTotal);
+        // Identificar los X menores
+        objetivosActuales = [...pool].sort((a,b) => a - b).slice(0, cantObj);
+        siguienteCorrecto = objetivosActuales[0];
+
+        instruccion.innerHTML = `Selecciona los ${cantObj} números <span style="color:var(--red)">MÁS PEQUEÑOS</span> en orden.`;
         actualizarContador();
 
-        instruccion.innerHTML = `Nivel ${nivel} - Ronda ${ronda}/3 <br> Selecciona los ${cantidadObjetivo} números <span style="color:var(--red)">MÁS PEQUEÑOS</span>`;
-
-        // Generar números aleatorios únicos
-        let pool = [];
-        while(pool.length < cantidadTotal) {
-            let n = Math.floor(Math.random() * 98) + 1;
-            if(!pool.includes(n)) pool.push(n);
-        }
-
-        // Determinar cuáles son los "pequeños" (objetivos)
-        let ordenados = [...pool].sort((a,b) => a - b);
-        let umbralCorte = ordenados[cantidadObjetivo - 1];
-
-        pool.forEach((num, index) => {
+        pool.forEach(num => {
             const card = document.createElement('div');
             card.className = 'num-card';
             card.innerText = num;
             
-            // Aplicar resaltado intermitente (al azar para que no todos brillen igual)
+            // Efecto intermitente aleatorio pero más lento
             if (Math.random() > 0.4) {
                 card.classList.add('resaltado');
-                card.style.animationDelay = (Math.random() * 2) + "s";
+                card.style.animationDelay = (Math.random() * 3) + "s";
             }
 
             card.onclick = () => {
-                if (num <= umbralCorte) {
+                if (num === siguienteCorrecto) {
                     card.classList.add('seleccionado');
-                    aciertosTotales++;
-                    objetivosRestantes--;
-                    actualizarContador();
-                    if (objetivosRestantes === 0) avanzar();
+                    aciertos++;
+                    objetivosActuales.shift(); // Quitamos el que ya encontró
+                    if (objetivosActuales.length > 0) {
+                        siguienteCorrecto = objetivosActuales[0];
+                        actualizarContador();
+                    } else {
+                        avanzar();
+                    }
+                } else if (objetivosActuales.includes(num)) {
+                    hablar("Casi, pero hay uno más pequeño todavía.");
+                    errores++;
                 } else {
-                    erroresTotales++;
-                    hablar("Ese es un número grande, busca los pequeños.");
-                    card.style.backgroundColor = "var(--red)";
-                    setTimeout(() => card.style.backgroundColor = "white", 500);
+                    errores++;
+                    hablar("Ese no es un número pequeño.");
                 }
             };
             pantalla.appendChild(card);
@@ -141,46 +134,37 @@
     }
 
     function actualizarContador() {
-        document.getElementById('contador-objetivos').innerText = `Faltan: ${objetivosRestantes} números pequeños`;
+        document.getElementById('contador-objetivos').innerText = `Busca el número: ${siguienteCorrecto}`;
     }
 
     function avanzar() {
         if (ronda < 3) {
             ronda++;
-            hablar("¡Muy bien hecho!");
+            hablar("¡Excelente orden!");
             setTimeout(cargarRonda, 1000);
+        } else if (nivel < 3) {
+            nivel++; ronda = 1;
+            mostrarCambioNivel();
         } else {
-            if (nivel < 3) {
-                nivel++; ronda = 1;
-                mostrarCambioNivel();
-            } else {
-                finalizar();
-            }
+            finalizar();
         }
     }
 
     function mostrarCambioNivel() {
         const overlay = document.getElementById('overlay-nivel');
-        let msj = nivel === 2 ? "Ahora buscaremos 6 números entre 12." : "¡Cuidado! Ahora son 12 números entre 24.";
         document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
-        document.getElementById('lvl-mensaje').innerText = msj;
+        document.getElementById('lvl-mensaje').innerText = `Aumentamos a ${nivel === 2 ? 12 : 24} números.`;
         overlay.style.display = 'flex';
-        hablar(msj);
-        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3500);
+        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3000);
     }
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        let total = aciertosTotales + erroresTotales;
-        let porcentaje = Math.round((aciertosTotales / total) * 100);
-        document.getElementById('resumen-stats').innerHTML = `
-            Aciertos: ${aciertosTotales} <br>
-            Errores: ${erroresTotales} <br>
-            Efectividad: ${porcentaje}%
-        `;
-        hablar("Juan, has terminado. Tu mente se adapta cada vez mejor a los cambios.");
+        let total = aciertos + errores;
+        let porc = Math.round((aciertos / total) * 100) || 0;
+        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertos} | Errores: ${errores} <br> Efectividad: ${porc}%`;
+        hablar("Sesión terminada. Tu mente se adapta cada vez mejor.");
     }
 </script>
 </body>
 </html>
-
