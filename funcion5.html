@@ -16,13 +16,20 @@
 
         .zona-dinero { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; max-width: 700px; padding: 10px; overflow-y: auto; max-height: 55vh; }
         .dinero-img { width: 130px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); border-radius: 8px; }
-        .moneda-img { width: 70px; }
+        .moneda-img { width: 75px; }
         .clickable { cursor: pointer; transition: 0.2s; }
         .clickable:active { transform: scale(0.9); }
 
-        .zona-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; margin-top: 15px; }
+        /* Contenedor especial para nivel 2 para que la imagen quede arriba y botones abajo */
+        .contenedor-columna { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+
+        .zona-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; }
 
         #pago-actual { background: var(--gold); padding: 10px 20px; border-radius: 15px; font-size: 1.6rem; font-weight: bold; margin-top: 10px; border: 2px solid var(--p-purple); display: none; color: var(--navy); }
+
+        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; margin-top: auto; }
+        .avatar-img { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; flex-shrink: 0; background: #fff; }
+        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.85rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 65px; overflow-y: auto; }
 
         #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
         #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
@@ -31,7 +38,7 @@
         .tabla-stats { width: 100%; max-width: 320px; margin: 15px 0; border-collapse: collapse; background: rgba(255,255,255,0.1); }
         .tabla-stats th, .tabla-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
 
-        .btn-grande { background: #f0f0f0; border: 1px solid #ccc; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.95rem; color: var(--navy); }
+        .btn-grande { background: var(--gold); border: none; padding: 12px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 0.95rem; color: var(--navy); border-bottom: 4px solid #b7950b; }
         .btn-finalizar { background: var(--gold); border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.2rem; }
     </style>
 </head>
@@ -40,9 +47,16 @@
 <header>SESIÓN 5: ORGANIZACIÓN Y DINERO</header>
 
 <div id="contenedor-juego">
-    <div id="panel-instruccion" class="panel-instruccion">¡CARGANDO!</div>
+    <div id="panel-instruccion" class="panel-instruccion">¡PREPARADOS!</div>
     <div id="pantalla-juego" class="zona-dinero"></div>
-    <div id="pago-actual">Llevas: $<span id="suma-pago">0</span></div>
+    <div id="pago-actual">Pagas: $<span id="suma-pago">0</span></div>
+</div>
+
+<div class="area-asistente">
+    <div class="avatar-img">
+        <img src="COTERAPEUTA.JPG" alt="Coterapeuta" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png';">
+    </div>
+    <div class="burbuja" id="texto-asistente">Hola Juan, vamos a administrar bien el dinero hoy.</div>
 </div>
 
 <div id="overlay-nivel">
@@ -56,8 +70,8 @@
         <thead><tr style="color: var(--gold);"><th>Nivel</th><th>A/E</th><th>%</th></tr></thead>
         <tbody id="cuerpo-tabla"></tbody>
     </table>
-    <p style="font-size: 1.1rem; font-weight: bold; margin: 10px;">"Tomar buenas decisiones te dan libertad."</p>
-    <button class="btn-finalizar" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR</button>
+    <p style="font-size: 1.2rem; font-weight: bold; margin: 15px;">"Tomar buenas decisiones te dan libertad."</p>
+    <button class="btn-finalizar" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR SESIÓN</button>
 </div>
 
 <script>
@@ -78,19 +92,20 @@
     ];
 
     let nivel = 1, ronda = 1, sumaActual = 0, objetivoPago = 0;
-    let usadosEnNivel = []; // Para evitar repeticiones
+    let usadosEnNivel = [];
     let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
 
     function formatear(n) { return n.toLocaleString('es-CO'); }
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
         window.speechSynthesis.speak(m);
+        document.getElementById('texto-asistente').innerText = t;
     }
 
     function iniciarSesion() {
-        hablar("Juan, vamos a organizar el dinero.");
+        hablar("Hola Juan, hoy vamos a practicar cómo manejar nuestro dinero. Empecemos.");
         cargarRonda();
     }
 
@@ -98,14 +113,14 @@
         const pantalla = document.getElementById('pantalla-juego');
         const instruccion = document.getElementById('panel-instruccion');
         const displayPago = document.getElementById('pago-actual');
+        
         pantalla.innerHTML = "";
         displayPago.style.display = "none";
         sumaActual = 0;
 
         if (nivel === 1) {
-            // BUSCAR BILLETE ESPECÍFICO (Sin repetición)
             let pool = billetes.filter(b => !usadosEnNivel.includes(b.v));
-            if(pool.length === 0) { usadosEnNivel = []; pool = billetes; }
+            if(pool.length === 0) pool = billetes;
             const target = pool[Math.floor(Math.random() * pool.length)];
             objetivoPago = target.v;
             usadosEnNivel.push(target.v);
@@ -123,51 +138,60 @@
                 img.classList.add('clickable');
                 img.onclick = () => {
                     if(b.v === objetivoPago) { stats[1].a++; avanzar(); }
-                    else { stats[1].e++; hablar("Ese no es."); }
+                    else { stats[1].e++; hablar("Ese no es el de " + target.t); }
                 };
                 pantalla.appendChild(img);
             });
         } 
         else if (nivel === 2) {
-            // RECONOCER VALOR
-            let pool = billetes.filter(b => !usadosEnNivel.includes(b.v));
-            if(pool.length === 0) { usadosEnNivel = []; pool = billetes; }
+            let todo = [...billetes, ...monedas];
+            let pool = todo.filter(d => !usadosEnNivel.includes(d.v));
+            if(pool.length === 0) pool = todo;
             const target = pool[Math.floor(Math.random() * pool.length)];
             objetivoPago = target.v;
             usadosEnNivel.push(target.v);
 
             instruccion.innerHTML = `¿Cuánto vale este dinero?`;
-            hablar(`¿Cuánto vale este billete?`);
-            pantalla.appendChild(crearImg(target));
+            hablar(`Juan, ¿cuánto dinero ves en pantalla?`);
+            
+            // Estructura: Imagen arriba, Botones abajo
+            const contenedorCol = document.createElement('div');
+            contenedorCol.className = "contenedor-columna";
+            
+            const imgPrincipal = crearImg(target);
+            imgPrincipal.style.width = "200px"; // Un poco más grande para que se vea bien
+            contenedorCol.appendChild(imgPrincipal);
             
             const zonaBtn = document.createElement('div');
             zonaBtn.className = "zona-botones";
-            let opcs = [target, ...billetes.filter(b => b.v !== objetivoPago).sort(()=>Math.random()-0.5).slice(0, 3)].sort(()=>Math.random()-0.5);
+            
+            let opcs = [target, ...todo.filter(d => d.v !== objetivoPago).sort(()=>Math.random()-0.5).slice(0, 3)].sort(()=>Math.random()-0.5);
 
             opcs.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = "btn-grande";
-                btn.innerHTML = `$${formatear(opt.v)}<br><small>${opt.t}</small>`;
+                btn.innerHTML = `$${formatear(opt.v)}<br><span style="font-size:0.7rem">${opt.t}</span>`;
                 btn.onclick = () => {
                     if(opt.v === objetivoPago) { stats[2].a++; avanzar(); }
-                    else { stats[2].e++; hablar("Ese no es el valor."); }
+                    else { stats[2].e++; hablar("No. Ese es el valor de " + opt.t); }
                 };
                 zonaBtn.appendChild(btn);
             });
-            pantalla.appendChild(zonaBtn);
+            contenedorCol.appendChild(zonaBtn);
+            pantalla.appendChild(contenedorCol);
         }
         else if (nivel === 3) {
-            // PAGO EXACTO (6 RONDAS + TODO EL DINERO)
             const precios = [3500, 7200, 12500, 21100, 50550, 1600];
             objetivoPago = precios[ronda - 1];
             
-            instruccion.innerHTML = `Debes pagar: $${formatear(objetivoPago)}`;
-            hablar(`Paga ${formatear(objetivoPago)} pesos tocando los billetes y monedas.`);
+            instruccion.innerHTML = `Debes pagar exactamente: $${formatear(objetivoPago)}`;
+            hablar(`Juan, paga ${formatear(objetivoPago)} pesos seleccionando los billetes y monedas.`);
             displayPago.style.display = "block";
             document.getElementById('suma-pago').innerText = "0";
 
-            // Mostrar TODOS los billetes y monedas
-            [...billetes, ...monedas].forEach(data => {
+            // Mostrar TODO el dinero disponible (Billetes + Monedas)
+            const todoElDinero = [...billetes, ...monedas];
+            todoElDinero.forEach(data => {
                 const img = crearImg(data);
                 img.classList.add('clickable');
                 img.onclick = () => {
@@ -176,8 +200,8 @@
                     if(sumaActual === objetivoPago) { stats[3].a++; avanzar(); }
                     else if(sumaActual > objetivoPago) { 
                         stats[3].e++; 
-                        hablar("Te pasaste. Intenta esta compra de nuevo."); 
-                        setTimeout(cargarRonda, 800); 
+                        hablar("Te pasaste del valor. Intenta esta compra otra vez."); 
+                        setTimeout(cargarRonda, 1000); 
                     }
                 };
                 pantalla.appendChild(img);
@@ -193,10 +217,10 @@
     }
 
     function avanzar() {
-        const rMax = (nivel === 3) ? 6 : 3;
-        if (ronda < rMax) {
+        const rondasMaximas = (nivel === 3) ? 6 : 3;
+        if (ronda < rondasMaximas) {
             ronda++;
-            hablar("¡Muy bien!");
+            hablar("¡Excelente!");
             setTimeout(cargarRonda, 1000);
         } else {
             if (nivel < 3) {
@@ -210,10 +234,12 @@
 
     function mostrarCambioNivel() {
         const overlay = document.getElementById('overlay-nivel');
+        const msj = nivel === 2 ? "Muy bien. Ahora reconoce el valor numérico." : "¡Llegamos al nivel alto! Haz 6 pagos exactos.";
         document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
-        document.getElementById('lvl-mensaje').innerText = nivel === 2 ? "Identifica el valor." : "¡6 compras finales!";
+        document.getElementById('lvl-mensaje').innerText = msj;
         overlay.style.display = 'flex';
-        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 2500);
+        hablar(msj);
+        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3500);
     }
 
     function finalizar() {
@@ -225,7 +251,7 @@
             let p = t > 0 ? Math.round((stats[i].a / t)*100) : 0;
             cuerpo.innerHTML += `<tr><td>Nivel ${i}</td><td>${stats[i].a}/${stats[i].e}</td><td>${p}%</td></tr>`;
         }
-        hablar("¡Excelente trabajo Juan!");
+        hablar("Sesión completada Juan. Tomar buenas decisiones te da libertad.");
     }
 </script>
 </body>
