@@ -1,1 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesión 5: Planificación y Dinero - REHABILIDIA</title>
+    <style>
+        :root { --p-purple: #4A148C; --bg: #E3F2FD; --gold: #FFD700; --navy: #103A57; --green: #2E7D32; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
+
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; position: relative; }
+        
+        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 3px solid var(--p-purple); width: 90%; max-width: 450px; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        .zona-dinero { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; max-width: 600px; padding: 10px; }
+        .dinero-img { width: 140px; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+        .dinero-img:active { transform: scale(0.9); }
+        .moneda-img { width: 85px; }
+
+        #pago-actual { background: var(--gold); padding: 10px 20px; border-radius: 10px; font-size: 1.5rem; font-weight: bold; margin-top: 15px; border: 2px solid var(--p-purple); display: none; }
+
+        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; margin-top: auto; }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--p-purple); overflow: hidden; flex-shrink: 0; }
+        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.85rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 65px; overflow-y: auto; }
+
+        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
+        #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
+        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; overflow-y: auto; }
+        
+        .tabla-stats { width: 100%; max-width: 320px; margin: 15px 0; border-collapse: collapse; background: rgba(255,255,255,0.1); }
+        .tabla-stats th, .tabla-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+
+        .btn-accion { background: var(--gold); border: none; padding: 15px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.1rem; color: var(--p-purple); margin-top: 10px; }
+    </style>
+</head>
+<body onload="iniciarSesion()">
+
+<header>SESIÓN 5: ORGANIZACIÓN Y DINERO</header>
+
+<div id="contenedor-juego">
+    <div id="panel-instruccion" class="panel-instruccion">¡PREPÁRATE!</div>
+    
+    <div id="pantalla-juego" class="zona-dinero">
+        </div>
+
+    <div id="pago-actual">Llevas: $<span id="suma-pago">0</span></div>
+</div>
+
+<div class="area-asistente">
+    <div class="avatar-img">
+        <img src="COTERAPEUTA.JPG" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png';">
+    </div>
+    <div class="burbuja" id="texto-asistente">Hola Juan, vamos a administrar bien el dinero hoy.</div>
+</div>
+
+<div id="overlay-nivel">
+    <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3rem;">¡NIVEL 1!</h1>
+    <p id="lvl-mensaje" style="font-size: 1.5rem;"></p>
+</div>
+
+<div id="overlay-final">
+    <h1 style="color: var(--gold);">SESIÓN COMPLETADA</h1>
+    <table class="tabla-stats">
+        <thead><tr style="color: var(--gold);"><th>Nivel</th><th>A/E</th><th>%</th></tr></thead>
+        <tbody id="cuerpo-tabla"></tbody>
+    </table>
+    <p style="font-style: italic; color: #CEE5D6; margin: 10px;">"Tomar buenas decisiones te da libertad."</p>
+    <button class="btn-accion" onclick="window.location.href='funcion_sesiones.html'">VOLVER A SESIONES</button>
+</div>
+
+<script>
+    // Mapeo de archivos según tu lista fun5
+    const billetes = [
+        { v: 2000, f: "billete2.png" }, { v: 5000, f: "billete5.png" },
+        { v: 10000, f: "billete10.png" }, { v: 20000, f: "billete20.png" },
+        { v: 50000, f: "billete50.png" }, { v: 100000, f: "billete100.png" }
+    ];
+    const monedas = [
+        { v: 50, f: "moneda50.png" }, { v: 100, f: "moneda100.png" },
+        { v: 200, f: "moneda200.png" }, { v: 500, f: "moneda500.png" },
+        { v: 1000, f: "moneda1000.png" }
+    ];
+
+    let nivel = 1, ronda = 1, sumaActual = 0, objetivoPago = 0;
+    let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
+
+    function hablar(t) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95;
+        window.speechSynthesis.speak(m);
+        document.getElementById('texto-asistente').innerText = t;
+    }
+
+    function iniciarSesion() {
+        hablar("Juan, hoy vamos a aprender a organizar nuestro dinero. ¡Empecemos!");
+        cargarRonda();
+    }
+
+    function cargarRonda() {
+        const pantalla = document.getElementById('pantalla-juego');
+        const instruccion = document.getElementById('panel-instruccion');
+        const displayPago = document.getElementById('pago-actual');
+        pantalla.innerHTML = "";
+        displayPago.style.display = "none";
+        sumaActual = 0;
+
+        if (nivel === 1) {
+            // Clasificación por dominio
+            const target = billetes[Math.floor(Math.random() * 3)];
+            objetivoPago = target.v;
+            instruccion.innerText = "Busca el Billete de $" + objetivoPago;
+            hablar("Juan, por favor selecciona el billete de " + objetivoPago + " pesos.");
+            
+            [...billetes].sort(()=>Math.random()-0.5).slice(0, 4).forEach(b => {
+                pantalla.appendChild(crearImg(b, 'billete'));
+            });
+        } 
+        else if (nivel === 2) {
+            // Organizar valor numérico con imagen
+            const target = [...billetes, ...monedas][Math.floor(Math.random() * 8)];
+            objetivoPago = target.v;
+            instruccion.innerText = "¿Qué valor tiene este dinero?";
+            hablar("Mira el dinero en pantalla, ¿cuánto vale?");
+            
+            pantalla.appendChild(crearImg(target, target.v >= 2000 ? 'billete' : 'moneda', false));
+            
+            const opciones = document.createElement('div');
+            opciones.className = "zona-dinero";
+            [objetivoPago, 500, 2000, 10000, 50000].sort(()=>Math.random()-0.5).slice(0, 4).forEach(v => {
+                const btn = document.createElement('button');
+                btn.className = "btn-accion"; btn.innerText = "$" + v;
+                btn.onclick = () => {
+                    if(v === objetivoPago) { stats[2].a++; avanzar(); }
+                    else { stats[2].e++; hablar("Ese no es su valor, fíjate bien."); }
+                };
+                opciones.appendChild(btn);
+            });
+            pantalla.appendChild(opciones);
+        }
+        else if (nivel === 3) {
+            // Pagar producto
+            objetivoPago = [3000, 7000, 12000, 15000, 25000][Math.floor(Math.random()*5)];
+            instruccion.innerText = "Debes pagar: $" + objetivoPago;
+            hablar("Juan, paga " + objetivoPago + " pesos usando los billetes necesarios.");
+            displayPago.style.display = "block";
+            document.getElementById('suma-pago').innerText = "0";
+
+            [2000, 5000, 10000, 20000].forEach(v => {
+                const data = billetes.find(b => b.v === v);
+                const img = crearImg(data, 'billete', false);
+                img.onclick = () => {
+                    sumaActual += v;
+                    document.getElementById('suma-pago').innerText = sumaActual;
+                    if(sumaActual === objetivoPago) { stats[3].a++; avanzar(); }
+                    else if(sumaActual > objetivoPago) { 
+                        stats[3].e++; 
+                        hablar("Te pasaste del valor, intenta de nuevo."); 
+                        setTimeout(cargarRonda, 1000); 
+                    }
+                };
+                pantalla.appendChild(img);
+            });
+        }
+    }
+
+    function crearImg(data, tipo, clickable = true) {
+        const img = document.createElement('img');
+        img.src = `./fun5/${data.f}`;
+        img.className = tipo === 'billete' ? 'dinero-img' : 'dinero-img moneda-img';
+        if(clickable) {
+            img.onclick = () => {
+                if(data.v === objetivoPago) { stats[1].a++; avanzar(); }
+                else { stats[1].e++; hablar("Ese no es el correcto."); }
+            };
+        }
+        return img;
+    }
+
+    function avanzar() {
+        if (ronda < 3) {
+            ronda++;
+            hablar("¡Excelente!");
+            setTimeout(cargarRonda, 1000);
+        } else {
+            if (nivel < 3) {
+                nivel++; ronda = 1;
+                mostrarCambioNivel();
+            } else {
+                finalizar();
+            }
+        }
+    }
+
+    function mostrarCambioNivel() {
+        const overlay = document.getElementById('overlay-nivel');
+        const msj = nivel === 2 ? "Ahora vamos a identificar valores." : "¡Último reto! Vamos a pagar productos.";
+        document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
+        document.getElementById('lvl-mensaje').innerText = msj;
+        overlay.style.display = 'flex';
+        hablar(msj);
+        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3500);
+    }
+
+    function finalizar() {
+        document.getElementById('overlay-final').style.display = 'flex';
+        const cuerpo = document.getElementById('cuerpo-tabla');
+        cuerpo.innerHTML = "";
+        for (let i = 1; i <= 3; i++) {
+            let t = stats[i].a + stats[i].e;
+            let p = t > 0 ? Math.round((stats[i].a / t)*100) : 0;
+            cuerpo.innerHTML += `<tr><td>Nivel ${i}</td><td>${stats[i].a}/${stats[i].e}</td><td>${p}%</td></tr>`;
+        }
+        hablar("¡Muy bien Juan! Has demostrado un gran control de tu dinero hoy.");
+    }
+</script>
+</body>
+</html>
 
