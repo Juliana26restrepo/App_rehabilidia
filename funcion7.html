@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sesión 7: Control Inhibitorio - Versión Final</title>
+    <title>Sesión 7: Control Inhibitorio - Garantía de Objetivos</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #F0F4F8; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -45,7 +45,7 @@
 <div id="overlay-nivel" class="overlay">
     <h1 id="lvl-titulo" style="font-size: 4rem; color: var(--gold);">NIVEL 1</h1>
     <p id="lvl-mensaje" style="font-size: 1.8rem;"></p>
-    <button class="btn-ready" onclick="cerrarOverlay()">¡LISTO!</button>
+    <button class="btn-ready" onclick="cerrarOverlay()">¡EMPEZAR!</button>
 </div>
 
 <div id="overlay-final" class="overlay">
@@ -71,7 +71,7 @@
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() { mostrarOverlay("NIVEL 1", "Toca las figuras correctas rápidamente."); }
+    function iniciarSesion() { mostrarOverlay("NIVEL 1", "Toca las piezas indicadas."); }
 
     function mostrarOverlay(tit, msj) {
         document.getElementById('lvl-titulo').innerText = tit;
@@ -85,6 +85,10 @@
         cargarRonda();
     }
 
+    function crearPieza(forma, color, tamano) {
+        return { id: Math.random(), forma, color, tamano };
+    }
+
     function cargarRonda() {
         clearInterval(timer); segundos = 10; inhibicionActiva = false;
         document.getElementById('reloj-contenedor').innerText = segundos;
@@ -92,78 +96,92 @@
         pantalla.innerHTML = "";
 
         let pool = [];
-        let numFigs = (nivel === 1) ? 14 : (nivel === 2) ? 20 : 30;
+        let numTotal = (nivel === 1) ? 14 : (nivel === 2) ? 20 : 30;
         let maxRondas = (nivel === 3) ? 6 : 3;
-
-        // Crear pool aleatorio inicial
-        for(let i=0; i<numFigs; i++){
-            pool.push({
-                id: i,
-                color: colores[Math.floor(Math.random()*colores.length)],
-                forma: (nivel === 1) ? (Math.random() > 0.5 ? 'circulo' : 'cuadrado') : (['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)]),
-                tamano: (Math.random() > 0.5 ? 'grande' : 'pequeno')
-            });
-        }
-
         let textoRegla = "";
-        let targets = [];
+        let cTargets = [];
 
-        // --- NIVEL 1: Selección Aleatoria en cada intento ---
+        // --- NIVEL 1: Garantizar presencia de 2 colores ---
         if(nivel === 1) {
             let f = Math.random() > 0.5 ? "cuadrados" : "círculos";
             let fKey = f === "cuadrados" ? "cuadrado" : "circulo";
-            // Elegir dos colores diferentes al azar
-            let cIdx1 = Math.floor(Math.random() * colores.length);
-            let cIdx2 = (cIdx1 + 2) % colores.length;
-            let c1 = colores[cIdx1];
-            let c2 = colores[cIdx2];
-
-            // Asegurar que existan al menos 3 de cada uno
-            for(let j=0; j<3; j++) { pool[j].forma = fKey; pool[j].color = c1; pool[j+3].forma = fSel = fKey; pool[j+3].color = c2; }
+            let c1 = colores[Math.floor(Math.random() * 4)];
+            let c2 = colores[4 + Math.floor(Math.random() * 4)];
             
             textoRegla = `Toca los ${f} ${c1.n}s y los ${f} ${c2.n}s.`;
-            targets = pool.filter(p => p.forma === fKey && (p.color.n === c1.n || p.color.n === c2.n));
-        } 
-        
-        // --- NIVEL 2: Condicionales Reales ---
-        else if(nivel === 2) {
-            let cTri = colores[Math.floor(Math.random()*colores.length)];
-            let cAccion = colores[(colores.indexOf(cTri)+3)%colores.length];
+            // Forzar 3 de cada uno
+            for(let i=0; i<3; i++) pool.push(crearPieza(fKey, c1, 'grande'));
+            for(let i=0; i<3; i++) pool.push(crearPieza(fKey, c2, 'pequeno'));
             
+            cTargets = pool; // Todos los agregados son targets
+        } 
+        // --- NIVEL 2: Condicionales ---
+        else if(nivel === 2) {
             if(ronda === 2) {
                 textoRegla = "¡ATENCIÓN! Si hay un triángulo Negro, NO TOQUES NADA.";
-                pool[0] = {id:99, forma:'triangulo', color:colores.find(c=>c.n==='Negro'), tamano:'grande'};
+                pool.push(crearPieza('triangulo', colores.find(c=>c.n==='Negro'), 'grande'));
                 inhibicionActiva = true;
             } else {
-                textoRegla = `Si hay un triángulo ${cTri.n}, toca todos los círculos ${cAccion.n}s.`;
-                pool[0] = {id:98, forma:'triangulo', color:cTri, tamano:'grande'};
-                targets = pool.filter(p => p.forma === 'circulo' && p.color.n === cAccion.n);
+                let cAccion = colores[Math.floor(Math.random()*4)];
+                textoRegla = `Si hay un triángulo café, toca todos los círculos ${cAccion.n}s.`;
+                pool.push(crearPieza('triangulo', colores.find(c=>c.n==='Café'), 'grande'));
+                for(let i=0; i<4; i++) pool.push(crearPieza('circulo', cAccion, 'grande'));
+                cTargets = pool.filter(p => p.forma === 'circulo');
             }
         } 
-        
-        // --- NIVEL 3: Reglas de Triple Variable ---
+        // --- NIVEL 3: Reglas Complejas (6 Intentos) ---
         else {
-            let rIdx = Math.floor(Math.random() * 3);
-            if(rIdx === 0) {
-                textoRegla = "Toca los cuadrados verdes GRANDES, los círculos naranjas PEQUEÑOS y los triángulos amarillos.";
-                targets = pool.filter(p => (p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno') || (p.forma==='triangulo' && p.color.n==='Amarillo'));
-            } else if(rIdx === 1) {
-                textoRegla = "Si hay triángulos azules, NO TOQUES ninguna figura de color Rojo.";
-                pool[0] = {id:97, forma:'triangulo', color:colores.find(c=>c.n==='Azul'), tamano:'grande'};
+            let rIdx = ronda % 3;
+            if(rIdx === 1) {
+                textoRegla = "Toca los cuadrados verdes GRANDES y los círculos naranjas PEQUEÑOS.";
+                for(let i=0; i<3; i++) pool.push(crearPieza('cuadrado', colores.find(c=>c.n==='Verde'), 'grande'));
+                for(let i=0; i<3; i++) pool.push(crearPieza('circulo', colores.find(c=>c.n==='Naranja'), 'pequeno'));
+            } else if(rIdx === 2) {
+                textoRegla = "Si hay triángulos azules, NO TOQUES los círculos verdes.";
+                pool.push(crearPieza('triangulo', colores.find(c=>c.n==='Azul'), 'grande'));
+                for(let i=0; i<4; i++) pool.push(crearPieza('circulo', colores.find(c=>c.n==='Verde'), 'grande'));
                 inhibicionActiva = true;
-                targets = pool.filter(p => p.color.n !== "Rojo");
+                // El pool se llena luego y se filtran los que NO son verdes
             } else {
                 textoRegla = "Toca solo los triángulos pequeños rosados y los cuadrados grandes negros.";
-                targets = pool.filter(p => (p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande'));
+                for(let i=0; i<3; i++) pool.push(crearPieza('triangulo', colores.find(c=>c.n==='Rosado'), 'pequeno'));
+                for(let i=0; i<3; i++) pool.push(crearPieza('cuadrado', colores.find(c=>c.n==='Negro'), 'grande'));
             }
+            cTargets = pool.filter(p => p.id !== pool[0].id || !inhibicionActiva);
         }
 
-        if(targets.length === 0 && !inhibicionActiva) { cargarRonda(); return; }
+        // Rellenar lo que falta del tablero con piezas aleatorias que NO sean objetivos
+        while(pool.length < numTotal) {
+            let p = crearPieza(
+                ['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)],
+                colores[Math.floor(Math.random()*colores.length)],
+                Math.random() > 0.5 ? 'grande' : 'pequeno'
+            );
+            pool.push(p);
+        }
 
         pool.sort(() => Math.random() - 0.5);
         document.getElementById('panel-instruccion').innerText = textoRegla;
         hablar(textoRegla);
-        objetivos = targets.map(t => t.id);
+        
+        // Identificar IDs de objetivos reales en el pool final
+        if(!inhibicionActiva) {
+            if(nivel === 1) {
+                let parts = textoRegla.split(" ");
+                let fKey = textoRegla.includes("cuadrados") ? "cuadrado" : "circulo";
+                objetivos = pool.filter(p => p.forma === fKey && (p.color.n === parts[2].replace("s","") || p.color.n === parts[6].replace("s","").replace(".",""))).map(p => p.id);
+            } else if(nivel === 2) {
+                let colorBusq = textoRegla.split(" ").pop().replace("s.","");
+                objetivos = pool.filter(p => p.forma === 'circulo' && p.color.n === colorBusq).map(p => p.id);
+            } else {
+                if(textoRegla.includes("verdes GRANDES")) {
+                    objetivos = pool.filter(p => (p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno')).map(p => p.id);
+                } else {
+                    objetivos = pool.filter(p => (p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande')).map(p => p.id);
+                }
+            }
+        }
+
         document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Intento ${ronda}/${maxRondas}`;
 
         pool.forEach(f => {
@@ -174,16 +192,16 @@
 
             div.onclick = () => {
                 if(inhibicionActiva) {
-                    if(nivel === 2) { erroresTotales++; hablar("¡Era para no tocar!"); avanzar(); }
-                    else if(nivel === 3 && f.color.n === "Rojo") { erroresTotales++; hablar("No debías tocar rojo."); avanzar(); }
-                    else { div.classList.add('marcado'); }
+                    if(nivel === 2) { erroresTotales++; hablar("¡Inhibición! No tocar."); avanzar(); }
+                    else if(f.color.n === "Verde") { erroresTotales++; hablar("No verde."); avanzar(); }
+                    else { div.classList.add('marcado'); aciertosTotales++; }
                 } else if(objetivos.includes(f.id)) {
                     div.classList.add('marcado');
                     objetivos = objetivos.filter(id => id !== f.id);
                     aciertosTotales++;
                     if(objetivos.length === 0) avanzar();
                 } else {
-                    erroresTotales++; hablar("No es esa.");
+                    erroresTotales++; hablar("Error.");
                 }
             };
             pantalla.appendChild(div);
@@ -193,7 +211,7 @@
             segundos--; document.getElementById('reloj-contenedor').innerText = segundos;
             if(segundos <= 0) {
                 if(inhibicionActiva) aciertosTotales++;
-                else if(objetivos.length > 0) erroresTotales += objetivos.length;
+                else erroresTotales += objetivos.length;
                 avanzar();
             }
         }, 1000);
@@ -203,7 +221,7 @@
         clearInterval(timer);
         let maxRondas = (nivel === 3) ? 6 : 3;
         if(ronda < maxRondas) { ronda++; setTimeout(cargarRonda, 1000); }
-        else if(nivel < 3) { nivel++; ronda = 1; mostrarOverlay("NIVEL " + nivel, "Ahora vienen las reglas condicionales."); }
+        else if(nivel < 3) { nivel++; ronda = 1; mostrarOverlay("NIVEL " + nivel, "Nuevas reglas."); }
         else { finalizar(); }
     }
 
@@ -213,7 +231,7 @@
         let porc = total > 0 ? Math.round((aciertosTotales/total)*100) : 0;
         document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertosTotales} | Errores: ${erroresTotales}`;
         document.getElementById('porcentaje-caja').innerText = porc + "%";
-        hablar(`Sesión terminada. Tu efectividad fue del ${porc} por ciento.`);
+        hablar(`Finalizado. Tu efectividad es del ${porc} por ciento.`);
     }
 </script>
 </body>
