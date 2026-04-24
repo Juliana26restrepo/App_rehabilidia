@@ -2,257 +2,246 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sesión Final: Flexibilidad Metacognitiva</title>
+    <title>Circuito de Planificación: MotoRuta</title>
     <style>
         :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --white: #FFFFFF; --green: #2ECC71; --red: #E74C3C; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: var(--navy); color: white; padding: 10px; font-weight: bold; text-align: center; }
         
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--navy); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        .stats-bar { display: flex; justify-content: center; gap: 30px; padding: 10px; font-weight: bold; background: #e2e8f0; border-bottom: 2px solid var(--navy); }
 
-        header { background: var(--navy); color: white; padding: 10px; font-weight: bold; text-align: center; flex-shrink: 0; }
+        .game-container { display: flex; flex: 1; padding: 15px; gap: 20px; justify-content: center; align-items: center; overflow: hidden; }
         
-        .stats-bar { 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-            padding: 8px; 
-            font-weight: bold; 
-            background: #e2e8f0; 
-            border-bottom: 2px solid var(--navy);
-            flex-shrink: 0;
-            font-size: 0.9rem;
+        /* El Tablero dinámico */
+        #grid { 
+            display: grid; 
+            gap: 5px; 
+            background: #94a3b8; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 4px solid var(--navy);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
+        .cell { background: #cbd5e1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2rem; position: relative; transition: 0.2s; }
+        .wall { background: #334155; }
+        .goal { background: var(--gold); animation: pulse 1.5s infinite; }
+        .moto { font-size: 2.5rem; z-index: 10; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        #zona-juego { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 5px;
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        /* Panel de Comandos */
+        .controls { display: flex; flex-direction: column; gap: 10px; width: 280px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 90vh; }
+        .btn-dir { padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border: 2px solid var(--navy); border-radius: 8px; background: white; transition: 0.2s; }
+        .btn-dir:hover { background: #f1f5f9; transform: scale(1.02); }
+        .btn-action { padding: 15px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 5px; }
+        #btn-go { background: var(--green); box-shadow: 0 4px 0 #27ae60; }
+        #btn-go:active { box-shadow: 0 0 0; transform: translateY(4px); }
+        #btn-reset { background: var(--red); opacity: 0.8; }
+
+        #sequence-display { 
+            display: flex; flex-wrap: wrap; gap: 5px; min-height: 50px; 
+            border: 2px dashed #cbd5e1; padding: 10px; border-radius: 8px; 
+            background: #f8fafc; overflow-y: auto; max-height: 120px;
         }
+        .command-icon { background: var(--navy); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; }
 
-        #feedback { font-size: 1.8rem; font-weight: 900; height: 35px; margin-bottom: 5px; }
-
-        .tablero-central {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px; 
-        }
-
-        .contenedor-referencia { display: flex; gap: 10px; justify-content: center; }
-
-        .carta { 
-            width: 15vh; 
-            height: 22vh; 
-            max-width: 90px;
-            max-height: 130px;
-            background: white; 
-            border: 3px solid var(--navy); 
-            border-radius: 10px; 
-            display: flex; 
-            flex-wrap: wrap; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 5px; 
-            cursor: pointer; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            user-select: none;
-        }
-
-        #carta-objetivo { 
-            width: 17vh; 
-            height: 25vh; 
-            max-width: 110px;
-            max-height: 155px;
-            border: 4px solid var(--gold); 
-            cursor: default; 
-            pointer-events: none; 
-        }
-
-        #contenedor-objetivo {
-            text-align: center;
-        }
-
-        #contenedor-objetivo p {
-            margin: 5px 0;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: #64748b;
-        }
-
-        .figura { width: 2.2vh; height: 2.2vh; margin: 0.3vh; }
-        .circulo { border-radius: 50%; }
-        .cuadrado { border-radius: 3px; }
-        .estrella { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
-        .triangulo { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; text-align: center; }
-        .btn-ready { background: var(--gold); border: none; padding: 12px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; color: var(--navy); font-size: 1.1rem; margin-top: 15px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-<header>PROTOCOLO DE FLEXIBILIDAD Y ESTRATEGIA</header>
+<header>MOTORUTA: DESAFÍO DE PLANIFICACIÓN</header>
 
 <div class="stats-bar">
     <span>NIVEL: <span id="txt-nivel">1</span>/3</span>
-    <span>EJERCICIO: <span id="txt-ronda">1</span>/3</span>
-    <span>ACIERTOS: <span id="txt-aciertos">0</span>/10</span>
+    <span>EJERCICIO: <span id="txt-ejercicio">1</span>/3</span>
 </div>
 
-<div id="zona-juego">
-    <div id="feedback"></div>
+<div class="game-container">
+    <div id="grid"></div>
 
-    <div class="tablero-central">
-        <div class="contenedor-referencia" id="referencias"></div>
+    <div class="controls">
+        <h3 style="margin: 0;">Tu Ruta:</h3>
+        <div id="sequence-display"></div>
         
-        <div id="contenedor-objetivo">
-            <p>¿A CUÁL PERTENECE ESTA CARTA?</p>
-            <div id="carta-objetivo" class="carta"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn-dir" onclick="addCommand('⬆️')">⬆️ Subir</button>
+            <button class="btn-dir" onclick="addCommand('⬇️')">⬇️ Bajar</button>
+            <button class="btn-dir" onclick="addCommand('⬅️')">⬅️ Izq</button>
+            <button class="btn-dir" onclick="addCommand('➡️')">➡️ Der</button>
         </div>
+
+        <button id="btn-go" class="btn-action" onclick="runSequence()">ARRANCAR MOTO 🏍️</button>
+        <button id="btn-reset" class="btn-action" onclick="resetSequence()">BORRAR RUTA</button>
     </div>
 </div>
 
-<div id="overlay-msg" class="overlay">
-    <h1 id="msg-titulo" style="color: var(--gold);"></h1>
-    <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 650px; line-height: 1.5;"></p>
-    <button class="btn-ready" onclick="cerrarOverlay()">ENTENDIDO</button>
+<div id="overlay" class="overlay">
+    <h1 id="ov-title" style="color: var(--gold);"></h1>
+    <p id="ov-text" style="font-size: 1.3rem; max-width: 600px;"></p>
+    <button class="btn-ready" style="padding: 15px 40px; font-size: 1.2rem; cursor: pointer; background: var(--gold); border: none; border-radius: 30px; font-weight: bold;" onclick="closeOverlay()">¡VAMOS!</button>
 </div>
 
 <script>
-    const COLORES = ['#E74C3C', '#3498DB', '#2ECC71', '#F1C40F'];
-    const FORMAS = ['circulo', 'cuadrado', 'estrella', 'triangulo'];
-    const NUMEROS = [1, 2, 3, 4];
+    let nivel = 1;
+    let ejercicio = 1;
+    let sequence = [];
+    let isMoving = false;
+    let playerPos = { x: 0, y: 0 };
     
-    let nivel = 1, ronda = 1, aciertos = 0;
-    let reglaActual = 'color';
-    let cartaActual = {}, bloqueado = false;
+    // Configuración de niveles
+    const config = {
+        1: { size: 4, walls: [[1,1], [2,2], [0,2]], goal: [3,3], cell: 80 },
+        2: { size: 5, walls: [[1,1], [1,2], [1,3], [3,1], [3,2], [3,3]], goal: [4,4], cell: 65 },
+        3: { size: 6, walls: [[1,0],[1,1],[1,2],[1,3],[1,4], [3,1],[3,2],[3,3],[3,4],[3,5], [5,0],[5,1],[5,2]], goal: [5,5], cell: 55 }
+    };
 
-    const cartasRef = [
-        { color: COLORES[0], forma: FORMAS[0], numero: 1 },
-        { color: COLORES[1], forma: FORMAS[1], numero: 2 },
-        { color: COLORES[2], forma: FORMAS[2], numero: 3 },
-        { color: COLORES[3], forma: FORMAS[3], numero: 4 }
-    ];
-
-    function hablar(t) {
+    function speak(t) {
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
         window.speechSynthesis.speak(m);
     }
 
-    function mostrarOverlay(tit, msj) {
-        document.getElementById('msg-titulo').innerText = tit;
-        document.getElementById('msg-cuerpo').innerText = msj;
-        document.getElementById('overlay-msg').style.display = 'flex';
-        hablar(tit + ". " + msj);
-    }
+    function initGame() {
+        const c = config[nivel];
+        const grid = document.getElementById('grid');
+        grid.style.gridTemplateColumns = `repeat(${c.size}, ${c.cell}px)`;
+        grid.style.gridTemplateRows = `repeat(${c.size}, ${c.cell}px)`;
+        grid.innerHTML = '';
 
-    function cerrarOverlay() {
-        document.getElementById('overlay-msg').style.display = 'none';
-        if(document.getElementById('referencias').innerHTML === "") iniciarEstructura();
-        generarCartaObjetivo();
-    }
-
-    function crearVisualCarta(datos, elementoId) {
-        const contenedor = (typeof elementoId === 'string') ? document.getElementById(elementoId) : elementoId;
-        contenedor.innerHTML = '';
-        for(let i=0; i < datos.numero; i++) {
-            const div = document.createElement('div');
-            div.className = `figura ${datos.forma}`;
-            div.style.backgroundColor = datos.color;
-            contenedor.appendChild(div);
+        playerPos = { x: 0, y: 0 };
+        
+        for (let y = 0; y < c.size; y++) {
+            for (let x = 0; x < c.size; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `cell-${x}-${y}`;
+                cell.style.width = c.cell + 'px';
+                cell.style.height = c.cell + 'px';
+                
+                if (x === c.goal[0] && y === c.goal[1]) {
+                    cell.classList.add('goal');
+                    cell.innerHTML = '🏁';
+                }
+                if (c.walls.some(w => w[0] === x && w[1] === y)) cell.classList.add('wall');
+                
+                grid.appendChild(cell);
+            }
         }
+        updatePlayerUI();
     }
 
-    function iniciarEstructura() {
-        const refDiv = document.getElementById('referencias');
-        refDiv.innerHTML = '';
-        cartasRef.forEach((datos, index) => {
-            const div = document.createElement('div');
-            div.className = 'carta';
-            div.onclick = () => procesarIntento(index);
-            crearVisualCarta(datos, div);
-            refDiv.appendChild(div);
+    function updatePlayerUI() {
+        const oldMoto = document.querySelector('.moto');
+        if(oldMoto) oldMoto.remove();
+        const target = document.getElementById(`cell-${playerPos.x}-${playerPos.y}`);
+        const moto = document.createElement('div');
+        moto.className = 'moto';
+        moto.innerText = '🏍️';
+        target.appendChild(moto);
+    }
+
+    function addCommand(dir) {
+        if(isMoving) return;
+        sequence.push(dir);
+        renderSequence();
+    }
+
+    function renderSequence() {
+        const display = document.getElementById('sequence-display');
+        display.innerHTML = '';
+        sequence.forEach(cmd => {
+            const span = document.createElement('span');
+            span.className = 'command-icon';
+            span.innerText = cmd;
+            display.appendChild(span);
         });
     }
 
-    function generarCartaObjetivo() {
-        cartaActual = {
-            color: COLORES[Math.floor(Math.random()*4)],
-            forma: FORMAS[Math.floor(Math.random()*4)],
-            numero: NUMEROS[Math.floor(Math.random()*4)]
-        };
-        crearVisualCarta(cartaActual, 'carta-objetivo');
-        bloqueado = false;
+    function resetSequence() {
+        if(isMoving) return;
+        sequence = [];
+        playerPos = { x: 0, y: 0 };
+        renderSequence();
+        updatePlayerUI();
     }
 
-    function procesarIntento(idx) {
-        if(bloqueado) return;
-        bloqueado = true;
-        const elegido = cartasRef[idx];
-        const fb = document.getElementById('feedback');
-        
-        let ok = (reglaActual === 'color' && elegido.color === cartaActual.color) ||
-                 (reglaActual === 'forma' && elegido.forma === cartaActual.forma) ||
-                 (reglaActual === 'numero' && elegido.numero === cartaActual.numero);
+    async function runSequence() {
+        if(isMoving || sequence.length === 0) return;
+        isMoving = true;
+        const c = config[nivel];
 
-        if(ok) {
-            fb.innerText = "¡CORRECTO!"; fb.style.color = "var(--green)";
-            hablar("¡Correcto!");
-            aciertos++;
-            document.getElementById('txt-aciertos').innerText = aciertos;
-            if(nivel === 3) cambiarRegla();
-        } else {
-            fb.innerText = "INCORRECTO"; fb.style.color = "var(--red)";
-            hablar("Incorrecto.");
-            if(nivel >= 2) cambiarRegla();
+        for (let cmd of sequence) {
+            let nX = playerPos.x;
+            let nY = playerPos.y;
+
+            if (cmd === '⬆️') nY--;
+            if (cmd === '⬇️') nY++;
+            if (cmd === '⬅️') nX--;
+            if (cmd === '➡️') nX++;
+
+            if (nX < 0 || nX >= c.size || nY < 0 || nY >= c.size || 
+                c.walls.some(w => w[0] === nX && w[1] === nY)) {
+                speak("¡Choqué! La ruta tiene un obstáculo.");
+                setTimeout(resetSequence, 500);
+                isMoving = false;
+                return;
+            }
+
+            playerPos = { x: nX, y: nY };
+            updatePlayerUI();
+            await new Promise(r => setTimeout(r, 400));
         }
 
-        setTimeout(() => {
-            fb.innerText = "";
-            if(aciertos >= 10) gestionarProgreso();
-            else generarCartaObjetivo();
-        }, 1100);
+        if (playerPos.x === c.goal[0] && playerPos.y === c.goal[1]) {
+            speak("¡Excelente! Llegaste a la meta.");
+            setTimeout(nextStep, 1000);
+        } else {
+            speak("No llegaste al final. Revisa tu planificación.");
+            isMoving = false;
+        }
     }
 
-    function cambiarRegla() {
-        const reglas = ['color', 'forma', 'numero'];
-        let n; do { n = reglas[Math.floor(Math.random()*3)]; } while(n === reglaActual);
-        reglaActual = n;
-    }
-
-    function gestionarProgreso() {
-        aciertos = 0;
-        document.getElementById('txt-aciertos').innerText = "0";
-        if(ronda < 3) {
-            ronda++;
-            document.getElementById('txt-ronda').innerText = ronda;
-            mostrarOverlay(`EJERCICIO ${ronda}`, `Excelente. Has completado el ejercicio anterior. Logra 10 aciertos más.`);
-        } else if(nivel < 3) {
-            nivel++; ronda = 1;
+    function nextStep() {
+        isMoving = false;
+        if (ejercicio < 3) {
+            ejercicio++;
+            document.getElementById('txt-ejercicio').innerText = ejercicio;
+            resetSequence();
+            initGame();
+        } else if (nivel < 3) {
+            nivel++;
+            ejercicio = 1;
             document.getElementById('txt-nivel').innerText = nivel;
-            document.getElementById('txt-ronda').innerText = "1";
-            mostrarOverlay(`NIVEL ${nivel}`, `Subiendo dificultad. La regla podría cambiar al fallar.`);
+            document.getElementById('txt-ejercicio').innerText = ejercicio;
+            showLevelIntro();
         } else {
-            mostrarOverlay("PROTOCOLO FINALIZADO", "¡Excelente trabajo! Has demostrado una gran capacidad de adaptación.");
+            mostrarOverlay("¡CAMPEÓN DE LA RUTA!", "Has completado todos los niveles de planificación. ¡Tu cerebro está a máxima potencia!");
         }
     }
 
-    window.onload = () => {
-        mostrarOverlay("BIENVENIDO AL DESAFÍO", "Para comenzar, observa la tarjeta central con borde dorado. Tu objetivo es seleccionar una de las cuatro tarjetas de arriba que creas que coincide con ella. ¡Atención! La regla de coincidencia puede ser el color, la forma o la cantidad de figuras. Debes lograr 10 aciertos en cada ejercicio para avanzar.");
-    };
+    function showLevelIntro() {
+        let tit = `NIVEL ${nivel}`;
+        let msg = nivel === 1 ? "Planifica tu ruta. Elige los movimientos y luego presiona 'Arrancar' para ver si la moto llega a la bandera." : 
+                  nivel === 2 ? "¡Cuidado! El mapa es más grande y hay más obstáculos en el camino." : 
+                  "Dificultad máxima. Debes ser muy preciso con tu secuencia para no chocar.";
+        mostrarOverlay(tit, msg);
+    }
+
+    function mostrarOverlay(tit, msj) {
+        document.getElementById('ov-title').innerText = tit;
+        document.getElementById('ov-text').innerText = msj;
+        document.getElementById('overlay').style.display = 'flex';
+        speak(tit + ". " + msj);
+    }
+
+    function closeOverlay() {
+        document.getElementById('overlay').style.display = 'none';
+        initGame();
+    }
+
+    window.onload = showLevelIntro;
 </script>
 </body>
 </html>
