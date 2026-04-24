@@ -1,1 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nivel 29: Control Prefrontal Extremo</title>
+    <style>
+        :root { --navy: #103A57; --gold: #FFD700; --bg: #0B1A27; --green: #2ECC71; --red: #E74C3C; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; text-align: center; }
+        
+        .pantalla { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; }
+        .activa { display: flex; }
+
+        /* Termómetro de Autoevaluación */
+        .escala-container { width: 90%; max-width: 600px; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); }
+        input[type=range] { width: 100%; accent-color: var(--gold); }
+
+        /* Tarjeta de Estímulo */
+        #contenedor-estimulo { position: relative; height: 250px; display: flex; align-items: center; justify-content: center; width: 100%; }
+        #tarjeta {
+            width: 400px; height: 220px; background: #fff; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.8rem; font-weight: 900; color: #000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); cursor: pointer;
+            user-select: none; transition: transform 0.05s;
+        }
+
+        /* Termómetro de Impulsividad (Monitor Clínico) */
+        #monitor-frustracion { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 400px; width: 30px; background: #1a2a3a; border: 2px solid white; border-radius: 15px; overflow: hidden; }
+        #barra-impulso { width: 100%; height: 0%; background: linear-gradient(to top, #2ecc71, #f1c40f, #e74c3c); position: absolute; bottom: 0; transition: 0.3s; }
+
+        .stats-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.2rem; font-weight: bold; }
+        .btn-ready { background: var(--gold); color: var(--navy); border: none; padding: 20px 50px; border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 1.5rem; margin-top: 30px; }
+        
+        .shake { animation: shake 0.2s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 1px); } }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
+    </style>
+</head>
+<body>
+
+<div id="pantalla-inicio" class="pantalla activa">
+    <h1 style="color: var(--gold)">ESTADO PRE-ENTRENAMIENTO</h1>
+    <p>Nivel 29: El paciente debe reportar su estado emocional antes de la alta sensibilidad.</p>
+    <div class="escala-container">
+        <p>¿Qué tan bajo es tu nivel de impulsividad ahora?</p>
+        <input type="range" id="eval-inicial" min="1" max="10" value="5">
+        <h2 id="num-inicial">5</h2>
+        <button class="btn-ready" onclick="iniciarNivel()">ACEPTAR DESAFÍO</button>
+    </div>
+</div>
+
+<div id="pantalla-juego" class="pantalla">
+    <div class="stats-top">
+        <span>NIVEL: <span id="txt-nivel">1</span>/3</span>
+        <span>ACIERTOS: <span id="txt-aciertos">0</span>/10</span>
+        <span>RONDA: <span id="txt-ronda">1</span>/3</span>
+    </div>
+
+    <div id="monitor-frustracion"><div id="barra-impulso"></div></div>
+
+    <div id="contenedor-estimulo">
+        <div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div>
+    </div>
+
+    <div style="margin-top: 40px; color: #888;">
+        REGLA: <span style="color: var(--green)">PALABRA POSITIVA + COLOR VERDE</span>. Cualquier otro caso: ¡NO TOCAR!
+    </div>
+</div>
+
+<div id="pantalla-cierre" class="pantalla">
+    <h1 style="color: var(--gold)">AUTOEVALUACIÓN FINAL</h1>
+    <div class="escala-container">
+        <p>¿Cómo calificarías tu control emocional tras el estrés del Nivel 29?</p>
+        <input type="range" id="eval-final" min="1" max="10" value="5">
+        <h2 id="num-final">5</h2>
+        <p id="cita-final" style="margin-top: 20px; font-style: italic;"></p>
+    </div>
+</div>
+
+<div id="overlay-calma" class="overlay">
+    <h1 style="color: var(--red)">¡IMPULSIVIDAD DETECTADA!</h1>
+    <p>Has fallado por falta de inhibición. Respira con el contador.</p>
+    <div id="cuenta-atras" style="font-size: 5rem; font-weight: bold;">10</div>
+</div>
+
+<script>
+    const pos = ["ACEPTAR", "AVANZAR", "GANAR", "SIEMPRE", "BUENO", "MEJOR", "FUERTE", "CALMA", "INICIO", "VIVO"];
+    const neg = ["RECHAZAR", "RETROCEDER", "PERDER", "NUNCA", "MALO", "PEOR", "DEBIL", "ALTERADO", "FIN", "MUERTO"];
+    
+    let nivel = 1, ronda = 1, aciertos = 0, impulso = 0;
+    let esTarget = false, bloqueado = false, timerJuego;
+
+    // Sliders
+    document.getElementById('eval-inicial').oninput = function() { document.getElementById('num-inicial').innerText = this.value; }
+    document.getElementById('eval-final').oninput = function() { document.getElementById('num-final').innerText = this.value; }
+
+    function hablar(t) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
+        window.speechSynthesis.speak(m);
+    }
+
+    function iniciarNivel() {
+        document.getElementById('pantalla-inicio').classList.remove('activa');
+        document.getElementById('pantalla-juego').classList.add('activa');
+        siguienteRonda();
+    }
+
+    function siguienteRonda() {
+        if(bloqueado) return;
+        
+        const tarjeta = document.getElementById('tarjeta');
+        tarjeta.innerText = "---";
+        tarjeta.style.color = "#000";
+        tarjeta.style.background = "#fff";
+
+        // Tiempo de espera aleatorio para generar tensión (1 a 3 seg)
+        let espera = 1000 + Math.random() * 2000;
+        
+        setTimeout(() => {
+            if(bloqueado) return;
+            
+            const tipoPalabra = Math.random() > 0.5; // True = Positiva
+            const palabra = tipoPalabra ? pos[Math.floor(Math.random()*pos.length)] : neg[Math.floor(Math.random()*neg.length)];
+            const esVerde = Math.random() > 0.5;
+            
+            tarjeta.innerText = palabra;
+            tarjeta.style.color = esVerde ? "var(--green)" : "var(--red)";
+            
+            // LA TRAMPA: Solo es target si es Positiva Y Verde
+            esTarget = (tipoPalabra && esVerde);
+
+            // TIEMPOS EXTREMOS (Nivel 1 ya es difícil)
+            let limite = nivel === 1 ? 1100 : (nivel === 2 ? 850 : 600);
+            
+            // Efecto visual nivel 3 (Vibración)
+            if(nivel === 3) tarjeta.classList.add('shake');
+
+            timerJuego = setTimeout(() => {
+                tarjeta.classList.remove('shake');
+                if(esTarget) procesarError("Demasiado lento. El cerebro debe ser más rápido.");
+                else siguienteRonda();
+            }, limite);
+
+        }, espera);
+    }
+
+    function registrarRespuesta() {
+        if(bloqueado) return;
+        clearTimeout(timerJuego);
+        document.getElementById('tarjeta').classList.remove('shake');
+
+        if(esTarget) {
+            aciertos++;
+            impulso = Math.max(0, impulso - 8);
+            document.getElementById('txt-aciertos').innerText = aciertos;
+            if(aciertos >= 10) gestionarProgreso();
+            else siguienteRonda();
+        } else {
+            procesarError("¡IMPULSO! No cumplía la regla.");
+        }
+        actualizarMonitor();
+    }
+
+    function procesarError(msj) {
+        hablar(msj);
+        impulso += 25;
+        // Penalización brutal Nivel 29: Pierdes puntos acumulados
+        aciertos = Math.max(0, aciertos - (nivel * 2));
+        document.getElementById('txt-aciertos').innerText = aciertos;
+        actualizarMonitor();
+
+        if(impulso >= 100) pausaDeCalma();
+        else setTimeout(siguienteRonda, 1000);
+    }
+
+    function actualizarMonitor() {
+        document.getElementById('barra-impulso').style.height = impulso + "%";
+    }
+
+    function pausaDeCalma() {
+        bloqueado = true;
+        const overlay = document.getElementById('overlay-calma');
+        overlay.style.display = 'flex';
+        let segundos = 10;
+        
+        const cuenta = setInterval(() => {
+            segundos--;
+            document.getElementById('cuenta-atras').innerText = segundos;
+            if(segundos <= 0) {
+                clearInterval(cuenta);
+                overlay.style.display = 'none';
+                impulso = 0;
+                actualizarMonitor();
+                bloqueado = false;
+                siguienteRonda();
+            }
+        }, 1000);
+    }
+
+    function gestionarProgreso() {
+        aciertos = 0;
+        document.getElementById('txt-aciertos').innerText = "0";
+        
+        if(ronda < 3) {
+            ronda++;
+            document.getElementById('txt-ronda').innerText = ronda;
+            hablar("Ronda completada. Mantén el foco.");
+            siguienteRonda();
+        } else if(nivel < 3) {
+            nivel++;
+            ronda = 1;
+            document.getElementById('txt-nivel').innerText = nivel;
+            document.getElementById('txt-ronda').innerText = "1";
+            hablar("Subiendo de nivel. Aumentando velocidad de interferencia.");
+            siguienteRonda();
+        } else {
+            finalizarEntrenamiento();
+        }
+    }
+
+    function finalizarEntrenamiento() {
+        document.getElementById('pantalla-juego').classList.remove('activa');
+        document.getElementById('pantalla-cierre').classList.add('activa');
+        document.getElementById('cita-final').innerText = "“Mantener la calma te permite tomar mejores decisiones incluso en los momentos difíciles.”";
+        hablar("Misión cumplida. Has demostrado un control prefrontal superior.");
+    }
+</script>
+</body>
+</html>
 
