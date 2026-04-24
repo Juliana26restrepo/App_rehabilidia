@@ -10,11 +10,9 @@
         .pantalla { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; }
         .activa { display: flex; }
 
-        /* Termómetro de Autoevaluación */
         .escala-container { width: 90%; max-width: 600px; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); }
         input[type=range] { width: 100%; accent-color: var(--gold); cursor: pointer; }
 
-        /* Tarjeta de Estímulo */
         #contenedor-estimulo { position: relative; height: 250px; display: flex; align-items: center; justify-content: center; width: 100%; }
         #tarjeta {
             width: 450px; height: 220px; background: #fff; border-radius: 15px;
@@ -24,7 +22,6 @@
             user-select: none; transition: transform 0.05s; padding: 10px;
         }
 
-        /* Monitor de Impulsividad Lateral */
         #monitor-frustracion { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 400px; width: 30px; background: #1a2a3a; border: 2px solid white; border-radius: 15px; overflow: hidden; }
         #barra-impulso { width: 100%; height: 0%; background: linear-gradient(to top, #2ecc71, #f1c40f, #e74c3c); position: absolute; bottom: 0; transition: 0.3s; }
 
@@ -33,8 +30,6 @@
         
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
         #feedback-v { margin-top: 20px; height: 30px; font-weight: bold; font-size: 1.5rem; }
-        
-        /* Contador de Inicio */
         #pre-count { font-size: 8rem; font-weight: 900; color: var(--gold); }
     </style>
 </head>
@@ -53,7 +48,7 @@
 
 <div id="overlay-instruccion" class="overlay">
     <h1 style="color: var(--gold)">PREPÁRATE</h1>
-    <p id="texto-instruccion" style="font-size: 1.8rem; max-width: 80%; line-height: 1.4;">Escuchando instrucciones...</p>
+    <p id="texto-instruccion" style="font-size: 1.8rem; max-width: 80%; line-height: 1.4; text-align: center;">Escuchando instrucciones...</p>
     <div id="pre-count"></div>
 </div>
 
@@ -64,9 +59,7 @@
         <span>ACIERTOS: <span id="txt-aciertos">0</span>/10</span>
     </div>
     <div id="monitor-frustracion"><div id="barra-impulso"></div></div>
-    <div id="contenedor-estimulo">
-        <div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div>
-    </div>
+    <div id="contenedor-estimulo"><div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div></div>
     <div id="feedback-v"></div>
 </div>
 
@@ -108,20 +101,15 @@
     function iniciarSecuenciaInstruccion() {
         document.getElementById('pantalla-inicio').classList.remove('activa');
         document.getElementById('overlay-instruccion').style.display = 'flex';
-        
-        const instruccion = "Atención. Solo presiona la tarjeta si la palabra es positiva y el color es verde. De lo contrario, no toques nada. Si fallas, tu barra de impulsividad subirá.";
-        
-        hablar(instruccion, () => {
-            // Cuando termina de hablar, inicia cuenta regresiva visual
+        const msg = "Atención. Solo presiona la tarjeta si la palabra es positiva y el color es verde. De lo contrario, no toques nada. Si fallas, tu barra de impulsividad subirá.";
+        hablar(msg, () => {
             let count = 3;
             const preDiv = document.getElementById('pre-count');
             preDiv.innerText = count;
-            
             const interval = setInterval(() => {
                 count--;
-                if(count > 0) {
-                    preDiv.innerText = count;
-                } else {
+                if(count > 0) preDiv.innerText = count;
+                else {
                     clearInterval(interval);
                     document.getElementById('overlay-instruccion').style.display = 'none';
                     document.getElementById('pantalla-juego').classList.add('activa');
@@ -134,18 +122,32 @@
     function siguienteRonda() {
         if(bloqueado) return;
         const tarjeta = document.getElementById('tarjeta');
-        tarjeta.innerText = "---";
-        tarjeta.style.color = "#000";
-        tarjeta.style.background = "#fff";
+        tarjeta.innerText = "---"; tarjeta.style.color = "#000"; tarjeta.style.background = "#fff";
         document.getElementById('feedback-v').innerText = "";
 
         setTimeout(() => {
             if(bloqueado) return;
-            const tipoPalabra = Math.random() > 0.5;
+            
+            // PROBABILIDAD CONTROLADA: 35% de salir Positiva+Verde (Target)
+            const randomProb = Math.random();
+            let tipoPalabra, esVerde;
+
+            if(randomProb < 0.35) {
+                tipoPalabra = true; // Positiva
+                esVerde = true;     // Verde
+            } else if(randomProb < 0.60) {
+                tipoPalabra = false; // Negativa
+                esVerde = true;      // Verde (Distractor)
+            } else if(randomProb < 0.85) {
+                tipoPalabra = true;  // Positiva
+                esVerde = false;     // Roja (Distractor)
+            } else {
+                tipoPalabra = false; // Negativa
+                esVerde = false;     // Roja (Distractor)
+            }
+            
             const lista = tipoPalabra ? pos : neg;
             const palabra = lista[Math.floor(Math.random()*lista.length)];
-            const esVerde = Math.random() > 0.5;
-            
             tarjeta.innerText = palabra.toUpperCase();
             tarjeta.style.color = esVerde ? "var(--green)" : "var(--red)";
             esTarget = (tipoPalabra && esVerde);
@@ -195,7 +197,7 @@
     function pausaDeCalma() {
         bloqueado = true;
         document.getElementById('overlay-calma').style.display = 'flex';
-        hablar("Pausa. Respira.", () => {});
+        hablar("Pausa. Respira.");
         let segundos = 10;
         const cuenta = setInterval(() => {
             segundos--;
