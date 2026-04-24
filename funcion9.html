@@ -31,11 +31,11 @@
         .stats-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.3rem; font-weight: bold; color: var(--gold); }
         .btn-ready { background: var(--gold); color: var(--navy); border: none; padding: 20px 50px; border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 1.5rem; margin-top: 30px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
         
-        .shake { animation: shake 0.2s; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 1px); } }
-        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
         #feedback-v { margin-top: 20px; height: 30px; font-weight: bold; font-size: 1.5rem; }
+        
+        /* Contador de Inicio */
+        #pre-count { font-size: 8rem; font-weight: 900; color: var(--gold); }
     </style>
 </head>
 <body>
@@ -47,8 +47,14 @@
         <p>¿Qué tan calmo te sientes antes de iniciar este desafío?</p>
         <input type="range" id="eval-inicial" min="1" max="10" value="5">
         <h2 id="num-inicial">5</h2>
-        <button class="btn-ready" onclick="prepararEntrenamiento()">INICIAR PROTOCOLO</button>
+        <button class="btn-ready" onclick="iniciarSecuenciaInstruccion()">INICIAR PROTOCOLO</button>
     </div>
+</div>
+
+<div id="overlay-instruccion" class="overlay">
+    <h1 style="color: var(--gold)">PREPÁRATE</h1>
+    <p id="texto-instruccion" style="font-size: 1.8rem; max-width: 80%; line-height: 1.4;">Escuchando instrucciones...</p>
+    <div id="pre-count"></div>
 </div>
 
 <div id="pantalla-juego" class="pantalla">
@@ -57,17 +63,11 @@
         <span>RONDA: <span id="txt-ronda">1</span>/3</span>
         <span>ACIERTOS: <span id="txt-aciertos">0</span>/10</span>
     </div>
-
     <div id="monitor-frustracion"><div id="barra-impulso"></div></div>
-
     <div id="contenedor-estimulo">
         <div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div>
     </div>
-
     <div id="feedback-v"></div>
-    <div style="margin-top: 20px; color: #555; font-size: 0.9rem;">
-        Monitor lateral: Detector de impulsividad motora y errores.
-    </div>
 </div>
 
 <div id="pantalla-cierre" class="pantalla">
@@ -87,13 +87,8 @@
 </div>
 
 <script>
-    const pos = [
-        "Amor", "Alegría", "Felicidad", "Esperanza", "Gratitud", "Paz", "Éxito", "Confianza", "Seguridad", "Tranquilidad", "Armonía", "Bienestar", "Motivación", "Inspiración", "Energía", "Optimismo", "Fortaleza", "Valentía", "Honestidad", "Respeto", "Lealtad", "Amabilidad", "Generosidad", "Empatía", "Compasión", "Perdón", "Paciencia", "Perseverancia", "Disciplina", "Creatividad", "Inteligencia", "Sabiduría", "Claridad", "Equilibrio", "Estabilidad", "Libertad", "Progreso", "Avance", "Logro", "Superación", "Crecimiento", "Desarrollo", "Abundancia", "Prosperidad", "Riqueza", "Salud", "Vitalidad", "Entusiasmo", "Pasión", "Ilusión", "Satisfacción", "Plenitud", "Serenidad", "Calma", "Fe", "Unión", "Amistad", "Apoyo", "Solidaridad", "Cooperación", "Triunfo", "Victoria", "Brillo", "Luz", "Belleza", "Encanto", "Aprecio", "Admiración", "Reconocimiento", "Integridad", "Autenticidad", "Determinación", "Constancia", "Responsabilidad", "Organización", "Orden", "Limpieza", "Pureza", "Transparencia", "Justicia", "Igualdad", "Equidad", "Bondad", "Nobleza", "Cortesía", "Tolerancia", "Inclusión", "Aceptación", "Innovación", "Imaginación", "Curiosidad", "Aprendizaje", "Conocimiento"
-    ];
-
-    const neg = [
-        "Odio", "Tristeza", "Dolor", "Miedo", "Ansiedad", "Estrés", "Ira", "Rabia", "Frustración", "Desesperación", "Soledad", "Vacío", "Culpa", "Vergüenza", "Inseguridad", "Duda", "Confusión", "Caos", "Desorden", "Problema", "Fracaso", "Error", "Pérdida", "Derrota", "Debilidad", "Cansancio", "Fatiga", "Enfermedad", "Sufrimiento", "Angustia", "Preocupación", "Tensión", "Presión", "Desánimo", "Desmotivación", "Desconfianza", "Celos", "Envidia", "Rencor", "Resentimiento", "Amargura", "Crueldad", "Egoísmo", "Mentira", "Engaño", "Traición", "Injusticia", "Desigualdad", "Violencia", "Guerra", "Conflicto", "Ruido", "Oscuridad", "Suciedad", "Contaminación", "Peligro", "Riesgo", "Amenaza", "Muerte", "Ruina", "Pobreza", "Escasez", "Limitación", "Bloqueo", "Obstáculo", "Retroceso", "Estancamiento", "Dependencia", "Adicción", "Descontrol", "Impulsividad", "Negligencia", "Irresponsabilidad", "Desorganización", "Inestabilidad", "Fragilidad", "Vulnerabilidad", "Desprotección", "Abandono", "Rechazo", "Exclusión", "Discriminación", "Intolerancia", "Crítica", "Juicio", "Castigo", "Falla", "Imperfección", "Insatisfacción", "Descontento", "Desesperanza", "Apatía", "Indiferencia", "Frialdad", "Hostilidad", "Agresión"
-    ];
+    const pos = ["Amor", "Alegría", "Felicidad", "Esperanza", "Gratitud", "Paz", "Éxito", "Confianza", "Seguridad", "Tranquilidad", "Armonía", "Bienestar", "Motivación", "Inspiración", "Energía", "Optimismo", "Fortaleza", "Valentía", "Honestidad", "Respeto", "Lealtad", "Amabilidad", "Generosidad", "Empatía", "Compasión", "Perdón", "Paciencia", "Perseverancia", "Disciplina", "Creatividad", "Inteligencia", "Sabiduría", "Claridad", "Equilibrio", "Estabilidad", "Libertad", "Progreso", "Avance", "Logro", "Superación", "Crecimiento", "Desarrollo", "Abundancia", "Prosperidad", "Riqueza", "Salud", "Vitalidad", "Entusiasmo", "Pasión", "Ilusión", "Satisfacción", "Plenitud", "Serenidad", "Calma", "Fe", "Unión", "Amistad", "Apoyo", "Solidaridad", "Cooperación", "Triunfo", "Victoria", "Brillo", "Luz", "Belleza", "Encanto", "Aprecio", "Admiración", "Reconocimiento", "Integridad", "Autenticidad", "Determinación", "Constancia", "Responsabilidad", "Organización", "Orden", "Limpieza", "Pureza", "Transparencia", "Justicia", "Igualdad", "Equidad", "Bondad", "Nobleza", "Cortesía", "Tolerancia", "Inclusión", "Aceptación", "Innovación", "Imaginación", "Curiosidad", "Aprendizaje", "Conocimiento"];
+    const neg = ["Odio", "Tristeza", "Dolor", "Miedo", "Ansiedad", "Estrés", "Ira", "Rabia", "Frustración", "Desesperación", "Soledad", "Vacío", "Culpa", "Vergüenza", "Inseguridad", "Duda", "Confusión", "Caos", "Desorden", "Problema", "Fracaso", "Error", "Pérdida", "Derrota", "Debilidad", "Cansancio", "Fatiga", "Enfermedad", "Sufrimiento", "Angustia", "Preocupación", "Tensión", "Presión", "Desánimo", "Desmotivación", "Desconfianza", "Celos", "Envidia", "Rencor", "Resentimiento", "Amargura", "Crueldad", "Egoísmo", "Mentira", "Engaño", "Traición", "Injusticia", "Desigualdad", "Violencia", "Guerra", "Conflicto", "Ruido", "Oscuridad", "Suciedad", "Contaminación", "Peligro", "Riesgo", "Amenaza", "Muerte", "Ruina", "Pobreza", "Escasez", "Limitación", "Bloqueo", "Obstáculo", "Retroceso", "Estancamiento", "Dependencia", "Adicción", "Descontrol", "Impulsividad", "Negligencia", "Irresponsabilidad", "Desorganización", "Inestabilidad", "Fragilidad", "Vulnerabilidad", "Desprotección", "Abandono", "Rechazo", "Exclusión", "Discriminación", "Intolerancia", "Crítica", "Juicio", "Castigo", "Falla", "Imperfección", "Insatisfacción", "Descontento", "Desesperanza", "Apatía", "Indiferencia", "Frialdad", "Hostilidad", "Agresión"];
     
     let nivel = 1, ronda = 1, aciertos = 0, impulso = 0;
     let esTarget = false, bloqueado = false, timerJuego;
@@ -101,24 +96,43 @@
     document.getElementById('eval-inicial').oninput = function() { document.getElementById('num-inicial').innerText = this.value; }
     document.getElementById('eval-final').oninput = function() { document.getElementById('num-final').innerText = this.value; }
 
-    function hablar(t) {
+    function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
-        m.rate = 0.9;
+        m.rate = 0.95;
+        m.onend = callback;
         window.speechSynthesis.speak(m);
     }
 
-    function prepararEntrenamiento() {
-        hablar("Atención. Solo presiona si la palabra es positiva y el color es verde. De lo contrario, no toques la tarjeta. Si cometes errores, tu barra lateral subirá y perderás puntos.");
+    function iniciarSecuenciaInstruccion() {
         document.getElementById('pantalla-inicio').classList.remove('activa');
-        document.getElementById('pantalla-juego').classList.add('activa');
-        setTimeout(siguienteRonda, 3500); 
+        document.getElementById('overlay-instruccion').style.display = 'flex';
+        
+        const instruccion = "Atención. Solo presiona la tarjeta si la palabra es positiva y el color es verde. De lo contrario, no toques nada. Si fallas, tu barra de impulsividad subirá.";
+        
+        hablar(instruccion, () => {
+            // Cuando termina de hablar, inicia cuenta regresiva visual
+            let count = 3;
+            const preDiv = document.getElementById('pre-count');
+            preDiv.innerText = count;
+            
+            const interval = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    preDiv.innerText = count;
+                } else {
+                    clearInterval(interval);
+                    document.getElementById('overlay-instruccion').style.display = 'none';
+                    document.getElementById('pantalla-juego').classList.add('activa');
+                    siguienteRonda();
+                }
+            }, 1000);
+        });
     }
 
     function siguienteRonda() {
         if(bloqueado) return;
-        
         const tarjeta = document.getElementById('tarjeta');
         tarjeta.innerText = "---";
         tarjeta.style.color = "#000";
@@ -127,7 +141,6 @@
 
         setTimeout(() => {
             if(bloqueado) return;
-            
             const tipoPalabra = Math.random() > 0.5;
             const lista = tipoPalabra ? pos : neg;
             const palabra = lista[Math.floor(Math.random()*lista.length)];
@@ -137,26 +150,19 @@
             tarjeta.style.color = esVerde ? "var(--green)" : "var(--red)";
             esTarget = (tipoPalabra && esVerde);
 
-            // Tiempos adaptados: Nivel 1 es exigente (2s), Nivel 3 es extremo (1.1s)
             let base = nivel === 1 ? 2100 : (nivel === 2 ? 1650 : 1150);
             let limite = base + (palabra.length * 65); 
             
-            if(nivel === 3) tarjeta.classList.add('shake');
-
             timerJuego = setTimeout(() => {
-                tarjeta.classList.remove('shake');
-                if(esTarget) procesarError("Demasiado lento. El cerebro debe ser más ágil.");
+                if(esTarget) procesarError("Demasiado lento.");
                 else siguienteRonda();
             }, limite);
-
         }, 1100);
     }
 
     function registrarRespuesta() {
         if(bloqueado || document.getElementById('tarjeta').innerText === "---") return;
         clearTimeout(timerJuego);
-        document.getElementById('tarjeta').classList.remove('shake');
-
         if(esTarget) {
             aciertos++;
             impulso = Math.max(0, impulso - 8);
@@ -165,7 +171,7 @@
             if(aciertos >= 10) gestionarProgreso();
             else setTimeout(siguienteRonda, 700);
         } else {
-            procesarError("¡IMPULSO! Esa no era la combinación.");
+            procesarError("¡IMPULSO!");
         }
         actualizarMonitor();
     }
@@ -177,7 +183,6 @@
         document.getElementById('feedback-v').innerText = "FALLO";
         document.getElementById('feedback-v').style.color = "var(--red)";
         actualizarMonitor();
-
         if(impulso >= 100) pausaDeCalma();
         else setTimeout(siguienteRonda, 1500);
     }
@@ -190,7 +195,7 @@
     function pausaDeCalma() {
         bloqueado = true;
         document.getElementById('overlay-calma').style.display = 'flex';
-        hablar("Protocolo de calma activado. Respira con el contador.");
+        hablar("Pausa. Respira.", () => {});
         let segundos = 10;
         const cuenta = setInterval(() => {
             segundos--;
@@ -208,18 +213,16 @@
 
     function gestionarProgreso() {
         aciertos = 0;
-        document.getElementById('txt-aciertos').innerText = "0";
+        actualizarMonitor();
         if(ronda < 3) {
             ronda++;
             document.getElementById('txt-ronda').innerText = ronda;
-            hablar("Ronda superada.");
             setTimeout(siguienteRonda, 1200);
         } else if(nivel < 3) {
-            nivel++;
-            ronda = 1;
+            nivel++; ronda = 1;
             document.getElementById('txt-nivel').innerText = nivel;
             document.getElementById('txt-ronda').innerText = "1";
-            hablar("Nivel avanzado. Aumentando la velocidad de decisión.");
+            hablar("Nivel avanzado.");
             setTimeout(siguienteRonda, 1500);
         } else {
             finalizarEntrenamiento();
@@ -230,7 +233,7 @@
         document.getElementById('pantalla-juego').classList.remove('activa');
         document.getElementById('pantalla-cierre').classList.add('activa');
         document.getElementById('cita-final').innerText = "“Mantener la calma te permite tomar mejores decisiones incluso en los momentos difíciles.”";
-        hablar("Objetivo cumplido. Has alcanzado el nivel máximo de autorregulación.");
+        hablar("Objetivo cumplido.");
     }
 </script>
 </body>
