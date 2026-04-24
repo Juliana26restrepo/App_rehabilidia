@@ -3,42 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motoruta Final: El Desafío de Hierro</title>
+    <title>Motoruta Pro: Los 9 Desafíos</title>
     <style>
-        body { font-family: sans-serif; background: #ffffff; color: #333; margin: 0; display: flex; flex-direction: column; height: 100vh; align-items: center; }
-        header { background: #1a365d; color: white; width: 100%; padding: 15px; text-align: center; font-weight: bold; }
+        body { font-family: sans-serif; background: #f0f4f8; color: #333; margin: 0; display: flex; flex-direction: column; height: 100vh; align-items: center; }
+        header { background: #1a365d; color: white; width: 100%; padding: 10px; text-align: center; font-weight: bold; font-size: 1.2rem; }
         
-        .game-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; width: 100%; max-width: 1000px; }
+        .stats { background: #cbd5e1; width: 100%; display: flex; justify-content: center; gap: 30px; padding: 8px; font-weight: bold; border-bottom: 2px solid #1a365d; }
         
-        /* Tablero visible y claro */
-        #board-container { position: relative; border: 5px solid #1a365d; background: #e2e8f0; }
-        #grid { display: grid; gap: 2px; }
-        .cell { width: 50px; height: 50px; background: #f8fafc; display: flex; align-items: center; justify-content: center; }
-        .wall { background: #334155; }
-        .goal { background: #fbbf24; font-size: 24px; }
+        .game-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; width: 100%; }
+        
+        #board-container { position: relative; border: 5px solid #1a365d; background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #grid { display: grid; gap: 1px; background: #cbd5e1; }
+        .cell { background: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s; }
+        .wall { background: #334155 !important; }
+        .goal { background: #fbbf24 !important; font-size: 24px; }
+        .checkpoint { background: #e2e8f0; border: 2px dashed #3b82f6; }
         
         #moto { 
-            position: absolute; width: 50px; height: 50px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 30px; z-index: 10; transition: all 0.3s linear;
+            position: absolute; display: flex; align-items: center; justify-content: center; 
+            font-size: 30px; z-index: 10; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
         }
 
-        /* Controles */
-        .controls { width: 320px; display: flex; flex-direction: column; gap: 10px; }
-        #route-box { min-height: 80px; border: 2px solid #cbd5e1; background: #f1f5f9; padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .step { background: #1e40af; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .controls { width: 320px; display: flex; flex-direction: column; gap: 10px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #route-box { min-height: 80px; border: 2px solid #cbd5e1; background: #f8fafc; padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; border-radius: 5px; }
+        .step { background: #1e40af; color: white; padding: 5px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; }
         
-        .btn { padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; }
-        .btn-blue { background: #3b82f6; }
-        .btn-green { background: #22c55e; border-bottom: 5px solid #16a34a; font-size: 18px; }
-        .btn-red { background: #ef4444; }
+        .btn { padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; transition: 0.2s; }
+        .btn-blue { background: #3b82f6; border-bottom: 4px solid #2563eb; }
+        .btn-blue:active { transform: translateY(2px); border-bottom: 0; }
+        .btn-green { background: #22c55e; border-bottom: 5px solid #16a34a; font-size: 18px; margin-top: 5px; }
+        .btn-green:active { transform: translateY(2px); border-bottom: 0; }
+        .btn-red { background: #ef4444; border-bottom: 4px solid #b91c1c; }
+        
         .grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA: DESAFÍO DE INGENIERÍA (NIVEL 3)</header>
+<header>MOTORUTA: DESAFÍO DE INGENIERÍA TOTAL</header>
+<div class="stats">
+    <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
+    <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
+</div>
 
 <div class="game-area">
     <div id="board-container">
@@ -59,48 +68,78 @@
     </div>
 </div>
 
+<div id="modal" class="overlay">
+    <h1 id="modal-title"></h1>
+    <p id="modal-desc" style="font-size: 1.2rem;"></p>
+    <button class="btn btn-green" onclick="closeModal()">¡ENTENDIDO!</button>
+</div>
+
 <script>
-    // Configuración de Laberinto Extremo (Ruta única)
-    const size = 10;
-    const walls = [
-        [1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-        [1,3],[2,3],[3,3],[5,3],[6,3],[7,3],[8,3],[9,3],
-        [0,5],[1,5],[2,5],[4,5],[5,5],[7,5],[8,5],[9,5],
-        [1,7],[2,7],[3,7],[4,7],[6,7],[7,7],[8,7],[9,7],
-        [0,9],[2,9],[3,9],[4,9],[5,9],[6,9],[8,9]
-    ];
-    const startPos = {x: 0, y: 0};
-    const goalPos = {x: 9, y: 9};
-    
-    let currentPos = {...startPos};
+    let currentLvl = 1;
+    let currentEx = 1;
     let route = [];
     let moving = false;
+    let pos = {x: 0, y: 0};
+    let cellW = 50;
+    let checkpointsCollected = { house: false, bird: false };
 
-    // Generar tablero
-    const gridEl = document.getElementById('grid');
-    gridEl.style.gridTemplateColumns = `repeat(${size}, 50px)`;
-    
+    const maps = {
+        1: [
+            { s: 5, w: [[1,1],[1,2],[3,1],[3,2]], st: [0,0], g: [4,4], h: [4,0], b: null, msg: "Primero pasa por la CASA 🏠 y luego a la meta." },
+            { s: 5, w: [[0,1],[1,1],[2,1],[3,1],[1,3],[2,3],[3,3],[4,3]], st: [0,0], g: [4,4], h: [4,0], b: null, msg: "Rodea los muros para llegar a la CASA 🏠." },
+            { s: 6, w: [[1,1],[1,2],[1,3],[3,1],[3,2],[3,3],[5,1],[5,2],[5,3]], st: [0,0], g: [5,5], h: [2,0], b: [4,0], msg: "¡Doble reto! Pasa por la CASA 🏠 y el PÁJARO 🐦." }
+        ],
+        2: [
+            { s: 7, w: [[1,1],[2,1],[4,1],[5,1],[1,3],[2,3],[4,3],[5,3],[1,5],[2,5],[4,5],[5,5]], st: [0,0], g: [6,6], h: [3,0], b: [3,6], msg: "Ruta en zig-zag obligatoria." },
+            { s: 7, w: [[0,2],[1,2],[2,2],[3,2],[4,2],[6,2],[0,4],[2,4],[3,4],[4,4],[5,4],[6,4]], st: [0,0], g: [6,6], h: [5,3], b: [1,3], msg: "Cruza el pasillo central." },
+            { s: 8, w: [[1,1],[2,1],[3,1],[5,1],[6,1],[1,3],[3,3],[4,3],[5,3],[7,3],[1,5],[2,5],[4,5],[6,5],[7,5],[1,7],[3,7],[5,7]], st: [0,0], g: [7,7], h: [4,0], b: [4,7], msg: "Laberinto de precisión." }
+        ],
+        3: [
+            { s: 10, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[1,3],[3,3],[4,3],[5,3],[6,3],[7,3],[9,3],[0,5],[1,5],[2,5],[4,5],[5,5],[7,5],[8,5],[9,5],[1,7],[2,7],[3,7],[4,7],[6,7],[7,7],[8,7],[9,7]], st: [0,0], g: [9,9], h: [2,4], b: [7,6], msg: "Máxima concentración. No olvides los puntos." },
+            { s: 10, w: [[0,1],[1,1],[2,1],[4,1],[5,1],[6,1],[8,1],[9,1],[1,3],[3,3],[5,3],[7,3],[9,3],[0,5],[2,5],[4,5],[6,5],[8,5],[1,7],[3,7],[5,7],[7,7],[9,7],[0,9],[2,9],[4,9],[6,9],[8,9]], st: [0,0], g: [9,9], h: [3,0], b: [6,0], msg: "El laberinto de las columnas." },
+            { s: 10, w: [[1,1],[1,2],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[7,8],[6,8],[5,8],[4,8],[3,8],[2,8],[1,8],[1,7],[1,6],[1,5],[1,4]], st: [0,0], g: [4,4], h: [9,0], b: [0,9], msg: "Desafío Final: El caracol de la muerte." }
+        ]
+    };
+
     function build() {
+        const conf = maps[currentLvl][currentEx - 1];
+        const gridEl = document.getElementById('grid');
+        const container = document.getElementById('board-container');
+        
+        // Ajustar tamaño de celdas para que quepan en pantalla
+        cellW = conf.s > 7 ? 40 : 50;
+        
+        gridEl.style.gridTemplateColumns = `repeat(${conf.s}, ${cellW}px)`;
         gridEl.innerHTML = '';
-        for(let y=0; y<size; y++) {
-            for(let x=0; x<size; x++) {
+        
+        for(let y=0; y<conf.s; y++) {
+            for(let x=0; x<conf.s; x++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
-                if (walls.some(w => w[0] === x && w[1] === y)) cell.className += ' wall';
-                if (x === goalPos.x && y === goalPos.y) {
-                    cell.className += ' goal';
-                    cell.innerHTML = '🏁';
-                }
+                cell.style.width = cellW + 'px';
+                cell.style.height = cellW + 'px';
+                
+                if (conf.w.some(w => w[0] === x && w[1] === y)) cell.className += ' wall';
+                if (x === conf.g[0] && y === conf.g[1]) { cell.className += ' goal'; cell.innerHTML = '🏁'; }
+                if (conf.h && x === conf.h[0] && y === conf.h[1]) { cell.className += ' checkpoint'; cell.innerHTML = '🏠'; }
+                if (conf.b && x === conf.b[0] && y === conf.b[1]) { cell.className += ' checkpoint'; cell.innerHTML = '🐦'; }
+                
                 gridEl.appendChild(cell);
             }
         }
+        pos = {...conf.st};
+        checkpointsCollected = { house: false, bird: false };
         draw();
     }
 
     function draw() {
         const m = document.getElementById('moto');
-        m.style.left = (currentPos.x * 52) + 'px';
-        m.style.top = (currentPos.y * 52) + 'px';
+        m.style.width = cellW + 'px';
+        m.style.height = cellW + 'px';
+        m.style.fontSize = (cellW * 0.6) + 'px';
+        // Ajuste de posición considerando el gap de 1px
+        m.style.left = (pos.x * (cellW + 1)) + 'px';
+        m.style.top = (pos.y * (cellW + 1)) + 'px';
     }
 
     function add(dir) {
@@ -116,56 +155,100 @@
         if(moving) return;
         route = [];
         document.getElementById('route-box').innerHTML = '';
-        currentPos = {...startPos};
+        const conf = maps[currentLvl][currentEx - 1];
+        pos = {...conf.st};
+        checkpointsCollected = { house: false, bird: false };
         draw();
     }
 
-    // FUNCIÓN DE ARRANQUE GARANTIZADA
     async function run() {
         if (moving || route.length === 0) return;
-        
-        console.log("Iniciando secuencia de movimiento...");
         moving = true;
-        document.getElementById('start-btn').innerText = "EN MARCHA...";
-        
-        // Reset a posición inicial antes de mover
-        currentPos = {...startPos};
+        const conf = maps[currentLvl][currentEx - 1];
+        pos = {...conf.st};
         draw();
-        await new Promise(r => setTimeout(r, 500));
-
+        
         for (const step of route) {
-            let nextX = currentPos.x;
-            let nextY = currentPos.y;
+            let nX = pos.x;
+            let nY = pos.y;
 
-            if (step === '↑') nextY--;
-            if (step === '↓') nextY++;
-            if (step === '←') nextX--;
-            if (step === '→') nextX++;
+            if (step === '↑') nY--; if (step === '↓') nY++;
+            if (step === '←') nX--; if (step === '→') nX++;
 
-            // Validar límites y muros
-            if (nextX < 0 || nextX >= size || nextY < 0 || nextY >= size || 
-                walls.some(w => w[0] === nextX && w[1] === nextY)) {
-                alert("¡CHOCASTE! Intenta una ruta diferente.");
-                break;
+            if (nX < 0 || nX >= conf.s || nY < 0 || nY >= conf.s || conf.w.some(w => w[0] === nX && w[1] === nY)) {
+                alert("¡CHOQUE! Revisa las paredes.");
+                moving = false;
+                return;
             }
 
-            currentPos.x = nextX;
-            currentPos.y = nextY;
-            draw();
+            pos.x = nX; pos.y = nY;
             
-            // Pausa entre movimientos
-            await new Promise(r => setTimeout(r, 400));
+            // Verificar checkpoints
+            if (conf.h && pos.x === conf.h[0] && pos.y === conf.h[1]) checkpointsCollected.house = true;
+            if (conf.b && pos.x === conf.b[0] && pos.y === conf.b[1]) checkpointsCollected.bird = true;
+            
+            draw();
+            await new Promise(r => setTimeout(r, 350));
         }
 
-        if (currentPos.x === goalPos.x && currentPos.y === goalPos.y) {
-            alert("¡LO LOGRASTE! Eres un genio de la ingeniería.");
+        // Verificación de victoria
+        const needsHouse = !!conf.h;
+        const needsBird = !!conf.b;
+        
+        if (pos.x === conf.g[0] && pos.y === conf.g[1]) {
+            if ((needsHouse && !checkpointsCollected.house) || (needsBird && !checkpointsCollected.bird)) {
+                alert("Llegaste a la meta, ¡pero olvidaste pasar por la CASA o el PÁJARO!");
+            } else {
+                nextExercise();
+            }
+        } else {
+            alert("No llegaste a la bandera.");
         }
-
         moving = false;
-        document.getElementById('start-btn').innerText = "¡ARRANCAR AHORA! 🏁";
     }
 
-    window.onload = build;
+    function nextExercise() {
+        if (currentEx < 3) {
+            currentEx++;
+        } else if (currentLvl < 3) {
+            currentLvl++;
+            currentEx = 1;
+        } else {
+            showModal("¡CAMPEÓN!", "Has completado los 9 niveles de ingeniería. ¡Increíble!");
+            return;
+        }
+        
+        document.getElementById('lvl-txt').innerText = currentLvl;
+        document.getElementById('ex-txt').innerText = currentEx;
+        const conf = maps[currentLvl][currentEx - 1];
+        showModal(`NIVEL ${currentLvl} - RETO ${currentEx}`, conf.msg);
+    }
+
+    function showModal(t, d) {
+        document.getElementById('modal-title').innerText = t;
+        document.getElementById('modal-desc').innerText = d;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        resetRoute();
+        build();
+    }
+
+    // Teclado
+    window.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowUp") add('↑');
+        if(e.key === "ArrowDown") add('↓');
+        if(e.key === "ArrowLeft") add('←');
+        if(e.key === "ArrowRight") add('→');
+        if(e.key === "Enter") run();
+    });
+
+    window.onload = () => {
+        showModal("BIENVENIDO", "Supera los 9 desafíos. Recuerda pasar por los iconos antes de ir a la bandera.");
+    };
 </script>
 </body>
 </html>
+
