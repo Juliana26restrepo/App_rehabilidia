@@ -2,44 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nivel 29: Control Prefrontal Extremo</title>
+    <title>Nivel 29: Control Prefrontal</title>
     <style>
         :root { --navy: #103A57; --gold: #FFD700; --bg: #0B1A27; --green: #2ECC71; --red: #E74C3C; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; text-align: center; }
-        
         .pantalla { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; }
         .activa { display: flex; }
-
         .escala-container { width: 90%; max-width: 600px; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); }
-        input[type=range] { width: 100%; accent-color: var(--gold); cursor: pointer; }
-
-        #contenedor-estimulo { position: relative; height: 250px; display: flex; align-items: center; justify-content: center; width: 100%; }
-        #tarjeta {
-            width: 450px; height: 220px; background: #fff; border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3.2rem; font-weight: 900; color: #000;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); cursor: pointer;
-            user-select: none; transition: transform 0.05s; padding: 10px;
-        }
-
+        #tarjeta { width: 450px; height: 220px; background: #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; font-weight: 900; color: #000; box-shadow: 0 0 50px rgba(0,0,0,0.5); cursor: pointer; user-select: none; }
+        .stats-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.3rem; font-weight: bold; color: var(--gold); }
+        .btn-ready { background: var(--gold); color: var(--navy); border: none; padding: 20px 50px; border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 1.5rem; margin-top: 30px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
+        #pre-count { font-size: 8rem; font-weight: 900; color: var(--gold); }
         #monitor-frustracion { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 400px; width: 30px; background: #1a2a3a; border: 2px solid white; border-radius: 15px; overflow: hidden; }
         #barra-impulso { width: 100%; height: 0%; background: linear-gradient(to top, #2ecc71, #f1c40f, #e74c3c); position: absolute; bottom: 0; transition: 0.3s; }
-
-        .stats-top { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; font-size: 1.3rem; font-weight: bold; color: var(--gold); }
-        .btn-ready { background: var(--gold); color: var(--navy); border: none; padding: 20px 50px; border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 1.5rem; margin-top: 30px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-        
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
-        #feedback-v { margin-top: 20px; height: 30px; font-weight: bold; font-size: 1.5rem; }
-        #pre-count { font-size: 8rem; font-weight: 900; color: var(--gold); }
     </style>
 </head>
 <body>
 
 <div id="pantalla-inicio" class="pantalla activa">
-    <h1 style="color: var(--gold)">NIVEL 29: INFORME DE ESTADO</h1>
+    <h1 style="color: var(--gold)">NIVEL 29</h1>
     <div class="escala-container">
-        <p style="font-size: 1.2rem;"><strong>REGLA:</strong> Toca solo si la palabra es <b>POSITIVA</b> y el color es <b>VERDE</b>.</p>
-        <p>¿Qué tan calmo te sientes antes de iniciar este desafío?</p>
+        <p><strong>REGLA:</strong> Toca solo si la palabra es <b>POSITIVA</b> y el color es <b>VERDE</b>.</p>
         <input type="range" id="eval-inicial" min="1" max="10" value="5">
         <h2 id="num-inicial">5</h2>
         <button class="btn-ready" onclick="iniciarSecuenciaInstruccion()">INICIAR PROTOCOLO</button>
@@ -48,7 +32,7 @@
 
 <div id="overlay-instruccion" class="overlay">
     <h1 style="color: var(--gold)">PREPÁRATE</h1>
-    <p id="texto-instruccion" style="font-size: 1.8rem; max-width: 80%; line-height: 1.4; text-align: center;">Escuchando instrucciones...</p>
+    <p id="texto-instruccion" style="font-size: 1.5rem; max-width: 80%;">Escuchando instrucciones...</p>
     <div id="pre-count"></div>
 </div>
 
@@ -59,52 +43,45 @@
         <span>ACIERTOS: <span id="txt-aciertos">0</span>/10</span>
     </div>
     <div id="monitor-frustracion"><div id="barra-impulso"></div></div>
-    <div id="contenedor-estimulo">
-        <div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div>
-    </div>
-    <div id="feedback-v"></div>
-</div>
-
-<div id="pantalla-cierre" class="pantalla">
-    <h1 style="color: var(--gold)">AUTOEVALUACIÓN FINAL</h1>
-    <div class="escala-container">
-        <p>Entrenamiento finalizado. ¿Cómo calificarías tu control tras la presión?</p>
-        <input type="range" id="eval-final" min="1" max="10" value="5">
-        <h2 id="num-final">5</h2>
-        <p id="cita-final" style="margin-top: 30px; font-style: italic; color: var(--gold); font-size: 1.2rem;"></p>
-    </div>
-</div>
-
-<div id="overlay-calma" class="overlay">
-    <h1 style="color: var(--red); font-size: 3rem;">¡IMPULSIVIDAD ALTA!</h1>
-    <p style="font-size: 1.5rem;">Bloqueo de seguridad activado. Respira profundamente.</p>
-    <div id="cuenta-atras" style="font-size: 6rem; font-weight: bold; color: var(--gold);">10</div>
+    <div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div>
+    <div id="feedback-v" style="margin-top:20px; font-size: 1.5rem; height: 30px;"></div>
 </div>
 
 <script>
-    const pos = ["Amor", "Alegría", "Felicidad", "Esperanza", "Gratitud", "Paz", "Éxito", "Confianza", "Seguridad", "Tranquilidad", "Armonía", "Bienestar", "Motivación", "Inspiración", "Energía", "Optimismo", "Fortaleza", "Valentía", "Honestidad", "Respeto", "Lealtad", "Amabilidad", "Generosidad", "Empatía", "Compasión", "Perdón", "Paciencia", "Perseverancia", "Disciplina", "Creatividad", "Inteligencia", "Sabiduría", "Claridad", "Equilibrio", "Estabilidad", "Libertad", "Progreso", "Avance", "Logro", "Superación", "Crecimiento", "Desarrollo", "Abundancia", "Prosperidad", "Riqueza", "Salud", "Vitalidad", "Entusiasmo", "Pasión", "Ilusión", "Satisfacción", "Plenitud", "Serenidad", "Calma", "Fe", "Unión", "Amistad", "Apoyo", "Solidaridad", "Cooperación", "Triunfo", "Victoria", "Brillo", "Luz", "Belleza", "Encanto", "Aprecio", "Admiración", "Reconocimiento", "Integridad", "Autenticidad", "Determinación", "Constancia", "Responsabilidad", "Organización", "Orden", "Limpieza", "Pureza", "Transparencia", "Justicia", "Igualdad", "Equidad", "Bondad", "Nobleza", "Cortesía", "Tolerancia", "Inclusión", "Aceptación", "Innovación", "Imaginación", "Curiosidad", "Aprendizaje", "Conocimiento"];
-    const neg = ["Odio", "Tristeza", "Dolor", "Miedo", "Ansiedad", "Estrés", "Ira", "Rabia", "Frustración", "Desesperación", "Soledad", "Vacío", "Culpa", "Vergüenza", "Inseguridad", "Duda", "Confusión", "Caos", "Desorden", "Problema", "Fracaso", "Error", "Pérdida", "Derrota", "Debilidad", "Cansancio", "Fatiga", "Enfermedad", "Sufrimiento", "Angustia", "Preocupación", "Tensión", "Presión", "Desánimo", "Desmotivación", "Desconfianza", "Celos", "Envidia", "Rencor", "Resentimiento", "Amargura", "Crueldad", "Egoísmo", "Mentira", "Engaño", "Traición", "Injusticia", "Desigualdad", "Violencia", "Guerra", "Conflicto", "Ruido", "Oscuridad", "Suciedad", "Contaminación", "Peligro", "Riesgo", "Amenaza", "Muerte", "Ruina", "Pobreza", "Escasez", "Limitación", "Bloqueo", "Obstáculo", "Retroceso", "Estancamiento", "Dependencia", "Adicción", "Descontrol", "Impulsividad", "Negligencia", "Irresponsabilidad", "Desorganización", "Inestabilidad", "Fragilidad", "Vulnerabilidad", "Desprotección", "Abandono", "Rechazo", "Exclusión", "Discriminación", "Intolerancia", "Crítica", "Juicio", "Castigo", "Falla", "Imperfección", "Insatisfacción", "Descontento", "Desesperanza", "Apatía", "Indiferencia", "Frialdad", "Hostilidad", "Agresión"];
+    const pos = ["Amor", "Paz", "Éxito", "Luz", "Salud", "Felicidad", "Alegría", "Calma", "Valentía", "Bondad"];
+    const neg = ["Odio", "Caos", "Dolor", "Miedo", "Guerra", "Muerte", "Fracaso", "Ira", "Envidia", "Tristeza"];
     
-    let nivel = 1, ronda = 1, aciertos = 0, impulso = 0;
-    let esTarget = false, bloqueado = false, timerJuego;
-
-    document.getElementById('eval-inicial').oninput = function() { document.getElementById('num-inicial').innerText = this.value; }
-    document.getElementById('eval-final').oninput = function() { document.getElementById('num-final').innerText = this.value; }
+    let nivel = 1, ronda = 1, aciertos = 0, impulso = 0, esTarget = false, bloqueado = false, timerJuego;
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
-        m.rate = 0.95;
-        m.onend = callback;
+        m.rate = 1;
+
+        let ejecutado = false;
+        const terminar = () => {
+            if (!ejecutado) {
+                ejecutado = true;
+                if(callback) callback();
+            }
+        };
+
+        m.onend = terminar;
+        m.onerror = terminar;
         window.speechSynthesis.speak(m);
+
+        // SEGURO DE FALLO: Si en 6 segundos no ha avanzado, forzar el inicio
+        setTimeout(terminar, 6000);
     }
 
     function iniciarSecuenciaInstruccion() {
         document.getElementById('pantalla-inicio').classList.remove('activa');
         document.getElementById('overlay-instruccion').style.display = 'flex';
-        const instruccion = "Atención. Solo presiona la tarjeta si la palabra es positiva y el color es verde. De lo contrario, no toques nada. Si fallas, tu barra de impulsividad subirá.";
-        hablar(instruccion, () => {
+        
+        const txt = "Atención. Solo presiona si la palabra es positiva y el color es verde. De lo contrario, no toques nada.";
+        
+        hablar(txt, () => {
             let count = 3;
             const preDiv = document.getElementById('pre-count');
             preDiv.innerText = count;
@@ -124,44 +101,27 @@
     function siguienteRonda() {
         if(bloqueado) return;
         const tarjeta = document.getElementById('tarjeta');
-        tarjeta.innerText = "---";
-        tarjeta.style.color = "#000";
-        tarjeta.style.background = "#fff";
+        tarjeta.innerText = "---"; tarjeta.style.color = "#000";
         document.getElementById('feedback-v').innerText = "";
 
         setTimeout(() => {
             if(bloqueado) return;
-            
-            // LOGICA DE PROBABILIDAD MEJORADA: 40% Target (Positivo-Verde), 60% Distractores
-            const randomChance = Math.random();
-            let tipoPalabra, esVerde;
+            const r = Math.random();
+            let tipo, verde;
+            if(r < 0.4) { tipo = true; verde = true; } // 40% Target
+            else if(r < 0.6) { tipo = true; verde = false; }
+            else if(r < 0.8) { tipo = false; verde = true; }
+            else { tipo = false; verde = false; }
 
-            if (randomChance < 0.40) {
-                tipoPalabra = true; // Positiva
-                esVerde = true;     // Verde -> TARGET
-            } else if (randomChance < 0.60) {
-                tipoPalabra = true; // Positiva
-                esVerde = false;    // Rojo -> DISTRACTOR
-            } else if (randomChance < 0.80) {
-                tipoPalabra = false; // Negativa
-                esVerde = true;      // Verde -> DISTRACTOR
-            } else {
-                tipoPalabra = false; // Negativa
-                esVerde = false;     // Rojo -> DISTRACTOR
-            }
-
-            const lista = tipoPalabra ? pos : neg;
+            const lista = tipo ? pos : neg;
             const palabra = lista[Math.floor(Math.random()*lista.length)];
-            
             tarjeta.innerText = palabra.toUpperCase();
-            tarjeta.style.color = esVerde ? "var(--green)" : "var(--red)";
-            esTarget = (tipoPalabra && esVerde);
+            tarjeta.style.color = verde ? "var(--green)" : "var(--red)";
+            esTarget = (tipo && verde);
 
-            let base = nivel === 1 ? 2100 : (nivel === 2 ? 1650 : 1150);
-            let limite = base + (palabra.length * 65); 
-            
+            let limite = (nivel === 1 ? 2500 : nivel === 2 ? 1800 : 1300);
             timerJuego = setTimeout(() => {
-                if(esTarget) procesarError("Demasiado lento.");
+                if(esTarget) procesarError("¡Lento!");
                 else siguienteRonda();
             }, limite);
         }, 1000);
@@ -171,76 +131,38 @@
         if(bloqueado || document.getElementById('tarjeta').innerText === "---") return;
         clearTimeout(timerJuego);
         if(esTarget) {
-            aciertos++;
-            impulso = Math.max(0, impulso - 8);
-            document.getElementById('feedback-v').innerText = "¡CORRECTO!";
+            aciertos++; impulso = Math.max(0, impulso - 10);
+            document.getElementById('feedback-v').innerText = "¡BIEN!";
             document.getElementById('feedback-v').style.color = "var(--green)";
             if(aciertos >= 10) gestionarProgreso();
             else setTimeout(siguienteRonda, 700);
         } else {
             procesarError("¡IMPULSO!");
         }
-        actualizarMonitor();
-    }
-
-    function procesarError(msj) {
-        hablar(msj);
-        impulso += 22;
-        aciertos = Math.max(0, aciertos - (nivel * 2));
-        document.getElementById('feedback-v').innerText = "FALLO";
-        document.getElementById('feedback-v').style.color = "var(--red)";
-        actualizarMonitor();
-        if(impulso >= 100) pausaDeCalma();
-        else setTimeout(siguienteRonda, 1500);
-    }
-
-    function actualizarMonitor() {
         document.getElementById('barra-impulso').style.height = impulso + "%";
         document.getElementById('txt-aciertos').innerText = aciertos;
     }
 
-    function pausaDeCalma() {
-        bloqueado = true;
-        document.getElementById('overlay-calma').style.display = 'flex';
-        hablar("Pausa. Respira.", () => {});
-        let segundos = 10;
-        const cuenta = setInterval(() => {
-            segundos--;
-            document.getElementById('cuenta-atras').innerText = segundos;
-            if(segundos <= 0) {
-                clearInterval(cuenta);
-                document.getElementById('overlay-calma').style.display = 'none';
-                impulso = 0;
-                actualizarMonitor();
-                bloqueado = false;
-                siguienteRonda();
-            }
-        }, 1000);
+    function procesarError(m) {
+        impulso += 25; aciertos = Math.max(0, aciertos - 1);
+        document.getElementById('feedback-v').innerText = m;
+        document.getElementById('feedback-v').style.color = "var(--red)";
+        document.getElementById('barra-impulso').style.height = impulso + "%";
+        if(impulso >= 100) {
+            bloqueado = true;
+            alert("PAUSA DE CALMA. Respira y presiona OK para seguir.");
+            impulso = 0; bloqueado = false; siguienteRonda();
+        } else {
+            setTimeout(siguienteRonda, 1500);
+        }
     }
 
     function gestionarProgreso() {
         aciertos = 0;
-        actualizarMonitor();
-        if(ronda < 3) {
-            ronda++;
-            document.getElementById('txt-ronda').innerText = ronda;
-            setTimeout(siguienteRonda, 1200);
-        } else if(nivel < 3) {
-            nivel++; ronda = 1;
-            document.getElementById('txt-nivel').innerText = nivel;
-            document.getElementById('txt-ronda').innerText = "1";
-            hablar("Nivel avanzado.");
-            setTimeout(siguienteRonda, 1500);
-        } else {
-            finalizarEntrenamiento();
-        }
-    }
-
-    function finalizarEntrenamiento() {
-        document.getElementById('pantalla-juego').classList.remove('activa');
-        document.getElementById('pantalla-cierre').classList.add('activa');
-        document.getElementById('cita-final').innerText = "“Mantener la calma te permite tomar mejores decisiones incluso en los momentos difíciles.”";
-        hablar("Objetivo cumplido.");
+        if(ronda < 3) { ronda++; document.getElementById('txt-ronda').innerText = ronda; }
+        else if(nivel < 3) { nivel++; ronda = 1; document.getElementById('txt-nivel').innerText = nivel; }
+        else { alert("¡Entrenamiento Completo!"); location.reload(); }
+        setTimeout(siguienteRonda, 1500);
     }
 </script>
 </body>
