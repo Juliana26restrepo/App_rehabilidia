@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesión 7: Control Inhibitorio Condicional</title>
+    <title>Sesión 7: Entrenamiento de Inhibición Condicional</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #F0F4F8; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -13,7 +13,7 @@
         
         .panel-superior { display: flex; width: 95%; max-width: 850px; gap: 15px; margin-bottom: 10px; }
         
-        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 4px solid var(--p-purple); flex-grow: 2; font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; min-height: 90px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 4px solid var(--p-purple); flex-grow: 2; font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; min-height: 95px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
         #reloj-contenedor { background: #FFF; border: 4px solid var(--navy); border-radius: 15px; width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #tiempo-texto { font-size: 2.2rem; color: #D32F2F; font-weight: 900; }
@@ -24,14 +24,24 @@
             background: white; border-radius: 20px; min-height: 450px; border: 2px solid #B0BEC5;
         }
 
+        /* Figuras Corregidas */
         .token { cursor: pointer; transition: transform 0.2s; position: relative; }
         .token:active { transform: scale(0.9); }
         .circulo { border-radius: 50%; }
         .cuadrado { border-radius: 6px; }
-        .triangulo { width: 0; height: 0; background: none !important; border-left: solid transparent; border-right: solid transparent; border-bottom: solid; }
+        
+        /* Triángulo Real con CSS */
+        .triangulo { 
+            width: 0; height: 0; 
+            background: none !important; 
+            border-left: solid transparent; 
+            border-right: solid transparent; 
+            border-bottom: solid; 
+        }
         
         .grande { width: 80px; height: 80px; }
         .pequeno { width: 45px; height: 45px; }
+        
         .triangulo.grande { border-left-width: 40px; border-right-width: 40px; border-bottom-width: 80px; }
         .triangulo.pequeno { border-left-width: 22px; border-right-width: 22px; border-bottom-width: 45px; }
 
@@ -41,17 +51,17 @@
         #overlay-nivel { background: var(--p-purple); color: white; }
         #overlay-final { background: var(--navy); color: white; }
         
-        .lvl-banner { font-size: 6rem; font-weight: 900; color: var(--gold); margin: 0; text-shadow: 4px 4px 0px #000; }
+        .lvl-banner { font-size: 5rem; font-weight: 900; color: var(--gold); margin: 0; text-shadow: 4px 4px 0px #000; }
         .btn-ready { background: var(--gold); border: none; padding: 20px 50px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.5rem; color: var(--navy); margin-top: 20px; }
     </style>
 </head>
 <body onload="iniciarSesion()">
 
-<header>SESIÓN 7: ENTRENAMIENTO DE INHIBICIÓN</header>
+<header>SESIÓN 7: CONTROL INHIBITORIO AVANZADO</header>
 
 <div id="contenedor-juego">
     <div class="panel-superior">
-        <div id="panel-instruccion" class="panel-instruccion">Esperando instrucción...</div>
+        <div id="panel-instruccion" class="panel-instruccion">Esperando...</div>
         <div id="reloj-contenedor">
             <span style="font-size: 0.7rem; font-weight: 900;">TIEMPO</span>
             <span id="tiempo-texto">10</span>
@@ -63,15 +73,15 @@
 
 <div id="overlay-nivel" class="overlay">
     <h1 class="lvl-banner" id="lvl-titulo">NIVEL 1</h1>
-    <p id="lvl-mensaje" style="font-size: 2rem; max-width: 80%;"></p>
-    <button class="btn-ready" onclick="cerrarOverlay()">EMPEZAR</button>
+    <p id="lvl-mensaje" style="font-size: 1.8rem; max-width: 80%;"></p>
+    <button class="btn-ready" onclick="cerrarOverlay()">¡LISTO!</button>
 </div>
 
 <div id="overlay-final" class="overlay">
-    <h1 style="color: var(--gold); font-size: 3rem;">RESULTADOS TOTALES</h1>
-    <div id="resumen-stats" style="font-size: 2.2rem; margin: 20px; line-height: 1.4;"></div>
-    <p id="porcentaje-final" style="font-size: 2.5rem; font-weight: bold; color: var(--gold);"></p>
-    <button class="btn-ready" onclick="window.location.reload()">REINTENTAR SESIÓN</button>
+    <h1 style="color: var(--gold); font-size: 3rem;">RESULTADOS</h1>
+    <div id="resumen-stats" style="font-size: 2rem; margin: 15px;"></div>
+    <div id="porcentaje-caja" style="font-size: 4rem; font-weight: 900; color: var(--gold); border: 5px solid var(--gold); padding: 10px 30px; border-radius: 20px;">0%</div>
+    <button class="btn-ready" onclick="window.location.reload()">VOLVER A EMPEZAR</button>
 </div>
 
 <script>
@@ -82,10 +92,11 @@
     ];
 
     let nivel = 1, ronda = 1;
-    let aciertos = 0, errores = 0;
+    let aciertosTotales = 0, erroresTotales = 0;
     let objetivosActuales = [];
     let timer = null, segundos = 10;
     let inhibicionActiva = false;
+    let ultimaReglaIndex = -1;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
@@ -94,7 +105,7 @@
     }
 
     function iniciarSesion() {
-        mostrarOverlay("NIVEL 1", "Escucha las reglas de 'Si ocurre esto... entonces haz aquello'.");
+        mostrarOverlay("NIVEL 1", "Sigue las instrucciones de 'Si ocurre esto... entonces haz aquello'.");
     }
 
     function mostrarOverlay(tit, msj) {
@@ -119,8 +130,8 @@
 
         let pool = [];
         let numFigs = (nivel === 1) ? 12 : (nivel === 2) ? 18 : 24;
+        let maxRondas = (nivel === 3) ? 6 : 3;
 
-        // Generar pool básico
         for(let i=0; i<numFigs; i++){
             pool.push({
                 id: i,
@@ -133,50 +144,61 @@
         let textoRegla = "";
         let targets = [];
 
-        // LÓGICA DE REGLAS CONDICIONALES
+        // Generador de reglas condicionales claras
         if(nivel === 1) {
-            let colCond = colores[Math.floor(Math.random()*colores.length)];
-            let colAccion = colores[Math.floor(Math.random()*colores.length)];
-            if(colCond.n === colAccion.n) colAccion = colores[(colores.indexOf(colCond)+1)%colores.length];
-
-            // Forzar presencia
-            pool[0].forma = 'circulo'; pool[0].color = colCond;
-            for(let k=1; k<5; k++) { pool[k].forma = 'cuadrado'; pool[k].color = colAccion; }
-
-            textoRegla = `Si hay un círculo ${colCond.n}, entonces toca los cuadrados ${colAccion.n}s.`;
-            targets = pool.filter(f => f.forma === 'cuadrado' && f.color.n === colAccion.n);
+            let col1 = colores[Math.floor(Math.random()*colores.length)];
+            let col2 = colores[(colores.indexOf(col1)+2)%colores.length];
+            pool[0].forma = 'circulo'; pool[0].color = col1;
+            for(let k=1; k<5; k++) { pool[k].forma = 'cuadrado'; pool[k].color = col2; }
+            textoRegla = `Si hay un círculo ${col1.n}, entonces toca los cuadrados ${col2.n}s.`;
+            targets = pool.filter(f => f.forma === 'cuadrado' && f.color.n === col2.n);
         } 
         else if(nivel === 2) {
-            let hayTri = Math.random() > 0.5;
-            if(hayTri) {
-                pool[0].forma = 'triangulo'; pool[0].color = colores[0]; 
-                textoRegla = "Si hay un triángulo, entonces NO toques el color Verde.";
-                inhibicionActiva = true;
-                // El acierto se da si no toca verdes en 10 seg
-            } else {
-                pool = pool.filter(f => f.forma !== 'triangulo');
-                let colAccion = colores[2]; // Azul
-                for(let k=0; k<4; k++) { pool[k].forma = 'circulo'; pool[k].color = colAccion; }
-                textoRegla = "Si NO hay un triángulo, entonces toca los círculos Azules.";
-                targets = pool.filter(f => f.forma === 'circulo' && f.color.n === "Azul");
-            }
+            let opciones = [
+                () => {
+                    pool[0].forma = 'triangulo'; pool[0].color = colores.find(c => c.n === "Negro");
+                    textoRegla = "Si hay un triángulo Negro, NO TOQUES NADA.";
+                    inhibicionActiva = true;
+                },
+                () => {
+                    pool = pool.filter(f => f.forma !== 'triangulo');
+                    for(let k=0; k<4; k++) { pool[k].forma = 'circulo'; pool[k].color = colores.find(c=>c.n==="Azul"); }
+                    textoRegla = "Si NO hay un triángulo, entonces toca los círculos Azules.";
+                    targets = pool.filter(f => f.forma === 'circulo' && f.color.n === "Azul");
+                }
+            ];
+            let idx = (ronda % 2 === 0) ? 0 : 1;
+            opciones[idx]();
         } 
         else {
-            let colBusq = colores[Math.floor(Math.random()*colores.length)];
-            let tamBusq = Math.random() > 0.5 ? 'pequeno' : 'grande';
-            
-            // Garantizar piezas
-            for(let k=0; k<4; k++) { pool[k].tamano = tamBusq; pool[k].color = colBusq; pool[k].forma = 'cuadrado'; }
-
-            textoRegla = `Si el color ${colBusq.n} está presente, toca solo los cuadrados ${tamBusq === 'pequeno' ? 'pequeños' : 'grandes'}.`;
-            targets = pool.filter(f => f.forma === 'cuadrado' && f.tamano === tamBusq);
+            // Nivel 3 - 6 Intentos con reglas variadas
+            let rules = [
+                {t: "Si hay un cuadrado Rosado, toca todos los triángulos pequeños.", f: (p)=>{
+                    p[0].forma='cuadrado'; p[0].color=colores.find(c=>c.n==="Rosado");
+                    for(let k=1; k<5; k++){ p[k].forma='triangulo'; p[k].tamano='pequeno'; }
+                    return p.filter(f => f.forma==='triangulo' && f.tamano==='pequeno');
+                }},
+                {t: "Si NO hay círculos rojos, NO TOQUES NADA por 10 segundos.", f: (p)=>{
+                    let p2 = p.filter(f => !(f.forma==='circulo' && f.color.n==="Rojo"));
+                    inhibicionActiva = true; return [];
+                }},
+                {t: "Si ves un triángulo Amarillo, toca solo los cuadrados grandes.", f: (p)=>{
+                    p[0].forma='triangulo'; p[0].color=colores.find(c=>c.n==="Amarillo");
+                    for(let k=1; k<5; k++){ p[k].forma='cuadrado'; p[k].tamano='grande'; }
+                    return p.filter(f => f.forma==='cuadrado' && f.tamano==='grande');
+                }}
+            ];
+            let rIdx = ronda % rules.length;
+            let res = rules[rIdx].f(pool);
+            textoRegla = rules[rIdx].t;
+            targets = res;
         }
 
         pool.sort(() => Math.random() - 0.5);
         document.getElementById('panel-instruccion').innerText = textoRegla;
         hablar(textoRegla);
         objetivosActuales = targets.map(t => t.id);
-        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Intento ${ronda}/3`;
+        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Intento ${ronda}/${maxRondas}`;
 
         pool.forEach(f => {
             const div = document.createElement('div');
@@ -186,19 +208,15 @@
 
             div.onclick = () => {
                 if(inhibicionActiva) {
-                    if(f.color.n === "Verde") {
-                        errores++; hablar("¡Error! No debías tocar el verde.");
-                        avanzar();
-                    } else {
-                        div.classList.add('marcado');
-                    }
+                    erroresTotales++; hablar("¡Debías esperar!");
+                    avanzar();
                 } else if(objetivosActuales.includes(f.id)) {
                     div.classList.add('marcado');
                     objetivosActuales = objetivosActuales.filter(id => id !== f.id);
-                    aciertos++;
+                    aciertosTotales++;
                     if(objetivosActuales.length === 0) avanzar();
                 } else {
-                    errores++; hablar("Esa no es la instrucción.");
+                    erroresTotales++; hablar("Esa no.");
                 }
             };
             pantalla.appendChild(div);
@@ -209,8 +227,8 @@
             document.getElementById('tiempo-texto').innerText = segundos;
             if(segundos <= 0) {
                 clearInterval(timer);
-                if(inhibicionActiva) { aciertos++; hablar("¡Muy bien hecho!"); }
-                else if(objetivosActuales.length > 0) { errores += objetivosActuales.length; }
+                if(inhibicionActiva) { aciertosTotales++; hablar("¡Excelente!"); }
+                else if(objetivosActuales.length > 0) { erroresTotales += objetivosActuales.length; }
                 avanzar();
             }
         }, 1000);
@@ -218,12 +236,13 @@
 
     function avanzar() {
         clearInterval(timer);
-        if(ronda < 3) {
+        let maxRondas = (nivel === 3) ? 6 : 3;
+        if(ronda < maxRondas) {
             ronda++;
             setTimeout(cargarRonda, 1200);
         } else if(nivel < 3) {
             nivel++; ronda = 1;
-            mostrarOverlay("NIVEL " + nivel, "Reglas más complejas. ¡Piénsalo bien!");
+            mostrarOverlay("NIVEL " + nivel, "Atención a las reglas condicionales.");
         } else {
             finalizar();
         }
@@ -231,12 +250,13 @@
 
     function finalizar() {
         document.getElementById('overlay-final').style.display = 'flex';
-        let total = aciertos + errores;
-        let porc = total > 0 ? Math.round((aciertos / total) * 100) : 0;
-        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertos}<br>Errores: ${errores}`;
-        document.getElementById('porcentaje-final').innerText = `Efectividad: ${porc}%`;
-        hablar(`Sesión terminada. Lograste un ${porc} por ciento de efectividad.`);
+        let total = aciertosTotales + erroresTotales;
+        let porc = total > 0 ? Math.round((aciertosTotales / total) * 100) : 0;
+        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertosTotales}<br>Errores: ${erroresTotales}`;
+        document.getElementById('porcentaje-caja').innerText = porc + "%";
+        hablar(`Sesión terminada. Tu porcentaje de éxito fue del ${porc} por ciento.`);
     }
 </script>
 </body>
 </html>
+
