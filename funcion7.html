@@ -20,7 +20,7 @@
         .pequeno { width: 42px; height: 42px; }
         .triangulo.grande { border-left-width: 37px; border-right-width: 37px; border-bottom-width: 75px; }
         .triangulo.pequeno { border-left-width: 21px; border-right-width: 21px; border-bottom-width: 42px; }
-        .marcado { filter: grayscale(1) opacity: 0.3; pointer-events: none; transform: scale(0.8); }
+        .marcado { filter: grayscale(1) opacity(0.3); pointer-events: none; transform: scale(0.8); }
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 5000; text-align: center; }
         #overlay-nivel { background: var(--p-purple); color: white; }
         #overlay-final { background: var(--navy); color: white; }
@@ -94,6 +94,7 @@
         let maxRondas = (nivel === 3) ? 6 : 3;
         let textoRegla = "";
 
+        // Definición de reglas y garantía de piezas
         if(nivel === 1) {
             let fLabel = Math.random() > 0.5 ? "cuadrados" : "círculos";
             let fKey = fLabel === "cuadrados" ? "cuadrado" : "circulo";
@@ -134,9 +135,34 @@
             }
         }
 
+        // Relleno de seguridad
         while(pool.length < numTotal) {
             pool.push({id: Math.random(), forma: ['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)], color: colores[Math.floor(Math.random()*colores.length)], tamano: Math.random() > 0.5 ? 'grande' : 'pequeno', target: false});
         }
+
+        // RE-VALIDACIÓN CRÍTICA: Marcar como target CUALQUIER pieza que cumpla la regla visual
+        pool.forEach(p => {
+            if(nivel === 1) {
+                let fLabel = textoRegla.includes("cuadrados") ? "cuadrado" : "circulo";
+                let parts = textoRegla.split(" ");
+                let color1 = parts[2].replace("s","");
+                let color2 = parts[6].replace("s.","").replace("s","");
+                if(p.forma === fLabel && (p.color.n === color1 || p.color.n === color2)) p.target = true;
+            } else if(nivel === 2 && !inhibicionActiva) {
+                let parts = textoRegla.split(" ");
+                let colorAcc = parts[parts.length-1].replace("s.","");
+                if(p.forma === 'circulo' && p.color.n === colorAcc) p.target = true;
+            } else if(nivel === 3 && !inhibicionActiva) {
+                if(textoRegla.includes("verdes GRANDES")) {
+                   if((p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || 
+                      (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno') || 
+                      (p.forma==='triangulo' && p.color.n==='Amarillo')) p.target = true;
+                } else {
+                   if((p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || 
+                      (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande')) p.target = true;
+                }
+            }
+        });
 
         pool.sort(() => Math.random() - 0.5);
         objetivosIds = pool.filter(p => p.target).map(p => p.id);
@@ -152,7 +178,11 @@
 
             div.onclick = () => {
                 if(inhibicionActiva) {
-                    erroresTotales++; hablar("¡No debías tocar!"); avanzar();
+                    if(nivel === 2 || (nivel === 3 && f.color.n === 'Verde')) {
+                        erroresTotales++; hablar("¡No debías tocar!"); avanzar();
+                    } else {
+                        div.classList.add('marcado');
+                    }
                 } else if(objetivosIds.includes(f.id)) {
                     div.classList.add('marcado');
                     objetivosIds = objetivosIds.filter(id => id !== f.id);
