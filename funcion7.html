@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sesión 7: Control Inhibitorio - Versión Final</title>
+    <title>Sesión 7: Control Inhibitorio - Garantía Total</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #F0F4F8; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -108,8 +108,8 @@
         let numTotal = (nivel === 1) ? 14 : (nivel === 2) ? 20 : 30;
         let maxRondas = (nivel === 3) ? 6 : 3;
         let textoRegla = "";
+        inhibicionActiva = false;
 
-        // Nivel 1: Color y Forma
         if(nivel === 1) {
             let fLabel = Math.random() > 0.5 ? "cuadrados" : "círculos";
             let fKey = fLabel === "cuadrados" ? "cuadrado" : "circulo";
@@ -119,7 +119,6 @@
             for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: fKey, color: c1, tamano: 'grande', target: true});
             for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: fKey, color: c2, tamano: 'pequeno', target: true});
         } 
-        // Nivel 2: Condicional e Inhibición
         else if(nivel === 2) {
             if(ronda === 2) {
                 textoRegla = "¡ATENCIÓN! Si hay un triángulo Negro, NO TOQUES NADA.";
@@ -132,7 +131,6 @@
                 for(let i=0; i<4; i++) pool.push({id: Math.random(), forma: 'circulo', color: cAccion, tamano: 'grande', target: true});
             }
         } 
-        // Nivel 3: Mixto
         else {
             let rIdx = ronda % 3;
             if(rIdx === 1) {
@@ -152,24 +150,26 @@
             }
         }
 
-        // Rellenar tablero
         while(pool.length < numTotal) {
             pool.push({id: Math.random(), forma: ['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)], color: colores[Math.floor(Math.random()*colores.length)], tamano: Math.random() > 0.5 ? 'grande' : 'pequeno', target: false});
         }
 
-        // ESCANEO DE SEGURIDAD: Validar cada pieza contra la regla
+        // ESCANEO SEGURO: Solo marcamos targets si NO es ronda de inhibición total
         pool.forEach(p => {
-            if(nivel === 1) {
-                let fLabel = textoRegla.includes("cuadrados") ? "cuadrado" : "circulo";
-                if(p.forma === fLabel && (textoRegla.includes(p.color.n))) p.target = true;
-            } else if(nivel === 2 && !inhibicionActiva) {
-                let colorAcc = textoRegla.split(" ").pop().replace("s.","");
-                if(p.forma === 'circulo' && p.color.n === colorAcc) p.target = true;
-            } else if(nivel === 3 && !inhibicionActiva) {
-                if(textoRegla.includes("verdes GRANDES")) {
-                   if((p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno') || (p.forma==='triangulo' && p.color.n==='Amarillo')) p.target = true;
-                } else {
-                   if((p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande')) p.target = true;
+            if(!inhibicionActiva) {
+                if(nivel === 1) {
+                    let fLabel = textoRegla.includes("cuadrados") ? "cuadrado" : "circulo";
+                    if(p.forma === fLabel && (textoRegla.includes(p.color.n))) p.target = true;
+                } else if(nivel === 2) {
+                    let parts = textoRegla.split(" ");
+                    let colorAcc = parts[parts.length-1].replace("s.","");
+                    if(p.forma === 'circulo' && p.color.n === colorAcc) p.target = true;
+                } else if(nivel === 3) {
+                    if(textoRegla.includes("verdes GRANDES")) {
+                        if((p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno') || (p.forma==='triangulo' && p.color.n==='Amarillo')) p.target = true;
+                    } else if(textoRegla.includes("rosados")) {
+                        if((p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande')) p.target = true;
+                    }
                 }
             }
         });
@@ -187,20 +187,20 @@
             else div.style.backgroundColor = f.color.c;
             div.onclick = () => {
                 if(inhibicionActiva) {
-                    if(nivel === 2 || (nivel === 3 && f.color.n === 'Verde')) {
-                        erroresTotales++; hablar("¡No debías tocar!"); avanzar();
-                    } else { div.classList.add('marcado'); }
+                    // Si toca algo en regla de NO TOCAR, error y avanza
+                    erroresTotales++; hablar("¡No debías tocar!"); avanzar();
                 } else if(objetivosIds.includes(f.id)) {
                     div.classList.add('marcado');
                     objetivosIds = objetivosIds.filter(id => id !== f.id);
                     aciertosTotales++;
                     if(objetivosIds.length === 0) avanzar();
-                } else { erroresTotales++; hablar("Esa no."); }
+                } else { 
+                    erroresTotales++; hablar("Esa no."); 
+                }
             };
             pantalla.appendChild(div);
         });
 
-        // REGLA DE TIEMPO: Hablar primero, cronómetro después
         hablar(textoRegla, iniciarTiempo);
     }
 
@@ -223,4 +223,3 @@
 </script>
 </body>
 </html>
-
