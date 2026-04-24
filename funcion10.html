@@ -2,254 +2,252 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Ultra-Master: Desafío de Élite</title>
+    <title>Motoruta Pro: Máxima Dificultad</title>
     <style>
-        :root { --dark: #020617; --gold: #f59e0b; --neon-blue: #38bdf8; --error: #ef4444; --success: #22c55e; }
-        body { font-family: 'Courier New', Courier, monospace; margin: 0; background: #0f172a; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --main-blue: #1e40af; --road: #f1f5f9; --wall: #334155; --goal: #fbbf24; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f4f8; color: #1e293b; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        header { background: var(--dark); padding: 15px; text-align: center; border-bottom: 2px solid var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-        .stats { display: flex; justify-content: space-around; padding: 10px; background: rgba(255,255,255,0.05); font-weight: bold; font-size: 1.2rem; }
+        header { background: var(--main-blue); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stats { display: flex; justify-content: center; gap: 40px; padding: 12px; background: white; font-weight: bold; border-bottom: 2px solid #cbd5e1; }
 
-        .game-area { display: flex; flex: 1; justify-content: center; align-items: center; gap: 30px; padding: 20px; }
+        .game-container { display: flex; flex: 1; justify-content: center; align-items: center; gap: 30px; padding: 20px; }
 
-        /* Contenedor del Laberinto */
-        #maze-container { position: relative; border: 4px solid var(--neon-blue); padding: 5px; background: #1e293b; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); }
-        #grid { display: grid; gap: 2px; }
-        .cell { background: #334155; border-radius: 2px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .wall { background: var(--dark); box-shadow: inset 0 0 15px black; }
-        .goal { background: var(--gold); animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
+        /* Tablero */
+        #maze-frame { position: relative; background: #94a3b8; padding: 10px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #grid { display: grid; gap: 3px; background: #cbd5e1; }
+        .cell { background: var(--road); border-radius: 2px; position: relative; }
+        .wall { background: var(--wall); box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .goal { background: var(--goal); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
 
-        /* Moto con ID único para control absoluto */
-        #player-moto { 
-            position: absolute; z-index: 1000; transition: all 0.2s ease-in-out; 
+        /* Moto: Sistema de posicionamiento absoluto mejorado */
+        #moto { 
+            position: absolute; z-index: 100; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; align-items: center; justify-content: center; pointer-events: none;
         }
 
-        /* Panel de Comandos */
-        .panel { width: 380px; background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid var(--neon-blue); }
-        #route-log { 
-            height: 150px; background: #020617; border: 1px solid #334155; margin-bottom: 15px; 
-            padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; overflow-y: auto;
+        /* Controles */
+        .panel { width: 350px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 15px; }
+        #route-display { 
+            min-height: 100px; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 10px;
+            display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; background: #f8fafc;
         }
-        .cmd-icon { background: var(--neon-blue); color: black; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+        .chip { background: var(--main-blue); color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; }
 
-        .ctrl-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .btn { padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
-        .btn-dir { background: #475569; color: white; border: 1px solid var(--neon-blue); }
-        .btn-dir:hover { background: var(--neon-blue); color: black; }
-        .btn-go { background: var(--success); color: white; grid-column: span 2; margin-top: 10px; font-size: 1.2rem; }
-        .btn-reset { background: var(--error); color: white; grid-column: span 2; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .btn-dir { background: #e2e8f0; color: #1e40af; border: 1px solid #cbd5e1; }
+        .btn-dir:hover { background: #d1d5db; }
+        .btn-start { background: #22c55e; color: white; grid-column: span 2; font-size: 1.2rem; margin-top: 10px; border-bottom: 4px solid #16a34a; }
+        .btn-start:active { border-bottom: 0; transform: translateY(4px); }
+        .btn-reset { background: #ef4444; color: white; grid-column: span 2; }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; text-align: center; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; color: white; text-align: center; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA MASTER: NIVEL INGENIERÍA</header>
+<header>MOTORUTA: DESAFÍO DE INGENIERÍA COGNITIVA</header>
 <div class="stats">
-    <span>NIVEL: <span id="lvl">1</span>/3</span>
-    <span>RETO: <span id="ex">1</span>/3</span>
+    <span>NIVEL: <span id="txt-lvl">1</span>/3</span>
+    <span>RETO: <span id="txt-ex">1</span>/3</span>
 </div>
 
-<div class="game-area">
-    <div id="maze-container">
-        <div id="player-moto">🏍️</div>
+<div class="game-container">
+    <div id="maze-frame">
+        <div id="moto">🏍️</div>
         <div id="grid"></div>
     </div>
 
     <div class="panel">
-        <div id="route-log"></div>
-        <div class="ctrl-btns">
-            <button class="btn btn-dir" onclick="addStep('UP')">ARRIBA (↑)</button>
-            <button class="btn btn-dir" onclick="addStep('DOWN')">ABAJO (↓)</button>
-            <button class="btn btn-dir" onclick="addStep('LEFT')">IZQ (←)</button>
-            <button class="btn btn-dir" onclick="addStep('RIGHT')">DER (→)</button>
-            <button class="btn btn-go" onclick="startEngine()">ARRANCAR SECUENCIA 🏁</button>
-            <button class="btn btn-reset" onclick="clearAll()">RESETEAR SISTEMA</button>
+        <div id="route-display"></div>
+        <div class="btn-grid">
+            <button class="btn-dir" onclick="push('ARRIBA')">⬆️ SUBIR</button>
+            <button class="btn-dir" onclick="push('ABAJO')">⬇️ BAJAR</button>
+            <button class="btn-dir" onclick="push('IZQ')">⬅️ IZQ</button>
+            <button class="btn-dir" onclick="push('DER')">➡️ DER</button>
+            <button class="btn-start" onclick="arrancar()">ARRANCAR MOTO 🏍️</button>
+            <button class="btn-reset" onclick="limpiar()">BORRAR RUTA</button>
         </div>
     </div>
 </div>
 
-<div id="modal" class="overlay">
-    <h1 id="modal-t" style="font-size: 3rem;"></h1>
-    <p id="modal-b" style="font-size: 1.5rem;"></p>
-    <button class="btn btn-dir" style="padding: 20px 50px;" onclick="closeModal()">CONTINUAR OPERACIÓN</button>
+<div id="modal" class="modal">
+    <h1 id="m-tit"></h1>
+    <p id="m-body" style="font-size: 1.3rem; margin: 20px;"></p>
+    <button onclick="cerrarModal()" style="padding: 15px 40px; background: var(--goal); color: black;">CONTINUAR</button>
 </div>
 
 <script>
-    let lvl = 1, ex = 1, queue = [], isRunning = false;
-    let pos = { x: 0, y: 0 }, cSize = 0;
+    let lvl = 1, ex = 1, pasos = [], moviendo = false;
+    let posActual = { x: 0, y: 0 }, dimCelda = 0;
 
-    // MAPAS DE ALTA COMPLEJIDAD - RUTA ÚNICA
-    const maps = {
+    // MAPAS CON RUTAS COMPLEJAS Y ÚNICAS
+    const niveles = {
         1: [
-            { s: 6, w: [[1,1],[1,2],[1,3],[1,4],[3,1],[3,2],[3,3],[3,4],[3,5],[5,1],[5,2],[5,3]], g: [5,5], st: [0,0] },
-            { s: 6, w: [[0,2],[1,2],[2,2],[3,2],[4,2],[1,4],[2,4],[3,4],[4,4],[5,4]], g: [5,5], st: [0,0] },
-            { s: 6, w: [[1,0],[1,1],[1,2],[3,2],[3,3],[3,4],[3,5],[5,0],[5,1],[5,2],[5,3]], g: [4,2], st: [0,5] }
+            { s: 5, w: [[1,0],[1,1],[1,2],[3,2],[3,3],[3,4]], g: [4,0], st: [0,4] },
+            { s: 5, w: [[0,1],[1,1],[2,1],[3,1],[4,1],[1,3],[2,3],[3,3]], g: [4,4], st: [0,0] },
+            { s: 6, w: [[1,1],[1,2],[1,3],[1,4],[3,1],[4,1],[5,1],[3,3],[3,4],[3,5]], g: [5,5], st: [0,0] }
         ],
         2: [
-            { s: 8, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[4,6],[3,6],[2,6],[1,6],[1,5],[1,4],[1,3],[3,3],[4,3]], g: [4,4], st: [0,0] },
-            { s: 8, w: [[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[6,3],[6,4],[6,5],[6,6],[0,4],[1,4],[2,4],[3,4],[4,4]], g: [7,7], st: [0,0] },
-            { s: 8, w: [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[5,0],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[7,2],[7,3],[7,4],[7,5]], g: [6,0], st: [0,7] }
+            { s: 7, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[1,3],[3,3],[4,3],[5,3],[6,3],[1,5],[2,5],[3,5],[4,5],[5,5]], g: [6,6], st: [0,0] },
+            { s: 7, w: [[0,2],[1,2],[2,2],[3,2],[4,2],[6,2],[6,3],[6,4],[6,5],[4,4],[3,4],[2,4],[1,4],[0,4]], g: [5,3], st: [0,0] },
+            { s: 8, w: [[1,1],[1,2],[1,3],[1,4],[1,5],[3,0],[3,1],[3,2],[3,4],[3,5],[3,6],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[7,1],[7,2],[7,3]], g: [7,7], st: [0,0] }
         ],
-        3: [ // NIVEL IMPOSIBLE: Laberinto de caracol y bloqueos
-            { s: 10, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[6,8],[5,8],[4,8],[3,8],[2,8],[1,8],[1,7],[1,6],[1,5],[1,4],[1,3],[3,3],[4,3],[5,3],[6,3],[6,4],[6,5],[6,6],[4,6],[3,6]], g: [4,5], st: [0,0] },
-            { s: 10, w: [[0,1],[1,1],[2,1],[4,1],[5,1],[6,1],[8,1],[9,1],[0,3],[1,3],[3,3],[4,3],[6,3],[7,3],[9,3],[0,5],[2,5],[3,5],[5,5],[6,5],[8,5],[9,5],[1,7],[2,7],[4,7],[5,7],[7,7],[8,7]], g: [9,9], st: [0,0] },
-            { s: 10, w: [[1,1],[1,2],[1,3],[2,3],[3,3],[3,2],[3,1],[5,1],[5,2],[5,3],[6,3],[7,3],[7,2],[7,1],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[7,8],[5,8],[3,8],[1,8]], g: [5,5], st: [0,0] }
+        3: [
+            { s: 10, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[8,3],[7,3],[6,3],[5,3],[4,3],[3,3],[2,3],[1,3],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[8,7],[7,7],[6,7],[5,7],[4,7],[3,7],[2,7],[1,7]], g: [5,4], st: [0,0] },
+            { s: 10, w: [[0,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[9,1],[1,3],[2,3],[3,3],[5,3],[6,3],[7,3],[8,3],[1,5],[2,5],[4,5],[5,5],[7,5],[8,5],[9,5],[0,7],[1,7],[3,7],[4,7],[6,7],[7,7],[9,7],[1,9],[2,9],[4,9],[5,9],[7,9],[8,9]], g: [9,9], st: [0,0] },
+            { s: 10, w: [[1,1],[2,1],[4,1],[5,1],[7,1],[8,1],[1,2],[1,4],[1,5],[1,7],[1,8],[8,2],[8,4],[8,5],[8,7],[8,8],[3,3],[4,3],[5,3],[6,3],[3,4],[6,4],[3,5],[6,5],[3,6],[4,6],[5,6],[6,6]], g: [4,4], st: [0,0] }
         ]
     };
 
-    function speak(txt) {
+    function voz(t) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(txt);
-        utterance.lang = 'es-ES';
-        window.speechSynthesis.speak(utterance);
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = 'es-ES';
+        window.speechSynthesis.speak(u);
     }
 
-    function init() {
-        const c = maps[lvl][ex - 1];
+    function inicializar() {
+        const config = niveles[lvl][ex - 1];
         const grid = document.getElementById('grid');
-        const container = document.getElementById('maze-container');
         
-        const availableSpace = Math.min(window.innerHeight - 300, window.innerWidth - 450);
-        cSize = Math.floor(availableSpace / c.s);
+        // Ajustar tamaño de celdas según el tablero
+        const areaDisponible = Math.min(window.innerHeight - 320, window.innerWidth - 450);
+        dimCelda = Math.floor(areaDisponible / config.s);
         
-        grid.style.gridTemplateColumns = `repeat(${c.s}, ${cSize}px)`;
-        grid.style.gridTemplateRows = `repeat(${c.s}, ${cSize}px)`;
+        grid.style.gridTemplateColumns = `repeat(${config.s}, ${dimCelda}px)`;
+        grid.style.gridTemplateRows = `repeat(${config.s}, ${dimCelda}px)`;
         grid.innerHTML = '';
         
-        pos = { ...c.st };
+        posActual = { ...config.st };
         
-        for (let y = 0; y < c.s; y++) {
-            for (let x = 0; x < c.s; x++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (x === c.g[0] && y === c.g[1]) { cell.classList.add('goal'); cell.innerHTML = '🏁'; }
-                if (c.w.some(w => w[0] === x && w[1] === y)) cell.classList.add('wall');
-                grid.appendChild(cell);
+        for (let y = 0; y < config.s; y++) {
+            for (let x = 0; x < config.s; x++) {
+                const celda = document.createElement('div');
+                celda.className = 'cell';
+                if (x === config.g[0] && y === config.g[1]) {
+                    celda.classList.add('goal');
+                    celda.innerHTML = '🏁';
+                }
+                if (config.w.some(w => w[0] === x && w[1] === y)) {
+                    celda.classList.add('wall');
+                }
+                grid.appendChild(celda);
             }
         }
         
-        updateMoto();
+        const m = document.getElementById('moto');
+        m.style.width = dimCelda + 'px';
+        m.style.height = dimCelda + 'px';
+        m.style.fontSize = (dimCelda * 0.7) + 'px';
+        actualizarMoto();
     }
 
-    function updateMoto() {
-        const moto = document.getElementById('player-moto');
-        moto.style.width = cSize + 'px';
-        moto.style.height = cSize + 'px';
-        moto.style.fontSize = (cSize * 0.8) + 'px';
-        // Cálculo exacto de posición dentro del contenedor
-        moto.style.left = (pos.x * cSize + (pos.x * 2) + 5) + 'px';
-        moto.style.top = (pos.y * cSize + (pos.y * 2) + 5) + 'px';
+    function actualizarMoto() {
+        const m = document.getElementById('moto');
+        // El cálculo incluye los bordes y gaps del grid
+        m.style.left = (posActual.x * (dimCelda + 3) + 10) + 'px';
+        m.style.top = (posActual.y * (dimCelda + 3) + 10) + 'px';
     }
 
-    function addStep(d) {
-        if(isRunning) return;
-        queue.push(d);
-        const log = document.getElementById('route-log');
+    function push(dir) {
+        if(moviendo) return;
+        pasos.push(dir);
+        const display = document.getElementById('route-display');
         const span = document.createElement('span');
-        span.className = 'cmd-icon';
-        const icons = { UP:'↑', DOWN:'↓', LEFT:'←', RIGHT:'→' };
-        span.innerText = icons[d];
-        log.appendChild(span);
-        log.scrollTop = log.scrollHeight;
-        speak(d);
+        span.className = 'chip';
+        const icono = dir === 'ARRIBA' ? '↑' : dir === 'ABAJO' ? '↓' : dir === 'IZQ' ? '←' : '→';
+        span.innerText = icono;
+        display.appendChild(span);
+        display.scrollTop = display.scrollHeight;
+        voz(dir);
     }
 
-    function clearAll() {
-        if(isRunning) return;
-        queue = [];
-        document.getElementById('route-log').innerHTML = '';
-        const c = maps[lvl][ex - 1];
-        pos = { ...c.st };
-        updateMoto();
-        speak("Sistema reiniciado");
+    function limpiar() {
+        if(moviendo) return;
+        pasos = [];
+        document.getElementById('route-display').innerHTML = '';
+        const config = niveles[lvl][ex - 1];
+        posActual = { ...config.st };
+        actualizarMoto();
     }
 
-    async function startEngine() {
-        if(isRunning || queue.length === 0) return;
-        isRunning = true;
-        const c = maps[lvl][ex - 1];
+    async function arrancar() {
+        if(moviendo || pasos.length === 0) return;
+        moviendo = true;
+        const config = niveles[lvl][ex - 1];
         
-        // Regresar al inicio para la ejecución
-        pos = { ...c.st };
-        updateMoto();
-        await new Promise(r => setTimeout(r, 600));
+        // Volver al punto de inicio antes de ejecutar
+        posActual = { ...config.st };
+        actualizarMoto();
+        await new Promise(r => setTimeout(r, 500));
 
-        for (let i = 0; i < queue.length; i++) {
-            let move = queue[i];
-            let nextX = pos.x, nextY = pos.y;
+        for (let i = 0; i < pasos.length; i++) {
+            let p = pasos[i];
+            let nX = posActual.x;
+            let nY = posActual.y;
 
-            if(move === 'UP') nextY--;
-            if(move === 'DOWN') nextY++;
-            if(move === 'LEFT') nextX--;
-            if(move === 'RIGHT') nextX++;
+            if(p === 'ARRIBA') nY--;
+            if(p === 'ABAJO') nY++;
+            if(p === 'IZQ') nX--;
+            if(p === 'DER') nX++;
 
-            // Validación de colisión
-            if(nextX < 0 || nextX >= c.s || nextY < 0 || nextY >= c.s || c.w.some(w => w[0] === nextX && w[1] === nextY)) {
-                speak("¡Colisión detectada! Error en el comando número " + (i+1));
-                isRunning = false;
+            // Verificar si choca o sale
+            if(nX < 0 || nX >= config.s || nY < 0 || nY >= config.s || config.w.some(w => w[0] === nX && w[1] === nY)) {
+                voz("¡Choque! Revisa tu estrategia.");
+                moviendo = false;
                 return;
             }
 
-            pos = { x: nextX, y: nextY };
-            updateMoto();
+            posActual = { x: nX, y: nY };
+            actualizarMoto();
             await new Promise(r => setTimeout(r, 400));
         }
 
-        if(pos.x === c.g[0] && pos.y === c.g[1]) {
-            speak("Objetivo alcanzado con éxito");
-            setTimeout(advance, 1000);
+        if(posActual.x === config.g[0] && posActual.y === config.g[1]) {
+            voz("¡Excelente planificación!");
+            setTimeout(siguiente, 1000);
         } else {
-            speak("Error: La ruta no termina en el objetivo");
-            isRunning = false;
+            voz("No llegaste a la meta.");
+            moviendo = false;
         }
     }
 
-    function advance() {
-        isRunning = false;
+    function siguiente() {
+        moviendo = false;
         if(ex < 3) {
             ex++;
-            document.getElementById('ex').innerText = ex;
+            document.getElementById('txt-ex').innerText = ex;
         } else if(lvl < 3) {
             lvl++; ex = 1;
-            document.getElementById('lvl').innerText = lvl;
-            document.getElementById('ex').innerText = ex;
-            popModal("¡NIVEL SUPERADO!", "Entrando en zona de alta complejidad.");
+            document.getElementById('txt-lvl').innerText = lvl;
+            document.getElementById('txt-ex').innerText = ex;
+            lanzarModal("¡NIVEL COMPLETADO!", "La dificultad va a subir drásticamente ahora.");
             return;
         } else {
-            popModal("¡MASTER COMPLETADO!", "Tu capacidad de planificación ha alcanzado el rango máximo.");
+            lanzarModal("¡MAESTRÍA TOTAL!", "Has superado todos los circuitos de planificación extrema.");
             return;
         }
-        clearAll();
-        init();
+        limpiar();
+        inicializar();
     }
 
-    function popModal(t, b) {
-        document.getElementById('modal-t').innerText = t;
-        document.getElementById('modal-b').innerText = b;
+    function lanzarModal(t, b) {
+        document.getElementById('m-tit').innerText = t;
+        document.getElementById('m-body').innerText = b;
         document.getElementById('modal').style.display = 'flex';
-        speak(t);
+        voz(t);
     }
 
-    function closeModal() {
+    function cerrarModal() {
         document.getElementById('modal').style.display = 'none';
-        clearAll();
-        init();
+        limpiar();
+        inicializar();
     }
-
-    // Soporte para Teclado
-    window.addEventListener('keydown', (e) => {
-        if(e.key === "ArrowUp") addStep('UP');
-        if(e.key === "ArrowDown") addStep('DOWN');
-        if(e.key === "ArrowLeft") addStep('LEFT');
-        if(e.key === "ArrowRight") addStep('RIGHT');
-        if(e.key === "Enter") startEngine();
-    });
 
     window.onload = () => {
-        popModal("BIENVENIDO", "Planifica la ruta perfecta. Un error significa el fracaso.");
+        inicializar();
+        voz("Bienvenido. Planifica con cuidado.");
     };
 </script>
 </body>
