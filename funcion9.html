@@ -59,7 +59,9 @@
         <span>ACIERTOS: <span id="txt-aciertos">0</span>/10</span>
     </div>
     <div id="monitor-frustracion"><div id="barra-impulso"></div></div>
-    <div id="contenedor-estimulo"><div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div></div>
+    <div id="contenedor-estimulo">
+        <div id="tarjeta" onmousedown="registrarRespuesta()">ESPERA</div>
+    </div>
     <div id="feedback-v"></div>
 </div>
 
@@ -101,8 +103,8 @@
     function iniciarSecuenciaInstruccion() {
         document.getElementById('pantalla-inicio').classList.remove('activa');
         document.getElementById('overlay-instruccion').style.display = 'flex';
-        const msg = "Atención. Solo presiona la tarjeta si la palabra es positiva y el color es verde. De lo contrario, no toques nada. Si fallas, tu barra de impulsividad subirá.";
-        hablar(msg, () => {
+        const instruccion = "Atención. Solo presiona la tarjeta si la palabra es positiva y el color es verde. De lo contrario, no toques nada. Si fallas, tu barra de impulsividad subirá.";
+        hablar(instruccion, () => {
             let count = 3;
             const preDiv = document.getElementById('pre-count');
             preDiv.innerText = count;
@@ -122,32 +124,35 @@
     function siguienteRonda() {
         if(bloqueado) return;
         const tarjeta = document.getElementById('tarjeta');
-        tarjeta.innerText = "---"; tarjeta.style.color = "#000"; tarjeta.style.background = "#fff";
+        tarjeta.innerText = "---";
+        tarjeta.style.color = "#000";
+        tarjeta.style.background = "#fff";
         document.getElementById('feedback-v').innerText = "";
 
         setTimeout(() => {
             if(bloqueado) return;
             
-            // PROBABILIDAD CONTROLADA: 35% de salir Positiva+Verde (Target)
-            const randomProb = Math.random();
+            // LOGICA DE PROBABILIDAD MEJORADA: 40% Target (Positivo-Verde), 60% Distractores
+            const randomChance = Math.random();
             let tipoPalabra, esVerde;
 
-            if(randomProb < 0.35) {
+            if (randomChance < 0.40) {
                 tipoPalabra = true; // Positiva
-                esVerde = true;     // Verde
-            } else if(randomProb < 0.60) {
+                esVerde = true;     // Verde -> TARGET
+            } else if (randomChance < 0.60) {
+                tipoPalabra = true; // Positiva
+                esVerde = false;    // Rojo -> DISTRACTOR
+            } else if (randomChance < 0.80) {
                 tipoPalabra = false; // Negativa
-                esVerde = true;      // Verde (Distractor)
-            } else if(randomProb < 0.85) {
-                tipoPalabra = true;  // Positiva
-                esVerde = false;     // Roja (Distractor)
+                esVerde = true;      // Verde -> DISTRACTOR
             } else {
                 tipoPalabra = false; // Negativa
-                esVerde = false;     // Roja (Distractor)
+                esVerde = false;     // Rojo -> DISTRACTOR
             }
-            
+
             const lista = tipoPalabra ? pos : neg;
             const palabra = lista[Math.floor(Math.random()*lista.length)];
+            
             tarjeta.innerText = palabra.toUpperCase();
             tarjeta.style.color = esVerde ? "var(--green)" : "var(--red)";
             esTarget = (tipoPalabra && esVerde);
@@ -159,7 +164,7 @@
                 if(esTarget) procesarError("Demasiado lento.");
                 else siguienteRonda();
             }, limite);
-        }, 1100);
+        }, 1000);
     }
 
     function registrarRespuesta() {
@@ -197,7 +202,7 @@
     function pausaDeCalma() {
         bloqueado = true;
         document.getElementById('overlay-calma').style.display = 'flex';
-        hablar("Pausa. Respira.");
+        hablar("Pausa. Respira.", () => {});
         let segundos = 10;
         const cuenta = setInterval(() => {
             segundos--;
