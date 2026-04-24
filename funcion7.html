@@ -3,48 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesión 7: Control Inhibitorio Extremo</title>
+    <title>Sesión 7: Control Inhibitorio - REHABILIDIA</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #E3F2FD; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; font-size: 1.2rem; }
+        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
 
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px; }
         
-        .panel-superior { display: flex; width: 95%; max-width: 800px; gap: 15px; margin-bottom: 10px; align-items: stretch; }
+        .panel-superior { display: flex; width: 95%; max-width: 850px; gap: 15px; margin-bottom: 10px; }
         
-        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 4px solid var(--p-purple); flex-grow: 2; font-weight: bold; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 4px solid var(--p-purple); flex-grow: 2; font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; min-height: 80px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-        #reloj-contenedor { background: white; border: 4px solid var(--navy); border-radius: 15px; width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; }
-        #tiempo-texto { font-size: 2rem; color: #ff4d4d; }
+        #reloj-contenedor { background: #FFF; border: 4px solid var(--navy); border-radius: 15px; width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #tiempo-texto { font-size: 2.2rem; color: #D32F2F; font-weight: 900; }
 
         .zona-tokens { 
             display: flex; flex-wrap: wrap; justify-content: center; align-content: center;
-            gap: 15px; width: 95%; max-width: 900px; margin: auto; padding: 20px;
-            background: rgba(255,255,255,0.8); border-radius: 20px; min-height: 400px; border: 2px solid #b0bec5;
+            gap: 20px; width: 95%; max-width: 900px; margin: auto; padding: 30px;
+            background: white; border-radius: 20px; min-height: 420px; border: 2px solid #B0BEC5;
         }
 
         /* Figuras */
         .token { cursor: pointer; transition: transform 0.2s; position: relative; }
         .token:active { transform: scale(0.9); }
         .circulo { border-radius: 50%; }
-        .cuadrado { border-radius: 8px; }
+        .cuadrado { border-radius: 6px; }
         .triangulo { width: 0; height: 0; background: none !important; border-left: solid transparent; border-right: solid transparent; border-bottom: solid; }
         
-        .grande { width: 75px; height: 75px; }
-        .pequeno { width: 40px; height: 40px; }
-        .triangulo.grande { border-left-width: 38px; border-right-width: 38px; border-bottom-width: 75px; }
-        .triangulo.pequeno { border-left-width: 20px; border-right-width: 20px; border-bottom-width: 40px; }
+        .grande { width: 85px; height: 85px; }
+        .pequeno { width: 45px; height: 45px; }
+        .triangulo.grande { border-left-width: 42px; border-right-width: 42px; border-bottom-width: 85px; }
+        .triangulo.pequeno { border-left-width: 22px; border-right-width: 22px; border-bottom-width: 45px; }
 
-        .marcado { filter: grayscale(1) brightness(0.5); opacity: 0.5; pointer-events: none; transform: scale(0.8); }
+        .marcado { filter: grayscale(1) brightness(0.3); opacity: 0.4; pointer-events: none; transform: scale(0.8); }
 
-        /* Overlays */
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 5000; text-align: center; }
         #overlay-nivel { background: var(--p-purple); color: white; }
         #overlay-final { background: var(--navy); color: white; }
         
-        .lvl-grande { font-size: 8rem; margin: 0; color: var(--gold); text-shadow: 4px 4px #000; }
-        .btn-finalizar { background: var(--gold); border: none; padding: 20px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 30px; color: var(--navy); font-size: 1.5rem; }
+        .lvl-banner { font-size: 6rem; font-weight: 900; color: var(--gold); margin: 0; text-shadow: 4px 4px 0px #000; }
+        .btn-ready { background: var(--gold); border: none; padding: 20px 50px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.5rem; color: var(--navy); margin-top: 20px; }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -53,171 +52,178 @@
 
 <div id="contenedor-juego">
     <div class="panel-superior">
-        <div id="panel-instruccion" class="panel-instruccion">Cargando instrucción...</div>
+        <div id="panel-instruccion" class="panel-instruccion">Cargando...</div>
         <div id="reloj-contenedor">
-            <span style="font-size: 0.8rem;">TIEMPO</span>
+            <span style="font-size: 0.7rem; font-weight: 900;">TIEMPO</span>
             <span id="tiempo-texto">10</span>
         </div>
     </div>
-    <div id="status-ronda" style="font-weight: bold; margin: 5px; color: var(--navy);">Ronda 1/3</div>
+    <div id="status-ronda" style="font-weight: bold; margin: 5px; font-size: 1.1rem;"></div>
     <div id="pantalla-juego" class="zona-tokens"></div>
 </div>
 
 <div id="overlay-nivel" class="overlay">
-    <h1 class="lvl-grande" id="lvl-titulo">NIVEL 2</h1>
-    <p id="lvl-mensaje" style="font-size: 2rem;"></p>
+    <h1 class="lvl-banner" id="lvl-titulo">NIVEL 1</h1>
+    <p id="lvl-mensaje" style="font-size: 1.8rem; max-width: 80%;"></p>
+    <button class="btn-ready" onclick="cerrarOverlay()">¡LISTO!</button>
 </div>
 
 <div id="overlay-final" class="overlay">
-    <h1 style="color: var(--gold); font-size: 3.5rem;">RESULTADOS</h1>
-    <div id="resumen-stats" style="font-size: 2rem; line-height: 1.5;"></div>
-    <button class="btn-finalizar" onclick="window.location.reload()">REINTENTAR SESIÓN</button>
+    <h1 style="color: var(--gold); font-size: 3rem;">SESIÓN FINALIZADA</h1>
+    <div id="resumen-stats" style="font-size: 2rem; margin: 20px;"></div>
+    <p style="font-size: 1.4rem; font-style: italic;">"Controlar tus impulsos te hace dueño de tus decisiones."</p>
+    <button class="btn-ready" onclick="window.location.reload()">REPETIR</button>
 </div>
 
 <script>
-    const familiasColores = [
-        { n: "Rojo", c: ["#FF0000", "#FA8072", "#800000"] },
-        { n: "Azul", c: ["#0000FF", "#000080", "#00BFFF"] },
-        { n: "Verde", c: ["#008000", "#98FF98", "#50C878"] },
-        { n: "Amarillo", c: ["#FFFF00", "#FFD700"] },
-        { n: "Morado", c: ["#800080", "#FF00FF", "#C8A2C8"] },
-        { n: "Naranja", c: ["#FFA500", "#FF7F50"] }
+    // Colores Simplificados
+    const colores = [
+        {n: "Amarillo", c: "#FFFF00"}, {n: "Morado", c: "#800080"}, {n: "Azul", c: "#0000FF"},
+        {n: "Rojo", c: "#FF0000"}, {n: "Verde", c: "#008000"}, {n: "Negro", c: "#000000"},
+        {n: "Café", c: "#8B4513"}, {n: "Rosado", c: "#FFC0CB"}, {n: "Naranja", c: "#FFA500"}
     ];
 
     let nivel = 1, ronda = 1;
-    let aciertosTotales = 0, erroresTotales = 0;
-    let objetivosRonda = [];
+    let aciertos = 0, errores = 0;
+    let objetivosActuales = [];
+    let timer = null;
     let segundos = 10;
-    let timerGlobal = null;
+    let inhibicionActiva = false;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 1;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
         window.speechSynthesis.speak(m);
     }
 
     function iniciarSesion() {
-        hablar("Juan, tienes 10 segundos para cada desafío. ¡Mantén el control!");
+        mostrarOverlay("NIVEL 1", "Toca las figuras correctas antes de que se acabe el tiempo.");
+    }
+
+    function mostrarOverlay(tit, msj) {
+        document.getElementById('lvl-titulo').innerText = tit;
+        document.getElementById('lvl-mensaje').innerText = msj;
+        document.getElementById('overlay-nivel').style.display = 'flex';
+        hablar(tit + ". " + msj);
+    }
+
+    function cerrarOverlay() {
+        document.getElementById('overlay-nivel').style.display = 'none';
         cargarRonda();
     }
 
     function cargarRonda() {
-        clearInterval(timerGlobal);
+        clearInterval(timer);
         segundos = 10;
+        inhibicionActiva = false;
         document.getElementById('tiempo-texto').innerText = segundos;
-        document.getElementById('pantalla-juego').innerHTML = "";
-        objetivosRonda = [];
+        const pantalla = document.getElementById('pantalla-juego');
+        pantalla.innerHTML = "";
 
-        let numFiguras = (nivel === 1) ? 12 : (nivel === 2) ? 16 : 20;
+        let numFigs = (nivel === 1) ? 10 : (nivel === 2) ? 14 : 18;
         let pool = [];
 
-        for(let i=0; i<numFiguras; i++) {
-            let fam = familiasColores[Math.floor(Math.random()*familiasColores.length)];
-            let color = fam.c[Math.floor(Math.random()*fam.c.length)];
-            let forma = (nivel === 1) ? (Math.random()>0.5 ? 'circulo':'cuadrado') : (['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)]);
-            let tam = (nivel < 3) ? 'grande' : (Math.random()>0.5 ? 'grande' : 'pequeno');
-            pool.push({id: i, familia: fam.n, color: color, forma: forma, tamano: tam});
+        for(let i=0; i<numFigs; i++){
+            pool.push({
+                id: i,
+                color: colores[Math.floor(Math.random()*colores.length)],
+                forma: (nivel === 1) ? (Math.random() > 0.5 ? 'circulo' : 'cuadrado') : (['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)]),
+                tamano: (nivel < 3) ? 'grande' : (Math.random() > 0.5 ? 'grande' : 'pequeno')
+            });
         }
 
-        let instruccion = document.getElementById('panel-instruccion');
-        let texto = "";
+        let textoRegla = "";
+        let targets = [];
 
         if(nivel === 1) {
-            let f1 = pool[0];
-            let f2 = pool[pool.length-1];
-            texto = `Toca los ${f1.forma}s ${f1.familia}s y los ${f2.forma}s ${f2.familia}s.`;
-            let t1 = pool.filter(f => f.forma === f1.forma && f.familia === f1.familia);
-            let t2 = pool.filter(f => f.forma === f2.forma && f.familia === f2.familia);
-            objetivosRonda = [...new Set([...t1, ...t2])].map(x => x.id);
-        } else if(nivel === 2) {
-            let hayTri = pool.some(f => f.forma === 'triangulo' && f.familia === 'Amarillo');
-            if(hayTri) {
-                texto = "¡HAY TRIÁNGULO AMARILLO! No toques nada.";
-                objetivosRonda = [];
+            let f1 = pool[Math.floor(Math.random()*(numFigs/2))];
+            let f2;
+            do { f2 = pool[Math.floor(Math.random()*(numFigs/2) + numFigs/2)]; } 
+            while (f1.color.n === f2.color.n && f1.forma === f2.forma); // Evitar duplicados
+
+            textoRegla = `Toca los ${f1.forma}s ${f1.color.n}s y los ${f2.forma}s ${f2.color.n}s.`;
+            targets = pool.filter(f => (f.forma === f1.forma && f.color.n === f1.color.n) || (f.forma === f2.forma && f.color.n === f2.color.n));
+        } 
+        else if(nivel === 2) {
+            let hayTriNegro = pool.some(f => f.forma === 'triangulo' && f.color.n === 'Negro');
+            if(hayTriNegro) {
+                textoRegla = "¡HAY TRIÁNGULO NEGRO! No toques nada por 10 segundos.";
+                inhibicionActiva = true;
             } else {
-                texto = "Toca todos los círculos que NO sean rojos.";
-                objetivosRonda = pool.filter(f => f.forma === 'circulo' && f.familia !== 'Rojo').map(x => x.id);
+                textoRegla = "Toca todos los círculos que NO sean verdes.";
+                targets = pool.filter(f => f.forma === 'circulo' && f.color.n !== 'Verde');
             }
-        } else {
-            let fRandom = pool[Math.floor(Math.random()*pool.length)];
-            texto = `Toca solo ${fRandom.tamano === 'grande' ? 'pequeños' : 'grandes'} de color ${fRandom.familia}.`;
-            objetivosRonda = pool.filter(f => f.tamano !== fRandom.tamano && f.familia === fRandom.familia).map(x => x.id);
+        } 
+        else {
+            let hayNaranja = pool.some(f => f.color.n === 'Naranja');
+            if(hayNaranja) {
+                textoRegla = "Si hay algo Naranja, toca solo los cuadrados pequeños.";
+                targets = pool.filter(f => f.forma === 'cuadrado' && f.tamano === 'pequeno');
+            } else {
+                textoRegla = "No hay Naranja: No toques nada.";
+                inhibicionActiva = true;
+            }
         }
 
-        instruccion.innerText = texto;
-        hablar(texto);
-        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Intento ${ronda}/3`;
+        document.getElementById('panel-instruccion').innerText = textoRegla;
+        hablar(textoRegla);
+        objetivosActuales = targets.map(t => t.id);
+        document.getElementById('status-ronda').innerText = `Ronda ${ronda}/3`;
 
         pool.forEach(f => {
             const div = document.createElement('div');
             div.className = `token ${f.forma} ${f.tamano}`;
-            if(f.forma === 'triangulo') div.style.borderBottomColor = f.color;
-            else div.style.backgroundColor = f.color;
+            if(f.forma === 'triangulo') div.style.borderBottomColor = f.color.c;
+            else div.style.backgroundColor = f.color.c;
 
             div.onclick = () => {
-                if(objetivosRonda.includes(f.id)) {
+                if(inhibicionActiva) {
+                    errores++;
+                    hablar("¡Debías esperar!");
+                    avanzar();
+                } else if(objetivosActuales.includes(f.id)) {
                     div.classList.add('marcado');
-                    objetivosRonda = objetivosRonda.filter(id => id !== f.id);
-                    aciertosTotales++;
-                    if(objetivosRonda.length === 0 && texto.indexOf("No toques") === -1) avanzar();
+                    objetivosActuales = objetivosActuales.filter(id => id !== f.id);
+                    aciertos++;
+                    if(objetivosActuales.length === 0) avanzar();
                 } else {
-                    erroresTotales++;
-                    hablar("¡Error!");
-                    div.style.boxShadow = "0 0 20px red";
-                    setTimeout(() => div.style.boxShadow = "none", 300);
+                    errores++;
+                    hablar("Esa no.");
                 }
             };
-            document.getElementById('pantalla-juego').appendChild(div);
+            pantalla.appendChild(div);
         });
 
-        // Iniciar Reloj
-        timerGlobal = setInterval(() => {
+        timer = setInterval(() => {
             segundos--;
             document.getElementById('tiempo-texto').innerText = segundos;
             if(segundos <= 0) {
-                clearInterval(timerGlobal);
-                if(texto.indexOf("No toques") !== -1) {
-                    hablar("¡Excelente control!");
-                    aciertosTotales++;
-                    avanzar();
-                } else {
-                    hablar("¡Tiempo agotado!");
-                    erroresTotales += objetivosRonda.length;
-                    avanzar();
-                }
+                clearInterval(timer);
+                if(inhibicionActiva) { aciertos++; hablar("¡Muy bien!"); }
+                else if(objetivosActuales.length > 0) { errores += objetivosActuales.length; hablar("Se acabó el tiempo."); }
+                avanzar();
             }
         }, 1000);
     }
 
     function avanzar() {
+        clearInterval(timer);
         if(ronda < 3) {
             ronda++;
-            setTimeout(cargarRonda, 1000);
+            setTimeout(cargarRonda, 1500);
         } else if(nivel < 3) {
             nivel++; ronda = 1;
-            mostrarPantallaNivel();
+            let msj = nivel === 2 ? "Ahora aparecen triángulos y reglas de 'si ocurre algo'." : "Tamaños diferentes y máxima atención.";
+            mostrarOverlay("NIVEL " + nivel, msj);
         } else {
             finalizar();
         }
     }
 
-    function mostrarPantallaNivel() {
-        const overlay = document.getElementById('overlay-nivel');
-        document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
-        document.getElementById('lvl-mensaje').innerText = nivel === 2 ? "Atención a las reglas condicionales" : "Máxima velocidad y tamaños";
-        overlay.style.display = 'flex';
-        hablar("Nivel " + nivel);
-        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3000);
-    }
-
     function finalizar() {
-        clearInterval(timerGlobal);
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-stats').innerHTML = `
-            <span style="color: #4CAF50;">Aciertos: ${aciertosTotales}</span><br>
-            <span style="color: #ff4d4d;">Errores: ${erroresTotales}</span>
-        `;
-        hablar("Sesión completada. Controlar tus impulsos te hace dueño de tus decisiones.");
+        document.getElementById('resumen-stats').innerHTML = `Aciertos: <span style="color:#81C784">${aciertos}</span><br>Errores: <span style="color:#E57373">${errores}</span>`;
+        hablar("Sesión terminada Juan. Controlar tus impulsos te hace dueño de tus decisiones.");
     }
 </script>
 </body>
