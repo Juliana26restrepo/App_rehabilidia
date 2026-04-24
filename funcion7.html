@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sesión 7: Control Inhibitorio - Garantía Total</title>
+    <title>Sesión 7: Control Inhibitorio - Versión Final</title>
     <style>
         :root { --p-purple: #4A148C; --bg: #F0F4F8; --gold: #FFD700; --navy: #103A57; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -33,7 +33,7 @@
 
 <div id="contenedor-juego">
     <div class="panel-superior">
-        <div id="panel-instruccion" class="panel-instruccion">Generando reto...</div>
+        <div id="panel-instruccion" class="panel-instruccion">Esperando instrucción...</div>
         <div id="reloj-contenedor">10</div>
     </div>
     <div id="status-ronda" style="font-weight: bold; margin: 5px;"></div>
@@ -63,13 +63,15 @@
     let nivel = 1, ronda = 1, aciertosTotales = 0, erroresTotales = 0;
     let objetivosIds = [], timer = null, segundos = 10, inhibicionActiva = false;
 
-    function hablar(t) {
+    function hablar(t, callback) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES';
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
+        if (callback) m.onend = callback;
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() { mostrarOverlay("NIVEL 1", "Toca las figuras de los colores indicados."); }
+    function iniciarSesion() { mostrarOverlay("NIVEL 1", "Toca las figuras indicadas."); }
 
     function mostrarOverlay(tit, msj) {
         document.getElementById('lvl-titulo').innerText = tit;
@@ -83,18 +85,31 @@
         cargarRonda();
     }
 
-    function cargarRonda() {
-        clearInterval(timer); segundos = 10; inhibicionActiva = false;
+    function iniciarTiempo() {
+        clearInterval(timer);
+        segundos = 10;
         document.getElementById('reloj-contenedor').innerText = segundos;
+        timer = setInterval(() => {
+            segundos--;
+            document.getElementById('reloj-contenedor').innerText = segundos;
+            if(segundos <= 0) {
+                if(inhibicionActiva) aciertosTotales++;
+                else erroresTotales += objetivosIds.length;
+                avanzar();
+            }
+        }, 1000);
+    }
+
+    function cargarRonda() {
+        clearInterval(timer);
         const pantalla = document.getElementById('pantalla-juego');
         pantalla.innerHTML = "";
-        
         let pool = [];
         let numTotal = (nivel === 1) ? 14 : (nivel === 2) ? 20 : 30;
         let maxRondas = (nivel === 3) ? 6 : 3;
         let textoRegla = "";
 
-        // Definición de reglas y garantía de piezas
+        // Nivel 1: Color y Forma
         if(nivel === 1) {
             let fLabel = Math.random() > 0.5 ? "cuadrados" : "círculos";
             let fKey = fLabel === "cuadrados" ? "cuadrado" : "circulo";
@@ -104,6 +119,7 @@
             for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: fKey, color: c1, tamano: 'grande', target: true});
             for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: fKey, color: c2, tamano: 'pequeno', target: true});
         } 
+        // Nivel 2: Condicional e Inhibición
         else if(nivel === 2) {
             if(ronda === 2) {
                 textoRegla = "¡ATENCIÓN! Si hay un triángulo Negro, NO TOQUES NADA.";
@@ -116,6 +132,7 @@
                 for(let i=0; i<4; i++) pool.push({id: Math.random(), forma: 'circulo', color: cAccion, tamano: 'grande', target: true});
             }
         } 
+        // Nivel 3: Mixto
         else {
             let rIdx = ronda % 3;
             if(rIdx === 1) {
@@ -135,39 +152,32 @@
             }
         }
 
-        // Relleno de seguridad
+        // Rellenar tablero
         while(pool.length < numTotal) {
             pool.push({id: Math.random(), forma: ['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)], color: colores[Math.floor(Math.random()*colores.length)], tamano: Math.random() > 0.5 ? 'grande' : 'pequeno', target: false});
         }
 
-        // RE-VALIDACIÓN CRÍTICA: Marcar como target CUALQUIER pieza que cumpla la regla visual
+        // ESCANEO DE SEGURIDAD: Validar cada pieza contra la regla
         pool.forEach(p => {
             if(nivel === 1) {
                 let fLabel = textoRegla.includes("cuadrados") ? "cuadrado" : "circulo";
-                let parts = textoRegla.split(" ");
-                let color1 = parts[2].replace("s","");
-                let color2 = parts[6].replace("s.","").replace("s","");
-                if(p.forma === fLabel && (p.color.n === color1 || p.color.n === color2)) p.target = true;
+                if(p.forma === fLabel && (textoRegla.includes(p.color.n))) p.target = true;
             } else if(nivel === 2 && !inhibicionActiva) {
-                let parts = textoRegla.split(" ");
-                let colorAcc = parts[parts.length-1].replace("s.","");
+                let colorAcc = textoRegla.split(" ").pop().replace("s.","");
                 if(p.forma === 'circulo' && p.color.n === colorAcc) p.target = true;
             } else if(nivel === 3 && !inhibicionActiva) {
                 if(textoRegla.includes("verdes GRANDES")) {
-                   if((p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || 
-                      (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno') || 
-                      (p.forma==='triangulo' && p.color.n==='Amarillo')) p.target = true;
+                   if((p.forma==='cuadrado' && p.color.n==='Verde' && p.tamano==='grande') || (p.forma==='circulo' && p.color.n==='Naranja' && p.tamano==='pequeno') || (p.forma==='triangulo' && p.color.n==='Amarillo')) p.target = true;
                 } else {
-                   if((p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || 
-                      (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande')) p.target = true;
+                   if((p.forma==='triangulo' && p.color.n==='Rosado' && p.tamano==='pequeno') || (p.forma==='cuadrado' && p.color.n==='Negro' && p.tamano==='grande')) p.target = true;
                 }
             }
         });
 
         pool.sort(() => Math.random() - 0.5);
         objetivosIds = pool.filter(p => p.target).map(p => p.id);
+        
         document.getElementById('panel-instruccion').innerText = textoRegla;
-        hablar(textoRegla);
         document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Intento ${ronda}/${maxRondas}`;
 
         pool.forEach(f => {
@@ -175,41 +185,30 @@
             div.className = `token ${f.forma} ${f.tamano}`;
             if(f.forma === 'triangulo') div.style.borderBottomColor = f.color.c;
             else div.style.backgroundColor = f.color.c;
-
             div.onclick = () => {
                 if(inhibicionActiva) {
                     if(nivel === 2 || (nivel === 3 && f.color.n === 'Verde')) {
                         erroresTotales++; hablar("¡No debías tocar!"); avanzar();
-                    } else {
-                        div.classList.add('marcado');
-                    }
+                    } else { div.classList.add('marcado'); }
                 } else if(objetivosIds.includes(f.id)) {
                     div.classList.add('marcado');
                     objetivosIds = objetivosIds.filter(id => id !== f.id);
                     aciertosTotales++;
                     if(objetivosIds.length === 0) avanzar();
-                } else {
-                    erroresTotales++; hablar("Esa no.");
-                }
+                } else { erroresTotales++; hablar("Esa no."); }
             };
             pantalla.appendChild(div);
         });
 
-        timer = setInterval(() => {
-            segundos--; document.getElementById('reloj-contenedor').innerText = segundos;
-            if(segundos <= 0) {
-                if(inhibicionActiva) aciertosTotales++;
-                else erroresTotales += objetivosIds.length;
-                avanzar();
-            }
-        }, 1000);
+        // REGLA DE TIEMPO: Hablar primero, cronómetro después
+        hablar(textoRegla, iniciarTiempo);
     }
 
     function avanzar() {
         clearInterval(timer);
         let maxRondas = (nivel === 3) ? 6 : 3;
         if(ronda < maxRondas) { ronda++; setTimeout(cargarRonda, 1000); }
-        else if(nivel < 3) { nivel++; ronda = 1; mostrarOverlay("NIVEL " + nivel, "Nuevas reglas."); }
+        else if(nivel < 3) { nivel++; ronda = 1; mostrarOverlay("NIVEL " + nivel, "Siguiente fase."); }
         else { finalizar(); }
     }
 
