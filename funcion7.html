@@ -118,9 +118,10 @@
         else {
             let rIdx = ronda % 3;
             if(rIdx === 1) {
-                textoRegla = "Toca los cuadrados verdes GRANDES y los círculos naranjas PEQUEÑOS.";
+                textoRegla = "Toca los cuadrados verdes GRANDES, círculos naranjas PEQUEÑOS y triángulos amarillos.";
                 for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Verde'), tamano: 'grande', target: true});
                 for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'circulo', color: colores.find(c=>c.n==='Naranja'), tamano: 'pequeno', target: true});
+                for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'triangulo', color: colores.find(c=>c.n==='Amarillo'), tamano: 'grande', target: true});
             } else if(rIdx === 2) {
                 textoRegla = "Si hay triángulos azules, NO TOQUES los círculos verdes.";
                 pool.push({id: 97, forma: 'triangulo', color: colores.find(c=>c.n==='Azul'), tamano: 'grande', target: false});
@@ -193,3 +194,4 @@
 </script>
 </body>
 </html>
+
