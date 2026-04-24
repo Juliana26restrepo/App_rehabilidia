@@ -1,1 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sesión 8: Planificación Maestra - 30 Laberintos</title>
+    <style>
+        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --wall: #37474F; --path: #FFFFFF; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; font-size: 1.2rem; }
+        
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+        
+        .stats-bar { display: flex; gap: 20px; margin-bottom: 10px; font-weight: bold; background: white; padding: 10px 25px; border-radius: 50px; border: 2px solid var(--navy); }
+        
+        #canvas-contenedor { position: relative; background: var(--wall); padding: 8px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        canvas { display: block; background: var(--path); border-radius: 4px; }
+
+        .controles { margin-top: 15px; display: grid; grid-template-areas: ". up ." "left down right"; gap: 8px; }
+        .btn-dir { width: 55px; height: 55px; background: white; border: 3px solid var(--navy); border-radius: 50%; font-size: 1.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-dir:active { background: var(--gold); transform: scale(0.9); }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+        .btn-ready { background: var(--gold); border: none; padding: 18px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.3rem; color: var(--navy); margin-top: 25px; }
+    </style>
+</head>
+<body>
+
+<header>SESIÓN 8: BANCO DE PLANIFICACIÓN COGNITIVA</header>
+
+<div id="contenedor-juego">
+    <div class="stats-bar">
+        <span id="txt-nivel">Nivel: 1</span>
+        <span id="txt-intento">Intento: 1 / 3</span>
+    </div>
+
+    <div id="canvas-contenedor">
+        <canvas id="laberintoCanvas"></canvas>
+    </div>
+
+    <div class="controles">
+        <button class="btn-dir" style="grid-area: up" onclick="mover('up')">↑</button>
+        <button class="btn-dir" style="grid-area: left" onclick="mover('left')">←</button>
+        <button class="btn-dir" style="grid-area: down" onclick="mover('down')">↓</button>
+        <button class="btn-dir" style="grid-area: right" onclick="mover('right')">→</button>
+    </div>
+</div>
+
+<div id="overlay-msg" class="overlay">
+    <h1 id="msg-titulo" style="color: var(--gold); font-size: 2.5rem;"></h1>
+    <p id="msg-cuerpo" style="font-size: 1.5rem; max-width: 80%; line-height: 1.4;"></p>
+    <button class="btn-ready" id="btn-accion" onclick="cerrarOverlay()">¡ENTENDIDO!</button>
+</div>
+
+<script>
+    const canvas = document.getElementById('laberintoCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let nivel = 1;
+    let intento = 1;
+    let jugador = { x: 1, y: 1 };
+    let mapa = [];
+    let tamañoCelda;
+    let filas, columnas;
+    let tieneLlave = false;
+
+    function hablar(t) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
+        window.speechSynthesis.speak(m);
+    }
+
+    function mostrarOverlay(tit, msj, botonTxt = "EMPEZAR") {
+        document.getElementById('msg-titulo').innerText = tit;
+        document.getElementById('msg-cuerpo').innerText = msj;
+        document.getElementById('btn-accion').innerText = botonTxt;
+        document.getElementById('overlay-msg').style.display = 'flex';
+        hablar(tit + ". " + msj);
+    }
+
+    function cerrarOverlay() {
+        if (document.getElementById('btn-accion').innerText === "REPETIR") {
+            window.location.reload();
+            return;
+        }
+        document.getElementById('overlay-msg').style.display = 'none';
+        generarNuevoLaberinto();
+    }
+
+    function generarNuevoLaberinto() {
+        // Configuración por nivel
+        if(nivel === 1) { filas = 9; columnas = 9; tamañoCelda = 45; }
+        else if(nivel === 2) { filas = 13; columnas = 13; tamañoCelda = 32; }
+        else { filas = 17; columnas = 17; tamañoCelda = 25; }
+
+        canvas.width = columnas * tamañoCelda;
+        canvas.height = filas * tamañoCelda;
+        tieneLlave = (nivel < 3); // En nivel 3 empieza en false
+
+        // Crear matriz llena de paredes (1)
+        mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
+
+        // Algoritmo de excavación simple para asegurar camino
+        function excavar(x, y) {
+            mapa[y][x] = 0;
+            const dirs = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
+            dirs.forEach(([dx, dy]) => {
+                let nx = x + dx, ny = y + dy;
+                if(nx > 0 && nx < columnas-1 && ny > 0 && ny < filas-1 && mapa[ny][nx] === 1) {
+                    mapa[y + dy/2][x + dx/2] = 0;
+                    excavar(nx, ny);
+                }
+            });
+        }
+        excavar(1, 1);
+
+        // Colocar Meta (2)
+        mapa[filas-2][columnas-2] = 2;
+
+        // Colocar Llave (3) en nivel 3
+        if(nivel === 3) {
+            mapa[1][columnas-2] = 3;
+        }
+
+        jugador = { x: 1, y: 1 };
+        actualizarUI();
+        dibujar();
+    }
+
+    function actualizarUI() {
+        document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
+        document.getElementById('txt-intento').innerText = `Intento: ${intento} / 3`;
+    }
+
+    function dibujar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for(let r=0; r<filas; r++) {
+            for(let c=0; c<columnas; c++) {
+                if(mapa[r][c] === 1) {
+                    ctx.fillStyle = "#37474F"; 
+                    ctx.fillRect(c*tamañoCelda, r*tamañoCelda, tamañoCelda, tamañoCelda);
+                } else if(mapa[r][c] === 2) {
+                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#BDBDBD"; // Meta activa o inactiva
+                    ctx.fillRect(c*tamañoCelda, r*tamañoCelda, tamañoCelda, tamañoCelda);
+                } else if(mapa[r][c] === 3) {
+                    ctx.fillStyle = "#FFD700"; // Llave
+                    ctx.beginPath();
+                    ctx.arc(c*tamañoCelda + tamañoCelda/2, r*tamañoCelda + tamañoCelda/2, tamañoCelda/3, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+        }
+        // Jugador
+        ctx.fillStyle = "#103A57";
+        ctx.beginPath();
+        ctx.arc(jugador.x*tamañoCelda + tamañoCelda/2, jugador.y*tamañoCelda + tamañoCelda/2, tamañoCelda/2.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function mover(dir) {
+        let nx = jugador.x, ny = jugador.y;
+        if(dir === 'up') ny--;
+        if(dir === 'down') ny++;
+        if(dir === 'left') nx--;
+        if(dir === 'right') nx++;
+
+        if(mapa[ny][nx] !== 1) {
+            if(mapa[ny][nx] === 3) {
+                tieneLlave = true;
+                mapa[ny][nx] = 0;
+                hablar("¡Llave conseguida! Ahora ve a la meta.");
+            }
+            
+            if(mapa[ny][nx] === 2) {
+                if(!tieneLlave) {
+                    hablar("Primero debes recoger la llave dorada.");
+                    return;
+                }
+                gestionarVictoria();
+                return;
+            }
+
+            jugador.x = nx;
+            jugador.y = ny;
+            dibujar();
+        }
+    }
+
+    function gestionarVictoria() {
+        if(intento < 3) {
+            intento++;
+            hablar("¡Muy bien! Vamos al siguiente intento.");
+            generarNuevoLaberinto();
+        } else if(nivel < 3) {
+            nivel++;
+            intento = 1;
+            let msg = nivel === 2 ? "Ahora los caminos son más confusos." : "Nivel máximo: Debes recoger la llave dorada antes de ir a la meta.";
+            mostrarOverlay(`¡NIVEL ${nivel-1} SUPERADO!`, msg);
+        } else {
+            mostrarOverlay("SESIÓN COMPLETADA", "Actualizar tu mente te ayudará a tener el control.", "REPETIR");
+        }
+    }
+
+    // Teclado
+    window.addEventListener('keydown', (e) => {
+        if(e.key.includes("Arrow")) mover(e.key.replace("Arrow","").toLowerCase());
+    });
+
+    window.onload = () => {
+        mostrarOverlay("PLANIFICACIÓN", "Observa el laberinto y decide tu ruta. Evita movimientos impulsivos. Debes completar 3 laberintos por nivel.");
+    };
+</script>
+</body>
+</html>
 
