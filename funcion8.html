@@ -30,7 +30,7 @@
 
 <div class="stats-bar">
     <span id="txt-nivel">Nivel: 1</span>
-    <span id="txt-intento">Laberinto: 1 / 10</span>
+    <span id="txt-intento">Laberinto: 1 / 3</span>
 </div>
 
 <div id="zona-de-trabajo">
@@ -46,7 +46,6 @@
             <button class="btn-dir" style="grid-area: down" onmousedown="mover('down')" ontouchstart="mover('down')">↓</button>
             <button class="btn-dir" style="grid-area: right" onmousedown="mover('right')" ontouchstart="mover('right')">→</button>
         </div>
-        <p style="font-size:0.7rem; margin-top:15px; color:#666; text-align:center;">Usa teclado, pantalla<br>o desliza el dedo</p>
     </div>
 </div>
 
@@ -91,6 +90,8 @@
 
         canvas.width = columnas * tamañoCelda;
         canvas.height = filas * tamañoCelda;
+        
+        // En nivel 1 y 2 no hace falta llave, en nivel 3 sí
         tieneLlave = (nivel < 3);
 
         mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
@@ -110,19 +111,16 @@
         }
         excavar(1, 1);
 
-        // Meta fija en la esquina inferior
         mapa[filas-2][columnas-2] = 2; 
 
-        // COLOCACIÓN SEGURA DEL PUNTO DORADO (Nivel 3)
-        // Elegimos una celda del camino ya excavado que esté lejos del inicio
         if(nivel === 3) {
-            let puntoValido = celdasVisitadas[Math.floor(celdasVisitadas.length * 0.7)]; // 70% de distancia del inicio
+            let puntoValido = celdasVisitadas[Math.floor(celdasVisitadas.length * 0.7)]; 
             mapa[puntoValido.y][puntoValido.x] = 3;
         }
 
         jugador = { x: 1, y: 1 };
         document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
-        document.getElementById('txt-intento').innerText = `Laberinto: ${intento} / 10`;
+        document.getElementById('txt-intento').innerText = `Laberinto: ${intento} / 3`;
         dibujar();
     }
 
@@ -157,10 +155,10 @@
         if(ny >= 0 && ny < filas && nx >= 0 && nx < columnas && mapa[ny][nx] !== 1) {
             if(mapa[ny][nx] === 3) {
                 tieneLlave = true; mapa[ny][nx] = 0;
-                hablar("¡Bolita dorada recogida! Ahora ve a la meta.");
+                hablar("¡Punto dorado recogido!");
             }
             if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { hablar("Antes de ir a la meta, coge el punto dorado."); return; }
+                if(!tieneLlave) { hablar("Coge el punto dorado primero."); return; }
                 gestionarVictoria(); return;
             }
             jugador.x = nx; jugador.y = ny; dibujar();
@@ -168,18 +166,17 @@
     }
 
     function gestionarVictoria() {
-        if(intento < 10) {
-            intento++; hablar("¡Excelente!"); generarNuevoLaberinto();
+        if(intento < 3) {
+            intento++; hablar("¡Muy bien!"); generarNuevoLaberinto();
         } else if(nivel < 3) {
             nivel++; intento = 1;
-            let m = nivel === 3 ? "NIVEL FINAL: Coge el punto dorado antes de ir a la meta." : "Nivel superado. Aumentando complejidad visual.";
+            let m = nivel === 3 ? "NIVEL FINAL: Debes recoger el punto dorado para abrir la meta." : "Nivel superado. El laberinto es ahora más grande.";
             mostrarOverlay(`NIVEL ${nivel-1} COMPLETADO`, m);
         } else {
-            mostrarOverlay("¡REHABILITACIÓN EXITOSA!", "Has completado todos los desafíos de planificación.");
+            mostrarOverlay("¡SESIÓN FINALIZADA!", "Has completado con éxito todos los laberintos de planificación.");
         }
     }
 
-    // TECLADO
     window.addEventListener('keydown', (e) => {
         if(e.key === "ArrowUp") mover('up');
         if(e.key === "ArrowDown") mover('down');
@@ -187,18 +184,8 @@
         if(e.key === "ArrowRight") mover('right');
     });
 
-    // SWIPE (Dedo)
-    let touchX = 0, touchY = 0;
-    canvas.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; e.preventDefault(); }, {passive: false});
-    canvas.addEventListener('touchend', e => {
-        let dx = e.changedTouches[0].clientX - touchX;
-        let dy = e.changedTouches[0].clientY - touchY;
-        if(Math.abs(dx) > Math.abs(dy)) { if(Math.abs(dx)>10) mover(dx > 0 ? 'right' : 'left'); }
-        else { if(Math.abs(dy)>10) mover(dy > 0 ? 'down' : 'up'); }
-    }, false);
-
     window.onload = () => {
-        mostrarOverlay("SESIÓN 8: PLANIFICACIÓN", "Supera 10 laberintos por nivel. En el nivel 3, el punto dorado es obligatorio.");
+        mostrarOverlay("SESIÓN 8: PLANIFICACIÓN", "Supera 3 laberintos por nivel para completar la sesión.");
     };
 </script>
 </body>
