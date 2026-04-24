@@ -14,7 +14,7 @@
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
-            overflow: hidden; /* Prohibido el scroll */
+            overflow: hidden; 
         }
 
         header { background: var(--navy); color: white; padding: 10px; font-weight: bold; text-align: center; flex-shrink: 0; }
@@ -31,30 +31,28 @@
             font-size: 0.9rem;
         }
 
-        /* Contenedor principal centrado */
         #zona-juego { 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            justify-content: center; /* Centra el bloque de cartas verticalmente */
+            justify-content: center; 
             padding: 5px;
         }
 
         #feedback { font-size: 1.8rem; font-weight: 900; height: 35px; margin-bottom: 5px; }
 
-        /* Agrupamos las cartas para que se muevan juntas */
         .tablero-central {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px; /* Espacio mínimo entre referencias y objetivo */
+            gap: 10px; 
         }
 
         .contenedor-referencia { display: flex; gap: 10px; justify-content: center; }
 
         .carta { 
-            width: 15vh; /* Tamaño basado en el alto de la pantalla */
+            width: 15vh; 
             height: 22vh; 
             max-width: 90px;
             max-height: 130px;
@@ -127,8 +125,8 @@
 
 <div id="overlay-msg" class="overlay">
     <h1 id="msg-titulo" style="color: var(--gold);"></h1>
-    <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 600px;"></p>
-    <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
+    <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 650px; line-height: 1.5;"></p>
+    <button class="btn-ready" onclick="cerrarOverlay()">ENTENDIDO</button>
 </div>
 
 <script>
@@ -241,19 +239,19 @@
         if(ronda < 3) {
             ronda++;
             document.getElementById('txt-ronda').innerText = ronda;
-            mostrarOverlay(`EJERCICIO ${ronda}`, `Logra 10 aciertos.`);
+            mostrarOverlay(`EJERCICIO ${ronda}`, `Excelente. Has completado el ejercicio anterior. Logra 10 aciertos más.`);
         } else if(nivel < 3) {
             nivel++; ronda = 1;
             document.getElementById('txt-nivel').innerText = nivel;
             document.getElementById('txt-ronda').innerText = "1";
-            mostrarOverlay(`NIVEL ${nivel}`, `Subiendo dificultad.`);
+            mostrarOverlay(`NIVEL ${nivel}`, `Subiendo dificultad. La regla podría cambiar al fallar.`);
         } else {
-            mostrarOverlay("FINALIZADO", "¡Excelente trabajo!");
+            mostrarOverlay("PROTOCOLO FINALIZADO", "¡Excelente trabajo! Has demostrado una gran capacidad de adaptación.");
         }
     }
 
     window.onload = () => {
-        mostrarOverlay("PROTOCOLO FINAL", "Logra 10 aciertos por ejercicio. ¡Descubre la regla!");
+        mostrarOverlay("BIENVENIDO AL DESAFÍO", "Para comenzar, observa la tarjeta central con borde dorado. Tu objetivo es seleccionar una de las cuatro tarjetas de arriba que creas que coincide con ella. ¡Atención! La regla de coincidencia puede ser el color, la forma o la cantidad de figuras. Debes lograr 10 aciertos en cada ejercicio para avanzar.");
     };
 </script>
 </body>
