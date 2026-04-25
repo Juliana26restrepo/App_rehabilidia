@@ -22,7 +22,6 @@
 
         .controls { width: 450px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
         
-        /* Lista de pasos agregados */
         #route-list { 
             min-height: 100px; max-height: 200px; overflow-y: auto; 
             background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 10px; 
@@ -113,7 +112,7 @@
     let lvl = 1, ex = 1, active = false;
     let pos = {x: 0, y: 0}, cSize = 0;
     let targetMet = false;
-    let program = []; // Aquí guardamos los pasos: {dir: 'der', n: 5}
+    let program = []; 
     let tmpVals = { arr: 1, aba: 1, izq: 1, der: 1 };
 
     const CONFIG = {
@@ -133,6 +132,14 @@
             {h:[1,1], g:[14,14], w:[[4,4],[8,8],[12,8]]}
         ]}
     };
+
+    // --- FUNCIÓN DE VOZ ---
+    function speak(texto) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(texto);
+        msg.lang = 'es-ES';
+        window.speechSynthesis.speak(msg);
+    }
 
     function mod(dir, delta) {
         tmpVals[dir] = Math.max(1, Math.min(15, tmpVals[dir] + delta));
@@ -181,6 +188,7 @@
         pos = {x:0, y:0};
         targetMet = false;
         renderMoto();
+        speak(`Nivel ${lvl}, ejercicio ${ex}. Planifica tu ruta pasando por la casa antes de la meta.`);
     }
 
     function renderMoto() {
@@ -204,22 +212,29 @@
                 let ny = pos.y + d.y;
 
                 if(nx < 0 || nx >= c.size || ny < 0 || ny >= c.size || e.w.some(w => w[0]===nx && w[1]===ny)) {
+                    speak("¡Has chocado! Volviendo al inicio.");
                     alert("¡CHOCASTE! Reintentando desde el inicio...");
                     resetCurrent();
                     return;
                 }
 
                 pos.x = nx; pos.y = ny;
-                if(pos.x === e.h[0] && pos.y === e.h[1]) targetMet = true;
+                if(pos.x === e.h[0] && pos.y === e.h[1]) {
+                    targetMet = true;
+                    speak("Casa alcanzada.");
+                }
                 renderMoto();
                 await new Promise(r => setTimeout(r, 300));
             }
         }
 
         if(pos.x === e.g[0] && pos.y === e.g[1] && targetMet) {
+            speak("¡Excelente trabajo! Ejercicio completado.");
             alert("¡EXCELENTE! Pasamos al siguiente.");
             next();
         } else {
+            if(!targetMet) speak("Llegaste a la meta, pero olvidaste pasar por la casa.");
+            else speak("No lograste llegar a la meta.");
             alert(targetMet ? "No llegaste a la meta." : "Olvidaste la casa.");
             resetCurrent();
         }
@@ -236,11 +251,16 @@
         program = [];
         updateRouteUI();
         resetCurrent();
+        speak("Ruta borrada.");
     }
 
     function next() {
         if(ex < 3) ex++; else { lvl++; ex=1; }
-        if(lvl > 3) { alert("¡PROTOCOL COMPLETO!"); return; }
+        if(lvl > 3) { 
+            speak("¡Felicidades! Has completado todo el protocolo de rehabilitación.");
+            alert("¡PROTOCOL COMPLETO!"); 
+            return; 
+        }
         document.getElementById('lvl-txt').innerText = lvl;
         document.getElementById('ex-txt').innerText = ex;
         document.getElementById('size-txt').innerText = `${CONFIG[lvl].size}x${CONFIG[lvl].size}`;
