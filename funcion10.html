@@ -2,213 +2,206 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Pro: Entrenamiento de Planificación</title>
+    <title>Motoruta: Entrenamiento de Planificación</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; color: #333; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        header { background: #1e3a8a; color: white; width: 100%; padding: 15px; text-align: center; font-weight: bold; font-size: 1.4rem; }
-        .info-bar { background: #fff; width: 100%; display: flex; justify-content: center; gap: 50px; padding: 10px; border-bottom: 2px solid #cbd5e1; font-weight: bold; color: #1e3a8a; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        header { background: #1e3a8a; color: white; width: 100%; padding: 15px; text-align: center; font-weight: bold; font-size: 1.5rem; }
+        .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 40px; padding: 10px; border-bottom: 2px solid #cbd5e1; font-weight: bold; color: #1e3a8a; }
         
-        .main-layout { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 30px; padding: 30px; width: 100%; max-width: 1200px; }
+        .main-container { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 30px; padding: 30px; width: 95%; max-width: 1200px; }
         
-        /* Tablero a la Izquierda */
-        #canvas-container { position: relative; border: 6px solid #1e3a8a; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        /* Tablero */
+        #game-view { position: relative; border: 6px solid #1e3a8a; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         #grid { display: grid; gap: 1px; background: #cbd5e1; }
         .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .wall { background: #334155 !important; }
         .goal { background: #fef08a !important; border: 2px solid #eab308; }
-        .checkpoint { background: #dbeafe !important; border: 2px dashed #3b82f6; }
+        .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
         
         #moto { 
-            position: absolute; z-index: 100; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; z-index: 100; transition: all 0.3s ease-in-out;
             display: flex; align-items: center; justify-content: center; pointer-events: none;
         }
 
-        /* Panel de Controles a la Derecha */
-        .side-panel { width: 380px; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .route-box { min-height: 100px; border: 2px dashed #cbd5e1; background: #f8fafc; margin-bottom: 20px; padding: 15px; display: flex; flex-wrap: wrap; gap: 8px; border-radius: 8px; align-content: flex-start; }
-        .arrow-tag { background: #1e3a8a; color: white; padding: 8px; border-radius: 6px; font-weight: bold; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+        /* Panel de Controles (Derecha) */
+        .controls-panel { width: 380px; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .route-display { min-height: 100px; border: 2px dashed #cbd5e1; background: #f8fafc; margin-bottom: 20px; padding: 15px; display: flex; flex-wrap: wrap; gap: 8px; border-radius: 8px; }
+        .arrow-box { background: #1e3a8a; color: white; padding: 8px; border-radius: 6px; font-weight: bold; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
 
-        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         button { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
-        .btn-move { background: #f1f5f9; color: #1e3a8a; border: 2px solid #e2e8f0; }
-        .btn-move:hover { background: #e2e8f0; }
-        .btn-go { background: #22c55e; color: white; grid-column: span 2; font-size: 1.2rem; border-bottom: 4px solid #16a34a; margin-top: 10px; }
-        .btn-go:active { border-bottom: 0; transform: translateY(4px); }
-        .btn-reset { background: #ef4444; color: white; grid-column: span 2; }
+        .b-move { background: #f1f5f9; color: #1e3a8a; border: 2px solid #e2e8f0; }
+        .b-go { background: #22c55e; color: white; grid-column: span 2; font-size: 1.2rem; border-bottom: 4px solid #16a34a; margin-top: 10px; }
+        .b-go:active { border-bottom: 0; transform: translateY(4px); }
+        .b-reset { background: #ef4444; color: white; grid-column: span 2; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA: ENTRENAMIENTO DE PLANIFICACIÓN</header>
-<div class="info-bar">
-    <span>NIVEL: <span id="txt-lvl">1</span>/3</span>
-    <span>EJERCICIO: <span id="txt-ex">1</span>/3</span>
+<header>MOTORUTA: DESAFÍO DE PLANIFICACIÓN</header>
+<div class="stats">
+    <span>NIVEL: <span id="v-lvl">1</span>/3</span>
+    <span>EJERCICIO: <span id="v-ex">1</span>/3</span>
 </div>
 
-<div class="main-layout">
-    <div id="canvas-container">
+<div class="main-container">
+    <div id="game-view">
         <div id="moto">🏍️</div>
         <div id="grid"></div>
     </div>
 
-    <div class="side-panel">
-        <p style="margin-top:0; font-weight:bold; color:#64748b;">Tu Ruta:</p>
-        <div id="route-box" class="route-box"></div>
+    <div class="controls-panel">
+        <p style="margin: 0 0 10px 0; font-weight: bold; color: #64748b;">Tu Ruta Programada:</p>
+        <div id="route-display" class="route-display"></div>
         
-        <div class="controls-grid">
-            <button class="btn-move" onclick="addMove('ARRIBA')">↑ SUBIR</button>
-            <button class="btn-move" onclick="addMove('BAJAR')">↓ BAJAR</button>
-            <button class="btn-move" onclick="addMove('IZQUIERDA')">← IZQ</button>
-            <button class="btn-move" onclick="addMove('DERECHA')">→ DER</button>
-            <button class="btn-go" onclick="startEngine()">ARRANCAR MOTO 🏍️</button>
-            <button class="btn-reset" onclick="resetAll()">BORRAR RUTA</button>
+        <div class="btn-grid">
+            <button class="b-move" onclick="push('SUBIR')">↑ SUBIR</button>
+            <button class="b-move" onclick="push('BAJAR')">⬇ BAJAR</button>
+            <button class="b-move" onclick="push('IZQUIERDA')">⬅ IZQ</button>
+            <button class="b-move" onclick="push('DERECHA')">➡ DER</button>
+            <button class="b-go" onclick="startRace()">ARRANCAR MOTO 🏍️</button>
+            <button class="b-reset" onclick="clean()">BORRAR RUTA</button>
         </div>
     </div>
 </div>
 
 <script>
-    let lvl = 1, ex = 1, moves = [], active = false;
-    let currentPos = {x: 0, y: 0}, tileSize = 60;
-    let hasPoint = false;
+    let lvl = 1, ex = 1, moves = [], racing = false;
+    let pos = {x: 0, y: 0}, tSize = 60;
+    let houseFound = false;
 
-    // Base de datos de 9 ejercicios (3 por nivel)
-    const WORLD = {
+    const DATA = {
         1: [
-            { s: 5, w: [[1,1],[1,2],[3,2],[3,3]], st:[0,0], g:[4,4], h:[4,0], msg: "Bienvenido. Primero pasa por la casa y luego a la meta." },
-            { s: 5, w: [[2,0],[2,1],[2,2],[2,4]], st:[0,0], g:[4,0], h:[3,3], msg: "Rodea el obstáculo, visita la casa y llega al final." },
-            { s: 6, w: [[1,1],[2,1],[3,1],[4,1],[1,4],[2,4],[3,4]], st:[0,0], g:[5,5], h:[5,0], msg: "Calcula bien la ruta por el pasillo hacia la casa." }
+            { s: 5, w: [[1,1],[1,2],[3,2],[3,3]], st:[0,0], g:[4,4], h:[4,0], t: "Pasa por la casa y luego a la meta." },
+            { s: 5, w: [[2,0],[2,1],[2,2]], st:[0,0], g:[4,0], h:[3,3], t: "Rodea el muro, visita la casa y llega al final." },
+            { s: 6, w: [[1,1],[2,1],[3,1],[4,1]], st:[0,0], g:[5,5], h:[5,0], t: "Busca la casa antes de la bandera." }
         ],
         2: [
-            { s: 7, w: [[1,1],[1,2],[1,3],[1,4],[3,1],[4,1],[5,1],[6,1],[3,6],[4,6],[5,6]], st:[0,0], g:[6,0], h:[4,3], msg: "Nivel 2. Laberinto en 'U'. No olvides la casa." },
-            { s: 7, w: [[0,2],[1,2],[2,2],[4,2],[5,2],[6,2],[2,4],[3,4],[4,4]], st:[0,0], g:[3,3], h:[6,6], msg: "Esquiva los muros centrales para llegar a la casa." },
-            { s: 8, w: [[1,1],[3,3],[5,5],[7,7],[1,6],[6,1]], st:[0,0], g:[7,0], h:[4,4], msg: "Dificultad media. Planifica cada giro con cuidado." }
+            { s: 7, w: [[1,1],[1,2],[1,3],[1,4],[3,1],[4,1],[5,1]], st:[0,0], g:[6,0], h:[4,3], t: "Nivel 2: Ruta larga. No olvides la casa." },
+            { s: 7, w: [[0,2],[1,2],[2,2],[4,2],[5,2],[6,2]], st:[0,0], g:[3,3], h:[6,6], t: "Cruza con cuidado hacia la casa." },
+            { s: 8, w: [[1,1],[3,3],[5,5],[1,6],[6,1]], st:[0,0], g:[7,0], h:[4,4], t: "Esquiva los pilares y toca la casa." }
         ],
         3: [
-            { s: 10, w: [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9]], st:[0,0], g:[9,9], h:[2,5], msg: "Nivel experto. Pasillos estrechos. Busca la casa." },
-            { s: 10, w: [[0,2],[1,2],[2,2],[3,2],[4,2],[6,2],[7,2],[8,2],[9,2],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9]], st:[0,0], g:[9,0], h:[0,9], msg: "Máxima precisión requerida para este laberinto." },
-            { s: 12, w: [[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10],[1,11],[11,1]], st:[0,0], g:[6,5], h:[11,11], msg: "RETO FINAL. Cruza todo el tablero pasando por la casa." }
+            { s: 10, w: [[1,0],[1,1],[1,2],[1,3],[1,4],[3,1],[3,2],[3,3],[3,4]], st:[0,0], g:[9,9], h:[2,5], t: "Nivel Experto: Pasillos estrechos. Busca la casa." },
+            { s: 10, w: [[0,2],[1,2],[2,2],[5,4],[5,5],[5,6]], st:[0,0], g:[9,0], h:[0,9], t: "Máxima precisión. Pasa por la casa." },
+            { s: 12, w: [[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]], st:[0,0], g:[6,5], h:[11,11], t: "RETO FINAL: Atraviesa todo el tablero." }
         ]
     };
 
-    function talk(txt) {
+    function talk(msg) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(txt);
-        utterance.lang = 'es-ES';
-        window.speechSynthesis.speak(utterance);
+        const u = new SpeechSynthesisUtterance(msg);
+        u.lang = 'es-ES';
+        window.speechSynthesis.speak(u);
     }
 
-    function buildMap() {
-        const conf = WORLD[lvl][ex-1];
+    function draw() {
+        const conf = DATA[lvl][ex-1];
         const grid = document.getElementById('grid');
-        tileSize = conf.s > 8 ? 45 : 60;
+        tSize = conf.s > 8 ? 45 : 60;
         
-        grid.style.gridTemplateColumns = `repeat(${conf.s}, ${tileSize}px)`;
+        grid.style.gridTemplateColumns = `repeat(${conf.s}, ${tSize}px)`;
         grid.innerHTML = '';
         
         for(let y=0; y<conf.s; y++) {
             for(let x=0; x<conf.s; x++) {
                 const c = document.createElement('div');
                 c.className = 'cell';
-                c.style.width = tileSize + 'px';
-                c.style.height = tileSize + 'px';
-                
+                c.style.width = tSize + 'px';
+                c.style.height = tSize + 'px';
                 if (conf.w.some(w => w[0] === x && w[1] === y)) c.classList.add('wall');
                 if (x === conf.g[0] && y === conf.g[1]) { c.classList.add('goal'); c.innerHTML = '🏁'; }
-                if (x === conf.h[0] && y === conf.h[1]) { c.classList.add('checkpoint'); c.innerHTML = '🏠'; }
-                
+                if (x === conf.h[0] && y === conf.h[1]) { c.classList.add('house'); c.innerHTML = '🏠'; }
                 grid.appendChild(c);
             }
         }
-        currentPos = {...conf.st};
-        hasPoint = false;
-        updateMoto();
-        talk(conf.msg);
+        pos = {...conf.st};
+        houseFound = false;
+        refreshMoto();
+        talk(conf.t);
     }
 
-    function updateMoto() {
+    function refreshMoto() {
         const m = document.getElementById('moto');
-        m.style.width = tileSize + 'px';
-        m.style.height = tileSize + 'px';
-        m.style.fontSize = (tileSize * 0.7) + 'px';
-        m.style.left = (currentPos.x * (tileSize + 1)) + 'px';
-        m.style.top = (currentPos.y * (tileSize + 1)) + 'px';
+        m.style.width = tSize + 'px';
+        m.style.height = tSize + 'px';
+        m.style.fontSize = (tSize * 0.7) + 'px';
+        m.style.left = (pos.x * (tSize + 1)) + 'px';
+        m.style.top = (pos.y * (tSize + 1)) + 'px';
     }
 
-    function addMove(d) {
-        if(active) return;
+    function push(d) {
+        if(racing) return;
         moves.push(d);
-        const box = document.getElementById('route-box');
-        const span = document.createElement('div');
-        span.className = 'arrow-tag';
-        span.innerText = d === 'ARRIBA' ? '↑' : d === 'BAJAR' ? '↓' : d === 'IZQUIERDA' ? '←' : '→';
-        box.appendChild(span);
+        const box = document.getElementById('route-display');
+        const s = document.createElement('div');
+        s.className = 'arrow-box';
+        s.innerText = d === 'SUBIR' ? '↑' : d === 'BAJAR' ? '↓' : d === 'IZQUIERDA' ? '←' : '→';
+        box.appendChild(s);
         talk(d);
     }
 
-    function resetAll() {
-        if(active) return;
+    function clean() {
+        if(racing) return;
         moves = [];
-        document.getElementById('route-box').innerHTML = '';
-        const conf = WORLD[lvl][ex-1];
-        currentPos = {...conf.st};
-        hasPoint = false;
-        updateMoto();
+        document.getElementById('route-display').innerHTML = '';
+        const conf = DATA[lvl][ex-1];
+        pos = {...conf.st};
+        houseFound = false;
+        refreshMoto();
     }
 
-    async function startEngine() {
-        if(active || moves.length === 0) return;
-        active = true;
-        const conf = WORLD[lvl][ex-1];
-        currentPos = {...conf.st};
-        updateMoto();
+    async function startRace() {
+        if(racing || moves.length === 0) return;
+        racing = true;
+        const conf = DATA[lvl][ex-1];
+        pos = {...conf.st};
+        refreshMoto();
 
         for (let m of moves) {
-            let nx = currentPos.x, ny = currentPos.y;
-            if (m === 'ARRIBA') ny--; if (m === 'BAJAR') ny++;
+            let nx = pos.x, ny = pos.y;
+            if (m === 'SUBIR') ny--; if (m === 'BAJAR') ny++;
             if (m === 'IZQUIERDA') nx--; if (m === 'DERECHA') nx++;
 
             if (nx < 0 || nx >= conf.s || ny < 0 || ny >= conf.s || conf.w.some(w => w[0] === nx && w[1] === ny)) {
-                talk("¡Crash! Chocaste.");
-                active = false;
-                return;
+                talk("¡Crash! Chocaste con un muro.");
+                racing = false; return;
             }
 
-            currentPos = {x: nx, y: ny};
-            if (currentPos.x === conf.h[0] && currentPos.y === conf.h[1]) {
-                hasPoint = true;
-                talk("Casa alcanzada.");
+            pos = {x: nx, y: ny};
+            if (pos.x === conf.h[0] && pos.y === conf.h[1]) {
+                houseFound = true;
+                talk("Casa recogida.");
             }
-            updateMoto();
+            refreshMoto();
             await new Promise(r => setTimeout(r, 400));
         }
 
-        if (currentPos.x === conf.g[0] && currentPos.y === conf.g[1]) {
-            if (hasPoint) {
-                talk("¡Excelente! Ejercicio completado.");
-                nextStep();
+        if (pos.x === conf.g[0] && pos.y === conf.g[1]) {
+            if (houseFound) {
+                talk("¡Excelente! Pasaste por la casa y llegaste.");
+                setTimeout(next, 1000);
             } else {
-                talk("Llegaste a la meta, pero no pasaste por la casa. Intenta de nuevo.");
+                talk("Llegaste, pero te saltaste la casa. Repite.");
             }
         } else {
             talk("No llegaste a la meta.");
         }
-        active = false;
+        racing = false;
     }
 
-    function nextStep() {
+    function next() {
         if (ex < 3) { ex++; } 
         else if (lvl < 3) { lvl++; ex = 1; } 
-        else { 
-            talk("Has completado todos los niveles. ¡Felicidades!");
-            return;
-        }
-        document.getElementById('txt-lvl').innerText = lvl;
-        document.getElementById('txt-ex').innerText = ex;
-        setTimeout(() => { resetAll(); buildMap(); }, 1000);
+        else { talk("¡Felicidades! Completaste los 9 desafíos."); return; }
+        
+        document.getElementById('v-lvl').innerText = lvl;
+        document.getElementById('v-ex').innerText = ex;
+        clean();
+        draw();
     }
 
-    window.onload = buildMap;
+    window.onload = draw;
 </script>
 </body>
 </html>
-
