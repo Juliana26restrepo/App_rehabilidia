@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Pro: Rehabilitación Estratégica</title>
+    <title>Motoruta Pro: Rehabilitación Estratégica V6</title>
     <style>
         :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
@@ -11,11 +11,11 @@
         
         .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; width: 100%; max-width: 1300px; }
         
-        /* Contenedor del Juego */
         #game-window { position: relative; border: 5px solid var(--primary); background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
         #grid { display: grid; gap: 1px; background: #cbd5e1; }
         .cell { background: #fff; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .wall { background: #334155 !important; }
+        .wall { background: #334155 !important; position: relative; }
+        .wall::after { content: '✖'; color: white; font-size: 12px; opacity: 0.3; }
         .goal { background: #fef08a !important; border: 2px solid #eab308; }
         .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
         
@@ -24,7 +24,6 @@
             display: flex; align-items: center; justify-content: center; pointer-events: none;
         }
 
-        /* Panel de Control Numérico con Flechas */
         .controls { width: 420px; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .num-input-group { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; margin-bottom: 12px; padding: 8px 15px; border-radius: 10px; }
         .num-input-group label { font-weight: bold; color: #475569; flex: 1; }
@@ -42,11 +41,11 @@
 </head>
 <body>
 
-<header>MOTORUTA: REHABILITACIÓN COGNITIVA V5.0</header>
+<header>MOTORUTA: REHABILITACIÓN ESTRATÉGICA V6.0</header>
 <div class="stats">
     <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
     <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
-    <span>DIFICULTAD: <span id="size-txt">8x8</span></span>
+    <span>REJILLA: <span id="size-txt">8x8</span></span>
 </div>
 
 <div class="main-content">
@@ -56,7 +55,7 @@
     </div>
 
     <div class="controls">
-        <h3 style="margin:0 0 15px 0; color: var(--primary);">Planifica tu ruta:</h3>
+        <h3 style="margin:0 0 15px 0; color: var(--primary);">Programación de Ruta:</h3>
         
         <div class="num-input-group">
             <label>DERECHA ➡</label>
@@ -94,8 +93,8 @@
             </div>
         </div>
 
-        <button class="btn-main btn-run" onclick="execute()">ARRANCAR SECUENCIA 🏁</button>
-        <button class="btn-main btn-reset" onclick="resetLevel()">REINICIAR POSICIÓN</button>
+        <button class="btn-main btn-run" onclick="execute()">INICIAR RECORRIDO 🏁</button>
+        <button class="btn-main btn-reset" onclick="resetLevel()">LIMPIAR Y REINTENTAR</button>
     </div>
 </div>
 
@@ -106,9 +105,21 @@
     let vals = { der: 0, aba: 0, izq: 0, arr: 0 };
 
     const CONFIG = {
-        1: { size: 8, exs: [{h:[7,0], g:[7,7], w:[[2,2],[3,2],[4,2],[5,2]]}, {h:[4,4], g:[7,0], w:[]}, {h:[0,7], g:[7,7], w:[]}] },
-        2: { size: 12, exs: [{h:[11,0], g:[11,11], w:[[4,4],[5,4],[6,4]]}, {h:[0,11], g:[11,6], w:[]}, {h:[5,5], g:[11,11], w:[]}] },
-        3: { size: 16, exs: [{h:[15,0], g:[15,15], w:[[8,8],[8,9],[8,10]]}, {h:[0,15], g:[15,0], w:[]}, {h:[1,1], g:[14,14], w:[]}] }
+        1: { size: 8, exs: [
+            {h:[7,0], g:[7,7], w:[[2,0],[2,1],[2,2],[2,3],[5,4],[5,5],[5,6],[5,7]]}, // Muros en L
+            {h:[4,4], g:[7,0], w:[[3,0],[3,1],[3,2],[3,3],[5,4],[5,5],[5,6],[5,7]]}, // Pasillo central
+            {h:[0,7], g:[7,7], w:[[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]]} // Diagonal
+        ]},
+        2: { size: 12, exs: [
+            {h:[11,0], g:[11,11], w:[[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[6,6],[6,7],[6,8],[6,9],[6,10],[6,11]]},
+            {h:[0,11], g:[11,6], w:[[5,0],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[9,11]]},
+            {h:[5,5], g:[11,11], w:[[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4]]}
+        ]},
+        3: { size: 16, exs: [
+            {h:[15,0], g:[15,15], w:[[3,3],[3,4],[3,5],[7,7],[7,8],[7,9],[12,12],[12,13],[12,14]]},
+            {h:[0,15], g:[15,0], w:[[2,0],[2,1],[2,2],[2,3],[6,6],[6,7],[6,8],[10,10],[10,11],[10,12],[14,14],[14,15]]},
+            {h:[1,1], g:[14,14], w:[[0,2],[1,2],[2,2],[4,0],[4,1],[4,2],[4,3],[4,4],[8,8],[9,8],[10,8],[11,8],[12,8]]}
+        ]}
     };
 
     function speak(t) {
@@ -149,7 +160,7 @@
         pos = {x:0, y:0};
         targetMet = false;
         renderMoto();
-        speak(`Nivel ${lvl}. Ejercicio ${ex}. Ve a la casa y luego a la meta.`);
+        speak(`Nivel ${lvl}. Ejercicio ${ex}. Supera los muros, ve a la casa y luego a la meta.`);
     }
 
     function renderMoto() {
@@ -165,10 +176,10 @@
         const c = CONFIG[lvl];
         const e = c.exs[ex-1];
         const route = [
-            {dx: 1, dy: 0, n: vals.der},
-            {dx: 0, dy: 1, n: vals.aba},
-            {dx: -1, dy: 0, n: vals.izq},
-            {dx: 0, dy: -1, n: vals.arr}
+            {dx: 1, dy: 0, n: vals.der, name: "Derecha"},
+            {dx: 0, dy: 1, n: vals.aba, name: "Abajo"},
+            {dx: -1, dy: 0, n: vals.izq, name: "Izquierda"},
+            {dx: 0, dy: -1, n: vals.arr, name: "Arriba"}
         ];
 
         for(let step of route) {
@@ -176,30 +187,36 @@
                 let nx = pos.x + step.dx;
                 let ny = pos.y + step.dy;
 
+                // Si choca o se sale: RETORNO AUTOMÁTICO
                 if(nx < 0 || nx >= c.size || ny < 0 || ny >= c.size || e.w.some(w => w[0]===nx && w[1]===ny)) {
-                    speak("¡Crash! Chocaste.");
-                    active = false; return;
+                    speak("¡Error! Chocaste contra un obstáculo. Volviendo al inicio.");
+                    await new Promise(r => setTimeout(r, 600));
+                    resetLevel(); // Esto limpia los números y devuelve la moto al 0,0
+                    return;
                 }
 
                 pos.x = nx; pos.y = ny;
-                if(pos.x === e.h[0] && pos.y === e.h[1]) { targetMet = true; speak("Casa visitada."); }
+                if(pos.x === e.h[0] && pos.y === e.h[1]) { 
+                    targetMet = true; 
+                    speak("Casa visitada."); 
+                }
                 renderMoto();
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 350));
             }
         }
 
         if(pos.x === e.g[0] && pos.y === e.g[1] && targetMet) {
-            speak("¡Excelente! Pasamos al siguiente.");
+            speak("¡Perfecto! Objetivo cumplido.");
             setTimeout(next, 1500);
         } else {
-            speak(targetMet ? "No llegaste a la meta." : "Olvidaste pasar por la casa.");
+            speak(targetMet ? "Casi, pero no llegaste a la bandera." : "Llegaste a la bandera pero olvidaste la casa.");
             active = false;
         }
     }
 
     function next() {
         if(ex < 3) ex++; else { lvl++; ex=1; }
-        if(lvl > 3) { speak("Protocolo terminado con éxito."); return; }
+        if(lvl > 3) { speak("¡Felicidades! Has completado todo el entrenamiento."); return; }
         document.getElementById('lvl-txt').innerText = lvl;
         document.getElementById('ex-txt').innerText = ex;
         resetLevel();
@@ -216,3 +233,4 @@
 </script>
 </body>
 </html>
+
