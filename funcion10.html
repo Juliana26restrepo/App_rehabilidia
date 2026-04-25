@@ -2,233 +2,217 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta: Control Numérico Avanzado</title>
+    <title>Motoruta Pro: Rehabilitación Estratégica</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        header { background: #1e3a8a; color: white; width: 100%; padding: 15px; text-align: center; font-weight: bold; font-size: 1.4rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .info-bar { background: #fff; width: 100%; display: flex; justify-content: center; gap: 50px; padding: 12px; border-bottom: 2px solid #e2e8f0; font-weight: bold; color: #1e3a8a; }
+        :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        header { background: var(--primary); color: white; width: 100%; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; }
+        .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 50px; padding: 10px; border-bottom: 2px solid #e2e8f0; font-weight: bold; color: var(--primary); }
         
-        .main-layout { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 40px; padding: 30px; width: 95%; }
+        .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; width: 100%; max-width: 1300px; }
         
         /* Contenedor del Juego */
-        #viewport { position: relative; border: 4px solid #1e3a8a; background: #fff; border-radius: 4px; overflow: hidden; }
+        #game-window { position: relative; border: 5px solid var(--primary); background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
         #grid { display: grid; gap: 1px; background: #cbd5e1; }
-        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .wall { background: #334155 !important; }
-        .goal { background: #fef08a !important; }
-        .house { background: #dbeafe !important; border: 1px dashed #3b82f6; }
+        .goal { background: #fef08a !important; border: 2px solid #eab308; }
+        .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
         
         #moto { 
-            position: absolute; z-index: 100; transition: all 0.25s linear;
+            position: absolute; z-index: 100; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; align-items: center; justify-content: center; pointer-events: none;
         }
 
-        /* Panel de Control Numérico */
-        .control-panel { width: 400px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-        .input-group { margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 10px; border-radius: 8px; }
-        .input-group label { font-weight: bold; color: #475569; font-size: 0.9rem; }
+        /* Panel de Control Numérico con Flechas */
+        .controls { width: 420px; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .num-input-group { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; margin-bottom: 12px; padding: 8px 15px; border-radius: 10px; }
+        .num-input-group label { font-weight: bold; color: #475569; flex: 1; }
         
-        /* Flechas para pacientes sin teclado */
-        input[type=number] {
-            width: 80px; height: 45px; font-size: 1.5rem; text-align: center; font-weight: bold;
-            border: 2px solid #cbd5e1; border-radius: 6px; color: #1e3a8a;
-        }
+        .stepper { display: flex; align-items: center; gap: 10px; }
+        .btn-step { width: 40px; height: 40px; border: none; border-radius: 50%; background: var(--primary); color: white; font-size: 1.5rem; cursor: pointer; font-weight: bold; }
+        .btn-step:active { transform: scale(0.9); }
+        .num-val { width: 50px; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--primary); }
 
-        .btn-action { width: 100%; padding: 18px; margin-top: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
-        .btn-go { background: #22c55e; color: white; border-bottom: 4px solid #16a34a; }
-        .btn-go:active { border-bottom: 0; transform: translateY(4px); }
-        .btn-reset { background: #ef4444; color: white; margin-top: 15px; }
+        .btn-main { width: 100%; padding: 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.2rem; margin-top: 10px; transition: 0.3s; }
+        .btn-run { background: var(--success); color: white; border-bottom: 5px solid #16a34a; }
+        .btn-run:active { border-bottom: 0; transform: translateY(4px); }
+        .btn-reset { background: var(--danger); color: white; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA: PLANIFICACIÓN POR COORDENADAS</header>
-<div class="info-bar">
-    <span>NIVEL: <span id="txt-lvl">1</span>/3</span>
-    <span>EJERCICIO: <span id="txt-ex">1</span>/3</span>
+<header>MOTORUTA: REHABILITACIÓN COGNITIVA V5.0</header>
+<div class="stats">
+    <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
+    <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
+    <span>DIFICULTAD: <span id="size-txt">8x8</span></span>
 </div>
 
-<div class="main-layout">
-    <div id="viewport">
+<div class="main-content">
+    <div id="game-window">
         <div id="moto">🏍️</div>
         <div id="grid"></div>
     </div>
 
-    <div class="control-panel">
-        <h3 style="margin:0 0 20px 0; color:#1e3a8a; border-bottom: 2px solid #f1f5f9; padding-bottom:10px;">Indica el movimiento:</h3>
+    <div class="controls">
+        <h3 style="margin:0 0 15px 0; color: var(--primary);">Planifica tu ruta:</h3>
         
-        <div class="input-group">
-            <label>Casillas a la DERECHA ➡</label>
-            <input type="number" id="in-der" value="0" min="0" max="15">
-        </div>
-        <div class="input-group">
-            <label>Casillas hacia ABAJO ⬇</label>
-            <input type="number" id="in-aba" value="0" min="0" max="15">
-        </div>
-        <div class="input-group">
-            <label>Casillas a la IZQUIERDA ⬅</label>
-            <input type="number" id="in-izq" value="0" min="0" max="15">
-        </div>
-        <div class="input-group">
-            <label>Casillas hacia ARRIBA ⬆</label>
-            <input type="number" id="in-arr" value="0" min="0" max="15">
+        <div class="num-input-group">
+            <label>DERECHA ➡</label>
+            <div class="stepper">
+                <button class="btn-step" onclick="change('der', -1)">-</button>
+                <div id="val-der" class="num-val">0</div>
+                <button class="btn-step" onclick="change('der', 1)">+</button>
+            </div>
         </div>
 
-        <button class="btn-action btn-go" onclick="runMoto()">ARRANCAR MOTO 🏍️</button>
-        <button class="btn-action btn-reset" onclick="resetPosition()">REINICIAR POSICIÓN</button>
+        <div class="num-input-group">
+            <label>ABAJO ⬇</label>
+            <div class="stepper">
+                <button class="btn-step" onclick="change('aba', -1)">-</button>
+                <div id="val-aba" class="num-val">0</div>
+                <button class="btn-step" onclick="change('aba', 1)">+</button>
+            </div>
+        </div>
+
+        <div class="num-input-group">
+            <label>IZQUIERDA ⬅</label>
+            <div class="stepper">
+                <button class="btn-step" onclick="change('izq', -1)">-</button>
+                <div id="val-izq" class="num-val">0</div>
+                <button class="btn-step" onclick="change('izq', 1)">+</button>
+            </div>
+        </div>
+
+        <div class="num-input-group">
+            <label>ARRIBA ⬆</label>
+            <div class="stepper">
+                <button class="btn-step" onclick="change('arr', -1)">-</button>
+                <div id="val-arr" class="num-val">0</div>
+                <button class="btn-step" onclick="change('arr', 1)">+</button>
+            </div>
+        </div>
+
+        <button class="btn-main btn-run" onclick="execute()">ARRANCAR SECUENCIA 🏁</button>
+        <button class="btn-main btn-reset" onclick="resetLevel()">REINICIAR POSICIÓN</button>
     </div>
 </div>
 
 <script>
-    let currentLvl = 1, currentEx = 1, active = false;
-    let pos = {x: 0, y: 0}, cellSize = 0;
-    let houseReached = false;
+    let lvl = 1, ex = 1, active = false;
+    let pos = {x: 0, y: 0}, cSize = 0;
+    let targetMet = false;
+    let vals = { der: 0, aba: 0, izq: 0, arr: 0 };
 
-    // Configuración de los 9 ejercicios
-    const LEVELS = {
-        1: { size: 8,  exs: [{h:[7,0], g:[7,7], w:[[2,2],[3,2],[4,2],[2,5],[3,5],[4,5]]}, {h:[4,4], g:[7,0], w:[[1,1],[2,2]]}, {h:[2,2], g:[7,7], w:[]}] },
-        2: { size: 12, exs: [{h:[11,0], g:[11,11], w:[[5,5],[5,6],[5,7]]}, {h:[0,11], g:[11,5], w:[]}, {h:[6,6], g:[11,0], w:[]}] },
-        3: { size: 16, exs: [{h:[15,0], g:[15,15], w:[[8,8],[8,9]]}, {h:[0,15], g:[15,0], w:[]}, {h:[1,1], g:[14,14], w:[]}] }
+    const CONFIG = {
+        1: { size: 8, exs: [{h:[7,0], g:[7,7], w:[[2,2],[3,2],[4,2],[5,2]]}, {h:[4,4], g:[7,0], w:[]}, {h:[0,7], g:[7,7], w:[]}] },
+        2: { size: 12, exs: [{h:[11,0], g:[11,11], w:[[4,4],[5,4],[6,4]]}, {h:[0,11], g:[11,6], w:[]}, {h:[5,5], g:[11,11], w:[]}] },
+        3: { size: 16, exs: [{h:[15,0], g:[15,15], w:[[8,8],[8,9],[8,10]]}, {h:[0,15], g:[15,0], w:[]}, {h:[1,1], g:[14,14], w:[]}] }
     };
 
-    function speak(msg) {
+    function speak(t) {
         window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(msg);
-        u.lang = 'es-ES';
-        window.speechSynthesis.speak(u);
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
+        window.speechSynthesis.speak(m);
     }
 
-    function initGame() {
-        const config = LEVELS[currentLvl];
-        const exercise = config.exs[currentEx-1];
-        const grid = document.getElementById('grid');
-        
-        // Ajustar tamaño visual según rejilla
-        const viewSize = 500; 
-        cellSize = Math.floor(viewSize / config.size);
-        
-        grid.style.gridTemplateColumns = `repeat(${config.size}, ${cellSize}px)`;
-        grid.innerHTML = '';
+    function change(id, delta) {
+        if(active) return;
+        vals[id] = Math.max(0, Math.min(20, vals[id] + delta));
+        document.getElementById(`val-${id}`).innerText = vals[id];
+    }
 
-        for(let y=0; y < config.size; y++) {
-            for(let x=0; x < config.size; x++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.style.width = cellSize + 'px';
-                cell.style.height = cellSize + 'px';
-                
-                if (exercise.w.some(w => w[0] === x && w[1] === y)) cell.classList.add('wall');
-                if (x === exercise.g[0] && y === exercise.g[1]) { cell.classList.add('goal'); cell.innerText = '🏁'; }
-                if (x === exercise.h[0] && y === exercise.h[1]) { cell.classList.add('house'); cell.innerText = '🏠'; }
-                
-                grid.appendChild(cell);
+    function build() {
+        const c = CONFIG[lvl];
+        const e = c.exs[ex-1];
+        const grid = document.getElementById('grid');
+        const boardSize = 560;
+        cSize = Math.floor(boardSize / c.size);
+
+        grid.style.gridTemplateColumns = `repeat(${c.size}, ${cSize}px)`;
+        grid.innerHTML = '';
+        
+        for(let y=0; y<c.size; y++){
+            for(let x=0; x<c.size; x++){
+                const div = document.createElement('div');
+                div.className = 'cell';
+                div.style.width = div.style.height = cSize + 'px';
+                if(e.w.some(w => w[0]===x && w[1]===y)) div.classList.add('wall');
+                if(x===e.g[0] && y===e.g[1]) { div.classList.add('goal'); div.innerText='🏁'; }
+                if(x===e.h[0] && y===e.h[1]) { div.classList.add('house'); div.innerText='🏠'; }
+                grid.appendChild(div);
             }
         }
-        
-        pos = {x: 0, y: 0};
-        houseReached = false;
-        drawMoto();
-        speak(`Nivel ${currentLvl}. Ejercicio ${currentEx}. Primero pasa por la casa y luego a la meta.`);
+        document.getElementById('size-txt').innerText = `${c.size}x${c.size}`;
+        pos = {x:0, y:0};
+        targetMet = false;
+        renderMoto();
+        speak(`Nivel ${lvl}. Ejercicio ${ex}. Ve a la casa y luego a la meta.`);
     }
 
-    function drawMoto() {
+    function renderMoto() {
         const m = document.getElementById('moto');
-        m.style.width = cellSize + 'px';
-        m.style.height = cellSize + 'px';
-        m.style.fontSize = (cellSize * 0.7) + 'px';
-        // Cálculo exacto de posición
-        m.style.left = (pos.x * cellSize + pos.x) + 'px';
-        m.style.top = (pos.y * cellSize + pos.y) + 'px';
+        m.style.width = m.style.height = cSize + 'px';
+        m.style.fontSize = (cSize * 0.7) + 'px';
+        m.style.transform = `translate(${pos.x * cSize}px, ${pos.y * cSize}px)`;
     }
 
-    async function runMoto() {
-        if (active) return;
+    async function execute() {
+        if(active) return;
         active = true;
-        
-        const commands = [
-            { dx: 1, dy: 0, val: parseInt(document.getElementById('in-der').value) },
-            { dx: 0, dy: 1, val: parseInt(document.getElementById('in-aba').value) },
-            { dx: -1, dy: 0, val: parseInt(document.getElementById('in-izq').value) },
-            { dx: 0, dy: -1, val: parseInt(document.getElementById('in-arr').value) }
+        const c = CONFIG[lvl];
+        const e = c.exs[ex-1];
+        const route = [
+            {dx: 1, dy: 0, n: vals.der},
+            {dx: 0, dy: 1, n: vals.aba},
+            {dx: -1, dy: 0, n: vals.izq},
+            {dx: 0, dy: -1, n: vals.arr}
         ];
 
-        const config = LEVELS[currentLvl];
-        const exercise = config.exs[currentEx-1];
+        for(let step of route) {
+            for(let i=0; i<step.n; i++) {
+                let nx = pos.x + step.dx;
+                let ny = pos.y + step.dy;
 
-        for (let cmd of commands) {
-            for (let i = 0; i < cmd.val; i++) {
-                let nextX = pos.x + cmd.dx;
-                let nextY = pos.y + cmd.dy;
-
-                // Validar colisión o límites
-                if (nextX < 0 || nextX >= config.size || nextY < 0 || nextY >= config.size || 
-                    exercise.w.some(w => w[0] === nextX && w[1] === nextY)) {
-                    speak("¡Choque! Revisa tus cálculos.");
-                    active = false;
-                    return;
+                if(nx < 0 || nx >= c.size || ny < 0 || ny >= c.size || e.w.some(w => w[0]===nx && w[1]===ny)) {
+                    speak("¡Crash! Chocaste.");
+                    active = false; return;
                 }
 
-                pos.x = nextX;
-                pos.y = nextY;
-                
-                if (pos.x === exercise.h[0] && pos.y === exercise.h[1]) {
-                    houseReached = true;
-                    speak("Casa alcanzada.");
-                }
-
-                drawMoto();
-                await new Promise(r => setTimeout(r, 300)); // Pausa para ver el movimiento
+                pos.x = nx; pos.y = ny;
+                if(pos.x === e.h[0] && pos.y === e.h[1]) { targetMet = true; speak("Casa visitada."); }
+                renderMoto();
+                await new Promise(r => setTimeout(r, 400));
             }
         }
 
-        // Verificar resultado final
-        if (pos.x === exercise.g[0] && pos.y === exercise.g[1]) {
-            if (houseReached) {
-                speak("¡Excelente trabajo! Siguiente ejercicio.");
-                setTimeout(nextExercise, 1500);
-            } else {
-                speak("Llegaste a la meta, pero no pasaste por la casa. Intenta de nuevo.");
-                active = false;
-            }
+        if(pos.x === e.g[0] && pos.y === e.g[1] && targetMet) {
+            speak("¡Excelente! Pasamos al siguiente.");
+            setTimeout(next, 1500);
         } else {
-            speak("No llegaste a la bandera. Ajusta los números.");
+            speak(targetMet ? "No llegaste a la meta." : "Olvidaste pasar por la casa.");
             active = false;
         }
     }
 
-    function nextExercise() {
-        if (currentEx < 3) {
-            currentEx++;
-        } else if (currentLvl < 3) {
-            currentLvl++;
-            currentEx = 1;
-        } else {
-            speak("¡Has completado todo el protocolo de rehabilitación estratégica!");
-            return;
-        }
-        document.getElementById('txt-lvl').innerText = currentLvl;
-        document.getElementById('txt-ex').innerText = currentEx;
-        resetInputs();
-        initGame();
+    function next() {
+        if(ex < 3) ex++; else { lvl++; ex=1; }
+        if(lvl > 3) { speak("Protocolo terminado con éxito."); return; }
+        document.getElementById('lvl-txt').innerText = lvl;
+        document.getElementById('ex-txt').innerText = ex;
+        resetLevel();
+    }
+
+    function resetLevel() {
         active = false;
+        vals = { der: 0, aba: 0, izq: 0, arr: 0 };
+        document.querySelectorAll('.num-val').forEach(v => v.innerText = '0');
+        build();
     }
 
-    function resetInputs() {
-        document.getElementById('in-der').value = 0;
-        document.getElementById('in-aba').value = 0;
-        document.getElementById('in-izq').value = 0;
-        document.getElementById('in-arr').value = 0;
-    }
-
-    function resetPosition() {
-        if (active) return;
-        pos = {x: 0, y: 0};
-        houseReached = false;
-        drawMoto();
-        resetInputs();
-    }
-
-    window.onload = initGame;
+    window.onload = build;
 </script>
 </body>
 </html>
