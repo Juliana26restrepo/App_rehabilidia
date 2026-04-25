@@ -2,226 +2,191 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Ultra-Master: Ingeniería Cognitiva</title>
+    <title>Motoruta: El Desafío Total</title>
     <style>
-        :root { --blue-dark: #1e3a8a; --green-pro: #22c55e; --red-exit: #ef4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
-        header { background: var(--blue-dark); color: white; width: 100%; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: 900; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { font-family: 'Arial', sans-serif; background: #ffffff; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        header { background: #d32f2f; color: white; width: 100%; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; }
+        .stats { background: #f5f5f5; width: 100%; display: flex; justify-content: center; gap: 40px; padding: 10px; border-bottom: 2px solid #ddd; font-weight: bold; }
         
-        .status-bar { display: flex; gap: 50px; padding: 15px; font-weight: bold; color: var(--blue-dark); font-size: 1.1rem; }
-
-        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; width: 100%; max-width: 1200px; }
-
-        /* El Tablero */
-        #viewport { position: relative; border: 8px solid var(--blue-dark); background: #e2e8f0; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        #grid { display: grid; gap: 2px; background: #cbd5e1; }
-        .cell { background: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .wall { background: #334155 !important; }
-        .goal { background: #fef08a !important; animation: pulse 2s infinite; }
-        .checkpoint { background: #dbeafe !important; border: 2px dashed #3b82f6; }
+        .game-zone { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; width: 100%; }
+        
+        /* Tablero */
+        #maze-wrap { position: relative; border: 5px solid #333; background: #eee; }
+        #grid { display: grid; gap: 1px; background: #bbb; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .wall { background: #222 !important; }
+        .goal { background: #ffd700 !important; }
+        .target { background: #e3f2fd; border: 2px dashed #2196f3; }
 
         #moto { 
-            position: absolute; z-index: 100; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; z-index: 10; transition: all 0.3s ease-in-out;
             display: flex; align-items: center; justify-content: center; pointer-events: none;
         }
 
         /* Controles */
-        .controls { width: 360px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
-        #route-display { min-height: 120px; border: 3px solid #e2e8f0; background: #f1f5f9; margin-bottom: 20px; padding: 15px; display: flex; flex-wrap: wrap; gap: 8px; border-radius: 10px; align-content: flex-start; }
-        .arrow-tag { background: var(--blue-dark); color: white; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: bold; }
+        .controls { width: 320px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        #route-log { min-height: 80px; border: 2px solid #ccc; background: #fafafa; margin-bottom: 15px; padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .tag { background: #333; color: white; padding: 5px 8px; border-radius: 4px; font-weight: bold; }
 
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        button { padding: 18px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-move { background: #f1f5f9; color: var(--blue-dark); border: 2px solid #cbd5e1; }
-        .btn-move:hover { background: #cbd5e1; }
-        .btn-start { background: var(--green-pro); color: white; grid-column: span 2; font-size: 1.3rem; border-bottom: 5px solid #16a34a; }
-        .btn-start:active { border-bottom: 0; transform: translateY(4px); }
-        .btn-reset { background: var(--red-exit); color: white; grid-column: span 2; margin-top: 10px; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .b-move { background: #eee; color: #333; border: 1px solid #ccc; }
+        .b-run { background: #4caf50; color: white; grid-column: span 2; font-size: 1.2rem; border-bottom: 4px solid #388e3c; }
+        .b-run:active { border-bottom: 0; transform: translateY(4px); }
+        .b-del { background: #f44336; color: white; grid-column: span 2; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA PRO: INGENIERÍA Y LOGÍSTICA V2.0</header>
-<div class="status-bar">
-    <span>NIVEL: <span id="val-lvl">1</span>/3</span>
-    <span>EJERCICIO: <span id="val-ex">1</span>/3</span>
+<header>MOTORUTA: ¡RETO DE 9 NIVELES!</header>
+<div class="stats">
+    <span>NIVEL: <span id="v-lvl">1</span>/3</span>
+    <span>EJERCICIO: <span id="v-ex">1</span>/3</span>
 </div>
 
-<div class="game-container">
-    <div id="viewport">
+<div class="game-zone">
+    <div id="maze-wrap">
         <div id="moto">🏍️</div>
         <div id="grid"></div>
     </div>
 
     <div class="controls">
-        <div id="route-display"></div>
-        <div class="btn-group">
-            <button class="btn-move" onclick="pushMove('UP')">ARRIBA</button>
-            <button class="btn-move" onclick="pushMove('DOWN')">ABAJO</button>
-            <button class="btn-move" onclick="pushMove('LEFT')">IZQUIERDA</button>
-            <button class="btn-move" onclick="pushMove('RIGHT')">DERECHA</button>
-            <button class="btn-start" onclick="executeRoute()">EJECUTAR SECUENCIA 🏁</button>
-            <button class="btn-reset" onclick="clearAll()">RESETEAR SISTEMA</button>
+        <div id="route-log"></div>
+        <div class="btns">
+            <button class="b-move" onclick="add('SUBIR')">⬆️ SUBIR</button>
+            <button class="b-move" onclick="add('BAJAR')">⬇️ BAJAR</button>
+            <button class="b-move" onclick="add('IZQUIERDA')">⬅️ IZQ</button>
+            <button class="b-move" onclick="add('DERECHA')">➡️ DER</button>
+            <button class="b-run" onclick="start()">¡ARRANCAR AHORA! 🏁</button>
+            <button class="b-del" onclick="clean()">BORRAR RUTA</button>
         </div>
     </div>
 </div>
 
 <script>
-    let lvl = 1, ex = 1, route = [], active = false;
-    let pos = {x:0, y:0}, size = 50;
-    let missions = { h: false, b: false };
+    let lvl = 1, ex = 1, route = [], moving = false;
+    let pos = {x:0, y:0}, cSize = 50;
+    let missions = { house: false, bird: false };
 
-    const DATA = {
+    const MAPS = {
         1: [
-            { s: 5, w: [[1,1],[3,1],[1,3],[3,3]], st:[0,0], g:[4,4], h:[4,0], b:null, msg: "Ingeniero, pase por la casa antes de la meta." },
-            { s: 6, w: [[2,0],[2,1],[2,2],[2,3],[4,2],[4,3],[4,4],[4,5]], st:[0,0], g:[5,5], h:[3,0], b:null, msg: "Ruta de precisión. Visite la casa obligatoriamente." },
-            { s: 6, w: [[1,1],[1,2],[1,3],[4,2],[4,3],[4,4]], st:[0,0], g:[5,5], h:[5,0], b:[0,5], msg: "Doble objetivo: Casa y Pájaro detectados." }
+            { s: 5, w: [[1,1],[1,2],[3,1],[3,2]], st:[0,0], g:[4,4], h:[4,0], b:null, t: "Pasa por la casa 🏠 y luego a la meta." },
+            { s: 6, w: [[2,0],[2,1],[2,2],[2,3],[4,2],[4,3],[4,4]], st:[0,0], g:[5,5], h:[3,0], b:null, t: "Rodea el muro central para llegar a la casa 🏠." },
+            { s: 6, w: [[1,1],[1,2],[1,3],[4,2],[4,3],[4,4]], st:[0,0], g:[5,5], h:[5,0], b:[0,5], t: "¡Dos paradas! Casa 🏠 y Pájaro 🐦." }
         ],
         2: [
-            { s: 8, w: [[1,1],[2,1],[4,1],[6,1],[1,3],[3,3],[5,3],[7,3],[1,5],[3,5],[5,5],[7,5]], st:[0,0], g:[7,7], h:[4,0], b:[4,7], msg: "Nivel 2 iniciado. Planifique paso por casa y pájaro." },
-            { s: 8, w: [[0,2],[1,2],[2,2],[3,2],[5,2],[6,2],[7,2],[1,4],[2,4],[3,4],[5,4],[6,4]], st:[0,0], g:[4,3], h:[7,7], b:[0,7], msg: "Evite los muros centrales. Objetivos en los extremos." },
-            { s: 8, w: [[1,0],[1,1],[1,2],[3,2],[3,3],[3,4],[5,4],[5,5],[5,6]], st:[0,0], g:[7,7], h:[2,2], b:[4,4], msg: "Laberinto de escaleras. Proceda con cuidado." }
+            { s: 8, w: [[1,1],[2,1],[4,1],[6,1],[1,3],[3,3],[5,3],[7,3],[1,5]], st:[0,0], g:[7,7], h:[4,0], b:[4,7], t: "Nivel 2. La ruta es mucho más larga ahora." },
+            { s: 8, w: [[0,2],[1,2],[2,2],[3,2],[5,2],[6,2],[7,2],[1,4],[2,4],[3,4]], st:[0,0], g:[4,3], h:[7,7], b:[0,7], t: "Ve a las esquinas antes de la meta." },
+            { s: 8, w: [[1,0],[1,1],[1,2],[3,2],[3,3],[3,4],[5,4],[5,5]], st:[0,0], g:[7,7], h:[2,2], b:[4,4], t: "Zig-zag obligatorio." }
         ],
         3: [
-            { s: 10, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8]], st:[0,0], g: [9,9], h: [4,4], b: [5,5], msg: "Máxima dificultad. Laberinto en U profunda." },
-            { s: 10, w: [[0,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[9,1],[1,3],[3,3],[5,3],[7,3],[9,3],[0,5],[2,5],[4,5],[6,5],[8,5]], st:[0,0], g: [9,9], h: [1,1], b: [8,1], msg: "Columnas de ingeniería. Calcule su combustible." },
-            { s: 10, w: [[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[1,9],[9,1]], st:[0,0], g: [5,4], h: [9,9], b: [0,9], msg: "PROTOCOLO FINAL: Cruce el laberinto de la muerte." }
+            { s: 10, w: [[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[1,3],[1,4],[1,5],[8,3],[8,4],[8,5]], st:[0,0], g:[9,9], h:[4,4], b:[5,5], t: "Dificultad máxima. No te equivoques ni una vez." },
+            { s: 10, w: [[0,1],[2,1],[4,1],[6,1],[8,1],[1,3],[3,3],[5,3],[7,3],[9,3],[0,5],[2,5],[4,5]], st:[0,0], g:[9,9], h:[1,1], b:[8,1], t: "El laberinto de columnas." },
+            { s: 10, w: [[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,1],[1,9]], st:[0,0], g:[5,4], h:[9,9], b:[0,9], t: "EL DESAFÍO FINAL. Cruza el mapa entero." }
         ]
     };
 
-    function speak(text) {
-        const msg = new SpeechSynthesisUtterance();
-        msg.text = text;
-        msg.lang = 'es-ES';
-        msg.rate = 1;
-        window.speechSynthesis.speak(msg);
+    function talk(msg) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(msg);
+        u.lang = 'es-ES';
+        window.speechSynthesis.speak(u);
     }
 
     function build() {
-        const conf = DATA[lvl][ex-1];
+        const conf = MAPS[lvl][ex-1];
         const grid = document.getElementById('grid');
-        size = conf.s > 8 ? 42 : 55;
-        
-        grid.style.gridTemplateColumns = `repeat(${conf.s}, ${size}px)`;
+        cSize = conf.s > 8 ? 40 : 55;
+        grid.style.gridTemplateColumns = `repeat(${conf.s}, ${cSize}px)`;
         grid.innerHTML = '';
-        
         for(let y=0; y<conf.s; y++) {
             for(let x=0; x<conf.s; x++) {
                 const c = document.createElement('div');
                 c.className = 'cell';
-                c.style.width = size + 'px';
-                c.style.height = size + 'px';
-                
-                if (conf.w.some(w => w[0] === x && w[1] === y)) c.classList.add('wall');
-                if (x === conf.g[0] && y === conf.g[1]) { c.classList.add('goal'); c.innerHTML = '🏁'; }
-                if (conf.h && x === conf.h[0] && y === conf.h[1]) { c.classList.add('checkpoint'); c.innerHTML = '🏠'; }
-                if (conf.b && x === conf.b[0] && y === conf.b[1]) { c.classList.add('checkpoint'); c.innerHTML = '🐦'; }
-                
+                c.style.width = cSize + 'px';
+                c.style.height = cSize + 'px';
+                if (conf.w.some(w => w[0] === x && w[1] === y)) c.className += ' wall';
+                if (x === conf.g[0] && y === conf.g[1]) { c.className += ' goal'; c.innerHTML = '🏁'; }
+                if (conf.h && x === conf.h[0] && y === conf.h[1]) { c.className += ' target'; c.innerHTML = '🏠'; }
+                if (conf.b && x === conf.b[0] && y === conf.b[1]) { c.className += ' target'; c.innerHTML = '🐦'; }
                 grid.appendChild(c);
             }
         }
         pos = {...conf.st};
-        missions = { h: false, b: false };
-        updateUI();
+        missions = { house: false, bird: false };
+        update();
     }
 
-    function updateUI() {
+    function update() {
         const m = document.getElementById('moto');
-        m.style.width = size + 'px';
-        m.style.height = size + 'px';
-        m.style.fontSize = (size * 0.7) + 'px';
-        m.style.left = (pos.x * (size + 2)) + 'px';
-        m.style.top = (pos.y * (size + 2)) + 'px';
+        m.style.width = cSize + 'px'; m.style.height = cSize + 'px';
+        m.style.fontSize = (cSize * 0.7) + 'px';
+        m.style.left = (pos.x * (cSize + 1)) + 'px';
+        m.style.top = (pos.y * (cSize + 1)) + 'px';
     }
 
-    function pushMove(d) {
-        if(active) return;
+    function add(d) {
+        if(moving) return;
         route.push(d);
-        const log = document.getElementById('route-display');
-        const s = document.createElement('div');
-        s.className = 'arrow-tag';
-        s.innerText = d === 'UP' ? '↑' : d === 'DOWN' ? '↓' : d === 'LEFT' ? '←' : '→';
+        const log = document.getElementById('route-log');
+        const s = document.createElement('span'); s.className = 'tag';
+        s.innerText = d === 'SUBIR' ? '↑' : d === 'BAJAR' ? '↓' : d === 'IZQUIERDA' ? '←' : '→';
         log.appendChild(s);
+        talk(d);
     }
 
-    function clearAll() {
-        if(active) return;
-        route = [];
-        document.getElementById('route-display').innerHTML = '';
-        const conf = DATA[lvl][ex-1];
-        pos = {...conf.st};
-        missions = { h: false, b: false };
-        updateUI();
+    function clean() {
+        if(moving) return;
+        route = []; document.getElementById('route-log').innerHTML = '';
+        const conf = MAPS[lvl][ex-1];
+        pos = {...conf.st}; missions = { house: false, bird: false };
+        update();
     }
 
-    async function executeRoute() {
-        if(active || route.length === 0) return;
-        active = true;
-        const conf = DATA[lvl][ex-1];
+    async function start() {
+        if(moving || route.length === 0) return;
+        moving = true;
+        const conf = MAPS[lvl][ex-1];
         pos = {...conf.st};
-        updateUI();
+        update();
 
         for (let m of route) {
             let nx = pos.x, ny = pos.y;
-            if (m === 'UP') ny--; if (m === 'DOWN') ny++;
-            if (m === 'LEFT') nx--; if (m === 'RIGHT') nx++;
+            if (m === 'SUBIR') ny--; if (m === 'BAJAR') ny++;
+            if (m === 'IZQUIERDA') nx--; if (m === 'DERECHA') nx++;
 
             if (nx < 0 || nx >= conf.s || ny < 0 || ny >= conf.s || conf.w.some(w => w[0] === nx && w[1] === ny)) {
-                speak("Error de cálculo. Colisión detectada.");
-                alert("💥 ¡CHOCASTE!");
-                active = false;
-                return;
+                talk("¡Chocaste con la pared!");
+                moving = false; return;
             }
-
             pos = {x: nx, y: ny};
-            if (conf.h && pos.x === conf.h[0] && pos.y === conf.h[1]) missions.h = true;
-            if (conf.b && pos.x === conf.b[0] && pos.y === conf.b[1]) missions.b = true;
-            
-            updateUI();
-            await new Promise(r => setTimeout(r, 450));
+            if (conf.h && pos.x === conf.h[0] && pos.y === conf.h[1]) missions.house = true;
+            if (conf.b && pos.x === conf.b[0] && pos.y === conf.b[1]) missions.bird = true;
+            update();
+            await new Promise(r => setTimeout(r, 400));
         }
 
-        const needsH = !!conf.h, needsB = !!conf.b;
         if (pos.x === conf.g[0] && pos.y === conf.g[1]) {
-            if ((needsH && !missions.h) || (needsB && !missions.b)) {
-                speak("Misión incompleta. Faltaron objetivos secundarios.");
-                alert("Llegaste, ¡pero olvidaste pasar por los puntos obligatorios!");
+            if ((conf.h && !missions.house) || (conf.b && !missions.bird)) {
+                talk("Llegaste, pero olvidaste los puntos intermedios.");
             } else {
-                speak("Misión cumplida. Excelente trabajo de ingeniería.");
-                alert("¡VICTORIA!");
-                nextLevel();
+                talk("¡Muy bien! Nivel completado.");
+                next();
             }
         } else {
-            speak("Destino no alcanzado. Revise la secuencia.");
-            alert("No llegaste a la meta.");
+            talk("No llegaste a la meta.");
         }
-        active = false;
+        moving = false;
     }
 
-    function nextLevel() {
-        if (ex < 3) { ex++; } 
-        else if (lvl < 3) { lvl++; ex = 1; } 
-        else { 
-            speak("Protocolo completado. Eres un maestro de la planificación.");
-            alert("¡HAS GANADO EL JUEGO COMPLETO!");
-            return;
-        }
-        document.getElementById('val-lvl').innerText = lvl;
-        document.getElementById('val-ex').innerText = ex;
-        const conf = DATA[lvl][ex-1];
-        setTimeout(() => {
-            speak(conf.msg);
-            clearAll();
-            build();
-        }, 500);
+    function next() {
+        if (ex < 3) ex++; else if (lvl < 3) { lvl++; ex = 1; } else { talk("¡Eres el campeón absoluto!"); return; }
+        document.getElementById('v-lvl').innerText = lvl;
+        document.getElementById('v-ex').innerText = ex;
+        setTimeout(() => { talk(MAPS[lvl][ex-1].t); clean(); build(); }, 1000);
     }
 
-    window.onload = () => {
-        build();
-        setTimeout(() => speak("Bienvenido Ingeniero. Programe la ruta para cumplir la misión."), 1000);
-    };
+    window.onload = () => { build(); talk("Bienvenido. Programa tu ruta para ganar."); };
 </script>
 </body>
 </html>
