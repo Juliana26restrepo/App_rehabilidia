@@ -2,189 +2,166 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MOTORUTA EXTREMA: GENERADOR DINÁMICO</title>
+    <title>MOTORUTA MASTER: NIVEL REHABILITACIÓN AVANZADA</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #1a1a1a; color: #00ff00; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        header { background: #000; width: 100%; padding: 20px; text-align: center; border-bottom: 3px solid #00ff00; font-size: 1.8rem; text-shadow: 2px 2px #ff0000; }
-        .hud { display: flex; gap: 30px; padding: 15px; font-size: 1.2rem; background: #222; width: 100%; justify-content: center; }
+        body { font-family: sans-serif; background: #0f172a; color: white; text-align: center; margin: 0; }
+        header { background: #1e293b; padding: 20px; border-bottom: 4px solid #3b82f6; font-size: 24px; font-weight: bold; }
+        .info { padding: 10px; background: #334155; display: flex; justify-content: center; gap: 30px; font-size: 18px; }
         
-        #game-board { position: relative; margin: 20px; border: 4px solid #555; background: #333; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
-        .grid { display: grid; gap: 1px; background: #444; }
-        .cell { width: 50px; height: 50px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; }
-        .wall { background: #111 !important; }
-        .goal { background: #ffcc00 !important; }
-        .obj { background: #e3f2fd !important; border: 2px dashed #2196f3; }
+        #escenario { position: relative; margin: 20px auto; border: 5px solid #64748b; background: #1e293b; width: 500px; height: 500px; }
+        .rejilla { display: grid; grid-template-columns: repeat(10, 50px); grid-template-rows: repeat(10, 50px); }
+        .celda { width: 50px; height: 50px; border: 0.1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 25px; box-sizing: border-box; }
         
+        .muro { background: #020617; }
+        .meta { background: #166534; }
+        .casa { background: #1e40af; border: 2px solid #60a5fa; }
+
         #moto { 
-            position: absolute; z-index: 100; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; justify-content: center; pointer-events: none;
+            position: absolute; width: 50px; height: 50px; z-index: 10;
+            transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; font-size: 35px;
         }
 
-        .panel { width: 400px; background: #222; padding: 20px; border-radius: 10px; border: 1px solid #00ff00; }
-        #log { min-height: 60px; background: #000; border: 1px solid #555; margin-bottom: 15px; padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .step { background: #00ff00; color: #000; padding: 4px 8px; border-radius: 3px; font-weight: bold; }
-
-        .grid-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-m { background: #444; color: #fff; }
-        .btn-m:hover { background: #666; }
-        .btn-go { background: #008800; color: #fff; grid-column: span 2; font-size: 1.4rem; border-bottom: 4px solid #004400; }
-        .btn-go:active { border-bottom: none; transform: translateY(4px); }
-        .btn-clr { background: #880000; color: #fff; grid-column: span 2; }
+        .controles { margin-top: 20px; display: inline-block; background: #1e293b; padding: 20px; border-radius: 10px; }
+        #ruta-texto { min-height: 50px; color: #60a5fa; font-family: monospace; font-size: 20px; margin-bottom: 10px; }
+        .bloque-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; border-radius: 5px; }
+        .btn-mov { background: #475569; color: white; }
+        .btn-arrancar { background: #22c55e; color: white; grid-column: span 2; }
+        .btn-borrar { background: #ef4444; color: white; grid-column: span 2; }
     </style>
 </head>
 <body>
 
-<header>SISTEMA MOTORUTA V4.0: DESAFÍO REAL</header>
-<div class="hud">
-    <span>NIVEL: <span id="n-lvl">1</span></span>
-    <span>DIFICULTAD: <span id="n-diff">BAJA</span></span>
-    <span>OBJETIVO: <span id="n-obj">CASA</span></span>
+<header>MOTORUTA: PLANIFICACIÓN DE ALTO NIVEL</header>
+<div class="info">
+    <span>NIVEL: 10 (Avanzado)</span>
+    <span>OBJETIVO: Recoger CASA 🏠 antes de META 🏁</span>
 </div>
 
-<div id="game-board">
+<div id="escenario">
     <div id="moto">🏍️</div>
-    <div id="grid" class="grid"></div>
+    <div id="grid" class="rejilla"></div>
 </div>
 
-<div class="panel">
-    <div id="log"></div>
-    <div class="grid-btns">
-        <button class="btn-m" onclick="add('ARRIBA')">↑ Arriba</button>
-        <button class="btn-m" onclick="add('ABAJO')">↓ Abajo</button>
-        <button class="btn-m" onclick="add('IZQUIERDA')">← Izq</button>
-        <button class="btn-m" onclick="add('DERECHA')">→ Der</button>
-        <button class="btn-go" onclick="runSequence()">EJECUTAR MOVIMIENTO 🏁</button>
-        <button class="btn-clr" onclick="resetLevel()">REINICIAR TODO</button>
+<div class="controles">
+    <div id="ruta-texto">RUTA: </div>
+    <div class="bloque-btns">
+        <button class="btn-mov" onclick="add('ARRIBA')">↑ ARRIBA</button>
+        <button class="btn-mov" onclick="add('ABAJO')">↓ ABAJO</button>
+        <button class="btn-mov" onclick="add('IZQ')">← IZQ</button>
+        <button class="btn-mov" onclick="add('DER')">→ DER</button>
+        <button class="btn-arrancar" onclick="arrancar()">ARRANCAR MOTORES 🏁</button>
+        <button class="btn-borrar" onclick="reset()">LIMPIAR RUTA</button>
     </div>
 </div>
 
 <script>
-    let level = 1, moves = [], isRunning = false;
-    let config = { size: 5, pos: {x:0, y:0}, goal: {x:4, y:4}, target: {x:2, y:0}, walls: [], hasTarget: false };
+    let comandos = [];
+    let x = 0, y = 0;
+    let tieneCasa = false;
+    let bloqueado = false;
+    
+    // Mapa complejo 10x10 (0=vacío, 1=muro, 2=meta, 3=casa)
+    const mapa = [
+        [0,1,0,0,0,0,1,0,0,0],
+        [0,1,0,1,1,0,1,0,1,0],
+        [0,0,0,1,3,0,0,0,1,0],
+        [1,1,0,1,1,1,1,0,1,0],
+        [0,0,0,0,0,0,1,0,0,0],
+        [0,1,1,1,1,0,1,1,1,0],
+        [0,0,0,1,0,0,0,1,0,0],
+        [1,1,0,1,0,1,0,1,0,1],
+        [0,0,0,0,0,1,0,0,0,0],
+        [0,1,1,1,0,1,1,1,1,2]
+    ];
 
-    function speak(text) {
+    function hablar(t) {
         window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'es-ES';
-        window.speechSynthesis.speak(msg);
+        let m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
+        window.speechSynthesis.speak(m);
     }
 
-    function init() {
-        // Aumento de dificultad según nivel
-        config.size = Math.min(5 + Math.floor(level/2), 12);
-        config.pos = {x: 0, y: 0};
-        config.goal = {x: config.size - 1, y: config.size - 1};
-        config.hasTarget = false;
-        
-        // Colocar objetivo intermedio aleatorio
-        config.target = {
-            x: Math.floor(Math.random() * (config.size - 2)) + 1,
-            y: Math.floor(Math.random() * (config.size - 2))
-        };
-
-        // Generar muros aleatorios (30% de las celdas)
-        config.walls = [];
-        for(let i=0; i < (config.size * config.size * 0.3); i++) {
-            let wx = Math.floor(Math.random() * config.size);
-            let wy = Math.floor(Math.random() * config.size);
-            // No poner muros sobre inicio, meta u objetivo
-            if ((wx==0 && wy==0) || (wx==config.goal.x && wy==config.goal.y) || (wx==config.target.x && wy==config.target.y)) continue;
-            config.walls.push(`${wx},${wy}`);
-        }
-
-        render();
-        speak(`Nivel ${level}. Instrucción: Primero debes pasar por la casa y luego llegar a la meta.`);
-    }
-
-    function render() {
-        const grid = document.getElementById('grid');
-        grid.style.gridTemplateColumns = `repeat(${config.size}, 50px)`;
-        grid.innerHTML = '';
-
-        for(let y=0; y < config.size; y++) {
-            for(let x=0; x < config.size; x++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (config.walls.includes(`${x},${y}`)) cell.className += ' wall';
-                if (x === config.goal.x && y === config.goal.y) { cell.className += ' goal'; cell.innerText = '🏁'; }
-                if (x === config.target.x && y === config.target.y) { cell.className += ' obj'; cell.innerText = '🏠'; }
-                grid.appendChild(cell);
+    function dibujar() {
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        for(let i=0; i<10; i++){
+            for(let j=0; j<10; j++){
+                let c = document.createElement('div');
+                c.className = 'celda';
+                if(mapa[i][j]===1) c.className += ' muro';
+                if(mapa[i][j]===2) { c.className += ' meta'; c.innerHTML = '🏁'; }
+                if(mapa[i][j]===3) { c.className += ' casa'; c.innerHTML = '🏠'; }
+                g.appendChild(c);
             }
         }
-        updateMoto();
+        actualizarMoto();
     }
 
-    function updateMoto() {
+    function actualizarMoto() {
         const m = document.getElementById('moto');
-        m.style.left = (config.pos.x * 51) + 'px';
-        m.style.top = (config.pos.y * 51) + 'px';
+        m.style.top = (y * 50) + 'px';
+        m.style.left = (x * 50) + 'px';
     }
 
-    function add(dir) {
-        if(isRunning) return;
-        moves.push(dir);
-        const log = document.getElementById('log');
-        const span = document.createElement('span');
-        span.className = 'step';
-        span.innerText = dir[0];
-        log.appendChild(span);
-        speak(dir);
+    function add(d) {
+        if(bloqueado) return;
+        comandos.push(d);
+        document.getElementById('ruta-texto').innerText = "RUTA: " + comandos.map(c => c[0]).join('-');
+        hablar(d);
     }
 
-    async function runSequence() {
-        if(isRunning || moves.length === 0) return;
-        isRunning = true;
-        
-        for (let m of moves) {
-            let nextX = config.pos.x;
-            let nextY = config.pos.y;
+    async function arrancar() {
+        if(bloqueado || comandos.length === 0) return;
+        bloqueado = true;
+        x = 0; y = 0; tieneCasa = false;
+        actualizarMoto();
 
-            if (m === 'ARRIBA') nextY--;
-            if (m === 'ABAJO') nextY++;
-            if (m === 'IZQUIERDA') nextX--;
-            if (m === 'DERECHA') nextX++;
+        for(let c of comandos) {
+            if(c==='ARRIBA') y--;
+            if(c==='ABAJO') y++;
+            if(c==='IZQ') x--;
+            if(c==='DER') x++;
 
-            // Colisión
-            if (nextX < 0 || nextX >= config.size || nextY < 0 || nextY >= config.size || config.walls.includes(`${nextX},${nextY}`)) {
-                speak("¡Crash! Chocaste con un obstáculo.");
-                isRunning = false;
+            if(x<0 || x>9 || y<0 || y>9 || mapa[y][x]===1) {
+                hablar("Colisión. Ruta fallida.");
+                bloqueado = false;
                 return;
             }
 
-            config.pos = {x: nextX, y: nextY};
-            if (config.pos.x === config.target.x && config.pos.y === config.target.y) {
-                config.hasTarget = true;
-                speak("Objetivo casa recolectado.");
+            if(mapa[y][x]===3) {
+                tieneCasa = true;
+                hablar("Casa recogida.");
             }
-            
-            updateMoto();
-            await new Promise(r => setTimeout(r, 400));
+
+            actualizarMoto();
+            await new Promise(r => setTimeout(r, 500));
         }
 
-        // Finalización
-        if (config.pos.x === config.goal.x && config.pos.y === config.goal.y) {
-            if (config.hasTarget) {
-                speak("¡Excelente! Secuencia completada. Siguiente nivel.");
-                level++;
-                document.getElementById('n-lvl').innerText = level;
-                setTimeout(resetLevel, 1000);
+        if(mapa[y][x]===2) {
+            if(tieneCasa) {
+                hablar("Excelente. Misión cumplida.");
             } else {
-                speak("Llegaste a la meta, pero no pasaste por la casa. Inténtalo de nuevo.");
+                hablar("Error. No recogió la casa.");
             }
         } else {
-            speak("No llegaste a la bandera.");
+            hablar("No llegó a la meta.");
         }
-        isRunning = false;
+        bloqueado = false;
     }
 
-    function resetLevel() {
-        moves = [];
-        document.getElementById('log').innerHTML = '';
-        init();
+    function reset() {
+        comandos = [];
+        document.getElementById('ruta-texto').innerText = "RUTA: ";
+        x = 0; y = 0; tieneCasa = false;
+        actualizarMoto();
+        hablar("Sistema reiniciado.");
     }
 
-    window.onload = init;
+    window.onload = () => {
+        dibujar();
+        setTimeout(() => hablar("Atención. Objetivo casa obligatorio antes de la meta. Planifique su ruta."), 1000);
+    }
 </script>
 </body>
 </html>
