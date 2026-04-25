@@ -2,166 +2,213 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MOTORUTA MASTER: NIVEL REHABILITACIÓN AVANZADA</title>
+    <title>Motoruta Pro: Entrenamiento de Planificación</title>
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: white; text-align: center; margin: 0; }
-        header { background: #1e293b; padding: 20px; border-bottom: 4px solid #3b82f6; font-size: 24px; font-weight: bold; }
-        .info { padding: 10px; background: #334155; display: flex; justify-content: center; gap: 30px; font-size: 18px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; color: #333; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        header { background: #1e3a8a; color: white; width: 100%; padding: 15px; text-align: center; font-weight: bold; font-size: 1.4rem; }
+        .info-bar { background: #fff; width: 100%; display: flex; justify-content: center; gap: 50px; padding: 10px; border-bottom: 2px solid #cbd5e1; font-weight: bold; color: #1e3a8a; }
         
-        #escenario { position: relative; margin: 20px auto; border: 5px solid #64748b; background: #1e293b; width: 500px; height: 500px; }
-        .rejilla { display: grid; grid-template-columns: repeat(10, 50px); grid-template-rows: repeat(10, 50px); }
-        .celda { width: 50px; height: 50px; border: 0.1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 25px; box-sizing: border-box; }
+        .main-layout { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 30px; padding: 30px; width: 100%; max-width: 1200px; }
         
-        .muro { background: #020617; }
-        .meta { background: #166534; }
-        .casa { background: #1e40af; border: 2px solid #60a5fa; }
-
+        /* Tablero a la Izquierda */
+        #canvas-container { position: relative; border: 6px solid #1e3a8a; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        #grid { display: grid; gap: 1px; background: #cbd5e1; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .wall { background: #334155 !important; }
+        .goal { background: #fef08a !important; border: 2px solid #eab308; }
+        .checkpoint { background: #dbeafe !important; border: 2px dashed #3b82f6; }
+        
         #moto { 
-            position: absolute; width: 50px; height: 50px; z-index: 10;
-            transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; font-size: 35px;
+            position: absolute; z-index: 100; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; justify-content: center; pointer-events: none;
         }
 
-        .controles { margin-top: 20px; display: inline-block; background: #1e293b; padding: 20px; border-radius: 10px; }
-        #ruta-texto { min-height: 50px; color: #60a5fa; font-family: monospace; font-size: 20px; margin-bottom: 10px; }
-        .bloque-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; border-radius: 5px; }
-        .btn-mov { background: #475569; color: white; }
-        .btn-arrancar { background: #22c55e; color: white; grid-column: span 2; }
-        .btn-borrar { background: #ef4444; color: white; grid-column: span 2; }
+        /* Panel de Controles a la Derecha */
+        .side-panel { width: 380px; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .route-box { min-height: 100px; border: 2px dashed #cbd5e1; background: #f8fafc; margin-bottom: 20px; padding: 15px; display: flex; flex-wrap: wrap; gap: 8px; border-radius: 8px; align-content: flex-start; }
+        .arrow-tag { background: #1e3a8a; color: white; padding: 8px; border-radius: 6px; font-weight: bold; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        button { padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        .btn-move { background: #f1f5f9; color: #1e3a8a; border: 2px solid #e2e8f0; }
+        .btn-move:hover { background: #e2e8f0; }
+        .btn-go { background: #22c55e; color: white; grid-column: span 2; font-size: 1.2rem; border-bottom: 4px solid #16a34a; margin-top: 10px; }
+        .btn-go:active { border-bottom: 0; transform: translateY(4px); }
+        .btn-reset { background: #ef4444; color: white; grid-column: span 2; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA: PLANIFICACIÓN DE ALTO NIVEL</header>
-<div class="info">
-    <span>NIVEL: 10 (Avanzado)</span>
-    <span>OBJETIVO: Recoger CASA 🏠 antes de META 🏁</span>
+<header>MOTORUTA: ENTRENAMIENTO DE PLANIFICACIÓN</header>
+<div class="info-bar">
+    <span>NIVEL: <span id="txt-lvl">1</span>/3</span>
+    <span>EJERCICIO: <span id="txt-ex">1</span>/3</span>
 </div>
 
-<div id="escenario">
-    <div id="moto">🏍️</div>
-    <div id="grid" class="rejilla"></div>
-</div>
+<div class="main-layout">
+    <div id="canvas-container">
+        <div id="moto">🏍️</div>
+        <div id="grid"></div>
+    </div>
 
-<div class="controles">
-    <div id="ruta-texto">RUTA: </div>
-    <div class="bloque-btns">
-        <button class="btn-mov" onclick="add('ARRIBA')">↑ ARRIBA</button>
-        <button class="btn-mov" onclick="add('ABAJO')">↓ ABAJO</button>
-        <button class="btn-mov" onclick="add('IZQ')">← IZQ</button>
-        <button class="btn-mov" onclick="add('DER')">→ DER</button>
-        <button class="btn-arrancar" onclick="arrancar()">ARRANCAR MOTORES 🏁</button>
-        <button class="btn-borrar" onclick="reset()">LIMPIAR RUTA</button>
+    <div class="side-panel">
+        <p style="margin-top:0; font-weight:bold; color:#64748b;">Tu Ruta:</p>
+        <div id="route-box" class="route-box"></div>
+        
+        <div class="controls-grid">
+            <button class="btn-move" onclick="addMove('ARRIBA')">↑ SUBIR</button>
+            <button class="btn-move" onclick="addMove('BAJAR')">↓ BAJAR</button>
+            <button class="btn-move" onclick="addMove('IZQUIERDA')">← IZQ</button>
+            <button class="btn-move" onclick="addMove('DERECHA')">→ DER</button>
+            <button class="btn-go" onclick="startEngine()">ARRANCAR MOTO 🏍️</button>
+            <button class="btn-reset" onclick="resetAll()">BORRAR RUTA</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let comandos = [];
-    let x = 0, y = 0;
-    let tieneCasa = false;
-    let bloqueado = false;
-    
-    // Mapa complejo 10x10 (0=vacío, 1=muro, 2=meta, 3=casa)
-    const mapa = [
-        [0,1,0,0,0,0,1,0,0,0],
-        [0,1,0,1,1,0,1,0,1,0],
-        [0,0,0,1,3,0,0,0,1,0],
-        [1,1,0,1,1,1,1,0,1,0],
-        [0,0,0,0,0,0,1,0,0,0],
-        [0,1,1,1,1,0,1,1,1,0],
-        [0,0,0,1,0,0,0,1,0,0],
-        [1,1,0,1,0,1,0,1,0,1],
-        [0,0,0,0,0,1,0,0,0,0],
-        [0,1,1,1,0,1,1,1,1,2]
-    ];
+    let lvl = 1, ex = 1, moves = [], active = false;
+    let currentPos = {x: 0, y: 0}, tileSize = 60;
+    let hasPoint = false;
 
-    function hablar(t) {
+    // Base de datos de 9 ejercicios (3 por nivel)
+    const WORLD = {
+        1: [
+            { s: 5, w: [[1,1],[1,2],[3,2],[3,3]], st:[0,0], g:[4,4], h:[4,0], msg: "Bienvenido. Primero pasa por la casa y luego a la meta." },
+            { s: 5, w: [[2,0],[2,1],[2,2],[2,4]], st:[0,0], g:[4,0], h:[3,3], msg: "Rodea el obstáculo, visita la casa y llega al final." },
+            { s: 6, w: [[1,1],[2,1],[3,1],[4,1],[1,4],[2,4],[3,4]], st:[0,0], g:[5,5], h:[5,0], msg: "Calcula bien la ruta por el pasillo hacia la casa." }
+        ],
+        2: [
+            { s: 7, w: [[1,1],[1,2],[1,3],[1,4],[3,1],[4,1],[5,1],[6,1],[3,6],[4,6],[5,6]], st:[0,0], g:[6,0], h:[4,3], msg: "Nivel 2. Laberinto en 'U'. No olvides la casa." },
+            { s: 7, w: [[0,2],[1,2],[2,2],[4,2],[5,2],[6,2],[2,4],[3,4],[4,4]], st:[0,0], g:[3,3], h:[6,6], msg: "Esquiva los muros centrales para llegar a la casa." },
+            { s: 8, w: [[1,1],[3,3],[5,5],[7,7],[1,6],[6,1]], st:[0,0], g:[7,0], h:[4,4], msg: "Dificultad media. Planifica cada giro con cuidado." }
+        ],
+        3: [
+            { s: 10, w: [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9]], st:[0,0], g:[9,9], h:[2,5], msg: "Nivel experto. Pasillos estrechos. Busca la casa." },
+            { s: 10, w: [[0,2],[1,2],[2,2],[3,2],[4,2],[6,2],[7,2],[8,2],[9,2],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9]], st:[0,0], g:[9,0], h:[0,9], msg: "Máxima precisión requerida para este laberinto." },
+            { s: 12, w: [[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10],[1,11],[11,1]], st:[0,0], g:[6,5], h:[11,11], msg: "RETO FINAL. Cruza todo el tablero pasando por la casa." }
+        ]
+    };
+
+    function talk(txt) {
         window.speechSynthesis.cancel();
-        let m = new SpeechSynthesisUtterance(t);
-        m.lang = 'es-ES';
-        window.speechSynthesis.speak(m);
+        const utterance = new SpeechSynthesisUtterance(txt);
+        utterance.lang = 'es-ES';
+        window.speechSynthesis.speak(utterance);
     }
 
-    function dibujar() {
-        const g = document.getElementById('grid');
-        g.innerHTML = '';
-        for(let i=0; i<10; i++){
-            for(let j=0; j<10; j++){
-                let c = document.createElement('div');
-                c.className = 'celda';
-                if(mapa[i][j]===1) c.className += ' muro';
-                if(mapa[i][j]===2) { c.className += ' meta'; c.innerHTML = '🏁'; }
-                if(mapa[i][j]===3) { c.className += ' casa'; c.innerHTML = '🏠'; }
-                g.appendChild(c);
+    function buildMap() {
+        const conf = WORLD[lvl][ex-1];
+        const grid = document.getElementById('grid');
+        tileSize = conf.s > 8 ? 45 : 60;
+        
+        grid.style.gridTemplateColumns = `repeat(${conf.s}, ${tileSize}px)`;
+        grid.innerHTML = '';
+        
+        for(let y=0; y<conf.s; y++) {
+            for(let x=0; x<conf.s; x++) {
+                const c = document.createElement('div');
+                c.className = 'cell';
+                c.style.width = tileSize + 'px';
+                c.style.height = tileSize + 'px';
+                
+                if (conf.w.some(w => w[0] === x && w[1] === y)) c.classList.add('wall');
+                if (x === conf.g[0] && y === conf.g[1]) { c.classList.add('goal'); c.innerHTML = '🏁'; }
+                if (x === conf.h[0] && y === conf.h[1]) { c.classList.add('checkpoint'); c.innerHTML = '🏠'; }
+                
+                grid.appendChild(c);
             }
         }
-        actualizarMoto();
+        currentPos = {...conf.st};
+        hasPoint = false;
+        updateMoto();
+        talk(conf.msg);
     }
 
-    function actualizarMoto() {
+    function updateMoto() {
         const m = document.getElementById('moto');
-        m.style.top = (y * 50) + 'px';
-        m.style.left = (x * 50) + 'px';
+        m.style.width = tileSize + 'px';
+        m.style.height = tileSize + 'px';
+        m.style.fontSize = (tileSize * 0.7) + 'px';
+        m.style.left = (currentPos.x * (tileSize + 1)) + 'px';
+        m.style.top = (currentPos.y * (tileSize + 1)) + 'px';
     }
 
-    function add(d) {
-        if(bloqueado) return;
-        comandos.push(d);
-        document.getElementById('ruta-texto').innerText = "RUTA: " + comandos.map(c => c[0]).join('-');
-        hablar(d);
+    function addMove(d) {
+        if(active) return;
+        moves.push(d);
+        const box = document.getElementById('route-box');
+        const span = document.createElement('div');
+        span.className = 'arrow-tag';
+        span.innerText = d === 'ARRIBA' ? '↑' : d === 'BAJAR' ? '↓' : d === 'IZQUIERDA' ? '←' : '→';
+        box.appendChild(span);
+        talk(d);
     }
 
-    async function arrancar() {
-        if(bloqueado || comandos.length === 0) return;
-        bloqueado = true;
-        x = 0; y = 0; tieneCasa = false;
-        actualizarMoto();
+    function resetAll() {
+        if(active) return;
+        moves = [];
+        document.getElementById('route-box').innerHTML = '';
+        const conf = WORLD[lvl][ex-1];
+        currentPos = {...conf.st};
+        hasPoint = false;
+        updateMoto();
+    }
 
-        for(let c of comandos) {
-            if(c==='ARRIBA') y--;
-            if(c==='ABAJO') y++;
-            if(c==='IZQ') x--;
-            if(c==='DER') x++;
+    async function startEngine() {
+        if(active || moves.length === 0) return;
+        active = true;
+        const conf = WORLD[lvl][ex-1];
+        currentPos = {...conf.st};
+        updateMoto();
 
-            if(x<0 || x>9 || y<0 || y>9 || mapa[y][x]===1) {
-                hablar("Colisión. Ruta fallida.");
-                bloqueado = false;
+        for (let m of moves) {
+            let nx = currentPos.x, ny = currentPos.y;
+            if (m === 'ARRIBA') ny--; if (m === 'BAJAR') ny++;
+            if (m === 'IZQUIERDA') nx--; if (m === 'DERECHA') nx++;
+
+            if (nx < 0 || nx >= conf.s || ny < 0 || ny >= conf.s || conf.w.some(w => w[0] === nx && w[1] === ny)) {
+                talk("¡Crash! Chocaste.");
+                active = false;
                 return;
             }
 
-            if(mapa[y][x]===3) {
-                tieneCasa = true;
-                hablar("Casa recogida.");
+            currentPos = {x: nx, y: ny};
+            if (currentPos.x === conf.h[0] && currentPos.y === conf.h[1]) {
+                hasPoint = true;
+                talk("Casa alcanzada.");
             }
-
-            actualizarMoto();
-            await new Promise(r => setTimeout(r, 500));
+            updateMoto();
+            await new Promise(r => setTimeout(r, 400));
         }
 
-        if(mapa[y][x]===2) {
-            if(tieneCasa) {
-                hablar("Excelente. Misión cumplida.");
+        if (currentPos.x === conf.g[0] && currentPos.y === conf.g[1]) {
+            if (hasPoint) {
+                talk("¡Excelente! Ejercicio completado.");
+                nextStep();
             } else {
-                hablar("Error. No recogió la casa.");
+                talk("Llegaste a la meta, pero no pasaste por la casa. Intenta de nuevo.");
             }
         } else {
-            hablar("No llegó a la meta.");
+            talk("No llegaste a la meta.");
         }
-        bloqueado = false;
+        active = false;
     }
 
-    function reset() {
-        comandos = [];
-        document.getElementById('ruta-texto').innerText = "RUTA: ";
-        x = 0; y = 0; tieneCasa = false;
-        actualizarMoto();
-        hablar("Sistema reiniciado.");
+    function nextStep() {
+        if (ex < 3) { ex++; } 
+        else if (lvl < 3) { lvl++; ex = 1; } 
+        else { 
+            talk("Has completado todos los niveles. ¡Felicidades!");
+            return;
+        }
+        document.getElementById('txt-lvl').innerText = lvl;
+        document.getElementById('txt-ex').innerText = ex;
+        setTimeout(() => { resetAll(); buildMap(); }, 1000);
     }
 
-    window.onload = () => {
-        dibujar();
-        setTimeout(() => hablar("Atención. Objetivo casa obligatorio antes de la meta. Planifique su ruta."), 1000);
-    }
+    window.onload = buildMap;
 </script>
 </body>
 </html>
+
