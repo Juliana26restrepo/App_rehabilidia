@@ -2,52 +2,51 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Juan - Entrenamiento de Planificación</title>
+    <title>Motoruta Juan - Rehabilitación Cognitiva</title>
     <style>
-        :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f1f5f9; --orange: #fb923c; }
+        :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; --orange: #fb923c; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
         header { background: var(--primary); color: white; width: 100%; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; }
         
-        /* Banner de Instrucción Limpio */
         .instruction-banner { 
-            background: #fff7ed; border: 2px solid var(--orange); color: #9a3412; 
-            padding: 20px; margin: 15px; border-radius: 12px; width: 90%; max-width: 1000px; 
-            font-weight: bold; text-align: center; font-size: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            background: #fff7ed; border: 3px solid var(--orange); color: #9a3412; 
+            padding: 20px; margin: 15px; border-radius: 12px; width: 90%; max-width: 1100px; 
+            font-weight: bold; text-align: center; font-size: 1.3rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
         }
 
         .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 30px; padding: 12px; border-bottom: 2px solid #cbd5e1; font-weight: bold; }
-        .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; padding: 20px; width: 100%; max-width: 1300px; }
+        .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; width: 100%; }
         
-        #game-window { position: relative; border: 5px solid var(--primary); background: #fff; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
-        #grid { display: grid; background: #e2e8f0; gap: 1px; }
-        .cell { background: #fff; display: flex; align-items: center; justify-content: center; }
-        .wall { background: #334155 !important; } /* Los muros */
-        .goal { background: #fef08a !important; border: 2px solid #eab308; }
-        .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
+        #game-window { position: relative; border: 5px solid var(--primary); background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #grid { display: grid; background: #cbd5e1; gap: 1px; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .wall { background: #334155 !important; }
+        .goal { background: #fef08a !important; }
+        .house { background: #dbeafe !important; border: 1px solid #3b82f6; }
         
-        #moto { position: absolute; z-index: 100; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        #moto { position: absolute; z-index: 100; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; pointer-events: none; }
         
-        .controls { width: 400px; background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #cbd5e1; }
-        #route-list { min-height: 60px; max-height: 120px; overflow-y: auto; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .step-tag { background: var(--primary); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; }
+        .controls { width: 420px; background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        #route-list { min-height: 70px; max-height: 130px; overflow-y: auto; background: #f1f5f9; border: 2px dashed #94a3b8; border-radius: 10px; padding: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .step-tag { background: var(--primary); color: white; padding: 8px 15px; border-radius: 25px; font-size: 1rem; font-weight: bold; }
         
         .input-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .input-card { background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; text-align: center; }
-        .btn-mini { width: 30px; height: 30px; border: none; border-radius: 50%; background: #94a3b8; color: white; cursor: pointer; font-size: 1.1rem; }
-        .btn-add { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-top: 8px; font-weight: bold; }
-        .btn-run { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.2rem; transition: transform 0.2s; }
-        .btn-run:active { transform: scale(0.98); }
+        .input-card { background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; text-align: center; font-weight: bold; }
+        .btn-mini { width: 35px; height: 35px; border: none; border-radius: 50%; background: #64748b; color: white; cursor: pointer; font-size: 1.2rem; }
+        .btn-add { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 10px; font-weight: bold; }
+        .btn-run { width: 100%; background: var(--success); color: white; border: none; padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1.4rem; box-shadow: 0 4px 0 #166534; }
+        .btn-run:active { transform: translateY(2px); box-shadow: none; }
     </style>
 </head>
 <body>
 
 <header>MOTORUTA: ENTRENAMIENTO DE JUAN</header>
 
-<div class="instruction-banner" id="main-inst">Cargando instrucciones...</div>
+<div class="instruction-banner" id="main-inst">Cargando nivel...</div>
 
 <div class="stats">
-    <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
-    <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
+    <span>NIVEL: <span id="lvl-txt">1</span></span>
+    <span>EJERCICIO: <span id="ex-txt">1</span></span>
     <span>ERRORES: <span id="fail-txt">0</span></span>
 </div>
 
@@ -62,11 +61,11 @@
         <div class="input-zone">
             <div class="input-card">⬆ SUBIR<br><button class="btn-mini" onclick="m('arr',-1)">-</button> <span id="t-arr">1</span> <button class="btn-mini" onclick="m('arr',1)">+</button><button class="btn-add" onclick="add('arr')">AÑADIR</button></div>
             <div class="input-card">⬇ BAJAR<br><button class="btn-mini" onclick="m('aba',-1)">-</button> <span id="t-aba">1</span> <button class="btn-mini" onclick="m('aba',1)">+</button><button class="btn-add" onclick="add('aba')">AÑADIR</button></div>
-            <div class="input-card">⬅ IZQ<br><button class="btn-mini" onclick="m('izq',-1)">-</button> <span id="t-izq">1</span> <button class="btn-mini" onclick="m('izq',1)">+</button><button class="btn-add" onclick="add('izq')">AÑADIR</button></div>
-            <div class="input-card">➡ DER<br><button class="btn-mini" onclick="m('der',-1)">-</button> <span id="t-der">1</span> <button class="btn-mini" onclick="m('der',1)">+</button><button class="btn-add" onclick="add('der')">AÑADIR</button></div>
+            <div class="input-card">⬅ IZQUIERDA<br><button class="btn-mini" onclick="m('izq',-1)">-</button> <span id="t-izq">1</span> <button class="btn-mini" onclick="m('izq',1)">+</button><button class="btn-add" onclick="add('izq')">AÑADIR</button></div>
+            <div class="input-card">➡ DERECHA<br><button class="btn-mini" onclick="m('der',-1)">-</button> <span id="t-der">1</span> <button class="btn-mini" onclick="m('der',1)">+</button><button class="btn-add" onclick="add('der')">AÑADIR</button></div>
         </div>
         <button class="btn-run" onclick="execute()">INICIAR RUTA 🏁</button>
-        <button onclick="clearR()" style="width:100%; margin-top:15px; border:none; background:none; color:var(--danger); cursor:pointer; font-size:0.9rem; text-decoration: underline;">BORRAR TODO</button>
+        <button onclick="clearR()" style="width:100%; margin-top:15px; border:none; background:none; color:var(--danger); cursor:pointer; text-decoration: underline;">BORRAR RUTA</button>
     </div>
 </div>
 
@@ -75,23 +74,29 @@
     let st = { perro: false, gato: false, parque: false, casa: false };
     let tmp = { arr: 1, aba: 1, izq: 1, der: 1 };
 
-    // Base de datos con MUROS añadidos en Nivel 2 y 3
+    // MAPAS BASADOS EXACTAMENTE EN TUS DIBUJOS CON MUROS AÑADIDOS
     const DB = {
         1: { s: 8, exs: [
-            {i:[0,7], g:[3,3], h:[6,2], w:[[1,2],[1,3],[2,3],[4,4],[5,4],[6,4],[3,5],[3,6]], ex: []}
+            {i:[0,0], g:[4,4], h:[5,6], w:[[1,0],[1,1],[1,2],[1,3],[2,5],[3,5],[4,5],[5,4],[6,7]], ex:[]}, // Ej 1 Nivel 1
+            {i:[0,7], g:[7,4], h:[4,0], w:[[1,7],[3,6],[4,6],[6,1],[6,2],[2,2],[3,2]], ex:[]}, // Ej 2 Nivel 1
+            {i:[4,3], g:[2,7], h:[6,0], w:[[0,0],[1,0],[0,1],[6,1],[7,1],[2,2],[4,2],[3,4],[4,4],[7,6],[7,7]], ex:[]} // Ej 3 Nivel 1
         ]},
         2: { s: 12, exs: [
-            {i:[2,9], g:[1,4], h:[11,10], w:[[1,8],[3,8],[5,9],[9,10],[6,4],[6,5],[6,6],[3,2],[4,2],[5,2]], ex: [{x:5,y:5,id:'perro',img:'🐶'}]}
+            {i:[2,4], g:[6,1], h:[1,11], w:[[0,0],[1,0],[2,0],[3,0],[0,1],[0,2],[0,3],[4,2],[5,2],[6,2],[8,4],[8,5],[8,6],[4,7],[4,8],[10,10]], ex:[{x:4,y:9,id:'perro',img:'🐶'}]}, // Ej 1 Nivel 2
+            {i:[10,1], g:[6,10], h:[3,7], w:[[0,4],[1,4],[2,4],[4,4],[2,5],[2,6],[2,8],[1,8],[6,1],[6,2],[6,3],[7,3],[8,3],[10,8],[9,8]], ex:[{x:5,y:3,id:'perro',img:'🐶'}]}, // Ej 2 Nivel 2
+            {i:[5,5], g:[11,0], h:[8,8], w:[[2,1],[2,2],[3,2],[6,2],[7,2],[10,2],[1,4],[2,4],[6,4],[10,5],[10,6],[3,8],[4,8],[7,10],[1,10]], ex:[{x:1,y:11,id:'perro',img:'🐶'}]} // Ej 3 Nivel 2
         ]},
         3: { s: 16, exs: [
-            {i:[7,8], g:[0,0], h:[3,5], w:[[5,5],[8,8],[2,4],[2,5],[2,6],[4,4],[6,4],[10,2],[10,3],[10,4],[5,12],[6,12],[7,12],[12,12],[12,11]], ex: [{x:10,y:10,id:'perro',img:'🐶'},{x:12,y:2,id:'gato',img:'🐱'},{x:2,y:2,id:'parque',img:'🌳'}]}
-        ]
+            {i:[8,6], g:[15,15], h:[11,10], w:[[2,2],[3,2],[4,2],[6,2],[10,2],[12,2],[2,4],[2,6],[2,8],[6,8],[8,8],[10,8],[12,8],[14,8],[6,10],[6,12],[10,12]], ex:[{x:1,y:1,id:'perro',img:'🐶'},{x:14,y:1,id:'gato',img:'🐱'},{x:1,y:11,id:'parque',img:'🌳'}]}, 
+            {i:[0,0], g:[15,15], h:[0,15], w:[[1,1],[1,2],[1,3],[3,1],[4,1],[5,1],[7,5],[8,5],[9,5],[11,11],[12,11],[5,10],[6,10],[7,10]], ex:[{x:8,y:8,id:'perro',img:'🐶'},{x:15,y:0,id:'gato',img:'🐱'},{x:7,y:11,id:'parque',img:'🌳'}]},
+            {i:[7,2], g:[0,0], h:[7,8], w:[[0,2],[1,2],[3,2],[10,5],[11,5],[12,5],[5,10],[5,11],[5,12],[14,14],[13,14],[12,14]], ex:[{x:13,y:2,id:'perro',img:'🐶'},{x:7,y:14,id:'gato',img:'🐱'},{x:1,y:9,id:'parque',img:'🌳'}]}
+        ]}
     };
 
-    function getInstruccionTexto() {
-        if(lvl === 1) return "Juan: Cuenta los cuadros blancos. Ve primero a la CASA y luego a la META.";
+    function getInstruccion() {
+        if(lvl === 1) return "Juan: Cuenta los cuadros. Ve primero a la CASA y luego a la META.";
         if(lvl === 2) return "Juan: Cuenta los cuadros. Recoge primero al PERRO, llévalo a la CASA y luego ve a la META.";
-        if(lvl === 3) return "Juan: Cuenta los cuadros. Recoge al PERRO y al GATO, ve al ÁRBOL, luego a la CASA y finalmente a la META.";
+        if(lvl === 3) return "Juan: Recoge al PERRO y al GATO, ve al ÁRBOL, luego a la CASA y finalmente a la META.";
     }
 
     function speak(t) { 
@@ -112,13 +117,15 @@
             const s = document.createElement('span'); s.className = 'step-tag'; 
             s.innerText = `${icon[p.d]} ${p.n}`; l.appendChild(s); 
         });
-        document.getElementById('main-inst').innerText = getInstruccionTexto();
+        document.getElementById('main-inst').innerText = getInstruccion();
+        document.getElementById('lvl-txt').innerText = lvl;
+        document.getElementById('ex-txt').innerText = ex;
     }
 
     function build() {
-        const c = DB[lvl], e = c.exs[0]; // Simplificado a un ejercicio por nivel para el ejemplo
+        const c = DB[lvl], e = c.exs[ex-1];
         const g = document.getElementById('grid');
-        const availableWidth = Math.min(window.innerWidth - 40, 600);
+        const availableWidth = Math.min(window.innerWidth - 40, 580);
         const sz = Math.floor(availableWidth / c.s);
         
         g.style.gridTemplateColumns = `repeat(${c.s}, ${sz}px)`;
@@ -130,8 +137,8 @@
                 const d = document.createElement('div'); d.className = 'cell';
                 d.style.width = d.style.height = sz + 'px';
                 if(e.w.some(w => w[0]==x && w[1]==y)) d.classList.add('wall');
-                if(x==e.g[0] && y==e.g[1]) { d.classList.add('goal'); d.innerText='🏁'; }
-                if(x==e.h[0] && y==e.h[1]) { d.classList.add('house'); d.innerText='🏠'; }
+                if(x==e.g[0] && y==e.g[1]) { d.className += ' goal'; d.innerText='🏁'; }
+                if(x==e.h[0] && y==e.h[1]) { d.className += ' house'; d.innerText='🏠'; }
                 const item = e.ex.find(o => o.x==x && o.y==y);
                 if(item) { d.innerText = item.img; d.id = 'o-'+item.id; }
                 g.appendChild(d);
@@ -142,7 +149,7 @@
         mNode.style.width = mNode.style.height = sz+'px'; 
         mNode.style.fontSize = sz*0.7+'px';
         renderM(); updateUI();
-        speak(getInstruccionTexto());
+        speak(getInstruccion());
     }
 
     function renderM() {
@@ -153,7 +160,7 @@
     async function execute() {
         if(active || prog.length == 0) return;
         active = true;
-        const e = DB[lvl].exs[0];
+        const e = DB[lvl].exs[ex-1];
         const moves = { der:{x:1,y:0}, izq:{x:-1,y:0}, aba:{x:0,y:1}, arr:{x:0,y:-1} };
 
         for(let step of prog) {
@@ -161,20 +168,28 @@
                 let nx = pos.x + moves[step.d].x, ny = pos.y + moves[step.d].y;
                 if(nx<0 || nx>=DB[lvl].s || ny<0 || ny>=DB[lvl].s || e.w.some(w => w[0]==nx && w[1]==ny)) {
                     fails++; document.getElementById('fail-txt').innerText = fails;
-                    speak("¡Cuidado Juan, chocaste con un muro! Intenta contar otra vez.");
+                    speak("¡Cuidado Juan, chocaste! Vuelve a contar los cuadros.");
                     resetM(); active = false; return;
                 }
                 pos.x = nx; pos.y = ny; renderM();
                 checkLogic(e);
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 350));
             }
         }
 
         if(pos.x == e.g[0] && pos.y == e.g[1] && st.casa) {
-            speak("¡Excelente Juan! Has completado el recorrido perfectamente.");
-            setTimeout(() => { if(lvl<3){lvl++; build();} else {alert("¡Fin del Entrenamiento!");} }, 2000);
+            speak("¡Muy bien Juan! Completaste el ejercicio.");
+            setTimeout(() => { 
+                ex++; 
+                if(ex>3){ lvl++; ex=1; } 
+                if(lvl>3){ alert("¡Increíble Juan, terminaste todo!"); lvl=1; ex=1; }
+                build(); 
+                active=false; 
+                prog=[]; 
+                updateUI();
+            }, 2000);
         } else {
-            speak("Llegaste a la meta, pero no seguiste el orden de la instrucción. Inténtalo de nuevo.");
+            speak("Llegaste al final, pero no seguiste el orden de la instrucción. Inténtalo de nuevo.");
             active = false;
         }
     }
@@ -195,7 +210,7 @@
     }
 
     function resetM() { 
-        const e = DB[lvl].exs[0];
+        const e = DB[lvl].exs[ex-1];
         pos = {x: e.i[0], y: e.i[1]}; 
         renderM(); 
     }
@@ -204,3 +219,4 @@
 </script>
 </body>
 </html>
+
