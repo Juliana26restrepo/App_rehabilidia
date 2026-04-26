@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Memoria 5 - Juan: Entrenamiento 70 Escenas</title>
+    <title>Memoria 5 - Juan: Entrenamiento de Escenas</title>
     <style>
         :root {
             --baby-blue: #E1F5FE;
@@ -83,7 +83,7 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
-<body>
+<body onload="iniciarEntrenamiento()">
 
 <div id="contenedor-proporcional">
     <div id="cabecera">
@@ -140,11 +140,12 @@
         msg.lang = 'es-ES';
         msg.rate = 0.9;
         
-        let llamado = false;
-        const finalizar = () => { if(!llamado) { llamado = true; if(callback) callback(); } };
-
-        msg.onend = finalizar;
-        setTimeout(finalizar, 8000); // Seguro de 8 segundos si la voz falla
+        let fallSafe = setTimeout(() => { if(callback) callback(); }, 10000);
+        
+        msg.onend = () => { 
+            clearTimeout(fallSafe);
+            if(callback) callback(); 
+        };
         window.speechSynthesis.speak(msg);
     }
 
@@ -165,7 +166,7 @@
                 pantalla.style.display = 'none';
                 intentoActual = 0;
                 iniciarIntento();
-            }, 1500);
+            }, 2000);
         });
     }
 
@@ -244,10 +245,7 @@
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
             btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Error'">`;
-            btn.onpointerdown = (e) => { 
-                e.preventDefault();
-                if(!bloqueado) verificar(opt.esCorrecta, btn); 
-            };
+            btn.onpointerdown = (e) => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
             grid.appendChild(btn);
         });
 
@@ -260,21 +258,25 @@
             el.classList.add('correcto');
             aciertosGlobales++;
             statsNiveles[nivelActual].a++;
-            hablar("¡Excelente!", () => {
-                setTimeout(() => {
-                    pasoReconocimiento++;
-                    if(pasoReconocimiento < secuenciaActual.length) prepararReconocimiento();
-                    else proximoIntento();
-                }, 1000);
-            });
+            hablar("¡Excelente!", avanzar);
         } else {
             el.classList.add('incorrecto');
             erroresGlobales++;
             statsNiveles[nivelActual].e++;
-            hablar("Esa tenía un cambio. Ánimo.", () => {
-                setTimeout(proximoIntento, 1500);
-            });
+            hablar("Esa tenía un cambio. Ánimo.", avanzar);
         }
+    }
+
+    // Nueva lógica: Siempre avanza a la siguiente imagen de la secuencia actual, falle o no
+    function avanzar() {
+        setTimeout(() => {
+            pasoReconocimiento++;
+            if(pasoReconocimiento < secuenciaActual.length) {
+                prepararReconocimiento();
+            } else {
+                proximoIntento();
+            }
+        }, 1200);
     }
 
     function proximoIntento() {
@@ -291,17 +293,10 @@
 
     function finalizarSesion() {
         const total = aciertosGlobales + erroresGlobales;
-        const eficacia = Math.round((aciertosGlobales / (total || 1)) * 100);
+        const eficacia = Math.round((aciertosGlobales / total) * 100);
         
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push({ 
-            fecha: new Date().toLocaleDateString(), 
-            modulo: "Memoria", 
-            id_sesion: 5, 
-            aciertos: aciertosGlobales, 
-            errores: erroresGlobales, 
-            eficacia: eficacia + "%" 
-        });
+        historial.push({ fecha: new Date().toLocaleDateString(), modulo: "Memoria", id_sesion: 5, aciertos: aciertosGlobales, errores: erroresGlobales, eficacia: eficacia + "%" });
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
 
         document.getElementById('panel-reto').style.display = 'none';
@@ -312,13 +307,8 @@
             <h2 style="color:var(--ocean)">Eficacia Total: ${eficacia}%</h2>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Muy bien Juan! Hemos terminado el entrenamiento de las 70 escenas.");
+        hablar("¡Muy bien Juan! Hemos terminado el entrenamiento de memoria visual de hoy.");
     }
-
-    // Asegurar inicio al cargar
-    window.addEventListener('load', () => {
-        setTimeout(iniciarEntrenamiento, 500);
-    });
 </script>
 </body>
 </html>
