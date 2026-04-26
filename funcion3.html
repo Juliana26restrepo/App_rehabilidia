@@ -2,71 +2,206 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 3: Control Inhibitorio - REHABILIDIA</title>
     <style>
-        :root { --p-purple: #4A148C; --bg: #F3E5F5; --gold: #FFD700; --navy: #103A57; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
+        :root { 
+            --p-purple: #4A148C; 
+            --bg: #F3E5F5; 
+            --gold: #FFD700; 
+            --navy: #103A57; 
+            --white: #ffffff;
+        }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+        /* UNIVERSAL ZOOM & RESET */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
-        .indicador-nivel { color: var(--p-purple); font-weight: bold; margin-bottom: 5px; font-size: 1.1rem; }
-        .panel-regla { background: var(--p-purple); color: white; padding: 12px 25px; border-radius: 15px; font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; border: 3px solid var(--gold); min-width: 250px; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #121212; /* Fondo externo */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        #estimulo-central { font-size: 4.5rem; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; min-height: 100px; transition: 0.2s; }
+        /* Contenedor Proporcional Adaptable */
+        #viewport-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1024px;
+            max-height: 768px;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: background-color 0.3s;
+        }
 
-        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 450px; }
-        .opcion { background: white; border: 3px solid var(--navy); padding: 18px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .opcion:active { background: #e0e0e0; transform: scale(0.95); }
+        header { 
+            background: var(--navy); 
+            color: white; 
+            height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+        }
+
+        #contenedor-juego { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-evenly; 
+            padding: 15px; 
+        }
         
-        #overlay-aviso, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 1000; padding: 20px; text-align: center; }
-        #overlay-aviso { background: rgba(74, 20, 140, 0.95); color: white; }
+        .indicador-nivel { color: var(--p-purple); font-weight: bold; font-size: clamp(1rem, 2.5vw, 1.2rem); }
+        
+        .panel-regla { 
+            background: var(--p-purple); 
+            color: white; 
+            padding: clamp(10px, 2vh, 15px) 30px; 
+            border-radius: 20px; 
+            font-size: clamp(1.2rem, 4vw, 1.6rem); 
+            font-weight: bold; 
+            border: 4px solid var(--gold); 
+            min-width: 280px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        #estimulo-central { 
+            font-size: clamp(3.5rem, 12vw, 5.5rem); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            min-height: 120px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #zona-opciones { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            width: 100%; 
+            max-width: 500px; 
+        }
+
+        .opcion { 
+            background: var(--white); 
+            border: 4px solid var(--navy); 
+            padding: clamp(15px, 3vh, 25px); 
+            border-radius: 20px; 
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem); 
+            font-weight: bold; 
+            cursor: pointer; 
+            box-shadow: 0 5px 0px var(--navy);
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .opcion:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 1px 0px var(--navy);
+            background: #f0f0f0;
+        }
+        
+        /* Capas de Feedback */
+        #overlay-aviso, #overlay-final { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            display:none; flex-direction:column; justify-content:center; 
+            align-items:center; z-index: 1000; padding: 30px; text-align: center; 
+        }
+        
+        #overlay-aviso { background: rgba(74, 20, 140, 0.96); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
-        .btn-grande { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.3rem; font-weight: bold; cursor: pointer; margin-top: 25px; color: var(--p-purple); }
+        .cuadro-resultados {
+            background: var(--white);
+            color: var(--navy);
+            padding: clamp(20px, 5vh, 40px);
+            border-radius: 30px;
+            width: 90%;
+            max-width: 450px;
+            border: 6px solid var(--gold);
+        }
+
+        .btn-grande { 
+            background: var(--gold); 
+            border: none; 
+            padding: 18px 45px; 
+            border-radius: 50px; 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            color: var(--p-purple);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body onload="iniciarSesion()">
 
-<header>SESIÓN 3: CONTROL DE IMPULSOS</header>
+<div id="viewport-container">
+    <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
-<div id="contenedor-juego">
-    <div class="indicador-nivel" id="num-nivel">Nivel 1 de 3</div>
-    <div id="panel-regla" class="panel-regla">¡PREPÁRATE!</div>
-    <div id="estimulo-central">---</div>
-    <div id="zona-opciones"></div>
-</div>
+    <div id="contenedor-juego">
+        <div class="indicador-nivel" id="num-nivel">Nivel 1 de 3</div>
+        <div id="panel-regla" class="panel-regla">¡PREPÁRATE!</div>
+        <div id="estimulo-central">---</div>
+        <div id="zona-opciones"></div>
+    </div>
 
-<div id="overlay-aviso">
-    <h1 id="titulo-aviso" style="color: var(--gold); font-size: 3rem;">¡NIVEL 2!</h1>
-    <p id="texto-aviso" style="font-size: 1.5rem;"></p>
-</div>
+    <div id="overlay-aviso">
+        <h1 id="titulo-aviso" style="color: var(--gold); font-size: 3.5rem; margin:0;">¡NIVEL 2!</h1>
+        <p id="texto-aviso" style="font-size: 1.8rem; margin-top: 20px;"></p>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: var(--gold); font-size: 2.5rem;">¡EXCELENTE SESIÓN!</h1>
-    <p id="stats" style="font-size: 1.4rem;"></p>
-    <p style="font-style: italic; margin: 20px 0; color: #CEE5D6;">"Controlar tus impulsos también es una forma de cuidarte a ti."</p>
-    <button class="btn-grande" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--p-purple); font-size: 2rem; margin: 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="visual-stats" style="margin: 25px 0; text-align: left; font-size: 1.2rem;"></div>
+            <p style="font-style: italic; color: #666; margin-bottom: 20px;">"Controlar tus impulsos fortalece tu mente, Juan."</p>
+            <button class="btn-grande" onpointerdown="guardarYSalir()">FINALIZAR</button>
+        </div>
+    </div>
 </div>
 
 <script>
     const colores = [
         { n: "ROJO", h: "#FF0000" }, { n: "AZUL", h: "#0000FF" },
-        { n: "VERDE", h: "#008000" }, { n: "AMARILLO", h: "#D4AF37" },
+        { n: "VERDE", h: "#008000" }, { n: "AMARILLO", h: "#B8860B" },
         { n: "NEGRO", h: "#000000" }
     ];
 
-    let intentos = 0, aciertos = 0, errores = 0, nivelActual = 1, regla = "palabra";
+    // MÉTRICAS DINÁMICAS
+    let intentosTotales = 0;
+    let aciertos = 0;
+    let errores = 0;
+    let nivelActual = 1;
+    let regla = "palabra";
+    const TOTAL_EJERCICIOS = 15;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95;
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES'; 
+        m.rate = 0.9;
         window.speechSynthesis.speak(m);
     }
 
     function iniciarSesion() {
-        hablar("Juan, lee la palabra, no te fijes en el color.");
+        hablar("Juan, en este nivel, lee la palabra ignorando el color de la tinta.");
         proximaPregunta();
     }
 
@@ -79,21 +214,21 @@
         setTimeout(() => { 
             overlay.style.display = 'none';
             proximaPregunta();
-        }, 3000);
+        }, 3500);
     }
 
     function proximaPregunta() {
-        if (intentos >= 15) { finalizar(); return; }
+        if (intentosTotales >= TOTAL_EJERCICIOS) { finalizar(); return; }
 
-        // CAMBIO DE NIVELES
-        if (intentos === 5 && nivelActual === 1) {
+        // LÓGICA DE NIVELES (Inhibición de respuesta)
+        if (intentosTotales === 5 && nivelActual === 1) {
             nivelActual = 2; regla = "color";
-            mostrarCambioNivel(2, "¡Cambio! Ahora ignora la palabra y elige el color de la tinta.");
+            mostrarCambioNivel(2, "¡Cambio de regla Juan! Ahora elige el color de la tinta, no leas la palabra.");
             return;
         }
-        if (intentos === 10 && nivelActual === 2) {
+        if (intentosTotales === 10 && nivelActual === 2) {
             nivelActual = 3;
-            mostrarCambioNivel(3, "¡Atento! Ahora la regla cambiará en cada palabra.");
+            mostrarCambioNivel(3, "¡Atención! Ahora la regla cambiará por sorpresa en cada palabra.");
             return;
         }
 
@@ -101,10 +236,10 @@
             regla = Math.random() > 0.5 ? "palabra" : "color";
         }
 
-        document.getElementById('num-nivel').innerText = "Nivel " + nivelActual + " de 3";
+        document.getElementById('num-nivel').innerText = `Reto ${intentosTotales + 1} de ${TOTAL_EJERCICIOS}`;
         document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
-        // Crear interferencia
+        // Crear Interferencia Stroop
         const pRandom = colores[Math.floor(Math.random() * colores.length)];
         let cRandom;
         do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
@@ -115,7 +250,7 @@
 
         const correcta = regla === "palabra" ? pRandom : cRandom;
 
-        // Botones
+        // Generar Opciones
         const contenedor = document.getElementById('zona-opciones');
         contenedor.innerHTML = "";
         let opciones = [...colores].sort(() => 0.5 - Math.random()).slice(0, 4);
@@ -126,31 +261,64 @@
             const btn = document.createElement('div');
             btn.className = 'opcion';
             btn.innerText = col.n;
-            btn.onclick = () => {
-                intentos++;
+            
+            // Soporte Pointer (Touch/Mouse)
+            btn.onpointerdown = (e) => {
+                e.preventDefault();
+                intentosTotales++;
+                const container = document.getElementById('viewport-container');
+                
                 if (col.n === correcta.n) {
                     aciertos++;
-                    document.body.style.backgroundColor = "#C8E6C9";
+                    container.style.backgroundColor = "#C8E6C9";
                 } else {
                     errores++;
-                    document.body.style.backgroundColor = "#FFCDD2";
+                    container.style.backgroundColor = "#FFCDD2";
+                    hablar("Cuidado, fíjate en la regla.");
                 }
+                
                 setTimeout(() => {
-                    document.body.style.backgroundColor = "#F3E5F5";
+                    container.style.backgroundColor = "#F3E5F5";
                     proximaPregunta();
-                }, 250);
+                }, 300);
             };
             contenedor.appendChild(btn);
         });
     }
 
     function finalizar() {
+        const eficacia = Math.round((aciertos / TOTAL_EJERCICIOS) * 100);
+        
+        document.getElementById('visual-stats').innerHTML = `
+            <p><b>Total ejercicios:</b> ${TOTAL_EJERCICIOS}</p>
+            <p><b>Aciertos:</b> <span style="color:green">${aciertos}</span></p>
+            <p><b>Errores:</b> <span style="color:red">${errores}</span></p>
+            <p><b>Eficacia:</b> ${eficacia}%</p>
+        `;
+
         document.getElementById('overlay-final').style.display = 'flex';
-        const total = aciertos + errores;
-        const prec = Math.round((aciertos / total) * 100);
-        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores} | Precisión: ${prec}%`;
-        hablar("¡Excelente trabajo Juan! Controlar tus impulsos también es una forma de cuidarte.");
+        hablar(`Sesión completada Juan. Tu eficacia ha sido del ${eficacia} por ciento.`);
+    }
+
+    function guardarYSalir() {
+        const eficacia = Math.round((aciertos / TOTAL_EJERCICIOS) * 100);
+        
+        const dataLog = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 3,
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: eficacia + "%"
+        };
+
+        // Almacenamiento Centralizado
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
+        
+        // Regreso al menú (Simulado según el entorno)
+        window.location.href = 'funcion_sesiones.html';
     }
 </script>
 </body>
 </html>
+
