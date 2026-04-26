@@ -2,38 +2,125 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nivel 8 - Organización de Closet Juan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sesión 8 - Organización de Closet Juan</title>
     <style>
-        body { font-family: sans-serif; margin: 0; background: #f0f0f0; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
-        #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; z-index: 100; }
-        #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 3px solid #307B8E; }
-        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
-        #escenario { flex-grow: 1; display: flex; background: url('img8/habitacion_fondo8.jpg') no-repeat center; background-size: cover; position: relative; padding: 15px; gap: 15px; }
-        #contenedor-armario { width: 45%; height: 95%; position: relative; border: 4px solid #0A253A; border-radius: 20px; background: rgba(255,255,255,0.3); }
+        :root { --p-blue: #0A253A; --t-blue: #307B8E; --bg-gray: #f0f0f0; --accent: #FFD700; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; background: var(--bg-gray); 
+            overflow: hidden; touch-action: none; 
+            display: flex; flex-direction: column; height: 100vh; width: 100vw;
+        }
+
+        /* Sistema de Escalado Universal Zoom */
+        #main-stage {
+            flex-grow: 1; display: flex; 
+            background: url('img8/habitacion_fondo8.jpg') no-repeat center; 
+            background-size: cover; position: relative; 
+            padding: 1vh; gap: 1vw; box-sizing: border-box;
+            max-height: calc(100vh - 80px);
+        }
+
+        #cabecera { 
+            background: var(--p-blue); color: white; padding: 10px; 
+            display: flex; flex-direction: column; align-items: center; z-index: 1000;
+        }
+
+        #guia-box { 
+            background: white; color: var(--p-blue); width: 95%; max-width: 800px;
+            border-radius: 12px; padding: 8px 15px; display: flex; align-items: center; 
+            border: 3px solid var(--t-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        #avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--t-blue); }
+        #texto-guia { font-size: 0.95rem; font-weight: bold; margin: 0; line-height: 1.2; }
+
+        #contenedor-armario { 
+            width: 40%; height: 100%; position: relative; 
+            border: 4px solid var(--p-blue); border-radius: 20px; 
+            background: rgba(255,255,255,0.4); backdrop-filter: blur(5px);
+        }
+
         #armario_img { width: 100%; height: 100%; object-fit: contain; }
-        .punto-ubicacion { position: absolute; width: 65px; height: 65px; background: rgba(48, 123, 142, 0.8); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; z-index: 20; font-size: 1.6rem; }
-        .etiqueta-zona { position: absolute; background: #0A253A; color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; z-index: 25; pointer-events: none; }
-        #punto1 { top: 15%; left: 42%; } #label1 { top: 8%; left: 42%; }
-        #punto2 { top: 48%; left: 42%; } #label2 { top: 41%; left: 42%; }
-        #punto3 { top: 82%; left: 42%; } #label3 { top: 75%; left: 42%; }
-        #despensa-prendas { width: 55%; background: rgba(255,255,255,0.9); border-radius: 20px; border: 3px solid #0A253A; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; overflow-y: auto; align-content: start; }
-        .item { width: 85px; height: 85px; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; position: relative; }
-        #notificacion { display: none; position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 340px; background: #FFD700; border: 6px solid #0A253A; border-radius: 20px; padding: 25px; text-align: center; z-index: 2000; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-        .btn-notif { padding: 15px; margin: 10px 8px; width: 120px; border-radius: 12px; border: 3px solid #0A253A; font-weight: bold; cursor: pointer; font-size: 1.1rem; background: #307B8E; color: white; }
-        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+
+        .punto-ubicacion { 
+            position: absolute; width: 15%; aspect-ratio: 1/1; 
+            background: rgba(48, 123, 142, 0.9); color: white; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; border: 3px solid white; z-index: 20; font-size: 1.5rem;
+        }
+
+        .etiqueta-zona { 
+            position: absolute; background: var(--p-blue); color: white; 
+            padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; 
+            font-weight: bold; z-index: 25; pointer-events: none; width: fit-content;
+        }
+
+        /* Posiciones Proporcionales */
+        #punto1 { top: 15%; left: 42.5%; } #label1 { top: 8%; left: 42.5%; }
+        #punto2 { top: 48%; left: 42.5%; } #label2 { top: 41%; left: 42.5%; }
+        #punto3 { top: 82%; left: 42.5%; } #label3 { top: 75%; left: 42.5%; }
+
+        #despensa-prendas { 
+            width: 60%; background: rgba(255,255,255,0.85); 
+            border-radius: 20px; border: 3px solid var(--p-blue); 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); 
+            gap: 10px; padding: 15px; overflow-y: hidden; align-content: start; 
+        }
+
+        .item { 
+            width: 100%; aspect-ratio: 1/1; object-fit: contain; 
+            cursor: grab; touch-action: none; z-index: 100;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+
+        /* Notificación de Interrupción */
+        #notificacion { 
+            display: none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); width: 85%; max-width: 380px; 
+            background: var(--accent); border: 6px solid var(--p-blue); 
+            border-radius: 25px; padding: 25px; text-align: center; 
+            z-index: 5000; box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
+        }
+
+        .btn-notif { 
+            padding: 12px 25px; margin: 10px 5px; border-radius: 12px; 
+            border: 3px solid var(--p-blue); font-weight: bold; 
+            cursor: pointer; font-size: 1.1rem; background: var(--t-blue); color: white; 
+        }
+
+        /* Cuadro de Resultados Final */
+        #modal-cierre { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(10, 37, 58, 0.98); z-index: 9000; color: white; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            text-align: center; padding: 20px; box-sizing: border-box;
+        }
+
+        .resumen-card {
+            background: white; color: var(--p-blue); padding: 30px; 
+            border-radius: 25px; width: 90%; max-width: 400px;
+        }
+
+        .btn-final {
+            background: var(--t-blue); color: white; border: none; 
+            padding: 15px 30px; border-radius: 50px; font-weight: bold; 
+            margin-top: 20px; cursor: pointer; font-size: 1.1rem; width: 100%;
+        }
     </style>
 </head>
 <body onload="iniciarProgreso()">
 
-<div id="cabecera">
+<header id="cabecera">
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando sesión...</p>
+        <p id="texto-guia">Juan, vamos a organizar tu closet.</p>
     </div>
-</div>
+</header>
 
-<div id="escenario">
+<main id="main-stage">
     <div id="contenedor-armario">
         <img src="img8/armario.png" id="armario_img">
         <div class="etiqueta-zona" id="label1">1. COLGAR</div>
@@ -44,222 +131,146 @@
         <div class="punto-ubicacion" id="punto3" data-zona="3">3</div>
     </div>
     <div id="despensa-prendas"></div>
-</div>
+</main>
 
 <div id="notificacion">
-    <p id="pregunta-txt" style="font-weight: bold; font-size: 1.2rem; color: #0A253A;"></p>
+    <p id="pregunta-txt" style="font-weight: bold; font-size: 1.3rem; color: #0A253A; margin-bottom: 20px;"></p>
     <button class="btn-notif" id="btnA">Sí</button>
     <button class="btn-notif" id="btnB">No</button>
 </div>
 
 <div id="modal-cierre">
-    <h2 id="msg-final"></h2>
-    <p id="stats" style="font-size: 1.6rem; margin: 20px 0; color: #FFD700;"></p>
-    <p id="sub-msg"></p>
+    <div class="resumen-card">
+        <h2 style="margin: 0 0 15px 0;">¡Sesión Terminada!</h2>
+        <div id="stats-finales" style="text-align: left; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;"></div>
+        <button class="btn-final" onclick="location.href='menu.html'">VOLVER AL MENÚ</button>
+    </div>
 </div>
 
 <script>
     let nivelActual = 1; 
-    let aciertos = 0, totalNecesarios = 0, totalNotif = 0, aciertosNotif = 0;
-    let timerNotif = null;
-    let juegoFinalizado = false;
+    let aciertosPrendas = 0, erroresPrendas = 0, aciertosTrivia = 0, totalPreguntas = 0;
+    let timerNotif = null, juegoFinalizado = false;
 
-    const alarma = new Audio('img8/alarma.mp3');
-    const exito = new Audio('img8/exito.mp3');
+    const sonidos = {
+        alarma: new Audio('img8/alarma.mp3'),
+        exito: new Audio('img8/exito.mp3')
+    };
 
     const categorias = {
         1: ['chaqueta.png', 'camisa_polo.png', 'camisa_verde.png', 'saco.png', 'vestido.png'],
         2: ['pantalones.png', 'pantalones_cortos.png', 'pijama.png', 'sueter.png'],
         3: ['zapato1.png', 'tacones.png', 'bota.png']
     };
-    const distractores = ['balon.png', 'cafe.png', 'martillo.png', 'cepillo.png', 'libro.png'];
     
-    // BANCO DE 100 PREGUNTAS ACTUALIZADO
     const trivias = [
-        {q:"¿El sol es una estrella?", c:"S"}, {q:"¿Colombia está en América del Sur?", c:"S"},
-        {q:"¿El agua hierve a 100 grados Celsius?", c:"S"}, {q:"¿Los perros son mamíferos?", c:"S"},
-        {q:"¿La luna tiene luz propia?", c:"N"}, {q:"¿París es la capital de Francia?", c:"S"},
-        {q:"¿El hierro es un metal?", c:"S"}, {q:"¿Los peces respiran aire como los humanos?", c:"N"},
-        {q:"¿La Tierra gira alrededor del sol?", c:"S"}, {q:"¿El chocolate viene del cacao?", c:"S"},
-        {q:"¿Los humanos tienen 4 pulmones?", c:"N"}, {q:"¿El Amazonas es un río?", c:"S"},
-        {q:"¿Los gatos maúllan?", c:"S"}, {q:"¿La electricidad puede ser peligrosa?", c:"S"},
-        {q:"¿El hielo es agua en estado sólido?", c:"S"}, {q:"¿Los pájaros vuelan?", c:"S"},
-        {q:"¿El corazón bombea sangre?", c:"S"}, {q:"¿La sal es dulce?", c:"N"},
-        {q:"¿El café contiene cafeína?", c:"S"}, {q:"¿El planeta Marte es rojo?", c:"S"},
-        {q:"¿Las plantas necesitan luz para crecer?", c:"S"}, {q:"¿El océano es agua salada?", c:"S"},
-        {q:"¿El fútbol se juega con las manos?", c:"N"}, {q:"¿Los elefantes son animales grandes?", c:"S"},
-        {q:"¿La nieve es caliente?", c:"N"}, {q:"¿El fuego quema?", c:"S"},
-        {q:"¿La Tierra es plana?", c:"N"}, {q:"¿Los humanos respiran oxígeno?", c:"S"},
-        {q:"¿El oro es un metal precioso?", c:"S"}, {q:"¿El invierno es más frío que el verano?", c:"S"},
-        {q:"¿Las abejas producen miel?", c:"S"}, {q:"¿El cuerpo humano tiene huesos?", c:"S"},
-        {q:"¿La leche viene de animales?", c:"S"}, {q:"¿El sol sale por el este?", c:"S"},
-        {q:"¿La luna es más grande que la Tierra?", c:"N"}, {q:"¿El azúcar es salado?", c:"N"},
-        {q:"¿Los árboles tienen hojas?", c:"S"}, {q:"¿El aire es invisible?", c:"S"},
-        {q:"¿Los tiburones son peces?", c:"S"}, {q:"¿El desierto tiene mucha agua?", c:"N"},
-        {q:"¿La lluvia cae del cielo?", c:"S"}, {q:"¿El hielo flota en el agua?", c:"S"},
-        {q:"¿El plomo es ligero?", c:"N"}, {q:"¿Los humanos necesitan dormir?", c:"S"},
-        {q:"¿El vidrio es transparente?", c:"S"}, {q:"¿La electricidad puede iluminar una casa?", c:"S"},
-        {q:"¿Los caballos tienen alas?", c:"N"}, {q:"¿La Tierra tiene un solo satélite natural?", c:"S"},
-        {q:"¿El pan se hace con harina?", c:"S"}, {q:"¿Los volcanes pueden hacer erupción?", c:"S"},
-        {q:"¿El agua es incolora?", c:"S"}, {q:"¿El cuerpo humano tiene sangre?", c:"S"},
-        {q:"¿Las estrellas se ven de día?", c:"N"}, {q:"¿El fuego necesita oxígeno?", c:"S"},
-        {q:"¿Los murciélagos vuelan?", c:"S"}, {q:"¿El arroz crece en plantas?", c:"S"},
-        {q:"¿El cerebro está en la cabeza?", c:"S"}, {q:"¿El mar es dulce?", c:"N"},
-        {q:"¿Los humanos tienen dos ojos?", c:"S"}, {q:"¿El hielo puede derretirse?", c:"S"},
-        {q:"¿Las nubes están en el cielo?", c:"S"}, {q:"¿El sonido puede viajar en el aire?", c:"S"},
-        {q:"¿El agua es necesaria para la vida?", c:"S"}, {q:"¿Los leones son carnívoros?", c:"S"},
-        {q:"¿Venus está más cerca del sol que la Tierra?", c:"S"}, {q:"¿El viento se puede sentir?", c:"S"},
-        {q:"¿Las plantas producen oxígeno?", c:"S"}, {q:"¿El azúcar se disuelve en agua?", c:"S"},
-        {q:"¿El cuerpo humano tiene piel?", c:"S"}, {q:"¿Los peces viven en el agua?", c:"S"},
-        {q:"¿La sangre es roja?", c:"S"}, {q:"¿El hielo es caliente?", c:"N"},
-        {q:"¿Los humanos pueden vivir sin agua?", c:"N"}, {q:"¿El aire ocupa espacio?", c:"S"},
-        {q:"¿Los árboles crecen?", c:"S"}, {q:"¿El fuego es frío?", c:"N"},
-        {q:"¿La Tierra tiene gravedad?", c:"S"}, {q:"¿El café es una bebida caliente comúnmente?", c:"S"},
-        {q:"¿Los perros pueden ladrar?", c:"S"}, {q:"¿El vidrio puede romperse?", c:"S"},
-        {q:"¿El cuerpo humano necesita comida?", c:"S"}, {q:"¿La luz viaja más rápido que el sonido?", c:"S"},
-        {q:"¿El agua moja?", c:"S"}, {q:"¿Los gatos tienen cola?", c:"S"},
-        {q:"¿El cielo es azul durante el día?", c:"S"}, {q:"¿Los humanos tienen cabello?", c:"S"},
-        {q:"¿El hielo es más denso que el agua líquida?", c:"N"}, {q:"¿Los humanos pueden ver sin ojos?", c:"N"},
-        {q:"¿El sol da calor?", c:"S"}, {q:"¿Los árboles necesitan agua?", c:"S"},
-        {q:"¿El planeta Júpiter es grande?", c:"S"}, {q:"¿La sal se disuelve en agua?", c:"S"},
-        {q:"¿El cuerpo humano tiene músculos?", c:"S"}, {q:"¿El fuego produce luz?", c:"S"},
-        {q:"¿Las montañas son altas?", c:"S"}, {q:"¿El aire tiene olor siempre?", c:"N"},
-        {q:"¿Los humanos pueden nadar?", c:"S"}, {q:"¿La luna cambia de forma (fases)?", c:"S"},
-        {q:"¿El agua puede evaporarse?", c:"S"}, {q:"¿El corazón late?", c:"S"}
+        {q:"¿El cielo es azul?", c:"S"}, {q:"¿El fuego es frío?", c:"N"},
+        {q:"¿Colombia está en África?", c:"N"}, {q:"¿Los perros ladran?", c:"S"},
+        {q:"¿El agua moja?", c:"S"}, {q:"¿La sal es dulce?", c:"N"},
+        {q:"¿El sol da calor?", c:"S"}, {q:"¿Los gatos vuelan?", c:"N"}
     ];
 
     function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
+        msg.rate = parseFloat(localStorage.getItem('velocidad_voz')) || 0.9;
         document.getElementById('texto-guia').innerText = txt;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarProgreso() {
-        aciertos = 0;
-        juegoFinalizado = false;
-        document.getElementById('modal-cierre').style.display = 'none';
-        
+        aciertosPrendas = 0;
         if(nivelActual === 1) {
-            hablar("Hola Juan vamos a organizar el closet, en el 1 vamos a poner todo lo de colgar, en el 2 todo lo que se dobla y en el 3 los zapatos.");
-        } else if(nivelActual === 2) {
-            hablar("¡Excelente Juan! Sigamos organizando más cosas. Recuerda los puntos 1, 2 y 3.");
-        } else if(nivelActual === 3) {
-            hablar("¡Súper Juan, ya casi terminamos! Un último esfuerzo. ¡Lo estás logrando!");
+            hablar("Juan, organiza el closet: en el 1 lo de colgar, en el 2 lo doblado y en el 3 los zapatos.");
         }
-        
         configurarNivel();
     }
 
     function configurarNivel() {
-        let items = [];
-        let numD = 0;
-        let tNotif = 8500;
-
-        if (nivelActual === 1) {
-            totalNecesarios = 4;
-            items = [categorias[1][0], categorias[1][1], categorias[2][0], categorias[3][0]];
-        } else if (nivelActual === 2) {
-            totalNecesarios = 7;
-            items = [categorias[1][2], categorias[1][3], categorias[2][1], categorias[2][2], categorias[3][1], categorias[3][2], categorias[1][4]];
-            numD = 2; tNotif = 7500;
-        } else {
-            totalNecesarios = 10;
-            items = [...categorias[1], ...categorias[2], ...categorias[3]];
-            numD = 3; tNotif = 6000;
-        }
-
-        renderizarPrendas(items, numD);
-        if(timerNotif) clearTimeout(timerNotif);
-        timerNotif = setTimeout(lanzarNotificacion, tNotif);
-    }
-
-    function renderizarPrendas(items, numD) {
         const d = document.getElementById('despensa-prendas');
         d.innerHTML = "";
-        let lista = items.map(img => ({src: img, zona: buscarZona(img)}));
-        distractores.sort(() => 0.5 - Math.random()).slice(0, numD).forEach(img => lista.push({src: img, zona: 0}));
-        lista.sort(() => Math.random() - 0.5).forEach(p => {
-            const img = document.createElement('img');
-            img.src = `img8/${p.src}`;
-            img.className = 'item';
-            img.dataset.zona = p.zona;
-            img.onmousedown = img.ontouchstart = dragStart;
-            d.appendChild(img);
+        let items = [];
+        let numD = nivelActual === 1 ? 0 : (nivelActual === 2 ? 2 : 4);
+
+        // Selección de items según nivel
+        if(nivelActual === 1) items = [categorias[1][0], categorias[2][0], categorias[3][0], categorias[1][1]];
+        else if(nivelActual === 2) items = [categorias[1][2], categorias[2][1], categorias[3][1], categorias[1][3], categorias[2][2]];
+        else items = [...categorias[1], ...categorias[2], ...categorias[3]];
+
+        items.forEach(imgName => {
+            const el = document.createElement('img');
+            el.src = `img8/${imgName}`;
+            el.className = 'item';
+            el.dataset.zona = Object.keys(categorias).find(key => categorias[key].includes(imgName));
+            activarPointer(el);
+            d.appendChild(el);
         });
+
+        clearTimeout(timerNotif);
+        timerNotif = setTimeout(lanzarNotificacion, 8000 / nivelActual);
     }
 
-    function buscarZona(img) {
-        for (let z in categorias) if (categorias[z].includes(img)) return z;
-        return 0;
-    }
+    function activarPointer(el) {
+        el.onpointerdown = (e) => {
+            if(juegoFinalizado) return;
+            const startX = e.clientX, startY = e.clientY;
+            el.style.position = 'fixed';
+            el.style.zIndex = "2000";
+            el.style.width = '80px';
 
-    function dragStart(e) {
-        if(juegoFinalizado) return;
-        e.preventDefault();
-        const el = e.target;
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        let offX = touch.clientX - el.getBoundingClientRect().left;
-        let offY = touch.clientY - el.getBoundingClientRect().top;
-        el.style.position = 'fixed'; el.style.width = '75px'; el.style.zIndex = "1000";
+            const move = (me) => {
+                el.style.left = (me.clientX - 40) + 'px';
+                el.style.top = (me.clientY - 40) + 'px';
+            };
 
-        const move = (me) => {
-            const mt = me.type === 'touchmove' ? me.touches[0] : me;
-            el.style.left = (mt.clientX - offX) + 'px'; el.style.top = (mt.clientY - offY) + 'px';
+            const stop = (se) => {
+                window.removeEventListener('pointermove', move);
+                window.removeEventListener('pointerup', stop);
+                el.style.display = 'none';
+                const target = document.elementFromPoint(se.clientX, se.clientY);
+                el.style.display = 'block';
+
+                if (target && target.classList.contains('punto-ubicacion') && target.dataset.zona == el.dataset.zona) {
+                    aciertosPrendas++;
+                    sonidos.exito.play();
+                    el.remove();
+                    if (document.querySelectorAll('.item').length === 0) siguienteNivel();
+                } else {
+                    erroresPrendas++;
+                    hablar("Esa prenda no va en ese nivel.");
+                    el.style.position = 'static'; el.style.width = '100%';
+                }
+            };
+            window.addEventListener('pointermove', move);
+            window.addEventListener('pointerup', stop);
         };
-
-        const stop = (se) => {
-            document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', stop);
-            document.removeEventListener('touchmove', move); document.removeEventListener('touchend', stop);
-            const st = se.type === 'touchend' ? se.changedTouches[0] : se;
-            el.style.display = 'none';
-            const det = document.elementFromPoint(st.clientX, st.clientY);
-            el.style.display = 'block';
-
-            if (det && det.classList.contains('punto-ubicacion') && det.dataset.zona == el.dataset.zona) {
-                aciertos++; exito.play();
-                hablar(["¡Bien!", "¡Excelente!", "¡Súper!", "¡Lo lograste!"][Math.floor(Math.random()*4)]);
-                el.remove();
-                if (aciertos >= totalNecesarios) siguienteNivel();
-            } else {
-                hablar(["Mal, ese no va ahí", "Mira bien", "Prueba en otro lugar"][Math.floor(Math.random()*3)]);
-                el.style.position = 'relative'; el.style.left = 'auto'; el.style.top = 'auto'; el.style.zIndex = "100";
-            }
-        };
-        document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
-        document.addEventListener('touchmove', move, {passive: false}); document.addEventListener('touchend', stop);
     }
 
     function lanzarNotificacion() {
-        if (aciertos < totalNecesarios && !juegoFinalizado) {
-            totalNotif++; alarma.play();
-            const n = document.getElementById('notificacion');
-            const t = trivias[Math.floor(Math.random() * trivias.length)];
-            document.getElementById('pregunta-txt').innerText = t.q;
-            n.style.display = 'block';
+        if (juegoFinalizado) return;
+        totalPreguntas++;
+        sonidos.alarma.play();
+        const n = document.getElementById('notificacion');
+        const t = trivias[Math.floor(Math.random() * trivias.length)];
+        document.getElementById('pregunta-txt').innerText = t.q;
+        n.style.display = 'block';
 
-            const responder = (v) => {
-                if(v === t.c) { aciertosNotif++; hablar("Muy bien Juan."); } else hablar("Prueba de nuevo.");
-                n.style.display = 'none';
-                if(!juegoFinalizado) {
-                    let delay = nivelActual === 3 ? 7000 : 12000;
-                    timerNotif = setTimeout(lanzarNotificacion, delay);
-                }
-            };
-            document.getElementById('btnA').onclick = () => responder("S");
-            document.getElementById('btnB').onclick = () => responder("N");
-        }
+        const responder = (v) => {
+            if(v === t.c) aciertosTrivia++;
+            else erroresPrendas++;
+            n.style.display = 'none';
+            timerNotif = setTimeout(lanzarNotificacion, 12000 / nivelActual);
+        };
+        document.getElementById('btnA').onclick = () => responder("S");
+        document.getElementById('btnB').onclick = () => responder("N");
     }
 
     function siguienteNivel() {
         if (nivelActual < 3) {
             nivelActual++;
-            if(timerNotif) clearTimeout(timerNotif);
-            document.getElementById('modal-cierre').style.display = 'flex';
-            document.getElementById('stats').innerText = "¡Excelente progreso Juan!";
-            document.getElementById('sub-msg').innerText = "Cargando la siguiente parte...";
-            setTimeout(iniciarProgreso, 4000);
+            hablar("¡Bien hecho Juan! Pasemos a la siguiente parte.");
+            iniciarProgreso();
         } else {
             finalizarJuego();
         }
@@ -267,13 +278,31 @@
 
     function finalizarJuego() {
         juegoFinalizado = true;
-        if(timerNotif) clearTimeout(timerNotif);
+        clearTimeout(timerNotif);
+        const totalIntentos = aciertosPrendas + erroresPrendas;
+        const eficacia = Math.round((aciertosPrendas / (totalIntentos || 1)) * 100);
+
+        const data = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Atención",
+            id_sesion: 8,
+            aciertos: aciertosPrendas,
+            errores: erroresPrendas,
+            eficacia: eficacia
+        };
+
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
+        historial.push(data);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        document.getElementById('stats-finales').innerHTML = `
+            <b>Prendas organizadas:</b> ${aciertosPrendas}<br>
+            <b>Errores cometidos:</b> ${erroresPrendas}<br>
+            <b>Trivias correctas:</b> ${aciertosTrivia}/${totalPreguntas}<br><br>
+            <b>Eficacia Global: ${eficacia}%</b>
+        `;
         document.getElementById('modal-cierre').style.display = 'flex';
-        document.getElementById('sub-msg').innerText = "Has completado la organización con éxito.";
-        const m = "Tu capacidad para adaptarte a varias demandas está mejorando cada día.";
-        document.getElementById('msg-final').innerText = m;
-        document.getElementById('stats').innerText = `Juan, lo hiciste muy bien.`;
-        hablar(m);
+        hablar("Excelente Juan, organizaste todo el closet y respondiste a las preguntas.");
     }
 </script>
 </body>
