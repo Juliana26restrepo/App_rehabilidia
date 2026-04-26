@@ -2,88 +2,146 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Memoria 5 - Juan: Entrenamiento 70 Escenas</title>
     <style>
-        /* Fondo Baby Blue */
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #2C3E50; height: 100vh; display: flex; flex-direction: column; }
+        :root {
+            --baby-blue: #E1F5FE;
+            --ocean: #0288D1;
+            --deep-blue: #01579B;
+            --gold: #FFD700;
+            --success: #43A047;
+            --error: #E53935;
+        }
+
+        /* Sistema Universal Zoom */
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; overflow: hidden; 
+            background: var(--baby-blue); 
+            text-align: center; color: #2C3E50; 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+
+        #contenedor-proporcional {
+            width: 100vw; height: 100vh;
+            max-width: 1280px; max-height: 800px;
+            display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
+        }
         
-        #cabecera { background: rgba(255, 255, 255, 0.5); height: 80px; display: flex; align-items: center; justify-content: center; padding: 0 20px; border-bottom: 3px solid #FFD700; flex-shrink: 0; }
-        #instruccion-box { background: white; padding: 12px 25px; border-radius: 30px; color: #0288D1; display: flex; align-items: center; font-weight: bold; min-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        #instruccion-box img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
+        /* Cabecera Adaptada */
+        #cabecera { 
+            background: rgba(255, 255, 255, 0.7); height: 10%; 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 0 15px; border-bottom: 3px solid var(--gold); flex-shrink: 0; 
+        }
+        #instruccion-box { 
+            background: white; padding: 10px 20px; border-radius: 30px; 
+            color: var(--ocean); display: flex; align-items: center; 
+            font-weight: bold; width: 90%; max-width: 600px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        }
+        #instruccion-box img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
 
-        #reloj-visual { font-size: 3rem; background: white; padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; display: none; align-items: center; gap: 15px; border: 3px solid #0288D1; color: #0288D1; font-weight: bold; }
-        .urgente { color: #E53935; border-color: #E53935 !important; animation: pulse 0.6s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        #reloj-visual { 
+            font-size: clamp(1.5rem, 5vw, 2.5rem); background: white; padding: 10px 30px; 
+            border-radius: 50px; margin-bottom: 15px; display: none; align-items: center; 
+            gap: 15px; border: 3px solid var(--ocean); color: var(--ocean); font-weight: bold; 
+        }
+        .urgente { color: var(--error); border-color: var(--error) !important; animation: pulse 0.6s infinite; }
 
-        /* Estilos de Imagen y Tarjetas */
-        #display-memorizar, #panel-reto { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
-        .img-memoria { width: auto; max-width: 85%; max-height: 50vh; border: 10px solid white; border-radius: 25px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        /* Imágenes y Reto */
+        #display-memorizar, #panel-reto { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .img-memoria { width: auto; max-width: 90%; max-height: 60vh; border: 8px solid white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
-        #grid-opciones { display: flex; gap: 40px; justify-content: center; margin-top: 30px; width: 95%; }
-        .btn-tarjeta { background: white; padding: 15px; border-radius: 25px; cursor: pointer; border: 8px solid #CFD8DC; transition: 0.3s; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
-        .btn-tarjeta img { width: auto; max-width: 420px; max-height: 35vh; border-radius: 15px; display: block; }
+        #grid-opciones { 
+            display: flex; gap: 20px; justify-content: center; 
+            margin-top: 20px; width: 100%; flex-wrap: wrap; 
+        }
+        .btn-tarjeta { 
+            background: white; padding: 10px; border-radius: 20px; 
+            cursor: pointer; border: 6px solid #CFD8DC; transition: 0.3s; 
+            touch-action: manipulation; width: 45%; max-width: 450px;
+        }
+        .btn-tarjeta img { width: 100%; height: auto; border-radius: 10px; display: block; pointer-events: none; }
         
-        .correcto { border-color: #43A047 !important; background: #E8F5E9; transform: scale(1.05); }
-        .incorrecto { border-color: #E53935 !important; background: #FFEBEE; }
+        .correcto { border-color: var(--success) !important; background: #E8F5E9; transform: scale(1.02); }
+        .incorrecto { border-color: var(--error) !important; background: #FFEBEE; }
 
-        /* Pantallas de Transición y Final */
-        #pantalla-cambio-nivel { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #0288D1; z-index:4500; flex-direction:column; justify-content:center; align-items:center; color: white; }
-        #overlay-final { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(1, 87, 155, 0.98); z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 40px; color: white; }
+        /* Capas Superpuestas */
+        #pantalla-cambio-nivel, #overlay-final { 
+            display: none; position: absolute; top:0; left:0; width:100%; height:100%; 
+            z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding: 20px;
+        }
+        #pantalla-cambio-nivel { background: var(--ocean); color: white; }
+        #overlay-final { background: rgba(1, 87, 155, 0.98); color: white; }
         
-        .badge-nivel { background: #FFD700; color: #01579B; padding: 10px 30px; border-radius: 50px; font-size: 2.5rem; font-weight: bold; margin-bottom: 20px; }
+        .badge-nivel { background: var(--gold); color: var(--deep-blue); padding: 10px 40px; border-radius: 50px; font-size: 2rem; font-weight: bold; margin-bottom: 20px; }
+        
+        .cuadro-resultados {
+            background: white; color: var(--deep-blue); padding: 25px; border-radius: 25px;
+            width: 90%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
-<body onload="iniciarEntrenamiento()">
+<body>
 
-<div id="cabecera">
-    <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia">¡Hola Juan! Prepárate.</span>
-    </div>
-</div>
-
-<div id="contenedor-juego">
-    <div id="reloj-visual">⏱️ <span id="segundos">8</span>s</div>
-
-    <div id="display-memorizar">
-        <img id="img-target" class="img-memoria" src="">
-        <h2 id="contador-secuencia" style="margin-top:20px; font-size: 2rem; color: #01579B;"></h2>
+<div id="contenedor-proporcional">
+    <div id="cabecera">
+        <div id="instruccion-box">
+            <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+            <span id="label-guia">¡Hola Juan! Prepárate.</span>
+        </div>
     </div>
 
-    <div id="panel-reto">
-        <h2 id="pregunta-texto" style="font-size: 2.5rem; margin-bottom: 15px; color: #01579B;"></h2>
-        <div id="grid-opciones"></div>
+    <div id="contenedor-juego">
+        <div id="reloj-visual">⏱️ <span id="segundos">8</span>s</div>
+
+        <div id="display-memorizar">
+            <img id="img-target" class="img-memoria" src="">
+            <h2 id="contador-secuencia" style="margin-top:15px; font-size: 1.5rem; color: var(--deep-blue);"></h2>
+        </div>
+
+        <div id="panel-reto">
+            <h2 id="pregunta-texto" style="font-size: clamp(1.2rem, 4vw, 2rem); margin-bottom: 10px; color: var(--deep-blue);"></h2>
+            <div id="grid-opciones"></div>
+        </div>
     </div>
-</div>
 
-<div id="pantalla-cambio-nivel">
-    <div class="badge-nivel" id="num-nivel-tit">NIVEL 1</div>
-    <h1 id="desc-nivel" style="font-size: 2.8rem; width: 80%;">Prepárate...</h1>
-</div>
+    <div id="pantalla-cambio-nivel">
+        <div class="badge-nivel" id="num-nivel-tit">NIVEL 1</div>
+        <h1 id="desc-nivel" style="font-size: clamp(1.5rem, 5vw, 2.5rem); width: 85%;">Prepárate...</h1>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3.5rem;">¡ENTRENAMIENTO COMPLETADO!</h1>
-    <div id="resumen-final" style="font-size: 1.8rem; margin: 20px;"></div>
-    <p style="font-size: 2.2rem; width: 85%; font-weight: bold; line-height: 1.3;">“Lo estás logrando, el éxito es la respuesta de un esfuerzo constante”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border: none; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold;">REPETIR SESIÓN</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--ocean); margin-top: 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="resumen-final" style="font-size: 1.2rem; margin: 20px 0; text-align: left;"></div>
+            <p style="font-style: italic; color: #555; margin-bottom: 25px;">“Lo estás logrando, Juan. El éxito es la respuesta de un esfuerzo constante”</p>
+            <button onpointerdown="location.reload()" style="width: 100%; padding: 15px; background: var(--gold); color: var(--deep-blue); border: none; border-radius: 15px; font-size: 1.5rem; cursor: pointer; font-weight: bold;">REPETIR SESIÓN</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Configuración de los 70 estímulos
+    // Configuración Clínica
     const TOTAL_ESCENAS = 70;
-    let bancoTotal = Array.from({length: TOTAL_ESCENAS}, (_, i) => i + 1);
     let bolsaGlobal = [];
-
     let nivelActual = 1;
     let intentoActual = 0;
     let secuenciaActual = [];
     let pasoReconocimiento = 0;
-    let stats = { 1:{a:0, e:0}, 2:{a:0, e:0}, 3:{a:0, e:0} };
-    let timerInterval;
-    let bloqueado = false;
+    
+    // Métricas Dinámicas
+    let aciertosGlobales = 0;
+    let erroresGlobales = 0;
+    let statsNiveles = { 1:{a:0, e:0}, 2:{a:0, e:0}, 3:{a:0, e:0} };
 
     const config = {
         1: { nombre: "Nivel Bajo", intentos: 5, carga: 1, desc: "Vamos a memorizar de a 1 imagen." },
@@ -91,18 +149,20 @@
         3: { nombre: "Nivel Alto", intentos: 11, carga: 3, desc: "¡Máxima atención! Recuerda 3 imágenes." }
     };
 
+    let timerInterval;
+    let bloqueado = false;
+
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.95;
+        msg.rate = 0.85; // Velocidad adaptada a Juan
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarEntrenamiento() {
-        // Barajamos todas las 70 imágenes al inicio
-        bolsaGlobal = [...bancoTotal].sort(() => 0.5 - Math.random());
+        bolsaGlobal = Array.from({length: TOTAL_ESCENAS}, (_, i) => i + 1).sort(() => 0.5 - Math.random());
         presentarCambioNivel();
     }
 
@@ -118,7 +178,7 @@
                 pantalla.style.display = 'none';
                 intentoActual = 0;
                 iniciarIntento();
-            }, 2500);
+            }, 2000);
         });
     }
 
@@ -129,7 +189,7 @@
         
         for(let i=0; i<c.carga; i++) {
             if(bolsaGlobal.length === 0) {
-                bolsaGlobal = [...bancoTotal].sort(() => 0.5 - Math.random());
+                bolsaGlobal = Array.from({length: TOTAL_ESCENAS}, (_, i) => i + 1).sort(() => 0.5 - Math.random());
             }
             secuenciaActual.push(bolsaGlobal.shift());
         }
@@ -145,7 +205,7 @@
             document.getElementById('img-target').src = `mem5/escena${num}.png`;
             document.getElementById('contador-secuencia').innerText = `Imagen ${idx + 1} de ${secuenciaActual.length}`;
             
-            const msg = "Memoriza esta imagen con todos sus detalles";
+            const msg = "Juan, observa esta imagen con calma.";
             document.getElementById('label-guia').innerText = msg;
             
             hablar(msg, () => {
@@ -183,8 +243,8 @@
         document.getElementById('panel-reto').style.display = 'flex';
         
         const numCorrecto = secuenciaActual[pasoReconocimiento];
-        const textos = ["¿Cuál fue la que te mostré primero?", "¿Cuál fue la segunda?", "¿Cuál fue la tercera?"];
-        const pregunta = (secuenciaActual.length === 1) ? "¿Cuál fue la que te mostré?" : (textos[pasoReconocimiento] || "¿Cuál sigue?");
+        const textos = ["¿Cuál fue la imagen que vimos primero?", "¿Cuál fue la segunda?", "¿Cuál fue la tercera?"];
+        const pregunta = (secuenciaActual.length === 1) ? "¿Cuál imagen acabas de ver?" : (textos[pasoReconocimiento] || "¿Cuál sigue?");
         
         document.getElementById('pregunta-texto').innerText = pregunta;
         document.getElementById('label-guia').innerText = pregunta;
@@ -192,16 +252,20 @@
         const grid = document.getElementById('grid-opciones');
         grid.innerHTML = "";
 
+        // Discriminación Fina: A vs B (Cambio sutil)
         let opciones = [
-            { img: `escena${numCorrecto}.png`, esCorrecta: true },
-            { img: `escena${numCorrecto}b.png`, esCorrecta: false }
-        ];
+            { id: numCorrecto, img: `escena${numCorrecto}.png`, esCorrecta: true },
+            { id: numCorrecto, img: `escena${numCorrecto}b.png`, esCorrecta: false }
+        ].sort(() => 0.5 - Math.random());
 
-        opciones.sort(() => 0.5 - Math.random()).forEach(opt => {
+        opciones.forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
             btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Cargando...'">`;
-            btn.onclick = () => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
+            btn.onpointerdown = (e) => { 
+                e.preventDefault();
+                if(!bloqueado) verificar(opt.esCorrecta, btn); 
+            };
             grid.appendChild(btn);
         });
 
@@ -212,28 +276,23 @@
         bloqueado = true;
         if(esCorrecta) {
             el.classList.add('correcto');
-            stats[nivelActual].a++;
-            hablar("¡Muy bien hecho!", () => {
-                setTimeout(() => {
-                    pasoReconocimiento++;
-                    if(pasoReconocimiento < secuenciaActual.length) {
-                        prepararReconocimiento();
-                    } else {
-                        proximoIntento();
-                    }
-                }, 1000);
-            });
+            aciertosGlobales++;
+            statsNiveles[nivelActual].a++;
+            hablar("¡Excelente elección, Juan!");
+            setTimeout(() => {
+                pasoReconocimiento++;
+                if(pasoReconocimiento < secuenciaActual.length) {
+                    prepararReconocimiento();
+                } else {
+                    proximoIntento();
+                }
+            }, 1500);
         } else {
             el.classList.add('incorrecto');
-            stats[nivelActual].e++;
-            const errores = [
-                "Presta más atención a los detalles, esa no es.",
-                "Mira bien, esa tenía un pequeño cambio.",
-                "¡Casi! Pero fíjate mejor en la próxima."
-            ];
-            hablar(errores[Math.floor(Math.random() * errores.length)], () => {
-                setTimeout(proximoIntento, 1200);
-            });
+            erroresGlobales++;
+            statsNiveles[nivelActual].e++;
+            hablar("Esa imagen tiene un pequeño cambio, fíjate bien en la próxima.");
+            setTimeout(proximoIntento, 2000);
         }
     }
 
@@ -246,23 +305,46 @@
                 nivelActual++;
                 presentarCambioNivel();
             } else {
-                mostrarCierre();
+                finalizarSesion();
             }
         }
     }
 
-    function mostrarCierre() {
+    function finalizarSesion() {
+        const totalRetos = aciertosGlobales + erroresGlobales;
+        const eficacia = totalRetos > 0 ? Math.round((aciertosGlobales / totalRetos) * 100) : 0;
+        
+        const dataGuardar = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Memoria",
+            id_sesion: 5,
+            aciertos: aciertosGlobales,
+            errores: erroresGlobales,
+            eficacia: eficacia
+        };
+
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataGuardar));
+
         document.getElementById('panel-reto').style.display = 'none';
         const res = document.getElementById('resumen-final');
-        const calc = (n) => {
-            let total = stats[n].a + stats[n].e;
-            return total > 0 ? Math.round((stats[n].a / total) * 100) : 0;
+        
+        const getP = (n) => {
+            let t = statsNiveles[n].a + statsNiveles[n].e;
+            return t > 0 ? Math.round((statsNiveles[n].a / t) * 100) : 0;
         };
-        res.innerHTML = `Nivel Bajo: ${calc(1)}% | Nivel Medio: ${calc(2)}% | Nivel Alto: ${calc(3)}%`;
+
+        res.innerHTML = `
+            <div style="border-bottom: 1px solid #ddd; padding: 5px 0;">Nivel Bajo: <strong>${getP(1)}%</strong></div>
+            <div style="border-bottom: 1px solid #ddd; padding: 5px 0;">Nivel Medio: <strong>${getP(2)}%</strong></div>
+            <div style="border-bottom: 1px solid #ddd; padding: 5px 0;">Nivel Alto: <strong>${getP(3)}%</strong></div>
+            <div style="margin-top: 15px; font-size: 1.5rem; color: var(--ocean);">Eficacia Total: <strong>${eficacia}%</strong></div>
+        `;
+        
         document.getElementById('overlay-final').style.display = 'flex';
         document.getElementById('label-guia').innerText = "¡Misión Cumplida!";
-        hablar("¡Increíble Juan! Lo estás logrando, el éxito es la respuesta de un esfuerzo constante.");
+        hablar("¡Increíble Juan! Hemos terminado el entrenamiento de hoy. Mira qué buen trabajo hiciste.");
     }
 </script>
 </body>
 </html>
+
