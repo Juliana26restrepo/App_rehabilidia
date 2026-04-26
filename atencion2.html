@@ -2,61 +2,59 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 2: Rutinas Panorámicas - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --success: #16a34a; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
             overflow: hidden; 
             background-color: #B0E0E6; 
+            touch-action: none; /* Previene gestos del navegador para control total */
         }
 
-        /* Contenedor con scroll lateral para Juan */
         #pantalla-juego {
             width: 100vw; height: 100vh;
-            overflow-x: scroll; 
+            overflow-x: auto; 
             overflow-y: hidden;
             display: flex; 
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Escenario panorámico ancho con el NUEVO FONDO */
         #escenario-ancho {
-            width: 300vw; /* Tres veces el ancho de la pantalla para explorar */
+            width: 300vw; 
             height: 100vh;
-            /* INTEGRACIÓN DEL NUEVO FONDO PANORÁMICO SUBIDO */
             background-image: url('fondo_bano.png'); 
-            background-size: 100% 100%; /* Se adapta a lo ancho y alto del escenario ancho */
+            background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
             position: relative; 
             flex-shrink: 0;
         }
 
-        /* Cuadro de instrucciones del Coterapeuta */
         #guia {
-            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-            background: rgba(255,255,255,0.98); padding: 15px; border-radius: 20px;
-            border: 4px solid var(--t-blue); width: 85%; max-width: 500px;
-            display: flex; align-items: center; gap: 15px; z-index: 100;
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.98); padding: 10px; border-radius: 15px;
+            border: 3px solid var(--t-blue); width: 90%; max-width: 450px;
+            display: flex; align-items: center; gap: 10px; z-index: 100;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        #guia img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--t-blue); object-fit: cover; }
-        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 1.1rem; }
+        #guia img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--t-blue); object-fit: cover; }
+        #texto-instruccion { margin: 0; color: var(--p-blue); font-weight: bold; font-size: 0.95rem; line-height: 1.2; }
 
-        /* Estilo de los objetos de aseo GRANDES */
         .objeto {
             position: absolute; 
-            width: 125px; height: 125px;
+            width: 15vw; height: 15vw; max-width: 120px; max-height: 120px;
             cursor: pointer; 
             transition: 0.3s;
             filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.3));
             object-fit: contain;
+            touch-action: manipulation;
+            z-index: 10;
         }
         
         .seleccionado { 
@@ -67,21 +65,35 @@
             pointer-events: none; 
         }
 
-        /* Indicador de movimiento lateral */
         .flecha-indicadora {
-            position: fixed; bottom: 30px; right: 30px;
+            position: fixed; bottom: 20px; right: 20px;
             background: rgba(16, 58, 87, 0.8); color: white;
-            padding: 12px 20px; border-radius: 30px; animation: moveRight 1.5s infinite;
-            font-size: 0.9rem; z-index: 90; font-weight: bold;
+            padding: 10px 15px; border-radius: 30px; animation: moveRight 1.5s infinite;
+            font-size: 0.8rem; z-index: 90; font-weight: bold;
         }
         @keyframes moveRight { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+
+        /* Modal de Resultados Finales */
+        #modal-resultados {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 300; display: none;
+            justify-content: center; align-items: center; color: white;
+        }
+        .card-final {
+            background: white; color: var(--p-blue); padding: 25px; border-radius: 20px;
+            text-align: center; width: 85%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .btn-final {
+            background: var(--t-blue); color: white; border: none; padding: 12px 25px;
+            border-radius: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; width: 100%;
+        }
     </style>
 </head>
 <body>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG" alt="Guía">
-    <p id="texto-instruccion">Juan, vamos a empezar...</p>
+    <p id="texto-instruccion">Juan, vamos a empezar la rutina de hoy...</p>
 </div>
 
 <div class="flecha-indicadora"><i class="fas fa-hand-point-right"></i> Desliza para buscar</div>
@@ -92,8 +104,15 @@
     </div>
 </div>
 
+<div id="modal-resultados">
+    <div class="card-final">
+        <h2 style="margin-top:0">¡Sesión Terminada!</h2>
+        <div id="resumen-puntos" style="text-align: left; margin: 15px 0; font-size: 1.1rem; line-height: 1.6;"></div>
+        <button class="btn-final" onclick="irAlMenu()">VOLVER AL INICIO</button>
+    </div>
+</div>
+
 <script>
-    // Pool de objetos reales (IDs 1 al 10 coinciden con tus imágenes .png subidas)
     const poolObjetos = [
         { id: 1, nombre: "el cepillo" }, { id: 2, nombre: "la crema" },
         { id: 3, nombre: "el jabón" }, { id: 4, nombre: "la toalla" },
@@ -102,7 +121,12 @@
         { id: 9, nombre: "el champú" }, { id: 10, nombre: "la esponja" }
     ];
 
-    let faseActual = 1; // Control de progresión automática (2, 4, 6 objetos)
+    // MÉTRICAS ACUMULATIVAS
+    let faseActual = 1;
+    let totalFases = 3;
+    let aciertos = 0;
+    let errores = 0;
+    let totalRetosFase = 0;
     let seleccionados = [];
     let objetivosActuales = [];
 
@@ -110,7 +134,8 @@
         window.speechSynthesis.cancel();
         const voz = new SpeechSynthesisUtterance(mensaje);
         voz.lang = 'es-ES';
-        voz.rate = 0.85;
+        const vel = localStorage.getItem('config_voz') || '0.85';
+        voz.rate = parseFloat(vel);
         window.speechSynthesis.speak(voz);
     }
 
@@ -119,11 +144,10 @@
         container.innerHTML = "";
         seleccionados = [];
         
-        let metaFase = faseActual * 2; // Cantidad progresiva de objetos a buscar
+        totalRetosFase = faseActual * 2; 
 
-        // Mezclar y elegir objetivos variados del pool real
         let copiaPool = [...poolObjetos].sort(() => Math.random() - 0.5);
-        objetivosActuales = copiaPool.slice(0, metaFase);
+        objetivosActuales = copiaPool.slice(0, totalRetosFase);
 
         let nombresBuscados = objetivosActuales.map(o => o.nombre).join(", ");
         let instruccion = `Juan, por favor busca ${nombresBuscados}.`;
@@ -131,54 +155,43 @@
         document.getElementById('texto-instruccion').innerText = instruccion;
         hablar(instruccion);
 
-        // Crear lista de elementos (objetivos + distractores)
         let itemsParaPantalla = [];
+        objetivosActuales.forEach(obj => itemsParaPantalla.push({id: obj.id, correcto: true}));
         
-        // 1. Añadir los objetos correctos etiquetados
-        objetivosActuales.forEach(obj => {
-            itemsParaPantalla.push({id: obj.id, correcto: true});
-        });
-        
-        // 2. Añadir distractores (aseo11 al 20) asegurando que no se repitan
         let distractores = [11,12,13,14,15,16,17,18,19,20].sort(() => Math.random() - 0.5);
-        // Siempre añadimos 8 distractores para mantener el nivel de atención sostenida
-        for(let i=0; i<8; i++) {
-            itemsParaPantalla.push({id: distractores[i], correcto: false});
-        }
+        for(let i=0; i<8; i++) itemsParaPantalla.push({id: distractores[i], correcto: false});
 
-        // Mezclar las posiciones finales de todos los objetos
         itemsParaPantalla.sort(() => Math.random() - 0.5);
 
-        // Dibujar los objetos en una rejilla amplia sobre el fondo panorámico
         itemsParaPantalla.forEach((item, index) => {
             const img = document.createElement('img');
-            // Carga la imagen correspondiente (asegurando minúsculas aseoX.png)
             img.src = `aseo${item.id}.png`; 
             img.className = 'objeto';
             
-            // Rejilla amplia de 7 columnas para evitar sobremontaje en los 300vw
             const col = index % 7;
             const row = Math.floor(index / 7);
             
-            // Posicionamiento calculado para distribuir a lo largo del fondo panorámico
             img.style.left = (col * 40 + 20) + "vw"; 
-            img.style.top = (row * 35 + 30) + "vh";
+            img.style.top = (row * 30 + 30) + "vh";
 
-            img.onclick = () => {
+            // SOPORTE POINTER (Touch + Mouse)
+            img.onpointerdown = (e) => {
+                e.preventDefault();
                 if(item.correcto) {
                     if(!seleccionados.includes(item.id)) {
                         img.classList.add('seleccionado');
                         seleccionados.push(item.id);
+                        aciertos++;
                         hablar("¡Muy bien!");
-                        // Al encontrar todos los objetivos de la fase, pasamos automáticamente de nivel
-                        if(seleccionados.length === metaFase) pasarSiguienteNivel();
+                        if(seleccionados.length === totalRetosFase) {
+                            setTimeout(pasarSiguienteNivel, 1500);
+                        }
                     }
                 } else {
-                    // Feedback auditivo para error
+                    errores++;
                     hablar("Ese no es, busca con cuidado.");
-                    // Efecto visual de error
-                    img.style.opacity = "0.5";
-                    setTimeout(() => img.style.opacity = "1", 500);
+                    img.style.filter = "grayscale(1) opacity(0.6)";
+                    setTimeout(() => img.style.filter = "drop-shadow(4px 6px 8px rgba(0,0,0,0.3))", 600);
                 }
             };
             container.appendChild(img);
@@ -186,24 +199,49 @@
     }
 
     function pasarSiguienteNivel() {
-        if(faseActual < 3) {
+        if(faseActual < totalFases) {
             faseActual++;
-            setTimeout(() => {
-                // Volver al inicio del pasillo para que Juan reinicie la exploración
-                document.getElementById('pantalla-juego').scrollLeft = 0;
-                iniciarFase();
-            }, 2000);
+            document.getElementById('pantalla-juego').scrollLeft = 0;
+            iniciarFase();
         } else {
-            // Feedback final al completar las 3 fases
-            hablar("¡Excelente Juan! Has terminado toda tu rutina de aseo.");
-            // Regresar automáticamente a la pantalla de sesiones
-            setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3500);
+            finalizarSesion();
         }
     }
 
-    // Al cargar la página, siempre iniciamos la experiencia desde la Fase 1
+    function finalizarSesion() {
+        const totalObjetivosAEncontrar = (1*2) + (2*2) + (3*2); // Total 12 aciertos posibles
+        const eficacia = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+
+        // 4. ALMACENAMIENTO CENTRALIZADO
+        const resultadoJSON = {
+            fecha: new Date().toLocaleString(),
+            modulo: "Atención",
+            id_sesion: 2,
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: eficacia
+        };
+
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(resultadoJSON);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        // MOSTRAR RESUMEN VISUAL
+        document.getElementById('resumen-puntos').innerHTML = `
+            <b>Objetivos logrados:</b> ${aciertos}<br>
+            <b>Errores cometidos:</b> ${errores}<br>
+            <hr>
+            <b>Eficacia Final:</b> <span style="color:var(--success)">${eficacia}%</span>
+        `;
+        document.getElementById('modal-resultados').style.display = 'flex';
+        hablar("¡Excelente Juan! Rutina completada. Tu eficacia fue del " + eficacia + " por ciento.");
+    }
+
+    function irAlMenu() {
+        window.location.href = "atencion_sesiones.html";
+    }
+
     window.onload = () => {
-        faseActual = 1;
         iniciarFase();
     };
 </script>
