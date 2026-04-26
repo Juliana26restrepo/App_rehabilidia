@@ -2,76 +2,188 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 5: Organización y Dinero - REHABILIDIA</title>
     <style>
-        :root { --p-purple: #4A148C; --bg: #E3F2FD; --gold: #FFD700; --navy: #103A57; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
+        :root { 
+            --p-purple: #4A148C; 
+            --bg: #E3F2FD; 
+            --gold: #FFD700; 
+            --navy: #103A57; 
+            --white: #ffffff;
+        }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+        /* UNIVERSAL ZOOM & RESET */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
-        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 3px solid var(--p-purple); width: 90%; max-width: 450px; margin-bottom: 10px; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .texto-letras { display: block; color: var(--p-purple); font-size: 0.9rem; margin-top: 5px; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #1a1a1a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        .zona-dinero { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; max-width: 700px; padding: 10px; overflow-y: auto; max-height: 55vh; }
-        .dinero-img { width: 130px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); border-radius: 8px; }
-        .moneda-img { width: 75px; }
-        .clickable { cursor: pointer; transition: 0.2s; }
+        #viewport-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1024px;
+            max-height: 768px;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        header { 
+            background: var(--navy); 
+            color: white; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+        }
+
+        #contenedor-juego { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 10px; 
+        }
+        
+        .panel-instruccion { 
+            background: var(--white); 
+            padding: 15px; 
+            border-radius: 20px; 
+            border: 3px solid var(--p-purple); 
+            width: 90%; 
+            max-width: 500px; 
+            margin-bottom: 10px; 
+            font-weight: bold; 
+            font-size: clamp(1rem, 4vw, 1.3rem); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+
+        .zona-dinero { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 12px; 
+            width: 100%; 
+            max-width: 800px; 
+            padding: 15px; 
+            overflow-y: auto; 
+            max-height: 55vh; 
+        }
+
+        .dinero-img { 
+            width: clamp(100px, 18vw, 150px); 
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); 
+            border-radius: 8px; 
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .moneda-img { width: clamp(60px, 12vw, 85px); }
         .clickable:active { transform: scale(0.9); }
 
-        /* Contenedor especial para nivel 2 para que la imagen quede arriba y botones abajo */
-        .contenedor-columna { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        .zona-botones { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            width: 90%; 
+            max-width: 500px; 
+            margin-top: 15px;
+        }
 
-        .zona-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 500px; }
+        #pago-actual { 
+            background: var(--gold); 
+            padding: 12px 25px; 
+            border-radius: 15px; 
+            font-size: 1.6rem; 
+            font-weight: bold; 
+            margin: 10px 0; 
+            border: 3px solid var(--p-purple); 
+            display: none; 
+            color: var(--navy); 
+            animation: bounce 0.5s;
+        }
 
-        #pago-actual { background: var(--gold); padding: 10px 20px; border-radius: 15px; font-size: 1.6rem; font-weight: bold; margin-top: 10px; border: 2px solid var(--p-purple); display: none; color: var(--navy); }
+        .area-asistente { 
+            width: 100%; 
+            background: var(--white); 
+            padding: 10px 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            border-top: 4px solid var(--p-purple); 
+            height: 110px; 
+            flex-shrink: 0;
+        }
 
-        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; margin-top: auto; }
-        .avatar-img { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; flex-shrink: 0; background: #fff; }
-        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.85rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 65px; overflow-y: auto; }
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; background: #fff; }
+        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 75px; overflow-y: auto; color: var(--navy); }
 
-        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
+        /* OVERLAYS */
+        #overlay-nivel, #overlay-final { position: absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
         #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
-        .tabla-stats { width: 100%; max-width: 320px; margin: 15px 0; border-collapse: collapse; background: rgba(255,255,255,0.1); }
-        .tabla-stats th, .tabla-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .cuadro-resultados { background: white; color: var(--navy); padding: 30px; border-radius: 25px; width: 90%; max-width: 450px; border: 5px solid var(--gold); }
+        .tabla-stats { width: 100%; margin: 20px 0; border-collapse: collapse; }
+        .tabla-stats th { border-bottom: 2px solid var(--p-purple); padding: 10px; color: var(--p-purple); }
+        .tabla-stats td { padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; }
 
-        .btn-grande { background: var(--gold); border: none; padding: 12px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 0.95rem; color: var(--navy); border-bottom: 4px solid #b7950b; }
-        .btn-finalizar { background: var(--gold); border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.2rem; }
+        .btn-grande { background: var(--gold); border: none; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1rem; color: var(--navy); border-bottom: 4px solid #b7950b; }
+        .btn-finalizar { background: var(--gold); border: none; padding: 18px 40px; border-radius: 35px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        @keyframes bounce { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
     </style>
 </head>
 <body onload="iniciarSesion()">
 
-<header>SESIÓN 5: ORGANIZACIÓN Y DINERO</header>
+<div id="viewport-container">
+    <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 5</header>
 
-<div id="contenedor-juego">
-    <div id="panel-instruccion" class="panel-instruccion">¡PREPARADOS!</div>
-    <div id="pantalla-juego" class="zona-dinero"></div>
-    <div id="pago-actual">Pagas: $<span id="suma-pago">0</span></div>
-</div>
-
-<div class="area-asistente">
-    <div class="avatar-img">
-        <img src="COTERAPEUTA.JPG" alt="Coterapeuta" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png';">
+    <div id="contenedor-juego">
+        <div id="panel-instruccion" class="panel-instruccion">¡PREPARADOS!</div>
+        <div id="pantalla-juego" class="zona-dinero"></div>
+        <div id="pago-actual">Llevas: $<span id="suma-pago">0</span></div>
     </div>
-    <div class="burbuja" id="texto-asistente">Hola Juan, vamos a administrar bien el dinero hoy.</div>
-</div>
 
-<div id="overlay-nivel">
-    <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3rem;">¡NIVEL 1!</h1>
-    <p id="lvl-mensaje" style="font-size: 1.5rem;"></p>
-</div>
+    <div class="area-asistente">
+        <div class="avatar-img">
+            <img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <div class="burbuja" id="texto-asistente">Juan, manejar bien el dinero es clave para tu independencia.</div>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: var(--gold);">RESUMEN DE SESIÓN</h1>
-    <table class="tabla-stats">
-        <thead><tr style="color: var(--gold);"><th>Nivel</th><th>A/E</th><th>%</th></tr></thead>
-        <tbody id="cuerpo-tabla"></tbody>
-    </table>
-    <p style="font-size: 1.2rem; font-weight: bold; margin: 15px;">"Tomar buenas decisiones te dan libertad."</p>
-    <button class="btn-finalizar" onclick="window.location.href='funcion_sesiones.html'">FINALIZAR SESIÓN</button>
+    <div id="overlay-nivel">
+        <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3.5rem; margin:0;">NIVEL 1</h1>
+        <p id="lvl-mensaje" style="font-size: 1.8rem;"></p>
+    </div>
+
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--p-purple); margin: 0;">SESIÓN COMPLETADA</h1>
+            <table class="tabla-stats">
+                <thead><tr style="color: var(--p-purple);"><th>Nivel</th><th>Aciertos</th><th>Eficacia</th></tr></thead>
+                <tbody id="cuerpo-tabla"></tbody>
+            </table>
+            <p style="font-weight: bold; font-size: 1.1rem; color: #555;">"Tomar buenas decisiones te da libertad, Juan."</p>
+            <button class="btn-finalizar" onpointerdown="guardarYSalir()">FINALIZAR</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -93,13 +205,16 @@
 
     let nivel = 1, ronda = 1, sumaActual = 0, objetivoPago = 0;
     let usadosEnNivel = [];
-    let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
+    let aciertosTotales = 0, erroresTotales = 0;
+    let statsNivel = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
 
     function formatear(n) { return n.toLocaleString('es-CO'); }
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES'; 
+        m.rate = 0.9;
         window.speechSynthesis.speak(m);
         document.getElementById('texto-asistente').innerText = t;
     }
@@ -125,41 +240,38 @@
             objetivoPago = target.v;
             usadosEnNivel.push(target.v);
 
-            instruccion.innerHTML = `Busca el Billete de $${formatear(target.v)} <span class="texto-letras">(${target.t} Pesos)</span>`;
+            instruccion.innerHTML = `Busca el Billete de $${formatear(target.v)} <br><small style="color:var(--p-purple)">(${target.t} Pesos)</small>`;
             hablar(`Juan, busca el billete de ${target.t} pesos.`);
             
-            let opciones = [target];
-            while(opciones.length < 4) {
-                let rB = billetes[Math.floor(Math.random() * billetes.length)];
-                if(!opciones.find(b => b.v === rB.v)) opciones.push(rB);
-            }
-            opciones.sort(()=>Math.random()-0.5).forEach(b => {
+            let opciones = [target, ...billetes.filter(b => b.v !== target.v).sort(()=>0.5-Math.random()).slice(0, 3)].sort(()=>0.5-Math.random());
+            
+            opciones.forEach(b => {
                 const img = crearImg(b);
                 img.classList.add('clickable');
-                img.onclick = () => {
-                    if(b.v === objetivoPago) { stats[1].a++; avanzar(); }
-                    else { stats[1].e++; hablar("Ese no es el de " + target.t); }
+                img.onpointerdown = (e) => {
+                    e.preventDefault();
+                    if(b.v === objetivoPago) { 
+                        aciertosTotales++; statsNivel[1].a++; avanzar(); 
+                    } else { 
+                        erroresTotales++; statsNivel[1].e++; hablar("Ese no es. Busca el de " + target.t); 
+                    }
                 };
                 pantalla.appendChild(img);
             });
         } 
         else if (nivel === 2) {
             let todo = [...billetes, ...monedas];
-            let pool = todo.filter(d => !usadosEnNivel.includes(d.v));
-            if(pool.length === 0) pool = todo;
-            const target = pool[Math.floor(Math.random() * pool.length)];
+            let target = todo[Math.floor(Math.random() * todo.length)];
             objetivoPago = target.v;
-            usadosEnNivel.push(target.v);
 
-            instruccion.innerHTML = `¿Cuánto vale este dinero?`;
-            hablar(`Juan, ¿cuánto dinero ves en pantalla?`);
+            instruccion.innerHTML = `¿Cuánto vale este dinero Juan?`;
+            hablar(`¿Cuánto dinero ves en pantalla?`);
             
-            // Estructura: Imagen arriba, Botones abajo
             const contenedorCol = document.createElement('div');
-            contenedorCol.className = "contenedor-columna";
+            contenedorCol.style.cssText = "display:flex; flex-direction:column; align-items:center; width:100%";
             
             const imgPrincipal = crearImg(target);
-            imgPrincipal.style.width = "200px"; // Un poco más grande para que se vea bien
+            imgPrincipal.style.width = "180px";
             contenedorCol.appendChild(imgPrincipal);
             
             const zonaBtn = document.createElement('div');
@@ -170,10 +282,14 @@
             opcs.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = "btn-grande";
-                btn.innerHTML = `$${formatear(opt.v)}<br><span style="font-size:0.7rem">${opt.t}</span>`;
-                btn.onclick = () => {
-                    if(opt.v === objetivoPago) { stats[2].a++; avanzar(); }
-                    else { stats[2].e++; hablar("No. Ese es el valor de " + opt.t); }
+                btn.innerHTML = `$${formatear(opt.v)}<br><small>${opt.t}</small>`;
+                btn.onpointerdown = (e) => {
+                    e.preventDefault();
+                    if(opt.v === objetivoPago) { 
+                        aciertosTotales++; statsNivel[2].a++; avanzar(); 
+                    } else { 
+                        erroresTotales++; statsNivel[2].e++; hablar("No. Ese es el de " + opt.t); 
+                    }
                 };
                 zonaBtn.appendChild(btn);
             });
@@ -184,24 +300,25 @@
             const precios = [3500, 7200, 12500, 21100, 50550, 1600];
             objetivoPago = precios[ronda - 1];
             
-            instruccion.innerHTML = `Debes pagar exactamente: $${formatear(objetivoPago)}`;
-            hablar(`Juan, paga ${formatear(objetivoPago)} pesos seleccionando los billetes y monedas.`);
+            instruccion.innerHTML = `Paga exactamente: <span style="color:red">$${formatear(objetivoPago)}</span>`;
+            hablar(`Juan, paga ${formatear(objetivoPago)} pesos.`);
             displayPago.style.display = "block";
             document.getElementById('suma-pago').innerText = "0";
 
-            // Mostrar TODO el dinero disponible (Billetes + Monedas)
-            const todoElDinero = [...billetes, ...monedas];
+            const todoElDinero = [...billetes, ...monedas].sort((a,b) => b.v - a.v);
             todoElDinero.forEach(data => {
                 const img = crearImg(data);
                 img.classList.add('clickable');
-                img.onclick = () => {
+                img.onpointerdown = (e) => {
+                    e.preventDefault();
                     sumaActual += data.v;
                     document.getElementById('suma-pago').innerText = formatear(sumaActual);
-                    if(sumaActual === objetivoPago) { stats[3].a++; avanzar(); }
-                    else if(sumaActual > objetivoPago) { 
-                        stats[3].e++; 
-                        hablar("Te pasaste del valor. Intenta esta compra otra vez."); 
-                        setTimeout(cargarRonda, 1000); 
+                    if(sumaActual === objetivoPago) { 
+                        aciertosTotales++; statsNivel[3].a++; avanzar(); 
+                    } else if(sumaActual > objetivoPago) { 
+                        erroresTotales++; statsNivel[3].e++;
+                        hablar("Te pasaste. Vamos a intentar este pago de nuevo."); 
+                        setTimeout(cargarRonda, 1200); 
                     }
                 };
                 pantalla.appendChild(img);
@@ -213,6 +330,7 @@
         const img = document.createElement('img');
         img.src = `./fun5/${data.f}`;
         img.className = data.v < 2000 ? 'dinero-img moneda-img' : 'dinero-img';
+        img.onerror = function() { this.src = 'https://via.placeholder.com/150x80?text=$'+data.v; };
         return img;
     }
 
@@ -220,8 +338,8 @@
         const rondasMaximas = (nivel === 3) ? 6 : 3;
         if (ronda < rondasMaximas) {
             ronda++;
-            hablar("¡Excelente!");
-            setTimeout(cargarRonda, 1000);
+            hablar("¡Muy bien hecho!");
+            setTimeout(cargarRonda, 1200);
         } else {
             if (nivel < 3) {
                 nivel++; ronda = 1; usadosEnNivel = [];
@@ -234,12 +352,12 @@
 
     function mostrarCambioNivel() {
         const overlay = document.getElementById('overlay-nivel');
-        const msj = nivel === 2 ? "Muy bien. Ahora reconoce el valor numérico." : "¡Llegamos al nivel alto! Haz 6 pagos exactos.";
+        const msj = nivel === 2 ? "Ahora reconoce el valor numérico del dinero." : "Nivel final: Haz pagos exactos combinando dinero.";
         document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
         document.getElementById('lvl-mensaje').innerText = msj;
         overlay.style.display = 'flex';
         hablar(msj);
-        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3500);
+        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 4000);
     }
 
     function finalizar() {
@@ -247,12 +365,30 @@
         const cuerpo = document.getElementById('cuerpo-tabla');
         cuerpo.innerHTML = "";
         for (let i = 1; i <= 3; i++) {
-            let t = stats[i].a + stats[i].e;
-            let p = t > 0 ? Math.round((stats[i].a / t)*100) : 0;
-            cuerpo.innerHTML += `<tr><td>Nivel ${i}</td><td>${stats[i].a}/${stats[i].e}</td><td>${p}%</td></tr>`;
+            let totalItems = statsNivel[i].a + statsNivel[i].e;
+            let efic = totalItems > 0 ? Math.round((statsNivel[i].a / totalItems)*100) : 0;
+            cuerpo.innerHTML += `<tr><td>Nivel ${i}</td><td>${statsNivel[i].a}</td><td>${efic}%</td></tr>`;
         }
-        hablar("Sesión completada Juan. Tomar buenas decisiones te da libertad.");
+        hablar("Sesión completada Juan. Administrar bien tu dinero es un gran paso hacia tu independencia.");
+    }
+
+    function guardarYSalir() {
+        const totalSesion = aciertosTotales + erroresTotales;
+        const eficaciaTotal = totalSesion > 0 ? Math.round((aciertosTotales / totalSesion) * 100) : 0;
+        
+        const dataLog = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 5,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
+            eficacia: eficaciaTotal + "%"
+        };
+
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
+        window.location.href = 'funcion_sesiones.html';
     }
 </script>
 </body>
 </html>
+
