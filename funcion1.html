@@ -2,67 +2,151 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Planificación - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--p-purple); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: #103A57; height: 60px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+        :root { 
+            --p-purple: #4A148C; 
+            --s-purple: #AB47BC; 
+            --bg: #CEE5D6; 
+            --gold: #FFD700;
+        }
+
+        /* Sistema Universal Zoom */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; margin: 0; background: #1a1a1a; 
+            text-align: center; color: var(--p-purple); height: 100vh; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden; 
+        }
+
+        #viewport-container {
+            width: 100vw; height: 100vh;
+            max-width: 1200px; max-height: 800px;
+            background: var(--bg);
+            position: relative; display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        header { 
+            background: #103A57; height: 10%; display: flex; 
+            align-items: center; justify-content: center; color: white; flex-shrink: 0; 
+        }
         
-        #contenedor-principal { flex-grow: 1; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-y: auto; }
-        .instruccion-reto { font-size: 1.2rem; font-weight: bold; margin: 10px 0; color: white; background: var(--p-purple); padding: 15px; border-radius: 15px; width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #contenedor-principal { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; padding: 10px; overflow-y: auto; 
+        }
+
+        .instruccion-reto { 
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); font-weight: bold; margin: 10px 0; 
+            color: white; background: var(--p-purple); padding: 12px; 
+            border-radius: 15px; width: 95%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
         
-        #area-opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .tarjeta { width: 120px; padding: 12px; background: white; border: 3px solid var(--s-purple); border-radius: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
-        .tarjeta .emoji { font-size: 2.5rem; }
-        .tarjeta .texto { font-size: 0.85rem; font-weight: bold; margin-top: 5px; }
+        #area-opciones { 
+            display: flex; flex-wrap: wrap; justify-content: center; 
+            gap: 8px; margin-bottom: 15px; width: 100%;
+        }
+
+        .tarjeta { 
+            width: clamp(90px, 20vw, 120px); padding: 10px; 
+            background: white; border: 3px solid var(--s-purple); 
+            border-radius: 15px; cursor: pointer; display: flex; 
+            flex-direction: column; align-items: center; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
+            touch-action: none; /* Pointer Events */
+        }
+        .tarjeta .emoji { font-size: 2rem; }
+        .tarjeta .texto { font-size: 0.75rem; font-weight: bold; margin-top: 5px; }
         .tarjeta.seleccionada { opacity: 0.3; pointer-events: none; transform: scale(0.9); }
+        .tarjeta.error-distractor { animation: shake 0.4s; border-color: #f44336; }
         
-        #area-secuencia { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; background: rgba(255,255,255,0.7); border: 3px dashed var(--s-purple); border-radius: 20px; min-height: 100px; width: 90%; margin-bottom: 90px; }
-        .item-ordenado { width: 95%; display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; border: 2px solid var(--p-purple); animation: slideIn 0.3s ease-out; }
-        .num-orden { background: var(--p-purple); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 0.8rem; }
+        #area-secuencia { 
+            display: flex; flex-direction: column; align-items: center; 
+            gap: 6px; padding: 10px; background: rgba(255,255,255,0.7); 
+            border: 3px dashed var(--s-purple); border-radius: 20px; 
+            min-height: 80px; width: 95%; margin-bottom: 80px; 
+        }
 
-        #btn-verificar { position: fixed; bottom: 20px; padding: 15px 40px; font-size: 1.3rem; background: #2E7D32; color: white; border: none; border-radius: 50px; cursor: pointer; display: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10; }
+        .item-ordenado { 
+            width: 100%; display: flex; align-items: center; 
+            background: white; padding: 8px; border-radius: 10px; 
+            border: 2px solid var(--p-purple); animation: slideIn 0.3s ease-out; 
+        }
 
-        #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; padding: 20px; text-align: center; }
+        .num-orden { 
+            background: var(--p-purple); color: white; width: 22px; height: 22px; 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; margin-right: 10px; font-weight: bold; font-size: 0.75rem; 
+        }
+
+        #btn-verificar { 
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 35px; font-size: 1.2rem; background: #2E7D32; 
+            color: white; border: none; border-radius: 50px; cursor: pointer; 
+            display: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10; 
+        }
+
+        /* Capas de Feedback */
+        #pantalla-transicion, #overlay-final { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            display:none; flex-direction:column; justify-content:center; 
+            align-items:center; z-index:1000; padding: 20px; text-align: center; 
+        }
         #pantalla-transicion { background: var(--p-purple); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
-        
+
+        .cuadro-resultados {
+            background: white; color: var(--p-purple); padding: 25px;
+            border-radius: 25px; border: 5px solid var(--gold);
+            width: 90%; max-width: 450px;
+        }
+
+        .stat-line { display: flex; justify-content: space-between; font-size: 1.2rem; margin: 10px 0; border-bottom: 1px solid #eee; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body onload="iniciarEjercicio()">
 
-<header>
-    <span style="font-weight:bold;">MÓDULO 3: PLANIFICACIÓN</span>
-</header>
+<div id="viewport-container">
+    <header>
+        <span style="font-weight:bold;">SESIÓN 1: PLANIFICACIÓN PASO A PASO</span>
+    </header>
 
-<div id="contenedor-principal">
-    <div id="reto-texto" class="instruccion-reto">Cargando...</div>
-    <div id="area-opciones"></div>
-    <div id="area-secuencia"></div>
-    <button id="btn-verificar" onclick="verificarSecuencia()">COMPROBAR ORDEN</button>
-</div>
+    <div id="contenedor-principal">
+        <div id="reto-texto" class="instruccion-reto">Juan, planifica la siguiente actividad...</div>
+        <div id="area-opciones"></div>
+        <div id="area-secuencia"></div>
+        <button id="btn-verificar" onpointerdown="verificarSecuencia()">COMPROBAR ORDEN</button>
+    </div>
 
-<div id="pantalla-transicion">
-    <h1 id="tit-nivel" style="font-size: 2.2rem; background: #FFD700; color: #4A148C; padding: 10px 30px; border-radius: 30px;"></h1>
-    <p id="desc-nivel" style="font-size: 1.4rem; margin-top: 20px; font-weight: bold;"></p>
-</div>
+    <div id="pantalla-transicion">
+        <h1 id="tit-nivel" style="font-size: 2rem; background: var(--gold); color: var(--p-purple); padding: 10px 30px; border-radius: 30px;"></h1>
+        <p id="desc-nivel" style="font-size: 1.3rem; margin-top: 20px; font-weight: bold;"></p>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 2.5rem;">¡META CUMPLIDA!</h1>
-    <p style="font-size: 1.3rem; margin: 20px 0;">Juan, has completado todos los niveles de planificación con éxito.</p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 40px; background: #FFD700; color: #4A148C; border-radius: 50px; font-size: 1.2rem; border:none; font-weight:bold; cursor:pointer;">FINALIZAR SESIÓN</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--p-purple); font-size: 1.8rem; margin: 0;">¡RESUMEN DE SESIÓN!</h1>
+            <div id="stats-visual" style="margin: 20px 0;"></div>
+            <button onpointerdown="location.reload()" style="padding: 12px 30px; background: var(--p-purple); color: white; border-radius: 50px; border:none; font-weight:bold; cursor:pointer;">REPETIR ENTRENAMIENTO</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const nivelURL = urlParams.get('nivel') || 'bajo';
-    
-    let nivelActual = nivelURL === 'alto' ? 3 : (nivelURL === 'medio' ? 2 : 1);
+    // --- LÓGICA DE MÉTRICAS ---
+    let totalAciertos = 0;
+    let totalErrores = 0;
+    let retosCompletados = 0;
+    const MAX_RETOS_SESION = 6; // 3 niveles x 2 retos cada uno
+
+    let nivelActual = 1;
     let intentoEnNivel = 1; 
-    let fallosEnReto = 0;
     let secuenciaUsuario = [];
     let retoActual = null;
     let retosVistos = [];
@@ -74,12 +158,12 @@
             { t: "Beber agua", pasos: [{e:"🥛", p:"Coger vaso"}, {e:"🚰", p:"Llenar agua"}, {e:"😋", p:"Beber"}], dist: [] }
         ],
         2: [
-            { t: "Sacar al Perro", pasos: [{e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Bolsas de desechos"}, {e:"🚪", p:"Abrir puerta"}, {e:"🌳", p:"Ir al parque"}, {e:"🏠", p:"Regresar"}], dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🎷", p:"Tocar música"}] },
-            { t: "Hacer Sándwich", pasos: [{e:"🍞", p:"Sacar pan"}, {e:"🥓", p:"Poner jamón"}, {e:"🧀", p:"Poner queso"}, {e:"🥪", p:"Cerrar pan"}, {e:"🍽️", p:"Servir"}], dist: [{e:"👟", p:"Atar zapatos"}, {e:"🚿", p:"Bañarse"}] }
+            { t: "Sacar al Perro", pasos: [{e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Bolsas"}, {e:"🚪", p:"Abrir puerta"}, {e:"🌳", p:"Ir al parque"}, {e:"🏠", p:"Regresar"}], dist: [{e:"🍳", p:"Hacer huevo"}] },
+            { t: "Hacer Sándwich", pasos: [{e:"🍞", p:"Sacar pan"}, {e:"🥓", p:"Poner jamón"}, {e:"🧀", p:"Poner queso"}, {e:"🥪", p:"Cerrar pan"}, {e:"🍽️", p:"Servir"}], dist: [{e:"🚿", p:"Bañarse"}] }
         ],
         3: [
-            { t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Poner dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Ir al correo"}, {e:"⚖️", p:"Pesar envío"}, {e:"💰", p:"Pagar"}, {e:"📬", p:"Depositar"}], dist: [{e:"🍕", p:"Pedir pizza"}, {e:"🚲", p:"Inflar llanta"}] },
-            { t: "Preparar Maleta", pasos: [{e:"📋", p:"Hacer lista"}, {e:"🧳", p:"Abrir maleta"}, {e:"👕", p:"Doblar ropa"}, {e:"🪥", p:"Aseo personal"}, {e:"👞", p:"Calzado"}, {e:"🤐", p:"Cerrar maleta"}, {e:"🏷️", p:"Poner etiqueta"}, {e:"🚗", p:"Subir al coche"}], dist: [{e:"🧤", p:"Nieve (es verano)"}, {e:"🎸", p:"Tocar guitarra"}] }
+            { t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Poner dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Ir al correo"}, {e:"📬", p:"Depositar"}], dist: [{e:"🍕", p:"Pedir pizza"}] },
+            { t: "Preparar Maleta", pasos: [{e:"📋", p:"Hacer lista"}, {e:"🧳", p:"Abrir maleta"}, {e:"👕", p:"Doblar ropa"}, {e:"🪥", p:"Aseo personal"}, {e:"👞", p:"Calzado"}, {e:"🤐", p:"Cerrar maleta"}], dist: [{e:"🎸", p:"Tocar guitarra"}] }
         ]
     };
 
@@ -91,39 +175,44 @@
 
     function iniciarEjercicio() {
         secuenciaUsuario = [];
-        fallosEnReto = 0;
         document.getElementById('area-secuencia').innerHTML = "";
         document.getElementById('btn-verificar').style.display = "none";
 
         const opciones = banco[nivelActual].filter(r => !retosVistos.includes(r.t));
-        if (opciones.length === 0) retosVistos = []; // Reset si se acaban
         retoActual = opciones[Math.floor(Math.random() * opciones.length)];
         retosVistos.push(retoActual.t);
 
         const textoNivel = nivelActual === 1 ? "BAJO" : (nivelActual === 2 ? "MEDIO" : "ALTO");
         document.getElementById('tit-nivel').innerText = `NIVEL ${textoNivel}`;
-        document.getElementById('desc-nivel').innerText = `Reto ${intentoEnNivel} de 2: ${retoActual.t}`;
+        document.getElementById('desc-nivel').innerText = `Actividad ${intentoEnNivel} de 2: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
         hablar(`Juan, nivel ${textoNivel}. Vamos a ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
-        }, 3500);
+        }, 3000);
     }
 
     function dibujarTarjetas() {
-        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
+        document.getElementById('reto-texto').innerText = "Actividad: " + retoActual.t;
         const area = document.getElementById('area-opciones');
         area.innerHTML = "";
         let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
+        
         todas.forEach(obj => {
             const div = document.createElement('div');
             div.className = 'tarjeta';
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="texto">${obj.p}</span>`;
-            div.onclick = () => {
+            
+            // Pointer support
+            div.onpointerdown = (e) => {
+                e.preventDefault();
                 if(retoActual.dist.some(d => d.p === obj.p)) {
-                    hablar("Ese paso no es necesario para esta tarea.");
+                    totalErrores++;
+                    div.classList.add('error-distractor');
+                    hablar("Ese paso no pertenece a esta tarea.");
+                    setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
                 div.classList.add('seleccionada');
@@ -139,63 +228,77 @@
         item.className = 'item-ordenado';
         item.innerHTML = `<div class="num-orden">${secuenciaUsuario.length}</div> <strong>${obj.e} ${obj.p}</strong>`;
         document.getElementById('area-secuencia').appendChild(item);
-        if(secuenciaUsuario.length === retoActual.pasos.length) document.getElementById('btn-verificar').style.display = "block";
+        if(secuenciaUsuario.length === retoActual.pasos.length) {
+            document.getElementById('btn-verificar').style.display = "block";
+            hablar("¿Es el orden correcto? Pulsa comprobar.");
+        }
     }
 
     function verificarSecuencia() {
-        let indiceError = -1;
+        let esCorrecto = true;
         for (let i = 0; i < secuenciaUsuario.length; i++) {
             if (secuenciaUsuario[i] !== retoActual.pasos[i].p) {
-                indiceError = i;
+                esCorrecto = false;
                 break;
             }
         }
 
-        if (indiceError === -1) {
-            hablar("¡Excelente orden Juan!");
-            if(intentoEnNivel < 2) {
-                intentoEnNivel++;
-                setTimeout(iniciarEjercicio, 2000);
-            } else {
-                if(nivelActual < 3) {
+        if (esCorrecto) {
+            totalAciertos++;
+            retosCompletados++;
+            hablar("¡Excelente planificación Juan!");
+            
+            setTimeout(() => {
+                if(intentoEnNivel < 2) {
+                    intentoEnNivel++;
+                    iniciarEjercicio();
+                } else if(nivelActual < 3) {
                     nivelActual++;
                     intentoEnNivel = 1;
                     retosVistos = [];
-                    hablar("Nivel completado. Subamos la dificultad.");
-                    setTimeout(iniciarEjercicio, 2000);
+                    iniciarEjercicio();
                 } else {
-                    document.getElementById('overlay-final').style.display = "flex";
-                    hablar("Entrenamiento finalizado. ¡Lo lograste!");
+                    finalizarSesion();
                 }
-            }
+            }, 1500);
         } else {
-            fallosEnReto++;
-            const listaUI = document.getElementById('area-secuencia').children;
-            if(listaUI[indiceError]) {
-                listaUI[indiceError].style.borderColor = "red";
-                listaUI[indiceError].style.background = "#FFEBEE";
-            }
-
-            if(fallosEnReto >= 2) {
-                const anterior = indiceError > 0 ? retoActual.pasos[indiceError - 1].p : null;
-                const correcto = retoActual.pasos[indiceError].p;
-                if(anterior) {
-                    hablar(`Juan, fíjate. Después de ${anterior}, lo correcto es ${correcto}.`);
-                } else {
-                    hablar(`Juan, el primer paso debería ser ${correcto}.`);
-                }
-            } else {
-                hablar("El orden no es el correcto. Mira la tarjeta marcada en rojo.");
-            }
-            
+            totalErrores++;
+            hablar("El orden no es del todo correcto. Inténtalo de nuevo.");
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
                 document.getElementById('btn-verificar').style.display = "none";
                 document.querySelectorAll('.tarjeta').forEach(t => t.classList.remove('seleccionada'));
-            }, 3500);
+            }, 1500);
         }
+    }
+
+    function finalizarSesion() {
+        const eficacia = Math.round((totalAciertos / MAX_RETOS_SESION) * 100);
+        const dataLog = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 1,
+            aciertos: totalAciertos,
+            errores: totalErrores,
+            eficacia: eficacia + "%"
+        };
+
+        // Almacenamiento Centralizado
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
+
+        // Resumen Visual
+        document.getElementById('stats-visual').innerHTML = `
+            <div class="stat-line"><span>Actividades logradas:</span> <b>${totalAciertos}</b></div>
+            <div class="stat-line"><span>Fallos de secuencia:</span> <b>${totalErrores}</b></div>
+            <div class="stat-line" style="border:none; margin-top:15px; font-size:1.5rem;">
+                <span>Eficacia:</span> <b>${eficacia}%</b>
+            </div>
+        `;
+        document.getElementById('overlay-final').style.display = "flex";
+        hablar(`Juan, entrenamiento terminado. Tu precisión fue del ${eficacia} por ciento.`);
     }
 </script>
 </body>
 </html>
+
