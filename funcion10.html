@@ -2,17 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Juan - REHABILITACIÓN FINAL</title>
+    <title>MOTORUTA JUAN - DISEÑOS ORIGINALES</title>
     <style>
         :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f1f5f9; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
         header { background: var(--primary); color: white; width: 100%; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; }
-        .instruction-banner { background: #ffedd5; border: 2px solid #fb923c; color: #9a3412; padding: 15px; margin: 10px; border-radius: 8px; width: 90%; max-width: 1000px; font-weight: bold; text-align: center; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .instruction-banner { background: #ffedd5; border: 2px solid #fb923c; color: #9a3412; padding: 15px; margin: 10px; border-radius: 8px; width: 90%; max-width: 1000px; font-weight: bold; text-align: center; font-size: 1.1rem; }
         .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 20px; padding: 10px; border-bottom: 2px solid #cbd5e1; font-weight: bold; }
         .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 15px; width: 100%; max-width: 1200px; }
         #game-window { position: relative; border: 4px solid var(--primary); background: #fff; border-radius: 8px; overflow: hidden; }
         #grid { display: grid; background: #e2e8f0; gap: 1px; }
-        .cell { background: #fff; display: flex; align-items: center; justify-content: center; position: relative; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; position: relative; font-weight: bold; }
         .wall { background: #334155 !important; }
         .goal { background: #fef08a !important; border: 2px solid #eab308; }
         .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
@@ -29,11 +29,9 @@
 </head>
 <body>
 
-<header>MOTORUTA REHABILITACIÓN</header>
+<header>MOTORUTA: ENTRENAMIENTO DE JUAN</header>
 
-<div class="instruction-banner" id="main-inst">
-    JUAN: Mira el dibujo, cuenta los cuadros blancos uno a uno, ve sumándolos y añádelos con los botones.
-</div>
+<div class="instruction-banner" id="main-inst">Cargando instrucción...</div>
 
 <div class="stats">
     <span>NIVEL: <span id="lvl-txt">1</span></span>
@@ -50,13 +48,13 @@
     <div class="controls">
         <div id="route-list"></div>
         <div class="input-zone">
-            <div class="input-card">⬆ ARRIBA<br><button class="btn-mini" onclick="m('arr',-1)">-</button> <span id="t-arr">1</span> <button class="btn-mini" onclick="m('arr',1)">+</button><button class="btn-add" onclick="add('arr')">AÑADIR PASOS</button></div>
-            <div class="input-card">⬇ ABAJO<br><button class="btn-mini" onclick="m('aba',-1)">-</button> <span id="t-aba">1</span> <button class="btn-mini" onclick="m('aba',1)">+</button><button class="btn-add" onclick="add('aba')">AÑADIR PASOS</button></div>
-            <div class="input-card">⬅ IZQUIERDA<br><button class="btn-mini" onclick="m('izq',-1)">-</button> <span id="t-izq">1</span> <button class="btn-mini" onclick="m('izq',1)">+</button><button class="btn-add" onclick="add('izq')">AÑADIR PASOS</button></div>
-            <div class="input-card">➡ DERECHA<br><button class="btn-mini" onclick="m('der',-1)">-</button> <span id="t-der">1</span> <button class="btn-mini" onclick="m('der',1)">+</button><button class="btn-add" onclick="add('der')">AÑADIR PASOS</button></div>
+            <div class="input-card">⬆ ARRIBA<br><button class="btn-mini" onclick="m('arr',-1)">-</button> <span id="t-arr">1</span> <button class="btn-mini" onclick="m('arr',1)">+</button><button class="btn-add" onclick="add('arr')">AÑADIR</button></div>
+            <div class="input-card">⬇ ABAJO<br><button class="btn-mini" onclick="m('aba',-1)">-</button> <span id="t-aba">1</span> <button class="btn-mini" onclick="m('aba',1)">+</button><button class="btn-add" onclick="add('aba')">AÑADIR</button></div>
+            <div class="input-card">⬅ IZQUIERDA<br><button class="btn-mini" onclick="m('izq',-1)">-</button> <span id="t-izq">1</span> <button class="btn-mini" onclick="m('izq',1)">+</button><button class="btn-add" onclick="add('izq')">AÑADIR</button></div>
+            <div class="input-card">➡ DERECHA<br><button class="btn-mini" onclick="m('der',-1)">-</button> <span id="t-der">1</span> <button class="btn-mini" onclick="m('der',1)">+</button><button class="btn-add" onclick="add('der')">AÑADIR</button></div>
         </div>
         <button class="btn-run" onclick="execute()">INICIAR RUTA 🏁</button>
-        <button onclick="clearR()" style="width:100%; margin-top:10px; border:none; background:none; color:red; cursor:pointer; font-size:0.8rem; text-decoration: underline;">BORRAR TODO Y REPETIR</button>
+        <button onclick="clearR()" style="width:100%; margin-top:10px; border:none; background:none; color:red; cursor:pointer; font-size:0.8rem;">BORRAR TODO</button>
     </div>
 </div>
 
@@ -65,40 +63,31 @@
     let st = { perro: false, gato: false, parque: false, casa: false };
     let tmp = { arr: 1, aba: 1, izq: 1, der: 1 };
 
+    // MAPAS CALCADOS DE TUS DIBUJOS
     const DB = {
         1: { s: 8, exs: [
-            {i:[0,7], g:[3,3], h:[6,2], w:[[1,2],[1,3],[2,3],[4,4],[5,4],[6,4],[3,5],[3,6]], ex: []},
-            {i:[7,7], g:[3,0], h:[1,3], w:[[6,6],[5,6],[0,3],[0,4],[3,4]], ex: []},
-            {i:[3,3], g:[7,6], h:[1,1], w:[[2,1],[4,1],[3,4],[5,4]], ex: []}
+            {i:[0,0], m:[4,4], c:[5,6], w:[[1,0],[1,1],[1,2],[1,3],[1,4],[5,4],[6,4],[0,7],[5,7],[7,0]]}, // Dibujo Ej 1 Nivel 1
+            {i:[0,7], m:[7,4], c:[3,0], w:[[3,1],[4,1],[6,1],[1,2],[1,3],[1,4],[5,5],[6,6],[0,6]]}, // Dibujo Ej 2 Nivel 1
+            {i:[4,3], m:[2,7], c:[5,0], w:[[0,0],[0,1],[1,0],[7,0],[7,1],[3,2],[4,4],[7,6],[7,7]]}  // Dibujo Ej 3 Nivel 1
         ]},
         2: { s: 12, exs: [
-            {i:[2,9], g:[1,4], h:[11,10], w:[[1,8],[3,8],[5,9],[9,10]], ex: [{x:5,y:5,id:'perro',img:'🐶'}]},
-            {i:[1,1], g:[11,3], h:[6,8], w:[[0,2],[2,2],[4,5]], ex: [{x:8,y:2,id:'perro',img:'🐶'}]},
-            {i:[10,1], g:[6,11], h:[2,7], w:[[9,2],[5,6]], ex: [{x:5,y:10,id:'perro',img:'🐶'}]}
+            {i:[2,4], m:[6,1], c:[1,10], ex:[{x:4,y:8,id:'perro',img:'🐶'}], w:[[0,0],[1,0],[2,0]]},
+            {i:[10,1], m:[6,10], c:[3,7], ex:[{x:5,y:2,id:'perro',img:'🐶'}], w:[]}
         ]},
         3: { s: 16, exs: [
-            {i:[7,8], g:[0,0], h:[3,5], w:[[5,5],[8,8]], ex: [{x:10,y:10,id:'perro',img:'🐶'},{x:12,y:2,id:'gato',img:'🐱'},{x:2,y:2,id:'parque',img:'🌳'}]},
-            {i:[15,15], g:[0,0], h:[5,5], w:[[10,10],[4,4]], ex: [{x:8,y:8,id:'perro',img:'🐶'},{x:2,y:10,id:'gato',img:'🐱'},{x:4,y:12,id:'parque',img:'🌳'}]},
-            {i:[0,15], g:[15,0], h:[8,8], w:[[4,11],[12,5]], ex: [{x:12,y:12,id:'perro',img:'🐶'},{x:2,y:2,id:'gato',img:'🐱'},{x:14,y:14,id:'parque',img:'🌳'}]}
+            {i:[7,8], m:[14,14], c:[11,10], ex:[{x:1,y:1,id:'perro',img:'🐶'},{x:14,y:1,id:'gato',img:'🐱'},{x:1,y:10,id:'parque',img:'🌳'}], w:[]}
         ]}
     };
 
-    function getInstruccionVoz() {
-        let texto = "Juan, primero cuenta los cuadros blancos. ";
-        if(lvl === 1) texto += "Primero debes pasar por la casa y luego a la meta.";
-        if(lvl === 2) texto += "Primero recoge al perro, llévalo a la casa y luego ve a la meta.";
-        if(lvl === 3) texto += "Primero recoge al perro y al gato, llévalos al árbol, luego a la casa y finalmente a la meta.";
-        return texto;
+    function getInstruccion() {
+        let t = "Juan: Cuenta los cuadros blancos, ve sumándolos. ";
+        if(lvl==1) t += "ORDEN: Pasa por la CASA 🏠 y luego a la META 🏁.";
+        if(lvl==2) t += "ORDEN: Recoge al PERRO 🐶, llévalo a la CASA 🏠 y ve a la META 🏁.";
+        if(lvl==3) t += "ORDEN: Recoge PERRO 🐶 y GATO 🐱, ve al ÁRBOL 🌳, luego CASA 🏠 y META 🏁.";
+        return t;
     }
 
-    function speak(t) { 
-        window.speechSynthesis.cancel(); 
-        const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'es-ES'; 
-        m.rate = 0.9;
-        window.speechSynthesis.speak(m); 
-    }
-
+    function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; window.speechSynthesis.speak(m); }
     function m(d, v) { tmp[d] = Math.max(1, Math.min(15, tmp[d] + v)); document.getElementById('t-'+d).innerText = tmp[d]; }
     function add(d) { if(active) return; prog.push({d, n: tmp[d]}); updateUI(); }
     function clearR() { prog = []; updateUI(); resetM(); }
@@ -107,14 +96,15 @@
         const l = document.getElementById('route-list'); l.innerHTML = '';
         const icon = { arr:'⬆', aba:'⬇', izq:'⬅', der:'➡' };
         prog.forEach(p => { const s = document.createElement('span'); s.className = 'step-tag'; s.innerText = `${icon[p.d]} ${p.n}`; l.appendChild(s); });
-        document.getElementById('main-inst').innerText = getInstruccionVoz();
+        document.getElementById('main-inst').innerText = getInstruccion();
+        document.getElementById('lvl-txt').innerText = lvl;
+        document.getElementById('ex-txt').innerText = ex;
     }
 
     function build() {
         const c = DB[lvl], e = c.exs[ex-1];
         const g = document.getElementById('grid');
-        const availableWidth = Math.min(window.innerWidth - 40, 550);
-        const sz = Math.floor(availableWidth / c.s);
+        const sz = Math.floor(Math.min(window.innerWidth - 40, 500) / c.s);
         g.style.gridTemplateColumns = `repeat(${c.s}, ${sz}px)`;
         g.innerHTML = '';
         st = { perro: false, gato: false, parque: false, casa: false };
@@ -124,10 +114,12 @@
                 const d = document.createElement('div'); d.className = 'cell';
                 d.style.width = d.style.height = sz + 'px';
                 if(e.w.some(w => w[0]==x && w[1]==y)) d.classList.add('wall');
-                if(x==e.g[0] && y==e.g[1]) { d.classList.add('goal'); d.innerText='🏁'; }
-                if(x==e.h[0] && y==e.h[1]) { d.classList.add('house'); d.innerText='🏠'; }
-                const item = e.ex.find(o => o.x==x && o.y==y);
-                if(item) { d.innerText = item.img; d.id = 'o-'+item.id; }
+                if(x==e.m[0] && y==e.m[1]) { d.classList.add('goal'); d.innerText='🏁'; }
+                if(x==e.c[0] && y==e.c[1]) { d.classList.add('house'); d.innerText='🏠'; }
+                if(e.ex) {
+                    const item = e.ex.find(o => o.x==x && o.y==y);
+                    if(item) { d.innerText = item.img; d.id = 'o-'+item.id; }
+                }
                 g.appendChild(d);
             }
         }
@@ -136,7 +128,7 @@
         mNode.style.width = mNode.style.height = sz+'px'; 
         mNode.style.fontSize = sz*0.7+'px';
         renderM(); updateUI();
-        speak(getInstruccionVoz());
+        speak(getInstruccion());
     }
 
     function renderM() {
@@ -155,31 +147,31 @@
                 let nx = pos.x + moves[step.d].x, ny = pos.y + moves[step.d].y;
                 if(nx<0 || nx>=DB[lvl].s || ny<0 || ny>=DB[lvl].s || e.w.some(w => w[0]==nx && w[1]==ny)) {
                     fails++; document.getElementById('fail-txt').innerText = fails;
-                    speak("Te has chocado Juan. Vuelve a contar los cuadros.");
-                    resetM(); active = false; return;
+                    speak("¡Choque Juan! Cuenta de nuevo."); resetM(); active = false; return;
                 }
                 pos.x = nx; pos.y = ny; renderM();
                 checkLogic(e);
-                await new Promise(r => setTimeout(r, 350));
+                await new Promise(r => setTimeout(r, 300));
             }
         }
 
-        if(pos.x == e.g[0] && pos.y == e.g[1] && st.casa) {
-            speak("¡Excelente Juan! Lo lograste."); setTimeout(next, 1500);
+        if(pos.x == e.m[0] && pos.y == e.m[1] && st.casa) {
+            speak("¡Excelente!"); setTimeout(next, 1000);
         } else {
-            speak("No has cumplido el orden de la instrucción Juan. Repite la ruta."); active = false;
+            speak("No seguiste el orden. Intenta otra vez."); active = false;
         }
     }
 
     function checkLogic(e) {
-        e.ex.forEach(o => {
-            if(pos.x == o.x && pos.y == o.y) {
-                st[o.id] = true;
-                const el = document.getElementById('o-'+o.id);
-                if(el) el.style.opacity = "0.3";
-            }
-        });
-        if(pos.x == e.h[0] && pos.y == e.h[1]) {
+        if(e.ex) {
+            e.ex.forEach(o => {
+                if(pos.x == o.x && pos.y == o.y) {
+                    st[o.id] = true;
+                    document.getElementById('o-'+o.id).style.opacity = "0.2";
+                }
+            });
+        }
+        if(pos.x == e.c[0] && pos.y == e.c[1]) {
             if(lvl==1) st.casa = true;
             if(lvl==2 && st.perro) st.casa = true;
             if(lvl==3 && st.perro && st.gato && st.parque) st.casa = true;
@@ -187,7 +179,7 @@
     }
 
     function resetM() { pos = {x: DB[lvl].exs[ex-1].i[0], y: DB[lvl].exs[ex-1].i[1]}; renderM(); }
-    function next() { ex++; if(ex>3) { lvl++; ex=1; } if(lvl>3) { alert("¡Juan, terminaste todo!"); lvl=1; } build(); }
+    function next() { ex++; if(ex > DB[lvl].exs.length) { lvl++; ex=1; } if(lvl>3) { lvl=1; } build(); active=false; prog=[]; }
     window.onload = build;
 </script>
 </body>
