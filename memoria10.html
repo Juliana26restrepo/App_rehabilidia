@@ -2,52 +2,132 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria 10 - Video Controlado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Memoria 10 - Juan: Memoria Detallada</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #ECEFF1; text-align: center; color: #263238; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #cabecera { background: white; height: 70px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #0288D1; }
-        #contenedor-principal { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
-        video { max-width: 90%; max-height: 60vh; border: 8px solid white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; }
-        #quiz-box { display: none; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; }
-        .btn-opcion { display: block; width: 100%; padding: 15px; margin: 10px 0; font-size: 1.3rem; border: 2px solid #CFD8DC; border-radius: 12px; cursor: pointer; background: #F8F9FA; color: #37474F; font-weight: bold; }
-        #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
-        #pantalla-transicion { background: #01579B; color: white; }
-        #overlay-final { background: rgba(38, 50, 56, 0.98); color: white; }
+        :root {
+            --primary: #01579B;
+            --secondary: #0288D1;
+            --accent: #FFD700;
+            --bg: #ECEFF1;
+            --text: #263238;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; overflow: hidden; background: #121212; 
+            text-align: center; color: var(--text); 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Contenedor Universal Zoom */
+        #contenedor-proporcional {
+            width: 100vw; height: 100vh;
+            max-width: 1024px; max-height: 768px;
+            background: var(--bg);
+            position: relative; display: flex; flex-direction: column;
+            overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        #cabecera { 
+            background: var(--white); height: 10%; display: flex; 
+            align-items: center; justify-content: center; 
+            border-bottom: 4px solid var(--secondary); flex-shrink: 0; 
+        }
+
+        #contenedor-principal { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 20px; 
+        }
+
+        video { 
+            max-width: 95%; max-height: 70%; 
+            border: 6px solid var(--white); border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; 
+        }
+
+        #quiz-box { 
+            display: none; background: var(--white); padding: 25px; 
+            border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+            width: 90%; max-width: 600px; 
+        }
+
+        .btn-opcion { 
+            display: block; width: 100%; padding: 16px; margin: 12px 0; 
+            font-size: clamp(1rem, 2.5vw, 1.4rem); border: 2px solid #CFD8DC; 
+            border-radius: 12px; cursor: pointer; background: #F8F9FA; 
+            color: #37474F; font-weight: bold; transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .btn-opcion:active { background: var(--secondary); color: white; transform: scale(0.98); }
+
+        /* Capas de Estado */
+        #pantalla-transicion, #overlay-final { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            display:none; flex-direction:column; justify-content:center; 
+            align-items:center; z-index:1000; padding: 20px;
+        }
+        #pantalla-transicion { background: var(--primary); color: var(--white); }
+        #overlay-final { background: rgba(38, 50, 56, 0.98); color: var(--white); }
+
+        .cuadro-resultados {
+            background: var(--white); color: var(--text); padding: 30px;
+            border-radius: 25px; border: 5px solid var(--accent);
+            width: 90%; max-width: 500px;
+        }
+
+        .stat-box { display: flex; justify-content: space-around; margin: 20px 0; }
+        .stat-item { background: #f0f4f8; padding: 15px; border-radius: 15px; flex: 1; margin: 0 5px; }
+        .stat-item b { font-size: 1.8rem; color: var(--primary); display: block; }
+
+        .btn-principal {
+            padding: 15px 40px; background: var(--secondary); color: white; 
+            border-radius: 12px; font-size: 1.3rem; border:none; cursor:pointer; font-weight:bold;
+        }
     </style>
 </head>
 <body onload="iniciarJuego()">
 
-<div id="cabecera">
-    <div style="display:flex; align-items:center;">
-        <img src="COTERAPEUTA.JPG" style="width:45px; height:45px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span style="font-weight:bold; font-size: 1.1rem;">Nivel 10: Memoria Detallada</span>
+<div id="contenedor-proporcional">
+    <div id="cabecera">
+        <div style="display:flex; align-items:center;">
+            <img src="COTERAPEUTA.JPG" style="width:40px; height:40px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+            <span style="font-weight:bold; font-size: 1.1rem; color: var(--primary);">Sesión 10: Memoria de Video</span>
+        </div>
     </div>
-</div>
 
-<div id="contenedor-principal">
-    <video id="display-video"></video>
-    <div id="quiz-box">
-        <div id="pregunta-texto" style="font-size: 1.6rem; font-weight: bold; margin-bottom: 20px; color: #01579B;"></div>
-        <div id="opciones-box"></div>
+    <div id="contenedor-principal">
+        <video id="display-video" playsinline></video>
+        <div id="quiz-box">
+            <div id="pregunta-texto"></div>
+            <div id="opciones-box"></div>
+        </div>
     </div>
-</div>
 
-<div id="pantalla-transicion">
-    <h1 id="tit-nivel" style="font-size: 3.5rem; background: #FFD700; color: #01579B; padding: 10px 50px; border-radius: 50px;"></h1>
-    <p id="desc-nivel" style="font-size: 2rem; margin-top: 20px;">Prepárate...</p>
-</div>
+    <div id="pantalla-transicion">
+        <h1 id="tit-nivel" style="font-size: clamp(2rem, 8vw, 3.5rem); background: var(--accent); color: var(--primary); padding: 10px 50px; border-radius: 50px;"></h1>
+        <p id="desc-nivel" style="font-size: 1.5rem; margin-top: 20px;">Observa con atención cada detalle...</p>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3rem;">¡OBJETIVO LOGRADO!</h1>
-    <div id="stats" style="font-size: 1.8rem; margin: 20px;"></div>
-    <p style="font-size: 1.8rem; width: 80%;">“Cada vez que recuerdas un detalle fortaleces tu mente”</p>
-    <button onclick="location.reload()" style="padding: 15px 50px; background: #0288D1; color: white; border-radius: 15px; font-size: 1.5rem; border:none; cursor:pointer; font-weight:bold;">REPETIR</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--primary); margin: 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="resumen-stats" class="stat-box"></div>
+            <div id="eficacia-box" style="font-size: 2rem; font-weight: bold; margin-bottom: 20px; color: var(--secondary);"></div>
+            <p style="font-style: italic; margin-bottom: 20px;">“Cada vez que recuerdas un detalle fortaleces tu mente”</p>
+            <button class="btn-principal" onpointerdown="location.reload()">REPETIR SESIÓN</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    let nivel = 1, aciertos = 0, errores = 0, videoActualId = 0, preguntaIndice = 0;
+    let nivel = 1, aciertosGlobal = 0, erroresGlobal = 0, videoActualId = 0, preguntaIndice = 0;
     let videosUsados = [];
+    const TOTAL_PREGUNTAS_SESION = 12; // 3 niveles * 4 preguntas por video
 
     const configNiveles = {
         1: { n: "1", videos: [1, 2, 3] },
@@ -121,7 +201,7 @@
     function hablar(t, cb) { 
         window.speechSynthesis.cancel(); 
         const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'es-ES'; m.rate = 0.85; 
+        m.lang = 'es-ES'; m.rate = 0.9; 
         if(cb) m.onend = cb; 
         window.speechSynthesis.speak(m); 
     }
@@ -133,7 +213,6 @@
         document.getElementById('tit-nivel').innerText = "NIVEL " + nivel;
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
-        // Instrucción inicial pedida
         hablar("Juan observa el siguiente video, y concéntrate en todos sus detalles", () => {
             setTimeout(() => {
                 document.getElementById('pantalla-transicion').style.display = 'none';
@@ -155,7 +234,6 @@
         v.style.display = 'block';
         v.play();
 
-        // El video dura lo que tenga que durar, se activa el quiz al terminar
         v.onended = () => {
             v.style.display = 'none';
             preguntaIndice = 0;
@@ -173,22 +251,29 @@
             const btn = document.createElement('button');
             btn.className = 'btn-opcion';
             btn.innerText = opt;
-            // Solo avanza si hace clic
-            btn.onclick = () => verificar(index, data.r);
+            // Soporte táctil y mouse con pointerdown
+            btn.onpointerdown = (e) => {
+                e.preventDefault();
+                verificar(index, data.r);
+            };
             box.appendChild(btn);
         });
 
         document.getElementById('quiz-box').style.display = 'block';
-        hablar(data.p + ". Selecciona la respuesta.");
+        hablar(data.p);
     }
 
     function verificar(elegido, correcto) {
-        // Bloqueamos clics extras para evitar que se pase solo
         const botones = document.querySelectorAll('.btn-opcion');
         botones.forEach(b => b.style.pointerEvents = 'none');
 
-        if(elegido === correcto) { aciertos++; hablar("¡Muy bien!"); } 
-        else { errores++; hablar("Incorrecto."); }
+        if(elegido === correcto) { 
+            aciertosGlobal++; 
+            hablar("¡Muy bien!"); 
+        } else { 
+            erroresGlobal++; 
+            hablar("Ese detalle era diferente."); 
+        }
         
         setTimeout(() => {
             preguntaIndice++;
@@ -200,16 +285,34 @@
                     nivel++;
                     prepararNivel();
                 } else {
-                    mostrarCierre();
+                    finalizarSesion();
                 }
             }
-        }, 2000);
+        }, 1500);
     }
 
-    function mostrarCierre() {
-        document.getElementById('stats').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
+    function finalizarSesion() {
+        const eficacia = Math.round((aciertosGlobal / TOTAL_PREGUNTAS_SESION) * 100);
+        
+        // Guardado Centralizado según protocolo
+        const datosSesion = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Memoria",
+            id_sesion: 10,
+            aciertos: aciertosGlobal,
+            errores: erroresGlobal,
+            eficacia: eficacia + "%"
+        };
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(datosSesion));
+
+        // UI Final
+        document.getElementById('resumen-stats').innerHTML = `
+            <div class="stat-item">ACIERTOS<b>${aciertosGlobal}</b></div>
+            <div class="stat-item">ERRORES<b>${erroresGlobal}</b></div>
+        `;
+        document.getElementById('eficacia-box').innerText = `Eficacia: ${eficacia}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Cada vez que recuerdas un detalle fortaleces tu mente");
+        hablar("Sesión terminada. Cada vez que recuerdas un detalle fortaleces tu mente");
     }
 </script>
 </body>
