@@ -5,115 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Memoria 3 - Juan: Sonidos con Pistas</title>
     <style>
-        :root {
-            --primary: #6C5B7B;
-            --secondary: #307B8E;
-            --accent: #FFD700;
-            --correct: #366B2B;
-            --error: #E74C3C;
-        }
-
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; overflow: hidden; 
-            touch-action: none; 
-            background: #2c3e50; 
-            height: 100vh; 
-            display: flex; align-items: center; justify-content: center;
-        }
-        
-        /* Sistema Universal Zoom */
-        #main-container {
-            width: 100vw; height: 100vh;
-            max-width: 1280px; max-height: 800px;
-            background: url('mem3/fondo.jpg') no-repeat center center;
-            background-size: cover;
-            position: relative;
-            display: flex; flex-direction: column;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
-
-        #cabecera { 
-            background: rgba(108, 91, 123, 0.95); color: white; 
-            height: 12%; display: flex; align-items: center; 
-            padding: 0 20px; border-bottom: 4px solid var(--secondary); flex-shrink: 0;
-        }
-
-        #instruccion-box { 
-            background: white; padding: 10px 25px; border-radius: 30px; 
-            color: #103A57; display: flex; align-items: center; 
-            border: 3px solid var(--primary); font-weight: bold;
-            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
-        }
+        :root { --primary: #6C5B7B; --secondary: #307B8E; --accent: #FFD700; --correct: #366B2B; --error: #E74C3C; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; background: #2c3e50; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        #main-container { width: 100vw; height: 100vh; max-width: 1280px; max-height: 800px; background: #f0f4f8; position: relative; display: flex; flex-direction: column; }
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 12%; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid var(--secondary); flex-shrink: 0; }
+        #instruccion-box { background: white; padding: 10px 25px; border-radius: 30px; color: #103A57; display: flex; align-items: center; border: 3px solid var(--primary); font-weight: bold; font-size: clamp(0.9rem, 2.5vw, 1.3rem); }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-
         #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        
-        /* FASE 1: CODIFICACIÓN */
         #panel-codificacion { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #box-onda { 
-            background: rgba(255, 255, 255, 0.9); border: 4px solid var(--correct); 
-            border-radius: 20px; width: 60%; height: 30%; 
-            display: flex; align-items: center; justify-content: center; 
-            position: relative; gap: 10px; 
-        }
-        
+        #box-onda { background: white; border: 4px solid var(--correct); border-radius: 20px; width: 60%; height: 30%; display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
         .bar { width: 15px; height: 40px; background: var(--correct); border-radius: 5px; opacity: 0.3; }
         .animating .bar { animation: soundWave 0.5s infinite alternate; opacity: 1; }
-        .bar:nth-child(2) { animation-delay: 0.1s; }
-        .bar:nth-child(3) { animation-delay: 0.2s; }
-        .bar:nth-child(4) { animation-delay: 0.3s; }
-        .bar:nth-child(5) { animation-delay: 0.4s; }
         @keyframes soundWave { from { height: 20px; transform: scaleY(0.5); } to { height: 100px; transform: scaleY(1.2); } }
-
-        /* FASE 2: RESPUESTA */
         #panel-respuesta { display: none; flex: 1; flex-direction: column; align-items: center; padding: 15px; overflow: hidden; }
-        
-        #zona-banco-sonidos { 
-            background: rgba(255,255,255,0.9); border: 3px solid var(--primary); 
-            border-radius: 15px; width: 95%; height: 45%; 
-            padding: 15px; display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
-            gap: 10px; overflow-y: auto; box-sizing: border-box;
-        }
-
-        #zona-linea-arrastre { 
-            background: rgba(54, 107, 43, 0.9); border: 3px dashed var(--accent); 
-            border-radius: 15px; width: 95%; height: 45%; 
-            display: flex; align-items: center; justify-content: center; 
-            gap: 10px; margin-top: 10px; flex-wrap: wrap; overflow-y: auto;
-        }
-
-        .btn-sonido { 
-            background: white; border: 3px solid #103A57; border-radius: 15px; 
-            width: 80px; height: 80px; cursor: grab; display: flex; 
-            align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-            touch-action: none;
-        }
-        .btn-sonido img { width: 60px; height: 60px; pointer-events: none; }
-        
-        .hueco-arrastre { 
-            background: rgba(255,255,255,0.2); border: 3px dashed white; 
-            border-radius: 15px; width: 90px; height: 90px; 
-            display: flex; align-items: center; justify-content: center; 
-            color: white; font-weight: bold; font-size: 1.5rem; transition: 0.3s; 
-        }
-        .hueco-arrastre img { width: 70px; height: 70px; }
-
-        /* PISTA: Parpadeo amarillo */
-        .pista-ayuda { animation: parpadeo 1s infinite; border: 5px solid var(--accent) !important; background: rgba(255, 215, 0, 0.4) !important; }
-        @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        #overlay-final { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(16, 58, 87, 0.98); z-index: 5000; 
-            flex-direction: column; justify-content: center; align-items: center; color: white; 
-        }
-        .cuadro-resultados {
-            background: white; color: #103A57; padding: 30px; border-radius: 25px;
-            width: 80%; max-width: 500px; text-align: center;
-        }
-        .linea-resumen { margin: 10px 0; display: flex; justify-content: space-between; font-size: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        #zona-banco-sonidos { background: rgba(255,255,255,0.9); border: 3px solid var(--primary); border-radius: 15px; width: 95%; height: 45%; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 15px; overflow-y: auto; box-sizing: border-box; justify-items: center; }
+        #zona-linea-arrastre { background: rgba(54, 107, 43, 0.9); border: 3px dashed var(--accent); border-radius: 15px; width: 95%; height: 45%; display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; overflow-y: auto; }
+        .btn-sonido { background: white; border: 3px solid #103A57; border-radius: 15px; width: 90px; height: 90px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); touch-action: none; transition: transform 0.2s; position: relative; }
+        .btn-sonido img { width: 70px; height: 70px; pointer-events: none; }
+        .hueco-arrastre { background: rgba(255,255,255,0.2); border: 3px dashed white; border-radius: 15px; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; transition: 0.3s; }
+        .hueco-arrastre img { width: 80px; height: 80px; }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .cuadro-resultados { background: white; color: #103A57; padding: 30px; border-radius: 25px; width: 80%; max-width: 500px; text-align: center; }
     </style>
 </head>
 <body onload="iniciarNivel()">
@@ -125,15 +37,13 @@
             <span id="label-guia">Juan, escucha los sonidos...</span>
         </div>
     </div>
-
     <div id="contenedor-juego">
         <div id="panel-codificacion">
             <div id="box-onda">
                 <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                <div id="txt-sonido-count" style="position: absolute; bottom: -40px; font-weight: bold; color: #103A57; font-size: 1.2rem;"></div>
+                <div id="txt-sonido-count" style="position: absolute; bottom: -40px; font-weight: bold; color: #103A57;"></div>
             </div>
         </div>
-
         <div id="panel-respuesta">
             <div id="zona-banco-sonidos"></div>
             <div id="zona-linea-arrastre"></div>
@@ -143,42 +53,30 @@
 
 <div id="overlay-final">
     <div class="cuadro-resultados">
-        <h1 style="color: var(--correct); margin-top: 0;">¡Sesión Completada!</h1>
+        <h1 style="color: var(--correct);">¡Sesión Completada!</h1>
         <div id="resumen-final-box"></div>
-        <button onclick="window.location.href='menu.html'" style="padding: 15px 40px; background: var(--correct); color: white; border: none; border-radius: 15px; font-size: 1.3rem; cursor: pointer; margin-top: 20px; font-weight: bold;">GUARDAR Y SALIR</button>
+        <button onclick="window.location.href='index.html'" style="padding: 15px 40px; background: var(--correct); color: white; border: none; border-radius: 15px; font-size: 1.3rem; font-weight: bold; cursor: pointer; margin-top: 20px;">GUARDAR Y SALIR</button>
     </div>
 </div>
 
 <script>
     const banco = ["ambulancia", "aplausos", "avion", "bebe", "carro", "freno", "gato", "lluvia", "martillo", "moto", "pajaro", "pasos", "perro", "puerta", "taladro", "telefono", "timbre", "trueno", "vaca", "vidrio"];
-    
-    // Métricas dinámicas
-    let nivelActual = 1;
-    let aciertosGlobales = 0;
-    let erroresGlobales = 0;
-    let secuenciaReto = [];
-    let respuestasUsuario = [];
-    let erroresPasoActual = 0;
-    const metas = { 1: 3, 2: 5, 3: 7 }; // Cantidad de sonidos por nivel
-    const totalRetosSesion = metas[1] + metas[2] + metas[3];
+    let nivelActual = 1, aciertosGlobales = 0, erroresGlobales = 0, secuenciaReto = [], respuestasUsuario = [];
+    const metas = { 1: 3, 2: 4, 3: 5 };
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarNivel() {
         respuestasUsuario = [];
-        erroresPasoActual = 0;
         secuenciaReto = [...banco].sort(() => 0.5 - Math.random()).slice(0, metas[nivelActual]);
-        
         document.getElementById('panel-respuesta').style.display = 'none';
         document.getElementById('panel-codificacion').style.display = 'flex';
-        
         hablar(`Juan, escucha con atención estos ${metas[nivelActual]} sonidos.`, () => {
             setTimeout(() => reproducirSecuencia(0), 1000);
         });
@@ -188,16 +86,14 @@
         if (idx < secuenciaReto.length) {
             document.getElementById('txt-sonido-count').innerText = `Escuchando: ${idx + 1} de ${secuenciaReto.length}`;
             document.getElementById('box-onda').classList.add('animating');
-            
             const audio = new Audio(`mem3/${secuenciaReto[idx]}.mp3`);
             audio.play();
-            
             audio.onended = () => {
                 document.getElementById('box-onda').classList.remove('animating');
-                setTimeout(() => reproducirSecuencia(idx + 1), 1000);
+                setTimeout(() => reproducirSecuencia(idx + 1), 800);
             };
         } else {
-            prepararFaseRespuesta();
+            setTimeout(prepararFaseRespuesta, 1000);
         }
     }
 
@@ -206,14 +102,11 @@
         const panelRes = document.getElementById('panel-respuesta');
         const bancoDiv = document.getElementById('zona-banco-sonidos');
         const lineaDiv = document.getElementById('zona-linea-arrastre');
-        
-        bancoDiv.innerHTML = ""; 
-        lineaDiv.innerHTML = "";
+        bancoDiv.innerHTML = ""; lineaDiv.innerHTML = "";
         panelRes.style.display = 'flex';
         
-        hablar("Juan, ¿en qué orden los escuchaste? Arrastra las imágenes al recuadro verde.");
+        hablar("Juan, toca las fotos para escuchar el sonido y arrástralas en orden.");
 
-        // Crear huecos
         secuenciaReto.forEach((_, i) => {
             const h = document.createElement('div');
             h.className = 'hueco-arrastre';
@@ -222,32 +115,32 @@
             lineaDiv.appendChild(h);
         });
 
-        // Crear opciones (incluye distractores)
-        let opciones = [...secuenciaReto, ...banco.filter(x => !secuenciaReto.includes(x)).slice(0, 4)].sort(() => 0.5 - Math.random());
-        
+        let opciones = [...secuenciaReto, ...banco.filter(x => !secuenciaReto.includes(x)).slice(0, 3)].sort(() => 0.5 - Math.random());
         opciones.forEach(id => {
             const btn = document.createElement('div');
             btn.className = 'btn-sonido';
             btn.innerHTML = `<img src="mem3/${id}.png">`;
             btn.dataset.id = id;
-            btn.onpointerdown = iniciarArrastre;
+            // Doble funcionalidad: Toque para sonar, Arrastre para mover
+            btn.onpointerdown = (e) => {
+                const a = new Audio(`mem3/${id}.mp3`);
+                a.play();
+                iniciarArrastre(e);
+            };
             bancoDiv.appendChild(btn);
         });
     }
 
     function iniciarArrastre(e) {
         const el = e.currentTarget;
-        const clon = el.cloneNode(true);
         const rect = el.getBoundingClientRect();
-        
+        const clon = el.cloneNode(true);
         clon.style.position = 'fixed';
         clon.style.width = rect.width + 'px';
-        clon.style.height = rect.height + 'px';
         clon.style.left = rect.left + 'px';
         clon.style.top = rect.top + 'px';
         clon.style.zIndex = 1000;
         clon.style.opacity = '0.8';
-        clon.style.pointerEvents = 'none';
         document.body.appendChild(clon);
 
         const mover = (me) => {
@@ -263,17 +156,11 @@
             const hueco = document.getElementById(`hueco-${objetivoIdx}`);
             const hRect = hueco.getBoundingClientRect();
             
-            const enHueco = (
-                se.clientX > hRect.left && se.clientX < hRect.right &&
-                se.clientY > hRect.top && se.clientY < hRect.bottom
-            );
-
-            if (enHueco) {
+            if (se.clientX > hRect.left && se.clientX < hRect.right && se.clientY > hRect.top && se.clientY < hRect.bottom) {
                 verificar(el.dataset.id, el);
             }
             clon.remove();
         };
-
         window.addEventListener('pointermove', mover);
         window.addEventListener('pointerup', soltar);
     }
@@ -285,66 +172,28 @@
         if (id === objetivo) {
             aciertosGlobales++;
             huecoActual.innerHTML = `<img src="mem3/${id}.png">`;
-            huecoActual.classList.remove('pista-ayuda');
             huecoActual.style.background = "white";
-            huecoActual.style.borderStyle = "solid";
-            
             respuestasUsuario.push(id);
-            erroresPasoActual = 0;
             elementoOriginal.style.visibility = 'hidden';
 
             if (respuestasUsuario.length === secuenciaReto.length) {
                 setTimeout(() => {
-                    if (nivelActual < 3) {
-                        nivelActual++;
-                        iniciarNivel();
-                    } else {
-                        finalizar();
-                    }
-                }, 1500);
+                    if (nivelActual < 3) { nivelActual++; iniciarNivel(); }
+                    else finalizar();
+                }, 1000);
             }
         } else {
             erroresGlobales++;
-            erroresPasoActual++;
-            hablar("Ese no es el sonido correcto, Juan. Intenta otra vez.");
-            
-            if (erroresPasoActual >= 3) {
-                huecoActual.classList.add('pista-ayuda');
-                hablar(`¡Mira! El sonido que sigue es ${objetivo}.`, () => {
-                   const a = new Audio(`mem3/${objetivo}.mp3`);
-                   a.play();
-                });
-            }
+            hablar("Ese no sigue ahora, Juan.");
         }
     }
 
     function finalizar() {
         document.getElementById('panel-respuesta').style.display = 'none';
-        const eficacia = Math.round((aciertosGlobales / (aciertosGlobales + erroresGlobales)) * 100) || 0;
-        
-        const dataGuardar = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria",
-            id_sesion: 3,
-            aciertos: aciertosGlobales,
-            errores: erroresGlobales,
-            eficacia: eficacia
-        };
-
-        // Guardado centralizado
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(dataGuardar);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        // Resumen visual
-        document.getElementById('resumen-final-box').innerHTML = `
-            <div class="linea-resumen"><span>Aciertos:</span> <b>${aciertosGlobales}</b></div>
-            <div class="linea-resumen"><span>Errores:</span> <b>${erroresGlobales}</b></div>
-            <div class="linea-resumen"><span>Eficacia:</span> <b style="color:#366B2B">${eficacia}%</b></div>
-        `;
-        
+        const ef = Math.round((aciertosGlobales / (aciertosGlobales + erroresGlobales)) * 100);
+        document.getElementById('resumen-final-box').innerHTML = `Aciertos: ${aciertosGlobales}<br>Errores: ${erroresGlobales}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Misión cumplida Juan! Has recordado todos los sonidos. Tu reporte ha sido guardado.");
+        hablar("¡Misión cumplida Juan!");
     }
 </script>
 </body>
