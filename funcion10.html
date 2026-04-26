@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Pro: Protocolo de Rehabilitación Fiel</title>
+    <title>Motoruta Pro: Rehabilitación Juan</title>
     <style>
         :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
         header { background: var(--primary); color: white; width: 100%; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; }
-        .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 50px; padding: 10px; border-bottom: 2px solid #e2e8f0; font-weight: bold; color: var(--primary); }
-        .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; width: 100%; max-width: 1300px; }
+        .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 30px; padding: 10px; border-bottom: 2px solid #e2e8f0; font-weight: bold; color: var(--primary); }
+        .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; width: 100%; max-width: 1200px; }
         #game-window { position: relative; border: 5px solid var(--primary); background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
         #grid { display: grid; gap: 1px; background: #cbd5e1; }
         .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
@@ -16,26 +16,26 @@
         .goal { background: #fef08a !important; border: 2px solid #eab308; }
         .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
         #moto { position: absolute; z-index: 100; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        .controls { width: 450px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        #route-list { min-height: 80px; max-height: 150px; overflow-y: auto; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .step-tag { background: var(--primary); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
-        .input-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .input-card { background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; }
-        .stepper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
-        .btn-mini { width: 30px; height: 30px; border: none; border-radius: 50%; background: #64748b; color: white; cursor: pointer; }
-        .btn-add { width: 100%; background: var(--primary); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
+        .controls { width: 400px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        #route-list { min-height: 60px; max-height: 120px; overflow-y: auto; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .step-tag { background: var(--primary); color: white; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; font-weight: bold; }
+        .input-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .input-card { background: #f8fafc; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; text-align: center; }
+        .btn-mini { width: 28px; height: 28px; border: none; border-radius: 50%; background: #64748b; color: white; cursor: pointer; }
+        .btn-add { width: 100%; background: var(--primary); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; margin-top: 5px; }
+        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; }
         .btn-run { background: var(--success); color: white; }
-        .btn-clear { background: var(--danger); color: white; margin-top: 10px; font-size: 0.9rem; }
+        .btn-clear { background: var(--danger); color: white; }
+        #hint-box { margin-top: 10px; padding: 10px; background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; border-radius: 8px; display: none; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<header>MOTORUTA: REHABILITACIÓN BASADA EN TUS DISEÑOS</header>
+<header>MOTORUTA: ENTRENAMIENTO PARA JUAN</header>
 <div class="stats">
     <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
     <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
-    <span>TAMAÑO: <span id="size-txt">8x8</span></span>
+    <span>FALLOS: <span id="fail-txt">0</span></span>
 </div>
 
 <div class="main-content">
@@ -47,44 +47,38 @@
     <div class="controls">
         <div id="route-list"></div>
         <div class="input-zone">
-            <div class="input-card"><label>ARRIBA ⬆</label><div class="stepper"><button class="btn-mini" onclick="mod('arr',-1)">-</button><span id="tmp-arr">1</span><button class="btn-mini" onclick="mod('arr',1)">+</button></div><button class="btn-add" onclick="addStep('arr')">AÑADIR</button></div>
-            <div class="input-card"><label>ABAJO ⬇</label><div class="stepper"><button class="btn-mini" onclick="mod('aba',-1)">-</button><span id="tmp-aba">1</span><button class="btn-mini" onclick="mod('aba',1)">+</button></div><button class="btn-add" onclick="addStep('aba')">AÑADIR</button></div>
-            <div class="input-card"><label>IZQ ⬅</label><div class="stepper"><button class="btn-mini" onclick="mod('izq',-1)">-</button><span id="tmp-izq">1</span><button class="btn-mini" onclick="mod('izq',1)">+</button></div><button class="btn-add" onclick="addStep('izq')">AÑADIR</button></div>
-            <div class="input-card"><label>DER ➡</label><div class="stepper"><button class="btn-mini" onclick="mod('der',-1)">-</button><span id="tmp-der">1</span><button class="btn-mini" onclick="mod('der',1)">+</button></div><button class="btn-add" onclick="addStep('der')">AÑADIR</button></div>
+            <div class="input-card"><label>ARRIBA</label><div class="stepper"><button class="btn-mini" onclick="mod('arr',-1)">-</button> <span id="tmp-arr">1</span> <button class="btn-mini" onclick="mod('arr',1)">+</button></div><button class="btn-add" onclick="addStep('arr')">AÑADIR</button></div>
+            <div class="input-card"><label>ABAJO</label><div class="stepper"><button class="btn-mini" onclick="mod('aba',-1)">-</button> <span id="tmp-aba">1</span> <button class="btn-mini" onclick="mod('aba',1)">+</button></div><button class="btn-add" onclick="addStep('aba')">AÑADIR</button></div>
+            <div class="input-card"><label>IZQ</label><div class="stepper"><button class="btn-mini" onclick="mod('izq',-1)">-</button> <span id="tmp-izq">1</span> <button class="btn-mini" onclick="mod('izq',1)">+</button></div><button class="btn-add" onclick="addStep('izq')">AÑADIR</button></div>
+            <div class="input-card"><label>DER</label><div class="stepper"><button class="btn-mini" onclick="mod('der',-1)">-</button> <span id="tmp-der">1</span> <button class="btn-mini" onclick="mod('der',1)">+</button></div><button class="btn-add" onclick="addStep('der')">AÑADIR</button></div>
         </div>
+        <div id="hint-box"></div>
         <button class="btn-main btn-run" onclick="execute()">INICIAR RUTA 🏁</button>
-        <button class="btn-main btn-clear" onclick="clearRoute()">BORRAR PROGRAMA</button>
+        <button class="btn-main btn-clear" onclick="clearRoute()">BORRAR PROGRAMACIÓN</button>
     </div>
 </div>
 
 <script>
-    let lvl = 1, ex = 1, active = false, pos = {x: 0, y: 0}, cSize = 0, targetMet = false, program = [];
+    let lvl = 1, ex = 1, fails = 0, totalAttempts = 0, totalSuccess = 0;
+    let active = false, pos = {x:0, y:0}, targetMet = false, program = [];
     let tmpVals = { arr: 1, aba: 1, izq: 1, der: 1 };
 
+    // CONFIGURACIÓN AJUSTADA FIELMENTE A LAS FOTOS (Eje Y corregido)
     const CONFIG = {
         1: { size: 8, exs: [
-            // Nivel 1 Ej 1: Inicio (0,7), Meta (3,3), Casa (6,2)
-            {i:[0,7], g:[3,3], h:[6,2], w:[[1,0],[6,0],[3,1],[4,1],[1,2],[1,3],[3,4],[3,5],[0,4],[0,6],[6,6],[0,5]]},
-            // Nivel 1 Ej 2: Inicio (7,7), Meta (3,0), Casa (1,3)
-            {i:[7,7], g:[3,0], h:[1,3], w:[[0,0],[4,0],[5,0],[1,1],[3,2],[6,2],[0,4],[3,4],[4,4],[5,6],[5,7],[0,7]]},
-            // Nivel 1 Ej 3: Inicio (3,3), Meta (7,6), Casa (1,1)
-            {i:[3,3], g:[7,6], h:[1,1], w:[[0,0],[5,0],[2,1],[6,1],[4,2],[0,4],[1,5],[5,5],[0,7],[6,7],[4,4]]}
+            {i:[0,7], g:[3,3], h:[6,2], w:[[1,7],[1,6],[3,2],[4,2],[3,4],[4,4],[1,1],[1,2],[0,3],[6,6],[7,6],[0,5]], hint: "Juan, primero sube un poco y luego gira a la derecha para evitar los muros de abajo."},
+            {i:[7,7], g:[3,0], h:[1,3], w:[[6,7],[5,7],[4,7],[1,1],[3,2],[6,2],[0,4],[3,4],[4,4],[5,6]], hint: "Empieza moviéndote hacia la izquierda, Juan. Hay muchos muros en el centro."},
+            {i:[3,3], g:[7,6], h:[1,1], w:[[2,3],[4,3],[3,2],[3,4],[0,0],[5,0],[2,1],[6,1],[4,2],[0,4],[1,5],[5,5]], hint: "La casa está arriba a la izquierda, debes rodear el centro."}
         ]},
         2: { size: 12, exs: [
-            // Nivel 2 Ej 1: Inicio (2,9), Casa (11,10), Meta (1,4)
-            {i:[2,9], g:[1,4], h:[11,10], w:[[0,0],[4,0],[11,0],[3,1],[8,2],[1,3],[10,4],[6,5],[11,7],[4,8],[0,10],[10,11],[2,2],[5,5]]},
-            // Nivel 2 Ej 2: Inicio (1,1), Casa (6,8), Meta (11,3)
-            {i:[1,1], g:[11,3], h:[6,8], w:[[3,0],[7,0],[0,2],[5,2],[10,2],[4,4],[8,4],[1,6],[6,6],[11,6],[3,8],[9,8],[0,10],[7,10]]},
-            // Nivel 2 Ej 3: Inicio (10,1), Casa (2,7), Meta (6,11)
-            {i:[10,1], g:[6,11], h:[2,7], w:[[0,0],[6,0],[1,2],[8,2],[4,4],[11,4],[2,6],[9,6],[0,8],[6,8],[3,10],[10,10]]}
+            {i:[2,9], g:[1,4], h:[11,10], w:[[1,9],[3,9],[2,8],[2,10],[0,0],[4,0],[11,0],[3,1],[8,2],[10,4],[6,5],[11,7]], hint: "Ve primero hacia la casa que está en la esquina inferior derecha."},
+            {i:[1,1], g:[11,3], h:[6,8], w:[[3,0],[7,0],[0,2],[5,2],[10,2],[4,4],[8,4],[1,6],[6,6],[11,6]], hint: "Cuidado con los muros en forma de pasillo, Juan."},
+            {i:[10,1], g:[6,11], h:[2,7], w:[[0,0],[6,0],[1,2],[8,2],[4,4],[11,4],[2,6],[9,6],[0,8],[6,8]], hint: "Cruza el tablero hacia la izquierda para buscar la casa primero."}
         ]},
         3: { size: 16, exs: [
-            // Nivel 3 Ej 1: Inicio (7,8), Casa (3,5), Meta (0,0)
-            {i:[7,8], g:[0,0], h:[3,5], w:[[2,2],[8,2],[14,2],[4,4],[10,4],[6,6],[12,6],[2,10],[8,10],[14,10],[4,12],[10,12],[6,14],[12,14]]},
-            // Nivel 3 Ej 2: Inicio (15,15), Casa (5,5), Meta (0,0)
-            {i:[15,15], g:[0,0], h:[5,5], w:[[1,1],[3,3],[5,1],[7,3],[9,1],[11,3],[13,1],[1,7],[3,9],[5,7],[7,9],[9,7],[11,9],[13,7]]},
-            // Nivel 3 Ej 3: Inicio (0,15), Casa (8,8), Meta (15,0)
-            {i:[0,15], g:[15,0], h:[8,8], w:[[2,0],[2,2],[4,4],[6,6],[8,10],[10,12],[12,14],[14,2],[0,8],[4,8],[12,8],[8,0],[8,4],[8,12]]}
+            {i:[7,8], g:[0,0], h:[3,5], w:[[2,2],[8,2],[14,2],[4,4],[10,4],[6,6],[12,6],[2,10],[8,10],[14,10],[4,12],[10,12]], hint: "En este tablero grande, cuenta bien los cuadros uno a uno."},
+            {i:[15,15], g:[0,0], h:[5,5], w:[[1,1],[3,3],[5,1],[7,3],[9,1],[11,3],[13,1],[1,7],[3,9],[5,7],[7,9]], hint: "La meta está en la esquina opuesta, planea una ruta larga."},
+            {i:[0,15], g:[15,0], h:[8,8], w:[[2,0],[2,2],[4,4],[6,6],[8,10],[10,12],[12,14],[14,2],[0,8],[4,8],[12,8]], hint: "Pasa por el centro para visitar la casa antes de subir a la meta."}
         ]}
     };
 
@@ -102,7 +96,8 @@
         active = false;
         const c = CONFIG[lvl], e = c.exs[ex-1];
         const g = document.getElementById('grid');
-        cSize = Math.floor(560 / c.size);
+        const boardSize = 550;
+        cSize = Math.floor(boardSize / c.size);
         g.style.gridTemplateColumns = `repeat(${c.size}, ${cSize}px)`;
         g.innerHTML = '';
         
@@ -119,7 +114,8 @@
         pos = {x: e.i[0], y: e.i[1]};
         targetMet = false;
         renderMoto();
-        speak(`Nivel ${lvl}, Ejercicio ${ex}. Sigue tu diseño manual. Debes visitar la casa antes de la meta.`);
+        document.getElementById('hint-box').style.display = 'none';
+        speak("Juan vamos a realizar la ruta, debes de ir contando los cuadros y sumándolos con los botones, cuando creas que ya tienes la ruta completa le das iniciar ruta");
     }
 
     function renderMoto() {
@@ -131,7 +127,7 @@
 
     async function execute() {
         if(active || program.length === 0) return;
-        active = true;
+        active = true; totalAttempts++;
         const c = CONFIG[lvl], e = c.exs[ex-1];
         const ds = { der:{x:1,y:0}, izq:{x:-1,y:0}, aba:{x:0,y:1}, arr:{x:0,y:-1} };
 
@@ -140,22 +136,27 @@
             for(let i=0; i<s.n; i++) {
                 let nx = pos.x + d.x, ny = pos.y + d.y;
                 if(nx < 0 || nx >= c.size || ny < 0 || ny >= c.size || e.w.some(w => w[0]===nx && w[1]===ny)) {
-                    speak("¡Choque! Revisa tu plan y vuelve a intentarlo.");
-                    resetCurrent();
-                    return;
+                    fails++; document.getElementById('fail-txt').innerText = fails;
+                    speak("¡Choque Juan! Vuelve a intentarlo.");
+                    if(fails % 2 === 0) {
+                        document.getElementById('hint-box').innerText = "PISTA: " + e.hint;
+                        document.getElementById('hint-box').style.display = 'block';
+                        speak("Mira la pista que apareció en pantalla.");
+                    }
+                    resetCurrent(); return;
                 }
                 pos.x = nx; pos.y = ny;
-                if(pos.x === e.h[0] && pos.y === e.h[1]) { targetMet = true; speak("¡Casa visitada!"); }
+                if(pos.x === e.h[0] && pos.y === e.h[1]) { targetMet = true; speak("¡Pasaste por la casa!"); }
                 renderMoto();
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 350));
             }
         }
 
         if(pos.x === e.g[0] && pos.y === e.g[1] && targetMet) {
-            speak("¡Excelente! Has seguido el camino correctamente.");
-            setTimeout(next, 1200);
+            totalSuccess++; speak("¡Excelente Juan! Lo lograste.");
+            setTimeout(next, 1500);
         } else {
-            speak(targetMet ? "Recorrido incompleto: no estás en la meta." : "Error: olvidaste visitar la casa.");
+            speak(targetMet ? "Juan, no llegaste a la meta." : "Juan, olvidaste pasar por la casa.");
             active = false;
         }
     }
@@ -165,7 +166,12 @@
 
     function next() {
         if(ex < 3) ex++; else { lvl++; ex = 1; }
-        if(lvl > 3) { speak("Protocolo finalizado. ¡Excelente trabajo de planificación!"); lvl=1; ex=1; }
+        if(lvl > 3) {
+            let score = Math.round((totalSuccess / totalAttempts) * 100);
+            speak(`Juan, has terminado. Tu precisión fue del ${score} por ciento.`);
+            alert(`RESULTADOS FINALES\nPrecisión: ${score}%\nFallos totales: ${fails}`);
+            lvl=1; ex=1; fails=0; totalAttempts=0; totalSuccess=0;
+        }
         document.getElementById('lvl-txt').innerText = lvl;
         document.getElementById('ex-txt').innerText = ex;
         document.getElementById('size-txt').innerText = `${CONFIG[lvl].size}x${CONFIG[lvl].size}`;
@@ -176,3 +182,4 @@
 </script>
 </body>
 </html>
+
