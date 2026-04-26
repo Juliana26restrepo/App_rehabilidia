@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 6 - Cocina Terapéutica - REHABILIDIA</title>
     <style>
-        :root { --p-blue: #0A253A; --t-blue: #307B8E; --bg-light: #eef2f5; }
+        :root { --p-blue: #0A253A; --t-blue: #307B8E; --bg-light: #eef2f5; --gold: #FFD700; }
         
         * { box-sizing: border-box; touch-action: none; }
 
@@ -19,20 +19,20 @@
         header { 
             background: var(--p-blue); color: white; padding: 10px 20px; 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 3px solid #FFD700;
+            border-bottom: 3px solid var(--gold);
         }
 
         #guia-box { 
             background: white; width: 95%; max-width: 800px;
             border-radius: 15px; padding: 10px; display: flex; align-items: center; 
-            border: 3px solid var(--t-blue); margin: 8px auto;
+            border: 3px solid var(--t-blue); margin: 8px auto; cursor: pointer;
         }
         
         #avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
         #texto-guia { font-size: 0.9rem; font-weight: bold; color: var(--p-blue); margin: 0; flex: 1; }
 
         #zona-juego { 
-            flex: 1; display: flex; padding: 10px; gap: 10px; height: calc(100vh - 150px);
+            flex: 1; display: flex; padding: 10px; gap: 10px; height: calc(100vh - 160px);
         }
 
         .panel { 
@@ -47,23 +47,22 @@
             display: flex; justify-content: center; align-items: center; 
         }
 
-        /* Área donde se deben soltar los ingredientes */
         #objetivo { 
-            width: 200px; height: 200px;
-            border: 4px dashed rgba(48, 123, 142, 0.3); border-radius: 50%; 
+            width: 220px; height: 220px;
+            border: 4px dashed rgba(48, 123, 142, 0.2); border-radius: 50%; 
             position: absolute;
         }
 
-        .ing-plato { position: absolute; width: 70px; height: 70px; transform: translate(-50%, -50%); z-index: 10; }
+        .ing-plato { position: absolute; width: 75px; height: 75px; transform: translate(-50%, -50%); z-index: 10; }
 
         #panel-ingredientes { 
             flex: 0.8; display: grid; 
             grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; padding: 15px; overflow-y: auto; align-content: start; 
+            gap: 12px; padding: 15px; overflow-y: auto; align-content: start; 
         }
 
         .item { 
-            width: 100%; max-width: 80px; aspect-ratio: 1;
+            width: 100%; max-width: 85px; aspect-ratio: 1;
             cursor: grab; object-fit: contain;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
             margin: auto;
@@ -71,7 +70,7 @@
 
         .dragging { 
             position: fixed !important; z-index: 5000 !important; 
-            width: 80px !important; height: 80px !important;
+            width: 90px !important; height: 90px !important;
             pointer-events: none;
         }
 
@@ -81,14 +80,14 @@
         }
         .cuadro-resumen {
             background: white; padding: 30px; border-radius: 20px; text-align: center;
-            max-width: 400px; width: 80%; border: 5px solid var(--t-blue);
+            max-width: 400px; width: 85%; border: 5px solid var(--t-blue);
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div>Sesión 6 - Cocina</div>
+    <div id="status-nivel">Nivel 1</div>
     <div id="status-puntos">Aciertos: 0</div>
 </header>
 
@@ -107,50 +106,57 @@
 
 <div id="modal-resultados">
     <div class="cuadro-resumen">
-        <h2>¡Sesión Completada!</h2>
-        <div id="stats-finales"></div>
-        <button onclick="location.reload()" style="padding:10px 20px; cursor:pointer;">REPETIR</button>
+        <h2 style="color: var(--p-blue)">¡Cocina Terminada!</h2>
+        <div id="stats-finales" style="font-size: 1.2rem; margin: 20px 0;"></div>
+        <button onclick="location.reload()" style="padding:12px 25px; background:var(--t-blue); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:bold;">REPETIR</button>
     </div>
 </div>
 
 <script>
     let nivel = 1, aciertosNivel = 0, totalAciertos = 0, totalErrores = 0, receta = [];
-    const posiciones = [{t:'50%',l:'50%'}, {t:'40%',l:'45%'}, {t:'40%',l:'55%'}, {t:'60%',l:'45%'}, {t:'60%',l:'55%'}, {t:'50%',l:'60%'}];
+    const posiciones = [{t:'50%',l:'50%'}, {t:'35%',l:'40%'}, {t:'35%',l:'60%'}, {t:'65%',l:'40%'}, {t:'65%',l:'60%'}, {t:'50%',l:'70%'}];
     let iniciado = false;
 
     function hablar(mensaje) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(mensaje);
         msg.lang = 'es-ES';
+        msg.rate = 0.9;
         document.getElementById('texto-guia').innerText = mensaje;
         window.speechSynthesis.speak(msg);
     }
 
-    function iniciarJuego() {
-        if(!iniciado) { iniciado = true; cargarNivel(); }
-    }
+    function iniciarJuego() { if(!iniciado) { iniciado = true; cargarNivel(); } }
 
     function cargarNivel() {
         const pI = document.getElementById('panel-ingredientes');
         document.getElementById('plato-capa').innerHTML = "";
         pI.innerHTML = ""; aciertosNivel = 0;
+        document.getElementById('status-nivel').innerText = `Nivel ${nivel}`;
 
         let pool = [];
+        // Ingredientes según lógica original
+        const todasBases = ['pan_blanco.png', 'pan_integral.png', 'galleta.png', 'arepa.png'];
+        const todasPros = ['jamon.png', 'queso.png', 'huevo.png', 'pollo.png', 'atun.png'];
+        const todosNoCom = ['jabon.png', 'esponja.png', 'moneda.png', 'pila.png'];
+
         if(nivel === 1) {
             receta = ['pan_blanco.png', 'jamon.png', 'queso.png'];
-            hablar("Nivel 1: Pon Pan blanco, Jamón y Queso en el plato.");
-            pool = [...receta, 'jabon.png', 'sal.png'];
+            hablar("Nivel 1: Haz un sándwich con Pan blanco, Jamón y Queso.");
+            pool = [...receta, 'jabon.png', 'manzana.png', 'sal.png'];
         } else if(nivel === 2) {
-            receta = ['galleta.png', 'atun.png', 'tomate.png'];
-            hablar("Nivel 2: Pon Galleta, Atún y Tomate.");
-            pool = [...receta, 'pila.png', 'moneda.png'];
+            receta = ['galleta.png', 'atun.png', 'pepino.png', 'tomate.png'];
+            hablar("Nivel 2: Haz galletas con Atún, Pepino y Tomate.");
+            pool = [...receta, 'salami.png', 'lechuga.png', 'pila.png', 'moneda.png'];
         } else {
-            receta = ['arepa.png', 'huevo.png', 'pollo.png', 'aguacate.png'];
-            hablar("Nivel Final: Haz la arepa completa.");
-            pool = ['arepa.png', 'huevo.png', 'pollo.png', 'aguacate.png', 'jabon.png', 'esponja.png'];
+            // NIVEL 3: TODA LA CARGA DE ATENCIÓN
+            receta = ['arepa.png', 'huevo.png', 'pollo.png', 'aguacate.png', 'cebolla.png', 'sal.png'];
+            hablar("Nivel Final: Arepa completa. ¡Cuidado con lo que no se come!");
+            pool = [...todasBases, ...todasPros, ...todosNoCom, 'cebolla.png', 'aguacate.png', 'sal.png', 'tomate.png'];
         }
 
-        pool.sort(() => Math.random() - 0.5).forEach(img => {
+        // Barajar y mostrar
+        [...new Set(pool)].sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
             el.src = `img6/${img}`; el.className = 'item'; el.dataset.id = img;
             el.onpointerdown = startDrag;
@@ -161,26 +167,29 @@
     function startDrag(e) {
         const el = e.target;
         const rect = el.getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const offsetY = e.clientY - rect.top;
+        const offsetX = (e.clientX || e.touches[0].clientX) - rect.left;
+        const offsetY = (e.clientY || e.touches[0].clientY) - rect.top;
 
         el.classList.add('dragging');
-        el.style.left = (e.clientX - offsetX) + 'px';
-        el.style.top = (e.clientY - offsetY) + 'px';
 
-        function moveDrag(me) {
-            el.style.left = (me.clientX - offsetX) + 'px';
-            el.style.top = (me.clientY - offsetY) + 'px';
-        }
+        const moveDrag = (me) => {
+            const cx = me.clientX || me.touches[0].clientX;
+            const cy = me.clientY || me.touches[0].clientY;
+            el.style.left = (cx - offsetX) + 'px';
+            el.style.top = (cy - offsetY) + 'px';
+        };
 
-        function stopDrag(se) {
+        const stopDrag = (se) => {
             el.classList.remove('dragging');
             window.removeEventListener('pointermove', moveDrag);
             window.removeEventListener('pointerup', stopDrag);
 
+            const fx = se.clientX || (se.changedTouches ? se.changedTouches[0].clientX : 0);
+            const fy = se.clientY || (se.changedTouches ? se.changedTouches[0].clientY : 0);
+            
             const obj = document.getElementById('objetivo').getBoundingClientRect();
-            // Verificamos si se soltó sobre el plato
-            if(se.clientX > obj.left && se.clientX < obj.right && se.clientY > obj.top && se.clientY < obj.bottom) {
+
+            if(fx > obj.left && fx < obj.right && fy > obj.top && fy < obj.bottom) {
                 if(receta.includes(el.dataset.id)) {
                     totalAciertos++; aciertosNivel++;
                     document.getElementById('status-puntos').innerText = `Aciertos: ${totalAciertos}`;
@@ -199,13 +208,13 @@
                     }
                 } else {
                     totalErrores++;
-                    hablar("Ese no es un ingrediente de la receta.");
+                    hablar("¡Cuidado Juan! Eso no va en la receta.");
                     el.style.position = 'static';
                 }
             } else {
                 el.style.position = 'static';
             }
-        }
+        };
 
         window.addEventListener('pointermove', moveDrag);
         window.addEventListener('pointerup', stopDrag);
@@ -213,9 +222,13 @@
 
     function finalizarSesion() {
         const eficacia = Math.round((totalAciertos / (totalAciertos + totalErrores)) * 100) || 0;
-        document.getElementById('stats-finales').innerHTML = `Aciertos: ${totalAciertos}<br>Errores: ${totalErrores}<br>Eficacia: ${eficacia}%`;
+        document.getElementById('stats-finales').innerHTML = `
+            Aciertos: <b>${totalAciertos}</b><br>
+            Errores: <b>${totalErrores}</b><br>
+            Eficacia: <b>${eficacia}%</b>
+        `;
         document.getElementById('modal-resultados').style.display = 'flex';
-        hablar("¡Excelente Juan! El plato está listo.");
+        hablar("¡Excelente trabajo, Juan! Has completado todas las recetas.");
     }
 </script>
 </body>
