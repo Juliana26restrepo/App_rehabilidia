@@ -2,73 +2,216 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sesión 8: Planificación Extrema v2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sesión 8: Planificación Extrema - REHABILIDIA</title>
     <style>
-        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --wall: #1A262C; --path: #FFFFFF; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy); color: white; padding: 10px; font-weight: bold; text-align: center; font-size: 1.1rem; }
+        :root { 
+            --navy: #103A57; 
+            --gold: #FFD700; 
+            --bg: #F0F4F8; 
+            --wall: #1A262C; 
+            --path: #FFFFFF; 
+            --p-purple: #4A148C;
+        }
 
-        #zona-de-trabajo { display: flex; flex: 1; align-items: center; justify-content: center; gap: 30px; padding: 10px; }
+        /* RESET & UNIVERSAL ZOOM */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #1a1a1a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        .stats-bar { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; font-weight: bold; background: white; padding: 5px 20px; border-radius: 50px; border: 2px solid var(--navy); z-index: 10; font-size: 0.9rem; }
+        #viewport-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1024px;
+            max-height: 768px;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
 
-        #canvas-contenedor { background: var(--wall); padding: 8px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        canvas { display: block; background: var(--path); border-radius: 3px; }
+        header { 
+            background: var(--navy); 
+            color: white; 
+            height: 45px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            flex-shrink: 0;
+            z-index: 5;
+        }
 
-        .panel-derecho { display: flex; flex-direction: column; align-items: center; background: white; padding: 20px; border-radius: 20px; border: 3px solid var(--navy); min-width: 200px; }
-        .controles-grid { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; }
-        .btn-dir { width: 65px; height: 65px; background: white; border: 3px solid var(--navy); border-radius: 50%; font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.1s; box-shadow: 0 4px 0 var(--navy); outline: none; }
+        .stats-bar { 
+            display: flex; 
+            justify-content: center;
+            gap: 20px; 
+            font-weight: bold; 
+            background: white; 
+            padding: 8px; 
+            border-bottom: 2px solid var(--navy); 
+            z-index: 5; 
+            font-size: 0.9rem; 
+        }
+
+        #zona-de-trabajo { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: row; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 20px; 
+            padding: 10px; 
+            overflow: hidden;
+        }
+
+        #canvas-contenedor { 
+            background: var(--wall); 
+            padding: 5px; 
+            border-radius: 8px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 70%;
+            max-height: 90%;
+        }
+
+        canvas { 
+            max-width: 100%; 
+            max-height: 100%; 
+            background: var(--path); 
+            image-rendering: pixelated;
+        }
+
+        .panel-derecho { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: white; 
+            padding: 15px; 
+            border-radius: 20px; 
+            border: 3px solid var(--navy); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .controles-grid { display: grid; grid-template-areas: ". up ." "left down right"; gap: 8px; }
+        
+        .btn-dir { 
+            width: clamp(50px, 12vw, 65px); 
+            height: clamp(50px, 12vw, 65px); 
+            background: white; 
+            border: 3px solid var(--navy); 
+            border-radius: 50%; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.1s; 
+            box-shadow: 0 4px 0 var(--navy); 
+            user-select: none;
+        }
+
         .btn-dir:active { background: var(--gold); transform: translateY(3px); box-shadow: 0 1px 0 var(--navy); }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px; }
-        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.3rem; color: var(--navy); margin-top: 20px; }
+        /* OVERLAYS */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px; }
+        
+        .cuadro-final {
+            background: white;
+            color: var(--navy);
+            padding: 25px;
+            border-radius: 25px;
+            border: 5px solid var(--gold);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: var(--navy); margin-top: 15px; }
+
+        @media (max-width: 600px) {
+            #zona-de-trabajo { flex-direction: column; }
+            #canvas-contenedor { max-width: 95%; }
+        }
     </style>
 </head>
-<body>
+<body onload="iniciarApp()">
 
-<header>SESIÓN 8: CONTROL IMPULSIVO Y PLANIFICACIÓN (FINAL)</header>
+<div id="viewport-container">
+    <header>SESIÓN 8: PLANIFICACIÓN Y CONTROL</header>
 
-<div class="stats-bar">
-    <span id="txt-nivel">Nivel: 1</span>
-    <span id="txt-intento">Laberinto: 1 / 3</span>
-</div>
-
-<div id="zona-de-trabajo">
-    <div id="canvas-contenedor">
-        <canvas id="laberintoCanvas"></canvas>
+    <div class="stats-bar">
+        <span id="txt-nivel">Nivel: 1</span>
+        <span id="txt-intento">Laberinto: 1 / 3</span>
+        <span id="txt-errores" style="color: #D32F2F;">Errores: 0</span>
     </div>
 
-    <div class="panel-derecho">
-        <div style="margin-bottom:10px; font-size:0.8rem; font-weight:bold;">CONTROLES</div>
-        <div class="controles-grid">
-            <button class="btn-dir" style="grid-area: up" onmousedown="mover('up')" ontouchstart="mover('up')">↑</button>
-            <button class="btn-dir" style="grid-area: left" onmousedown="mover('left')" ontouchstart="mover('left')">←</button>
-            <button class="btn-dir" style="grid-area: down" onmousedown="mover('down')" ontouchstart="mover('down')">↓</button>
-            <button class="btn-dir" style="grid-area: right" onmousedown="mover('right')" ontouchstart="mover('right')">→</button>
+    <div id="zona-de-trabajo">
+        <div id="canvas-contenedor">
+            <canvas id="laberintoCanvas"></canvas>
+        </div>
+
+        <div class="panel-derecho">
+            <div style="margin-bottom:8px; font-size:0.8rem; font-weight:bold; color: var(--navy);">PLANIFICA TU RUTA</div>
+            <div class="controles-grid">
+                <button class="btn-dir" style="grid-area: up" onpointerdown="iniciarMovimiento('up')" onpointerup="pararMovimiento()" onpointerleave="pararMovimiento()">↑</button>
+                <button class="btn-dir" style="grid-area: left" onpointerdown="iniciarMovimiento('left')" onpointerup="pararMovimiento()" onpointerleave="pararMovimiento()">←</button>
+                <button class="btn-dir" style="grid-area: down" onpointerdown="iniciarMovimiento('down')" onpointerup="pararMovimiento()" onpointerleave="pararMovimiento()">↓</button>
+                <button class="btn-dir" style="grid-area: right" onpointerdown="iniciarMovimiento('right')" onpointerup="pararMovimiento()" onpointerleave="pararMovimiento()">→</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="overlay-msg" class="overlay">
-    <h1 id="msg-titulo" style="color: var(--gold);"></h1>
-    <p id="msg-cuerpo" style="font-size: 1.3rem; max-width: 600px;"></p>
-    <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
+    <div id="overlay-msg" class="overlay">
+        <h1 id="msg-titulo" style="color: var(--gold); margin: 0;"></h1>
+        <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 80%;"></p>
+        <button class="btn-ready" onpointerdown="cerrarOverlay()">COMENZAR</button>
+    </div>
+
+    <div id="overlay-final" class="overlay">
+        <div class="cuadro-final">
+            <h2 style="color: var(--p-purple); margin-top: 0;">¡SESIÓN COMPLETADA!</h2>
+            <div id="stats-resumen" style="font-size: 1.1rem; margin: 15px 0; line-height: 1.6;"></div>
+            <button class="btn-ready" onpointerdown="guardarYSalir()">FINALIZAR</button>
+        </div>
+    </div>
 </div>
 
 <script>
     const canvas = document.getElementById('laberintoCanvas');
     const ctx = canvas.getContext('2d');
     
-    let nivel = 1, intento = 1;
+    // Métricas
+    let nivel = 1, intento = 1, aciertos = 0, errores = 0;
+    const totalRetos = 9; // 3 laberintos por cada uno de los 3 niveles
+
     let jugador = { x: 1, y: 1 }, mapa = [];
-    let tamañoCelda = 18; 
+    let tamañoCelda = 20; 
     let filas, columnas, tieneLlave = false;
+    let intervaloMovimiento = null;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
+        m.rate = 0.9;
         window.speechSynthesis.speak(m);
+    }
+
+    function iniciarApp() {
+        mostrarOverlay("SESIÓN 8: PLANIFICACIÓN", "Juan, planifica bien tus movimientos. Supera los laberintos sin chocar con las paredes.");
     }
 
     function mostrarOverlay(tit, msj) {
@@ -84,22 +227,18 @@
     }
 
     function generarNuevoLaberinto() {
-        if(nivel === 1) { filas = 15; columnas = 15; }
-        else if(nivel === 2) { filas = 25; columnas = 25; }
-        else { filas = 31; columnas = 31; }
+        if(nivel === 1) { filas = 13; columnas = 13; tamañoCelda = 24; }
+        else if(nivel === 2) { filas = 19; columnas = 19; tamañoCelda = 18; }
+        else { filas = 25; columnas = 25; tamañoCelda = 14; }
 
         canvas.width = columnas * tamañoCelda;
         canvas.height = filas * tamañoCelda;
         
-        // En nivel 1 y 2 no hace falta llave, en nivel 3 sí
         tieneLlave = (nivel < 3);
-
         mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
-        let celdasVisitadas = [];
-
+        
         function excavar(x, y) {
             mapa[y][x] = 0;
-            celdasVisitadas.push({x, y});
             const dirs = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
             for(let [dx, dy] of dirs) {
                 let nx = x + dx, ny = y + dy;
@@ -111,17 +250,22 @@
         }
         excavar(1, 1);
 
-        mapa[filas-2][columnas-2] = 2; 
+        mapa[filas-2][columnas-2] = 2; // Meta
 
         if(nivel === 3) {
-            let puntoValido = celdasVisitadas[Math.floor(celdasVisitadas.length * 0.7)]; 
-            mapa[puntoValido.y][puntoValido.x] = 3;
+            // Colocar llave en un lugar distante (esquinas o aleatorio profundo)
+            mapa[1][columnas-2] = 3; 
         }
 
         jugador = { x: 1, y: 1 };
+        actualizarUI();
+        dibujar();
+    }
+
+    function actualizarUI() {
         document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
         document.getElementById('txt-intento').innerText = `Laberinto: ${intento} / 3`;
-        dibujar();
+        document.getElementById('txt-errores').innerText = `Errores: ${errores}`;
     }
 
     function dibujar() {
@@ -142,51 +286,106 @@
                 }
             }
         }
+        // Jugador
         ctx.fillStyle = "#D32F2F";
         ctx.beginPath();
-        ctx.arc(jugador.x*tamañoCelda+tamañoCelda/2, jugador.y*tamañoCelda+tamañoCelda/2, tamañoCelda/2.8, 0, Math.PI*2);
+        ctx.arc(jugador.x*tamañoCelda+tamañoCelda/2, jugador.y*tamañoCelda+tamañoCelda/2, tamañoCelda/2.5, 0, Math.PI*2);
         ctx.fill();
+    }
+
+    function iniciarMovimiento(dir) {
+        if(intervaloMovimiento) return;
+        mover(dir);
+        intervaloMovimiento = setInterval(() => mover(dir), 150);
+    }
+
+    function pararMovimiento() {
+        clearInterval(intervaloMovimiento);
+        intervaloMovimiento = null;
     }
 
     function mover(dir) {
         let nx = jugador.x, ny = jugador.y;
         if(dir === 'up') ny--; if(dir === 'down') ny++; if(dir === 'left') nx--; if(dir === 'right') nx++;
 
-        if(ny >= 0 && ny < filas && nx >= 0 && nx < columnas && mapa[ny][nx] !== 1) {
+        if(ny >= 0 && ny < filas && nx >= 0 && nx < columnas) {
+            if(mapa[ny][nx] === 1) {
+                errores++;
+                actualizarUI();
+                return; // Choca con pared
+            }
+            
             if(mapa[ny][nx] === 3) {
-                tieneLlave = true; mapa[ny][nx] = 0;
-                hablar("¡Punto dorado recogido!");
+                tieneLlave = true; 
+                mapa[ny][nx] = 0;
+                hablar("¡Llave conseguida!");
             }
+            
             if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { hablar("Coge el punto dorado primero."); return; }
-                gestionarVictoria(); return;
+                if(!tieneLlave) { 
+                    hablar("Busca primero la llave dorada."); 
+                    return; 
+                }
+                gestionarVictoria();
+                return;
             }
-            jugador.x = nx; jugador.y = ny; dibujar();
+            
+            jugador.x = nx; 
+            jugador.y = ny; 
+            dibujar();
         }
     }
 
     function gestionarVictoria() {
+        pararMovimiento();
+        aciertos++;
         if(intento < 3) {
-            intento++; hablar("¡Muy bien!"); generarNuevoLaberinto();
+            intento++; 
+            hablar("¡Excelente planificación!"); 
+            generarNuevoLaberinto();
         } else if(nivel < 3) {
-            nivel++; intento = 1;
-            let m = nivel === 3 ? "NIVEL FINAL: Debes recoger el punto dorado para abrir la meta." : "Nivel superado. El laberinto es ahora más grande.";
+            nivel++; 
+            intento = 1;
+            let m = nivel === 3 ? "NIVEL FINAL: Recoge el objeto dorado antes de ir a la salida." : "Nivel superado. El laberinto es ahora más complejo.";
             mostrarOverlay(`NIVEL ${nivel-1} COMPLETADO`, m);
         } else {
-            mostrarOverlay("¡SESIÓN FINALIZADA!", "Has completado con éxito todos los laberintos de planificación.");
+            finalizarSesion();
         }
     }
 
+    function finalizarSesion() {
+        const eficacia = Math.round((aciertos / totalRetos) * 100);
+        document.getElementById('stats-resumen').innerHTML = `
+            <strong>Aciertos:</strong> ${aciertos} / ${totalRetos}<br>
+            <strong>Errores (Choques):</strong> ${errores}<br>
+            <strong>Eficacia:</strong> ${eficacia}%
+        `;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("Juan, has completado todos los laberintos. Tu capacidad de planificación ha mejorado.");
+    }
+
+    function guardarYSalir() {
+        const eficacia = Math.round((aciertos / totalRetos) * 100);
+        const dataLog = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 8,
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: eficacia + "%"
+        };
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
+        window.location.href = 'funcion_sesiones.html';
+    }
+
+    // Teclado para PC
     window.addEventListener('keydown', (e) => {
         if(e.key === "ArrowUp") mover('up');
         if(e.key === "ArrowDown") mover('down');
         if(e.key === "ArrowLeft") mover('left');
         if(e.key === "ArrowRight") mover('right');
     });
-
-    window.onload = () => {
-        mostrarOverlay("SESIÓN 8: PLANIFICACIÓN", "Supera 3 laberintos por nivel para completar la sesión.");
-    };
 </script>
 </body>
 </html>
+
