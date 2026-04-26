@@ -2,73 +2,163 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 4 - Juan: Discriminación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Memoria 4 - Juan: Discriminación - REHABILIDIA</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
-        
-        #escena-total { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: url('mem4/FONDO.jpg') no-repeat center center; 
-            background-size: cover; z-index: -1; 
+        :root {
+            --primary: #366B2B;
+            --secondary: #103A57;
+            --accent: #FFD700;
+            --white: #ffffff;
+            --error: #C0392B;
+            --success: #27AE60;
         }
 
-        #cabecera { background: rgba(54, 107, 43, 0.9); color: white; height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid #FFD700; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #366B2B; display: flex; align-items: center; border: 3px solid #FFD700; font-weight: bold; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; overflow: hidden; 
+            touch-action: none; 
+            background: #1a1a1a; 
+            height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* Sistema Universal Zoom */
+        #contenedor-proporcional {
+            width: 100vw; height: 100vh;
+            max-width: 1200px; max-height: 800px;
+            background: url('mem4/FONDO.jpg') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        #cabecera { 
+            background: rgba(54, 107, 43, 0.95); color: white; 
+            height: 12%; display: flex; align-items: center; 
+            padding: 0 20px; border-bottom: 4px solid var(--accent); 
+            z-index: 100; flex-shrink: 0;
+        }
+
+        #instruccion-box { 
+            background: white; padding: 10px 25px; border-radius: 30px; 
+            color: var(--primary); display: flex; align-items: center; 
+            border: 3px solid var(--accent); font-weight: bold;
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+        }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
 
-        #contenedor-juego { height: calc(100vh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #contenedor-juego { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            position: relative; padding: 20px;
+        }
 
-        #display-aprendizaje { background: rgba(255,255,255,0.95); border: 5px solid #FFD700; border-radius: 25px; padding: 30px; display: none; flex-direction: column; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        #img-aprendizaje { width: 280px; height: 280px; object-fit: contain; margin-bottom: 15px; border-radius: 15px; }
+        /* Fase Aprendizaje */
+        #display-aprendizaje { 
+            background: rgba(255,255,255,0.95); border: 5px solid var(--accent); 
+            border-radius: 25px; padding: 30px; display: none; 
+            flex-direction: column; align-items: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 80%;
+        }
+        #img-aprendizaje { width: clamp(200px, 40vh, 350px); height: auto; border-radius: 15px; margin-bottom: 15px; }
         
-        #panel-reto { display: none; width: 90%; height: 85%; background: rgba(255,255,255,0.9); border-radius: 20px; padding: 20px; flex-direction: column; align-items: center; border: 4px solid #366B2B; }
-        #grid-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; width: 100%; margin-top: 20px; justify-items: center; overflow-y: auto; }
+        /* Fase Reto */
+        #panel-reto { 
+            display: none; width: 95%; height: 90%; 
+            background: rgba(255,255,255,0.92); border-radius: 20px; 
+            padding: 15px; flex-direction: column; align-items: center; 
+            border: 4px solid var(--primary); box-sizing: border-box;
+        }
 
-        .btn-opcion { background: white; border: 3px solid #BDC3C7; border-radius: 15px; width: 140px; height: 140px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .btn-opcion img { width: 120px; height: 120px; object-fit: contain; }
+        #grid-opciones { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+            gap: 10px; width: 100%; margin-top: 15px; 
+            justify-items: center; overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .btn-opcion { 
+            background: white; border: 4px solid #BDC3C7; 
+            border-radius: 15px; width: 130px; height: 130px; 
+            cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; transition: 0.2s;
+            touch-action: manipulation;
+        }
+        .btn-opcion img { width: 110px; height: 110px; object-fit: contain; pointer-events: none; }
+        .btn-opcion:active { transform: scale(0.95); }
         
-        /* PANTALLA TRANSICIÓN NIVEL */
-        #pantalla-paso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(54, 107, 43, 0.95); z-index: 4000; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        /* Pantallas de Estado */
+        #pantalla-paso { 
+            display: none; position: absolute; top: 0; left: 0; 
+            width: 100%; height: 100%; background: rgba(54, 107, 43, 0.98); 
+            z-index: 4000; flex-direction: column; justify-content: center; 
+            align-items: center; color: white; 
+        }
 
-        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
-        .linea-resumen { margin: 10px 0; width: 350px; display: flex; justify-content: space-between; font-size: 1.8rem; border-bottom: 2px solid #FFD700; padding-bottom: 5px; }
+        #overlay-final { 
+            display: none; position: absolute; top: 0; left: 0; 
+            width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); 
+            z-index: 5000; flex-direction: column; justify-content: center; 
+            align-items: center; color: white; 
+        }
+
+        .cuadro-resultados {
+            background: white; color: #103A57; padding: 30px; 
+            border-radius: 20px; border: 5px solid var(--accent);
+            width: 80%; max-width: 400px; text-align: center;
+        }
+
+        .linea-resumen { 
+            margin: 10px 0; display: flex; justify-content: space-between; 
+            font-size: 1.3rem; border-bottom: 2px solid #eee; padding-bottom: 5px; 
+        }
+
+        .btn-grande {
+            padding: 15px 40px; background: var(--primary); color: white; 
+            border: none; border-radius: 12px; font-size: 1.4rem; 
+            cursor: pointer; font-weight: bold; margin-top: 20px;
+        }
     </style>
 </head>
 <body onload="iniciarNivel()">
 
-<div id="escena-total"></div>
-
-<div id="cabecera">
-    <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG">
-        <span id="label-guia">Juan, escucha y memoriza...</span>
-    </div>
-</div>
-
-<div id="contenedor-juego">
-    <div id="display-aprendizaje">
-        <img id="img-aprendizaje" src="">
-        <div style="font-size: 60px;">🔊</div>
+<div id="contenedor-proporcional">
+    <div id="cabecera">
+        <div id="instruccion-box">
+            <img src="COTERAPEUTA.JPG">
+            <span id="label-guia">Juan, escucha y memoriza...</span>
+        </div>
     </div>
 
-    <div id="panel-reto">
-        <div onclick="reproducirPregunta()" style="font-size: 70px; cursor: pointer; background: #FFD700; border-radius: 50%; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">👂</div>
-        <div id="grid-opciones"></div>
+    <div id="contenedor-juego">
+        <div id="display-aprendizaje">
+            <img id="img-aprendizaje" src="">
+            <div style="font-size: 50px; animation: pulse 1s infinite;">🔊</div>
+        </div>
+
+        <div id="panel-reto">
+            <div onpointerdown="reproducirPregunta()" style="font-size: 60px; cursor: pointer; background: var(--accent); border-radius: 50%; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">👂</div>
+            <div id="grid-opciones"></div>
+        </div>
     </div>
-</div>
 
-<div id="pantalla-paso">
-    <h2 id="txt-paso-nivel" style="font-size: 3rem; color: #FFD700;">¡Nivel Completado!</h2>
-    <p id="txt-puntos-paso" style="font-size: 2rem;"></p>
-    <div style="font-size: 1.5rem; margin-top: 20px;">Cargando siguiente nivel...</div>
-</div>
+    <div id="pantalla-paso">
+        <h2 id="txt-paso-nivel" style="font-size: 2.5rem; color: var(--accent);">¡Nivel Completado!</h2>
+        <p id="txt-puntos-paso" style="font-size: 1.8rem;"></p>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3.5rem;">¡LOGRADO!</h1>
-    <div id="resumen-lista"></div>
-    <p style="font-size: 1.4rem; margin: 30px; text-align: center;">"Recordar lo cotidiano te acerca a tu independencia, cada intento cuenta"</p>
-    <button onclick="location.reload()" style="padding: 15px 45px; background: #366B2B; color: white; border: none; border-radius: 12px; font-size: 1.6rem; cursor: pointer;">REPETIR TODO</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--primary); margin-top: 0;">¡Sesión Exitosa!</h1>
+            <div id="resumen-lista"></div>
+            <button class="btn-grande" onpointerdown="location.href='menu.html'">TERMINAR</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -85,18 +175,19 @@
         {id: "vaca", img2: "vaca2.png"}, {id: "vidrio", img2: "vidrio2.png"}
     ];
     
+    // MÉTRICAS
     let nivelActual = 1;
     let itemsNivel = [];
     let actualIdx = 0;
-    let stats = { 1: {a:0, e:0}, 2: {a:0, e:0}, 3: {a:0, e:0} };
-    const metas = { 1: 4, 2: 8, 3: 12 };
+    let aciertosTotales = 0;
+    let erroresTotales = 0;
+    const metas = { 1: 4, 2: 6, 3: 8 }; 
+    const totalRetosEsperados = 18; // 4+6+8
+
     let audioActivo = null;
 
     function detenerTodo() {
-        if(audioActivo) {
-            audioActivo.pause();
-            audioActivo.currentTime = 0;
-        }
+        if(audioActivo) { audioActivo.pause(); audioActivo.currentTime = 0; }
         window.speechSynthesis.cancel();
     }
 
@@ -116,7 +207,7 @@
         document.getElementById('panel-reto').style.display = 'none';
         document.getElementById('display-aprendizaje').style.display = 'flex';
         
-        hablar(`Juan, memoriza bien la foto y el sonido del Nivel ${nivelActual}.`, () => {
+        hablar(`Juan, memoriza bien la imagen y el sonido para el Nivel ${nivelActual}.`, () => {
             setTimeout(() => mostrarAprendizaje(0), 1000);
         });
     }
@@ -128,13 +219,12 @@
             
             detenerTodo();
             audioActivo = new Audio(`mem4/${item.id}.mp3`);
-            audioActivo.play();
+            audioActivo.play().catch(e => console.log("Audio no cargado"));
             
-            // Forzamos el corte a los 4 segundos máximo
             setTimeout(() => {
                 detenerTodo();
-                setTimeout(() => mostrarAprendizaje(idx + 1), 800);
-            }, 4000);
+                setTimeout(() => mostrarAprendizaje(idx + 1), 1000);
+            }, 3500);
         } else {
             prepararReto();
         }
@@ -143,7 +233,7 @@
     function prepararReto() {
         document.getElementById('display-aprendizaje').style.display = 'none';
         document.getElementById('panel-reto').style.display = 'flex';
-        hablar("Juan, ¿cuál de estos acabas de escuchar?", () => {
+        hablar("Juan, ¿cuál acabas de escuchar?", () => {
             reproducirPregunta();
             dibujarOpciones();
         });
@@ -152,9 +242,7 @@
     function reproducirPregunta() {
         detenerTodo();
         audioActivo = new Audio(`mem4/${itemsNivel[actualIdx].id}.mp3`);
-        audioActivo.play();
-        // También limitamos la pregunta a 4 segundos
-        setTimeout(() => { if(audioActivo) audioActivo.pause(); }, 4000);
+        audioActivo.play().catch(e => console.log("Audio no cargado"));
     }
 
     function dibujarOpciones() {
@@ -162,12 +250,17 @@
         grid.innerHTML = "";
         const itemCorrecto = itemsNivel[actualIdx];
 
-        let pool = [{ img: itemCorrecto.id + '.png', esCorrecta: true }];
-        pool.push({ img: itemCorrecto.img2, esCorrecta: false });
+        // Discriminadores: Correcta, Variante del mismo objeto, y Distractores
+        let pool = [
+            { img: itemCorrecto.id + '.png', esCorrecta: true },
+            { img: itemCorrecto.img2, esCorrecta: false }
+        ];
 
-        let otros = banco.filter(x => x.id !== itemCorrecto.id).sort(() => 0.5 - Math.random());
-        while(pool.length < (nivelActual === 1 ? 4 : 8)) {
-            let extra = otros.pop();
+        let distractores = banco.filter(x => x.id !== itemCorrecto.id).sort(() => 0.5 - Math.random());
+        const numOpciones = nivelActual === 1 ? 4 : (nivelActual === 2 ? 6 : 8);
+
+        while(pool.length < numOpciones) {
+            let extra = distractores.pop();
             pool.push({ img: extra.id + '.png', esCorrecta: false });
         }
 
@@ -175,16 +268,20 @@
             const btn = document.createElement('div');
             btn.className = 'btn-opcion';
             btn.innerHTML = `<img src="mem4/${opt.img}" onerror="this.src='mem4/error.png'">`;
-            btn.onclick = () => verificar(opt.esCorrecta, btn);
+            btn.onpointerdown = (e) => {
+                e.preventDefault();
+                verificar(opt.esCorrecta, btn);
+            };
             grid.appendChild(btn);
         });
     }
 
     function verificar(esCorrecta, el) {
         if (esCorrecta) {
-            el.style.borderColor = "#27AE60";
-            stats[nivelActual].a++;
-            hablar("¡Bien hecho!", () => {
+            el.style.borderColor = "var(--success)";
+            el.style.backgroundColor = "#e8f5e9";
+            aciertosTotales++;
+            hablar("¡Excelente!", () => {
                 actualIdx++;
                 if (actualIdx < itemsNivel.length) {
                     reproducirPregunta();
@@ -194,26 +291,22 @@
                 }
             });
         } else {
-            stats[nivelActual].e++;
-            el.style.borderColor = "#C0392B";
-            hablar("Intenta de nuevo.");
+            erroresTotales++;
+            el.style.borderColor = "var(--error)";
+            el.style.backgroundColor = "#ffebee";
+            hablar("No es ese, Juan. Escucha de nuevo.");
             reproducirPregunta();
         }
     }
 
     function gestionarPasoNivel() {
         if (nivelActual < 3) {
-            const total = stats[nivelActual].a + stats[nivelActual].e;
-            const porc = Math.round((stats[nivelActual].a / total) * 100);
-            
-            document.getElementById('txt-puntos-paso').innerText = `Aciertos: ${porc}%`;
-            document.getElementById('txt-paso-nivel').innerText = `Nivel ${nivelActual} Superado`;
+            document.getElementById('txt-paso-nivel').innerText = `¡Nivel ${nivelActual} Superado!`;
             document.getElementById('pantalla-paso').style.display = 'flex';
-            
             setTimeout(() => {
                 nivelActual++;
                 iniciarNivel();
-            }, 3500);
+            }, 3000);
         } else {
             finalizar();
         }
@@ -221,19 +314,34 @@
 
     function finalizar() {
         document.getElementById('panel-reto').style.display = 'none';
-        const res = document.getElementById('resumen-lista');
-        const calc = (n) => {
-            let t = stats[n].a + stats[n].e;
-            return t > 0 ? Math.round((stats[n].a / t) * 100) : 0;
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+        
+        // GUARDADO CENTRALIZADO
+        const objetoSesion = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Memoria",
+            id_sesion: 4,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
+            eficacia: eficacia
         };
+        
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
+        historial.push(objetoSesion);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        // MOSTRAR RESULTADOS
+        const res = document.getElementById('resumen-lista');
         res.innerHTML = `
-            <div class="linea-resumen"><span>Nivel 1:</span> <b>${calc(1)}%</b></div>
-            <div class="linea-resumen"><span>Nivel 2:</span> <b>${calc(2)}%</b></div>
-            <div class="linea-resumen"><span>Nivel 3:</span> <b>${calc(3)}%</b></div>
+            <div class="linea-resumen"><span>Aciertos:</span> <b>${aciertosTotales}</b></div>
+            <div class="linea-resumen"><span>Errores:</span> <b>${erroresTotales}</b></div>
+            <div class="linea-resumen" style="color:var(--primary); font-weight:bold"><span>Eficacia:</span> <b>${eficacia}%</b></div>
         `;
+        
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente Juan! Sesión terminada.");
+        hablar("¡Muy bien hecho, Juan! Hemos terminado la sesión de hoy.");
     }
 </script>
 </body>
 </html>
+
