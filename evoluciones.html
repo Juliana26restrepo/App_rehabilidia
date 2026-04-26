@@ -9,47 +9,18 @@
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #333; }
-        
         header { background: var(--p-blue); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
         .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; }
-
         .container { padding: 20px; max-width: 1000px; margin: auto; }
-        
-        /* Lista de Pacientes */
-        .paciente-card {
-            background: white; padding: 20px; border-radius: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px;
-            cursor: pointer; border-left: 6px solid #FFC107;
-            transition: 0.3s;
-        }
+        .paciente-card { background: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; cursor: pointer; border-left: 6px solid #FFC107; transition: 0.3s; }
         .paciente-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-
-        /* Panel de Detalle */
         #detalleEvolucion { display: none; }
-
-        .grid-graficas {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px; margin-top: 20px;
-        }
-
-        .chart-container {
-            background: white; padding: 20px; border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        .resumen-clinico {
-            background: #E1F5FE; padding: 15px; border-radius: 10px;
-            margin-bottom: 20px; border-left: 4px solid var(--t-blue); font-size: 0.95rem;
-        }
-
-        .tabla-sintomas {
-            width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 10px; overflow: hidden;
-        }
+        .grid-graficas { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 20px; }
+        .chart-container { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .resumen-clinico { background: #E1F5FE; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid var(--t-blue); font-size: 0.95rem; }
+        .tabla-sintomas { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 10px; overflow: hidden; }
         .tabla-sintomas th, .tabla-sintomas td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.85rem; }
         .tabla-sintomas th { background: #f8f9fa; color: var(--p-blue); }
-
         .btn-regresar { background: none; border: none; color: var(--t-blue); cursor: pointer; font-weight: bold; padding: 10px 0; display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
@@ -79,13 +50,13 @@
         </button>
 
         <div class="resumen-clinico">
-            <strong><i class="fas fa-info-circle"></i> Análisis del Sistema:</strong> 
-            <span id="analisisTexto">Seleccione un paciente para ver el reporte de correlación entre energía y desempeño.</span>
+            <strong><i class="fas fa-info-circle"></i> Análisis Clínico:</strong> 
+            <span id="analisisTexto">Cargando análisis de desempeño...</span>
         </div>
 
         <div class="grid-graficas">
             <div class="chart-container">
-                <h4 style="margin-top:0;"><i class="fas fa-brain"></i> Progreso en Sesiones</h4>
+                <h4 style="margin-top:0;"><i class="fas fa-brain"></i> Rendimiento por Sesión (%)</h4>
                 <canvas id="chartSesiones"></canvas>
             </div>
             <div class="chart-container">
@@ -95,17 +66,16 @@
         </div>
 
         <div class="chart-container" style="margin-top:20px;">
-            <h4><i class="fas fa-notes-medical"></i> Comentarios y Síntomas Recientes</h4>
+            <h4><i class="fas fa-history"></i> Historial de Síntomas y Notas</h4>
             <table class="tabla-sintomas">
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Síntomas Reportados</th>
+                        <th>Síntomas</th>
                         <th>Notas del Paciente</th>
                     </tr>
                 </thead>
-                <tbody id="tablaCuerpo">
-                    </tbody>
+                <tbody id="tablaCuerpo"></tbody>
             </table>
         </div>
     </div>
@@ -117,8 +87,7 @@
     function mostrarDetalle(nombre) {
         document.getElementById('listaPacientes').style.display = 'none';
         document.getElementById('detalleEvolucion').style.display = 'block';
-        document.getElementById('tituloSeccion').innerText = "Informe: " + nombre;
-        
+        document.getElementById('tituloSeccion').innerText = "Informe Clínico: " + nombre;
         cargarDatosReales();
     }
 
@@ -131,71 +100,64 @@
     }
 
     function cargarDatosReales() {
-        // LEER LOS DATOS DEL "PUENTE"
+        // LEER AMBAS CAJAS DE MEMORIA
         const datosDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
-        const datosSesiones = JSON.parse(localStorage.getItem('sesiones_juan')) || [];
+        const datosSesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
 
-        // 1. Gráfica de Sesiones (Niveles)
+        // 1. Gráfica de Sesiones (Muestra el % de Eficacia de cada sesión)
         const ctxS = document.getElementById('chartSesiones').getContext('2d');
         chartS = new Chart(ctxS, {
             type: 'line',
             data: {
-                labels: datosSesiones.length ? datosSesiones.map(s => s.fecha) : ['Sin datos'],
+                labels: datosSesiones.length ? datosSesiones.map(s => `${s.modulo} S${s.id_sesion}`) : ['Sin datos'],
                 datasets: [{
-                    label: 'Nivel del Protocolo',
-                    data: datosSesiones.map(s => s.nivel),
-                    borderColor: '#307B8E',
-                    backgroundColor: 'rgba(48, 123, 142, 0.1)',
+                    label: '% de Eficacia',
+                    data: datosSesiones.map(s => s.eficacia),
+                    borderColor: '#16a34a', // Verde para éxito
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
                     fill: true,
                     tension: 0.3
                 }]
             },
-            options: { scales: { y: { min: 1, max: 10 } } }
+            options: { scales: { y: { min: 0, max: 100 } } }
         });
 
-        // 2. Gráfica de Diario (Ánimo y Energía)
+        // 2. Gráfica de Diario (Tu lógica original de ánimo y energía)
         const ctxD = document.getElementById('chartDiario').getContext('2d');
         chartD = new Chart(ctxD, {
             type: 'bar',
             data: {
-                labels: datosDiario.map(d => d.fecha),
+                labels: datosDiario.map(d => d.fecha.split(',')[0]),
                 datasets: [
-                    { label: 'Ánimo', data: datosDiario.map(d => d.emocionValor), backgroundColor: '#FFC107' },
+                    { label: 'Ánimo', data: datosDiario.map(d => d.emocionValor || 0), backgroundColor: '#FFC107' },
                     { label: 'Energía', data: datosDiario.map(d => d.energia), backgroundColor: '#103A57' }
                 ]
             },
             options: { scales: { y: { min: 0, max: 10 } } }
         });
 
-        // 3. Llenar Tabla de Síntomas y Notas
+        // 3. Tabla de Síntomas
         const tabla = document.getElementById('tablaCuerpo');
         tabla.innerHTML = "";
         [...datosDiario].reverse().forEach(reg => {
-            tabla.innerHTML += `
-                <tr>
-                    <td>${reg.fecha}</td>
-                    <td>${Array.isArray(reg.sintomas) ? reg.sintomas.join(", ") : "Ninguno"}</td>
-                    <td><i>"${reg.nota || 'Sin comentarios'}"</i></td>
-                </tr>
-            `;
+            tabla.innerHTML += `<tr><td>${reg.fecha}</td><td>${Array.isArray(reg.sintomas) ? reg.sintomas.join(", ") : "Ninguno"}</td><td><i>"${reg.nota || ''}"</i></td></tr>`;
         });
 
-        // 4. Análisis Automático
-        if(datosDiario.length > 0) {
-            const ultimaEnergia = datosDiario[datosDiario.length-1].energia;
-            const msj = ultimaEnergia < 4 ? "Alerta: El paciente reporta fatiga alta hoy." : "El paciente mantiene niveles de energía estables.";
+        // 4. Análisis Automático Combinado
+        if(datosSesiones.length > 0) {
+            const ultimaEficacia = datosSesiones[datosSesiones.length-1].eficacia;
+            const msj = ultimaEficacia < 70 ? "Sugerencia: Revisar fatiga cognitiva, el desempeño bajó del 70%." : "Desempeño óptimo en la última sesión.";
             document.getElementById('analisisTexto').innerText = msj;
         }
     }
 
-    // Info rápida en la tarjeta de la lista
     window.onload = function() {
         const d = JSON.parse(localStorage.getItem('diario_juan')) || [];
+        const s = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         if(d.length > 0) {
-            document.getElementById('sub-info-juan').innerText = "Último registro: " + d[d.length-1].fecha;
+            document.getElementById('sub-info-juan').innerText = "Última actividad: " + (s.length ? s[s.length-1].fecha : d[d.length-1].fecha);
         }
     }
 </script>
-
 </body>
 </html>
