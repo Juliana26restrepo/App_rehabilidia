@@ -2,82 +2,132 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memoria 2 - Juan: Desempeño Detallado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Memoria 2 - Juan: Reconocimiento Auditivo-Visual</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; height: 100vh; }
+        :root { --primary: #366B2B; --secondary: #103A57; --accent: #E67E22; --gold: #FFD700; }
         
-        /* Fondo de la habitación */
-        #escena-total { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: url('mem1/fondo.jpg') no-repeat center center; 
-            background-size: cover; z-index: -1; 
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; overflow: hidden; touch-action: none; 
+            background: #2c3e50; 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* Sistema Universal Zoom: Contenedor que escala proporcionalmente */
+        #main-app {
+            width: 100vw; height: 100vh;
+            max-width: 1280px; max-height: 800px;
+            background: url('mem1/fondo.jpg') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* Cabecera Estilo Juan */
-        #cabecera { background: rgba(54, 107, 43, 0.95); color: white; height: 80px; display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid #28521f; }
-        #instruccion-box { background: white; padding: 10px 20px; border-radius: 20px; color: #103A57; display: flex; align-items: center; border: 3px solid #6C5B7B; font-weight: bold; }
+        #cabecera { 
+            background: rgba(54, 107, 43, 0.95); color: white; 
+            height: 80px; display: flex; align-items: center; 
+            padding: 0 20px; border-bottom: 4px solid #28521f; flex-shrink: 0;
+        }
+
+        #instruccion-box { 
+            background: white; padding: 8px 20px; border-radius: 20px; 
+            color: #103A57; display: flex; align-items: center; 
+            border: 3px solid #6C5B7B; font-weight: bold; font-size: clamp(1rem, 2.5vw, 1.2rem);
+        }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
 
-        #contenedor-principal { height: calc(100vh - 84px); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 10; }
+        #contenedor-principal { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; position: relative; 
+            overflow: hidden; padding: 20px;
+        }
 
-        /* Fase 1: Lista Visual Acumulativa */
-        #lista-visual { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 80%; }
-        .palabra-item { background: rgba(255, 255, 255, 0.95); padding: 15px 30px; border-radius: 15px; border: 4px solid #366B2B; font-size: 2.2rem; font-weight: bold; color: #333; box-shadow: 0 6px 15px rgba(0,0,0,0.3); animation: aparecer 0.5s ease-out; }
+        /* Fase 1: Codificación */
+        #lista-visual { 
+            display: flex; flex-wrap: wrap; justify-content: center; 
+            gap: 15px; max-width: 90%; max-height: 70%; overflow-y: auto;
+        }
+        .palabra-item { 
+            background: rgba(255, 255, 255, 0.95); padding: 10px 25px; 
+            border-radius: 12px; border: 3px solid var(--primary); 
+            font-size: clamp(1.2rem, 4vw, 2rem); font-weight: bold; 
+            color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            animation: aparecer 0.4s ease-out; 
+        }
         
         /* Fase 2: Reconocimiento */
-        #zona-reconocimiento { display: none; width: 100%; }
-        .botones-par { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
-        .btn-opcion { padding: 35px 60px; font-size: 2.8rem; cursor: pointer; border-radius: 25px; border: 6px solid #103A57; background: white; font-weight: bold; min-width: 300px; box-shadow: 0 12px 24px rgba(0,0,0,0.3); transition: 0.2s; color: #333; }
-        .btn-opcion:active { transform: scale(0.9); }
+        #zona-reconocimiento { display: none; width: 100%; text-align: center; }
+        .botones-par { display: flex; justify-content: center; gap: 3vw; margin-top: 20px; flex-wrap: wrap; }
+        
+        /* Botones con Pointer Support */
+        .btn-opcion { 
+            padding: 25px 40px; font-size: clamp(1.5rem, 5vw, 2.5rem); 
+            cursor: pointer; border-radius: 20px; border: 5px solid var(--secondary); 
+            background: white; font-weight: bold; min-width: 250px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); transition: 0.2s; color: #333;
+            touch-action: manipulation;
+        }
+        .btn-opcion:active { transform: scale(0.95); background: #f0f0f0; }
 
-        #timer-box { font-size: 2.2rem; color: #E67E22; font-weight: bold; margin-top: 40px; background: white; padding: 10px 40px; border-radius: 50px; display: none; border: 4px solid #E67E22; }
+        #timer-box { 
+            font-size: 1.8rem; color: var(--accent); font-weight: bold; 
+            margin-top: 20px; background: white; padding: 8px 30px; 
+            border-radius: 50px; display: none; border: 3px solid var(--accent); 
+        }
 
-        /* Pantalla Final con Resultados por Nivel */
-        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; }
-        .tabla-resultados { margin: 25px 0; font-size: 1.8rem; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.3); }
-        .linea-resumen { margin: 10px 0; display: flex; justify-content: space-between; width: 350px; }
+        /* Pantalla Final */
+        #overlay-final { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(16, 58, 87, 0.98); z-index: 5000; 
+            flex-direction: column; justify-content: center; align-items: center; color: white; 
+        }
+        .card-resultados {
+            background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.3); width: 85%; max-width: 450px;
+        }
+        .linea-resumen { margin: 12px 0; display: flex; justify-content: space-between; font-size: 1.4rem; }
 
-        @keyframes aparecer { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes aparecer { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body onload="iniciarNivel()">
 
-<div id="escena-total"></div>
-
-<div id="cabecera">
-    <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG">
-        <span id="label-guia">Juan, memoriza esta lista.</span>
-    </div>
-</div>
-
-<div id="contenedor-principal">
-    <div id="fase-codificacion">
-        <div id="lista-visual"></div>
-        <div id="timer-box">Memoriza: <span id="segundos">15</span>s</div>
+<div id="main-app">
+    <div id="cabecera">
+        <div id="instruccion-box">
+            <img src="COTERAPEUTA.JPG">
+            <span id="label-guia">Juan, memoriza esta lista.</span>
+        </div>
     </div>
 
-    <div id="zona-reconocimiento">
-        <h2 style="font-size: 2.5rem; color: #103A57; background: rgba(255,255,255,0.8); display: inline-block; padding: 10px 30px; border-radius: 15px; margin-bottom: 20px;">¿Cuál estaba en la lista?</h2>
-        <div class="botones-par">
-            <button class="btn-opcion" id="btn-a" onclick="verificar(this.innerText)"></button>
-            <button class="btn-opcion" id="btn-b" onclick="verificar(this.innerText)"></button>
+    <div id="contenedor-principal">
+        <div id="fase-codificacion">
+            <div id="lista-visual"></div>
+            <center><div id="timer-box">Tiempo: <span id="segundos">15</span>s</div></center>
+        </div>
+
+        <div id="zona-reconocimiento">
+            <div style="background: rgba(255,255,255,0.85); display: inline-block; padding: 15px 40px; border-radius: 20px; border: 2px solid var(--secondary);">
+                <h2 style="font-size: 1.8rem; color: var(--secondary); margin: 0;">¿Cuál estaba en la lista?</h2>
+            </div>
+            <div class="botones-par">
+                <button class="btn-opcion" id="btn-a" onpointerdown="verificar(this.innerText)"></button>
+                <button class="btn-opcion" id="btn-b" onpointerdown="verificar(this.innerText)"></button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="overlay-final">
-    <h1 style="font-size: 3.5rem; color: #FFD700;">¡MUY BIEN HECHO!</h1>
-    
-    <div class="tabla-resultados" id="detalle-niveles">
-        </div>
-
-    <p style="font-style: italic; font-size: 1.5rem; margin-top: 10px;">"Cada palabra que recuerdas es un gran avance"</p>
-    <button onclick="location.reload()" style="padding: 15px 40px; font-size: 1.5rem; background: #366B2B; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 25px;">REINTENTAR</button>
+    <h1 style="font-size: 3rem; color: var(--gold); margin-bottom: 10px;">¡SESIÓN COMPLETADA!</h1>
+    <div class="card-resultados" id="detalle-niveles"></div>
+    <button onpointerdown="location.href='menu.html'" style="padding: 15px 50px; font-size: 1.5rem; background: var(--primary); color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 30px; font-weight: bold; box-shadow: 0 5px 0 #1e3d18;">GUARDAR Y SALIR</button>
 </div>
 
 <script>
+    // Configuración Clínica
     const mercado = ["Arroz", "Pasta", "Lentejas", "Frijoles", "Aceite", "Sal", "Azúcar", "Café", "Leche", "Huevos", "Pan", "Queso", "Pollo", "Carne", "Atún", "Tomate", "Cebolla", "Ajo", "Papa", "Zanahoria", "Lechuga", "Manzana", "Banano", "Naranja", "Limón", "Yogur", "Mantequilla", "Harina", "Galletas", "Chocolate"];
     const distNeutros = ["Silencio", "Tormenta", "Espejo", "Camino", "Nube", "Arena", "Bosque", "Puerta", "Sombra", "Fuego", "Río", "Estrella", "Viento", "Libro", "Cielo", "Piedra", "Puente", "Luz", "Jardín", "Mariposa", "Tren", "Isla", "Luna", "Globo", "Torre", "Laberinto", "Horizonte"];
     const distFoneticos = ["Aro", "Raza", "Lente", "Flecos", "Aseito", "Sol", "Azafrán", "Cafeto", "Lecho", "Huesos", "Pana", "Caso", "Poyo", "Marte", "Atajo", "Tomar", "Sebolla", "Agro", "Mapa", "Santana", "Lechuza", "Montana", "Verano", "Noriega", "Limbo", "Yugo", "Mantilla", "Montaña", "Reloj", "Ventana"];
@@ -86,7 +136,9 @@
     let palabrasReto = [];
     let indicePregunta = 0;
     
-    // Almacén de aciertos por nivel
+    // Métricas
+    let totalAciertos = 0;
+    let totalErrores = 0;
     let aciertosPorNivel = { 1: 0, 2: 0, 3: 0 };
     const metasPorNivel = { 1: 6, 2: 10, 3: 15 };
 
@@ -94,7 +146,7 @@
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.85;
+        msg.rate = 0.85; // Velocidad cómoda para Juan
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
@@ -107,7 +159,7 @@
         document.getElementById('fase-codificacion').style.display = 'block';
         document.getElementById('zona-reconocimiento').style.display = 'none';
         document.getElementById('timer-box').style.display = 'none';
-        document.getElementById('label-guia').innerText = "Memoriza la lista, Juan";
+        document.getElementById('label-guia').innerText = "Juan, memoriza esta lista del mercado.";
 
         hablar(`Juan, memoriza estas ${cantidad} palabras.`, () => {
             mostrarPalabrasAcumuladas(0);
@@ -121,7 +173,7 @@
             div.innerText = palabrasReto[idx];
             document.getElementById('lista-visual').appendChild(div);
             hablar(palabrasReto[idx], () => {
-                setTimeout(() => mostrarPalabrasAcumuladas(idx + 1), 700);
+                setTimeout(() => mostrarPalabrasAcumuladas(idx + 1), 600);
             });
         } else {
             const box = document.getElementById('timer-box');
@@ -141,7 +193,7 @@
     function faseReconocimiento() {
         document.getElementById('fase-codificacion').style.display = 'none';
         document.getElementById('zona-reconocimiento').style.display = 'block';
-        document.getElementById('label-guia').innerText = "Fase 2: ¿Cuáles recuerdas?";
+        document.getElementById('label-guia').innerText = "Fase de reconocimiento.";
         indicePregunta = 0;
         presentarPregunta();
     }
@@ -150,9 +202,13 @@
         if (indicePregunta < palabrasReto.length) {
             const correcta = palabrasReto[indicePregunta];
             let dist;
-            if (nivelActual === 1) dist = distNeutros[Math.floor(Math.random()*distNeutros.length)];
-            else if (nivelActual === 3) dist = distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
-            else dist = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random()*distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
+            if (nivelActual === 1) {
+                dist = distNeutros[Math.floor(Math.random()*distNeutros.length)];
+            } else if (nivelActual === 3) {
+                dist = distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
+            } else {
+                dist = Math.random() > 0.5 ? distNeutros[Math.floor(Math.random()*distNeutros.length)] : distFoneticos[mercado.indexOf(correcta)] || distNeutros[0];
+            }
 
             const opciones = [correcta, dist].sort(() => 0.5 - Math.random());
             document.getElementById('btn-a').innerText = opciones[0];
@@ -171,30 +227,48 @@
     function verificar(elegida) {
         if (elegida === palabrasReto[indicePregunta]) {
             aciertosPorNivel[nivelActual]++;
+            totalAciertos++;
             hablar("¡Muy bien!");
         } else {
+            totalErrores++;
             hablar("Esa no estaba.");
         }
         indicePregunta++;
-        setTimeout(presentarPregunta, 1300);
+        setTimeout(presentarPregunta, 1100);
     }
 
     function finalizarTodo() {
-        document.getElementById('zona-reconocimiento').style.display = 'none';
-        const contenedorResultados = document.getElementById('detalle-niveles');
+        const totalRetos = 31; // 6 + 10 + 15
+        const eficacia = Math.round((totalAciertos / totalRetos) * 100);
         
-        // Crear resumen visual desglosado
-        contenedorResultados.innerHTML = `
-            <div class="linea-resumen"><span>Nivel Bajo:</span> <b>${aciertosPorNivel[1]} / 6</b></div>
-            <div class="linea-resumen"><span>Nivel Medio:</span> <b>${aciertosPorNivel[2]} / 10</b></div>
-            <div class="linea-resumen"><span>Nivel Alto:</span> <b>${aciertosPorNivel[3]} / 15</b></div>
-            <hr style="border: 0; border-top: 1px solid white; margin: 15px 0;">
-            <div class="linea-resumen" style="color: #FFD700;"><span>Total Aciertos:</span> <b>${aciertosPorNivel[1]+aciertosPorNivel[2]+aciertosPorNivel[3]} / 31</b></div>
+        // Guardado Centralizado
+        const dataSesion = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Memoria",
+            id_sesion: 2,
+            aciertos: totalAciertos,
+            errores: totalErrores,
+            eficacia: eficacia
+        };
+        
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
+        historial.push(dataSesion);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        // Resumen Visual
+        document.getElementById('zona-reconocimiento').style.display = 'none';
+        document.getElementById('detalle-niveles').innerHTML = `
+            <div class="linea-resumen"><span>Nivel 1 (6):</span> <b>${aciertosPorNivel[1]}</b></div>
+            <div class="linea-resumen"><span>Nivel 2 (10):</span> <b>${aciertosPorNivel[2]}</b></div>
+            <div class="linea-resumen"><span>Nivel 3 (15):</span> <b>${aciertosPorNivel[3]}</b></div>
+            <hr style="opacity: 0.3">
+            <div class="linea-resumen" style="color: var(--gold); font-size: 1.8rem;"><span>Eficacia:</span> <b>${eficacia}%</b></div>
         `;
 
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente Juan! Has terminado todo el entrenamiento del mercado. Mira tus resultados.");
+        hablar("¡Excelente Juan! Has terminado la lista del mercado. Mira tu progreso.");
     }
 </script>
 </body>
 </html>
+
