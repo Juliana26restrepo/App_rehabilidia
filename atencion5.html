@@ -12,7 +12,7 @@
         body { 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
-            background: var(--bg-gray); /* FONTO RESTAURADO */
+            background: var(--bg-gray); /* Fondo original restaurado */
             overflow: hidden; 
             display: flex; 
             justify-content: center; 
@@ -54,7 +54,11 @@
             padding-bottom: 20px;
         }
         
-        .cesto { width: 25%; text-align: center; position: relative; }
+        /* Cesto con área de interacción mejorada */
+        .cesto { 
+            width: 25%; text-align: center; position: relative; 
+            padding: 10px; border-radius: 15px;
+        }
         .cesto img { width: 100%; max-width: 120px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .cesto b { 
             display: block; color: white; text-transform: uppercase; font-size: 0.7rem; 
@@ -64,7 +68,7 @@
         #panel-objetos { 
             flex: 1; background: rgba(255, 255, 255, 0.7); 
             border: 3px dashed var(--t-blue); border-radius: 20px; 
-            margin: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            margin: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
             gap: 15px; padding: 20px; align-content: start; justify-items: center;
         }
 
@@ -93,7 +97,7 @@
         }
         .resumen-card {
             background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px;
-            text-align: center; color: var(--p-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center; color: var(--p-blue);
         }
     </style>
 </head>
@@ -129,9 +133,7 @@
 <script>
     let nivelActual = 1, aciertosTotales = 0, erroresTotales = 0, aciertosEnNivel = 0, totalNivel = 0, iniciado = false;
     
-    const sonidos = {
-        exito: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg")
-    };
+    const sonidos = { exito: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg") };
 
     function hablar(txt) {
         window.speechSynthesis.cancel();
@@ -156,20 +158,20 @@
         let items = [];
         if(nivelActual === 1) {
             totalNivel = 6;
-            hablar("Juan, arrastra la ropa blanca y de color a su cesto.");
+            hablar("Clasifica la ropa blanca y de color.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             for(let i=1; i<=3; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); }
         } else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Separa blanco y color. Cuidado con lo que no es ropa.");
+            hablar("Nivel 2. Separa blanco y color. Ignora los distractores.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             for(let i=4; i<=6; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); }
             for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         } else {
             totalNivel = 9;
-            hablar("Nivel final. Organiza todo en los tres cestos.");
+            hablar("Nivel final. Usa los tres cestos.");
             mosca.style.display = 'block'; mosca.style.animation = "volar 4s infinite linear";
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
@@ -226,11 +228,12 @@
             const cestoCorrecto = document.getElementById(`cesto-${el.dataset.tipo}`);
             let acierto = false;
 
+            // Si el objeto es ropa (no distractor) y hay un cesto destino
             if (el.dataset.tipo !== 'D' && cestoCorrecto) {
                 const cRect = cestoCorrecto.getBoundingClientRect();
-                // Margen generoso de 60px para facilitar el acierto
-                if (centerX > cRect.left - 60 && centerX < cRect.right + 60 &&
-                    centerY > cRect.top - 60 && centerY < cRect.bottom + 100) {
+                // DETECCIÓN AMPLIA: Si el centro de la prenda entra en el área del cesto (con margen de 50px extra)
+                if (centerX > cRect.left - 50 && centerX < cRect.right + 50 &&
+                    centerY > cRect.top - 50 && centerY < cRect.bottom + 80) {
                     acierto = true;
                 }
             }
@@ -253,10 +256,7 @@
         document.addEventListener('pointerup', stopDrag);
     }
 
-    function pasarNivel() {
-        if(nivelActual < 3) { nivelActual++; cargarNivel(); } 
-        else { finalizarSesion(); }
-    }
+    function pasarNivel() { if(nivelActual < 3) { nivelActual++; cargarNivel(); } else { finalizarSesion(); } }
 
     function finalizarSesion() {
         const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
@@ -264,7 +264,7 @@
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(data));
         document.getElementById('stats-finales').innerHTML = `<b>Aciertos:</b> ${aciertosTotales}<br><b>Errores:</b> ${erroresTotales}<br><b>Eficacia:</b> ${eficacia}%`;
         document.getElementById('modal-resultados').style.display = 'flex';
-        hablar("¡Muy bien hecho! Has clasificado todo correctamente.");
+        hablar("¡Excelente trabajo!");
     }
 
     function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
