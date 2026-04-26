@@ -20,7 +20,6 @@
             height: 100vh;
         }
         
-        /* UNIVERSAL ZOOM CONTAINER */
         #viewport {
             width: 100vw;
             height: 100vh;
@@ -58,7 +57,7 @@
         
         .cesto { 
             width: 25%; text-align: center; position: relative; 
-            transition: transform 0.2s; pointer-events: none; /* La detección se hace por coordenadas */
+            transition: transform 0.2s;
         }
         .cesto img { width: 100%; max-width: 120px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .cesto b { 
@@ -82,10 +81,9 @@
         
         .dragging { 
             position: fixed !important; 
-            width: 90px !important; height: 90px !important; 
+            width: 85px !important; height: 85px !important; 
             z-index: 5000 !important; 
             pointer-events: none; 
-            cursor: grabbing;
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
         }
 
@@ -126,8 +124,8 @@
         <div class="resumen-card">
             <h2 style="margin:0; color: var(--t-blue)">¡SESIÓN COMPLETADA!</h2>
             <div id="stats-finales" style="text-align: left; margin: 20px 0; font-size: 1.1rem; border-top: 1px solid #eee; padding-top: 15px;"></div>
-            <button class="btn-final" onclick="location.reload()" style="width:100%; padding:15px; background:var(--p-blue); color:white; border:none; border-radius:10px; font-weight:bold;">REPETIR</button>
-            <button class="btn-final" onclick="irAlMenu()" style="width:100%; padding:15px; background:var(--t-blue); color:white; border:none; border-radius:10px; font-weight:bold; margin-top:10px;">CONTINUAR</button>
+            <button onclick="location.reload()" style="width:100%; padding:15px; background:var(--p-blue); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">REPETIR</button>
+            <button onclick="irAlMenu()" style="width:100%; padding:15px; background:var(--t-blue); color:white; border:none; border-radius:10px; font-weight:bold; margin-top:10px; cursor:pointer;">CONTINUAR</button>
         </div>
     </div>
 </div>
@@ -137,8 +135,6 @@
     
     const sonidos = {
         perro: new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg"),
-        ambulancia: new Audio("https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg"),
-        lavadora: new Audio("https://actions.google.com/sounds/v1/household/washing_machine_cycle.ogg"),
         exito: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg")
     };
 
@@ -151,9 +147,7 @@
         document.getElementById('texto-guia').innerText = txt;
     }
 
-    function iniciarSesion() {
-        if (!iniciado) { iniciado = true; cargarNivel(); }
-    }
+    function iniciarSesion() { if (!iniciado) { iniciado = true; cargarNivel(); } }
 
     function cargarNivel() {
         const panel = document.getElementById('panel-objetos');
@@ -165,41 +159,27 @@
         mosca.style.display = 'none';
 
         let items = [];
-
         if(nivelActual === 1) {
             totalNivel = 6;
-            hablar("Juan, arrastra la ropa blanca y de color a su cesto. Ignora los ladridos.");
+            hablar("Juan, arrastra la ropa blanca y de color a su cesto.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
-            for(let i=1; i<=3; i++) {
-                items.push({img: `b${i}.png`, tipo: 'B'});
-                items.push({img: `color${i}.png`, tipo: 'C'});
-            }
-        } 
-        else if(nivelActual === 2) {
+            for(let i=1; i<=3; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); }
+        } else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Ignora la ambulancia. Separa blanco y color.");
+            hablar("Nivel 2. Separa blanco y color. Ignora los distractores.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
-            for(let i=4; i<=6; i++) {
-                items.push({img: `b${i}.png`, tipo: 'B'});
-                items.push({img: `color${i}.png`, tipo: 'C'});
-            }
+            for(let i=4; i<=6; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); }
             for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
-        }
-        else if(nivelActual === 3) {
+        } else {
             totalNivel = 9;
-            hablar("Nivel final: Blanco, color y toallas. Ignora la mosca.");
-            mosca.style.display = 'block';
-            mosca.style.animation = "volar 4s infinite linear";
+            hablar("Nivel final. Separa todo, incluyendo toallas.");
+            mosca.style.display = 'block'; mosca.style.animation = "volar 4s infinite linear";
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             crearCesto('T', 'cesto_toallas.png', 'Toallas');
-            for(let i=1; i<=3; i++) {
-                items.push({img: `b${i}.png`, tipo: 'B'});
-                items.push({img: `color${i}.png`, tipo: 'C'});
-                items.push({img: `to${i}.png`, tipo: 'T'});
-            }
+            for(let i=1; i<=3; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); items.push({img: `to${i}.png`, tipo: 'T'}); }
             for(let i=1; i<=4; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         }
 
@@ -211,7 +191,7 @@
             img.src = `Img5/${item.img}`;
             img.className = 'prenda';
             img.dataset.tipo = item.tipo;
-            img.onpointerdown = startDrag; // Uso de Pointer Events (Mouse + Touch)
+            img.onpointerdown = startDrag;
             panel.appendChild(img);
         });
     }
@@ -219,60 +199,59 @@
     function crearCesto(tipo, file, label) {
         const d = document.createElement('div');
         d.className = 'cesto';
-        d.dataset.tipo = tipo;
         d.id = `cesto-${tipo}`;
+        d.dataset.tipo = tipo;
         d.innerHTML = `<img src="Img5/${file}"><b>${label}</b>`;
         document.getElementById('zona-cestos').appendChild(d);
     }
 
-    // LÓGICA DE ARRASTRE OPTIMIZADA
     function startDrag(e) {
         const el = e.target;
         const rect = el.getBoundingClientRect();
-        
-        // Calculamos el desfase inicial para que el objeto no de un "salto"
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
 
         el.classList.add('dragging');
-        el.style.left = (e.clientX - offsetX) + 'px';
-        el.style.top = (e.clientY - offsetY) + 'px';
 
-        function moveDrag(e) {
-            el.style.left = (e.clientX - (el.offsetWidth / 2)) + 'px';
-            el.style.top = (e.clientY - (el.offsetHeight / 2)) + 'px';
+        function moveDrag(me) {
+            el.style.left = (me.clientX - offsetX) + 'px';
+            el.style.top = (me.clientY - offsetY) + 'px';
         }
 
-        function stopDrag(e) {
+        function stopDrag(se) {
             el.classList.remove('dragging');
             document.removeEventListener('pointermove', moveDrag);
             document.removeEventListener('pointerup', stopDrag);
 
-            // Detección de colisión por coordenadas (Hit Test)
-            const targetCesto = document.elementFromPoint(e.clientX, e.clientY)?.closest('.cesto');
-            const cestoCorrecto = document.getElementById(`cesto-${el.dataset.tipo}`);
+            const prendaRect = el.getBoundingClientRect();
+            const centroX = prendaRect.left + (prendaRect.width / 2);
+            const centroY = prendaRect.top + (prendaRect.height / 2);
 
-            if (el.dataset.tipo === 'D') {
-                erroresTotales++;
-                hablar("Eso no se lava, Juan.");
-                return; 
+            const cestoCorrecto = document.getElementById(`cesto-${el.dataset.tipo}`);
+            let acierto = false;
+
+            if (el.dataset.tipo !== 'D' && cestoCorrecto) {
+                const cRect = cestoCorrecto.getBoundingClientRect();
+                // Aumentamos el margen de detección (50px extra alrededor del cesto)
+                if (centroX > cRect.left - 50 && centroX < cRect.right + 50 &&
+                    centroY > cRect.top - 50 && centroY < cRect.bottom + 100) {
+                    acierto = true;
+                }
             }
 
-            if (targetCesto && targetCesto.dataset.tipo === el.dataset.tipo) {
-                // ÉXITO
-                el.style.visibility = 'hidden';
+            if (acierto) {
+                el.remove();
                 aciertosEnNivel++;
                 aciertosTotales++;
                 sonidos.exito.play();
                 document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertosEnNivel}/${totalNivel}`;
                 if(aciertosEnNivel === totalNivel) setTimeout(pasarNivel, 1000);
             } else {
-                // ERROR
                 erroresTotales++;
-                hablar("Esa ropa no va ahí.");
+                hablar(el.dataset.tipo === 'D' ? "Eso no es ropa." : "Esa no va ahí.");
+                el.style.position = 'static';
             }
         }
-
         document.addEventListener('pointermove', moveDrag);
         document.addEventListener('pointerup', stopDrag);
     }
@@ -283,31 +262,15 @@
     }
 
     function finalizarSesion() {
-        const totalIntentos = aciertosTotales + erroresTotales;
-        const eficacia = totalIntentos > 0 ? Math.round((aciertosTotales / totalIntentos) * 100) : 0;
-
-        const data = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Atención",
-            id_sesion: 5,
-            aciertos: aciertosTotales,
-            errores: erroresTotales,
-            eficacia: eficacia + "%"
-        };
-
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+        const data = { fecha: new Date().toLocaleDateString(), modulo: "Atención", id_sesion: 5, aciertos: aciertosTotales, errores: erroresTotales, eficacia: eficacia + "%" };
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(data));
-
-        document.getElementById('stats-finales').innerHTML = `
-            <b>Aciertos:</b> ${aciertosTotales}<br>
-            <b>Errores:</b> ${erroresTotales}<br>
-            <b>Eficacia:</b> ${eficacia}%
-        `;
+        document.getElementById('stats-finales').innerHTML = `<b>Aciertos:</b> ${aciertosTotales}<br><b>Errores:</b> ${erroresTotales}<br><b>Eficacia:</b> ${eficacia}%`;
         document.getElementById('modal-resultados').style.display = 'flex';
-        hablar("¡Excelente Juan! Lavandería organizada.");
+        hablar("Sesión terminada. ¡Buen trabajo!");
     }
 
     function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
 </script>
 </body>
 </html>
-
