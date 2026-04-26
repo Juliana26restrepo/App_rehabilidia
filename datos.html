@@ -20,6 +20,7 @@
         .tag-memoria { background: #2563eb; }
         .tag-ejecutiva { background: #16a34a; }
         .hidden { display: none; }
+        .fecha-historial { float: right; font-size: 0.75rem; color: #666; }
     </style>
 </head>
 <body>
@@ -53,56 +54,64 @@
         document.getElementById('bt2').classList.toggle('active', t === 's');
     }
 
-    // --- FUNCIÓN MOTOR PARA GUARDAR (Este es el secreto) ---
-    // La dejaremos aquí para que el archivo sea capaz de procesar datos
-    function registrarSesion(modulo, id, aciertos, errores, eficacia) {
-        let datos = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        datos.push({
-            fecha: new Date().toLocaleString(),
-            modulo: modulo,
-            id_sesion: id,
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: eficacia
-        });
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(datos));
-    }
-
     window.onload = function() {
         try {
-            const historial = JSON.parse(localStorage.getItem('diario_juan')) || [];
+            // Cargar datos de LocalStorage
+            const historialDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
             const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
             
-            // Cargar Diario (Tu lógica original)
+            // --- LÓGICA DEL DIARIO ---
             const ld = document.getElementById('listD');
-            if(historial.length > 0) {
+            if(historialDiario.length > 0) {
+                // Gráfico de Energía
                 new Chart(document.getElementById('graf'), {
                     type: 'line',
                     data: {
-                        labels: historial.map(r => r.fecha.split(',')[0]),
-                        datasets: [{ label: 'Energía', data: historial.map(r => r.energia), borderColor: '#307B8E', fill: false }]
+                        labels: historialDiario.map(r => r.fecha.split(',')[0]),
+                        datasets: [{ label: 'Energía', data: historialDiario.map(r => r.energia), borderColor: '#307B8E', tension: 0.3, fill: false }]
                     }
                 });
-                [...historial].reverse().forEach(r => {
-                    ld.innerHTML += `<div class="item"><b>${r.fecha}</b><br>Ánimo: ${r.emocion}</div>`;
+                // Lista de historial diario
+                [...historialDiario].reverse().forEach(r => {
+                    ld.innerHTML += `
+                        <div class="item">
+                            <span class="fecha-historial">${r.fecha.split(',')[0]}</span>
+                            <b>Estado: ${r.emocion}</b><br>
+                            <small>Energía: ${r.energia}/10 | Sueño: ${r.horasSueño}h</small>
+                        </div>`;
                 });
+            } else {
+                ld.innerHTML = "No hay registros en el diario aún.";
             }
 
-            // Cargar Sesiones (La parte nueva para las 30 sesiones)
+            // --- LÓGICA DE LAS SESIONES ---
             const ls = document.getElementById('listS');
             if(sesiones.length > 0) {
                 [...sesiones].reverse().forEach(s => {
-                    let clase = s.modulo.includes("Atención") ? "tag-atencion" : (s.modulo.includes("Memoria") ? "tag-memoria" : "tag-ejecutiva");
+                    // Si la sesión no tiene fecha guardada, ponemos la de hoy por defecto
+                    let fechaSesion = s.fecha ? s.fecha : new Date().toLocaleDateString();
+                    
+                    // Determinar color de etiqueta por módulo
+                    let clase = "tag-atencion";
+                    if(s.modulo && s.modulo.includes("Memoria")) clase = "tag-memoria";
+                    if(s.modulo && s.modulo.includes("Ejecutiva")) clase = "tag-ejecutiva";
+
                     ls.innerHTML += `
                         <div class="item">
-                            <span class="tag ${clase}">${s.modulo}</span><br>
-                            <b>Sesión ${s.id_sesion}</b> - ${s.eficacia}% de éxito
+                            <span class="fecha-historial">${fechaSesion}</span>
+                            <span class="tag ${clase}">${s.modulo || "Atención"}</span><br>
+                            <b>Sesión ${s.id_sesion || s.sesion || "?"}</b> - ${s.eficacia}
                             <br><small>Aciertos: ${s.aciertos} | Errores: ${s.errores}</small>
                         </div>`;
                 });
-            } else { ls.innerHTML = "Aún no hay sesiones registradas."; }
-        } catch (e) { console.error(e); }
+            } else { 
+                ls.innerHTML = "<p style='text-align:center; padding:20px;'>Aún no has completado ninguna sesión.</p>"; 
+            }
+        } catch (e) { 
+            console.error("Error al cargar datos:", e); 
+        }
     }
 </script>
 </body>
 </html>
+
