@@ -15,7 +15,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* Interfaz Adaptable (Universal Zoom) */
         #cabecera { 
             background: rgba(27, 79, 114, 0.95); color: white; height: 12vh; 
             display: flex; align-items: center; justify-content: space-between; 
@@ -39,7 +38,7 @@
         }
 
         .draggable { 
-            width: 80%; aspect-ratio: 1/1; object-fit: contain; 
+            width: 80%; max-width: 120px; aspect-ratio: 1/1; object-fit: contain; 
             cursor: grab; transition: transform 0.2s; touch-action: none;
         }
 
@@ -51,10 +50,9 @@
         #area-cama-detect { position: relative; width: 90%; height: 90%; display: flex; justify-content: center; align-items: center; }
         #cama_base { width: 100%; max-width: 700px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); pointer-events: none; }
 
-        .pieza-fija { position: absolute; width: 25%; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .pieza-fija { position: absolute; width: 25%; max-width: 180px; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes pop { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 
-        /* Cuadro de Pregunta Interruptora */
         #cuadro-pregunta { 
             position: absolute; right: 2%; top: 5%; width: 25vw; min-width: 260px;
             background: var(--gold); border: 6px solid var(--p-blue); 
@@ -64,7 +62,6 @@
 
         .btn-p { width: 100%; padding: 12px; margin: 8px 0; font-weight: bold; cursor: pointer; border-radius: 15px; border: 3px solid rgba(0,0,0,0.1); color: white; font-size: 1.2rem; }
 
-        /* Modal de Resultados Finales */
         #overlay-final { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(27, 79, 114, 0.98); z-index: 5000; flex-direction: column; 
@@ -99,14 +96,13 @@
     <div class="card-resultados">
         <h1 style="margin-top:0">¡SESIÓN COMPLETADA!</h1>
         <div id="stats-container" style="font-size: 1.5rem; margin-bottom: 30px; text-align: left;"></div>
-        <button onclick="window.location.href='menu.html'" style="padding: 15px 40px; font-size: 1.3rem; border-radius: 50px; background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; width: 100%;">IR AL INICIO</button>
+        <button onclick="window.location.href='index.html'" style="padding: 15px 40px; font-size: 1.3rem; border-radius: 50px; background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; width: 100%;">IR AL INICIO</button>
     </div>
 </div>
 
 <script>
     let nivel = 1, paso = 0, aciertos = 0, errores = 0, bloqueado = false;
     let preguntasDisponibles = [];
-    let totalRetosNivel = [2, 4, 6]; // Retos por nivel
     const sfxOk = new Audio('img8/exito.mp3'); 
     const sfxErr = new Audio('img8/alarma.mp3');
     const sfxFondo = new Audio('img10/pajaros.mp3');
@@ -146,7 +142,7 @@
         document.getElementById('label-guia').innerText = t;
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = esLento ? 0.85 : 1.1; // Juan usa velocidad configurada
+        msg.rate = esLento ? 0.85 : 1.1;
         window.speechSynthesis.speak(msg);
     }
 
@@ -184,13 +180,19 @@
     function iniciarDrag(e) {
         if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
         const el = e.target;
+        
+        // Guardamos dimensiones originales para que no crezca infinito
+        const rectOriginal = el.getBoundingClientRect();
+        const widthOriginal = rectOriginal.width;
+
         el.style.position = 'fixed';
         el.style.zIndex = 1000;
-        el.style.transform = 'scale(1.2)';
+        el.style.width = widthOriginal + 'px'; // Mantiene el ancho que tenía en el panel
+        el.style.transform = 'scale(1.1)'; // Solo crece un 10% para feedback visual
 
         function mover(me) {
-            el.style.left = (me.clientX - el.offsetWidth/2) + 'px';
-            el.style.top = (me.clientY - el.offsetHeight/2) + 'px';
+            el.style.left = (me.clientX - widthOriginal/2) + 'px';
+            el.style.top = (me.clientY - widthOriginal/2) + 'px';
         }
 
         function soltar(se) {
@@ -200,7 +202,6 @@
             const cama = document.getElementById('area-cama-detect').getBoundingClientRect();
             const objIdRequerido = niveles[nivel].pedir[paso];
 
-            // Detección de zona de soltado
             if (se.clientX > cama.left && se.clientX < cama.right && se.clientY > cama.top && se.clientY < cama.bottom) {
                 if (el.dataset.id === objIdRequerido) {
                     sfxOk.play(); aciertos++;
@@ -221,10 +222,10 @@
                 } else {
                     sfxErr.play(); errores++;
                     hablar("Ese no es el objeto que pedí Juan. Mira bien.");
-                    el.style.position = 'static'; el.style.transform = 'scale(1)';
+                    el.style.position = 'static'; el.style.transform = 'scale(1)'; el.style.width = '80%';
                 }
             } else {
-                el.style.position = 'static'; el.style.transform = 'scale(1)';
+                el.style.position = 'static'; el.style.transform = 'scale(1)'; el.style.width = '80%';
             }
             actualizarStats();
         }
@@ -235,10 +236,8 @@
     function lanzarPregunta() {
         if(bloqueado || document.getElementById('cuadro-pregunta').style.display === 'block') return;
         if (preguntasDisponibles.length === 0) preguntasDisponibles = [...bancoPreguntas];
-
         const index = Math.floor(Math.random() * preguntasDisponibles.length);
         const p = preguntasDisponibles.splice(index, 1)[0]; 
-
         document.getElementById('pregunta-texto').innerText = p.q;
         document.getElementById('cuadro-pregunta').dataset.ans = p.a;
         document.getElementById('cuadro-pregunta').style.display = 'block';
@@ -250,11 +249,8 @@
         else { sfxErr.play(); errores++; }
         document.getElementById('cuadro-pregunta').style.display = 'none';
         actualizarStats();
-        
         if(!bloqueado) {
-            setTimeout(() => {
-                hablar(`Seguimos buscando ${db[niveles[nivel].pedir[paso]].nom}.`);
-            }, 1000);
+            setTimeout(() => { hablar(`Seguimos buscando ${db[niveles[nivel].pedir[paso]].nom}.`); }, 1000);
         }
     }
 
@@ -268,29 +264,12 @@
         clearInterval(loopPreguntas);
         let total = aciertos + errores;
         let ef = total === 0 ? 100 : Math.round((aciertos/total)*100);
-
-        const dataGuardar = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Atención",
-            id_sesion: 10,
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef
-        };
-
-        // Guardado Centralizado
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(dataGuardar);
+        historial.push({ fecha: new Date().toLocaleDateString(), modulo: "Atención", id_sesion: 10, aciertos, errores, eficacia: ef });
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        document.getElementById('stats-container').innerHTML = `
-            <strong>Resumen de sesión:</strong><br><br>
-            Aciertos totales: ${aciertos}<br>
-            Errores cometidos: ${errores}<br>
-            Eficacia final: ${ef}%
-        `;
+        document.getElementById('stats-container').innerHTML = `Aciertos: ${aciertos}<br>Errores: ${errores}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Misión cumplida Juan! Has terminado todos los retos de atención. Mañana empezaremos con ejercicios de Memoria.");
+        hablar("¡Misión cumplida Juan! Has terminado todos los retos de atención.");
     }
 </script>
 </body>
