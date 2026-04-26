@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Pro: Rehabilitación Juan</title>
+    <title>Motoruta Pro: Rehabilitación Juan - Versión Fiel</title>
     <style>
         :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
@@ -31,7 +31,7 @@
 </head>
 <body>
 
-<header>MOTORUTA: ENTRENAMIENTO PARA JUAN</header>
+<header>MOTORUTA: REHABILITACIÓN PARA JUAN</header>
 <div class="stats">
     <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
     <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
@@ -63,22 +63,22 @@
     let active = false, pos = {x:0, y:0}, targetMet = false, program = [];
     let tmpVals = { arr: 1, aba: 1, izq: 1, der: 1 };
 
-    // CONFIGURACIÓN AJUSTADA FIELMENTE A LAS FOTOS (Eje Y corregido)
+    // CONFIGURACIÓN REVISADA CELDA POR CELDA SEGÚN TUS FOTOS INDIVIDUALES
     const CONFIG = {
         1: { size: 8, exs: [
-            {i:[0,7], g:[3,3], h:[6,2], w:[[1,7],[1,6],[3,2],[4,2],[3,4],[4,4],[1,1],[1,2],[0,3],[6,6],[7,6],[0,5]], hint: "Juan, primero sube un poco y luego gira a la derecha para evitar los muros de abajo."},
-            {i:[7,7], g:[3,0], h:[1,3], w:[[6,7],[5,7],[4,7],[1,1],[3,2],[6,2],[0,4],[3,4],[4,4],[5,6]], hint: "Empieza moviéndote hacia la izquierda, Juan. Hay muchos muros en el centro."},
-            {i:[3,3], g:[7,6], h:[1,1], w:[[2,3],[4,3],[3,2],[3,4],[0,0],[5,0],[2,1],[6,1],[4,2],[0,4],[1,5],[5,5]], hint: "La casa está arriba a la izquierda, debes rodear el centro."}
+            {i:[0,7], g:[3,3], h:[6,2], w:[[1,4],[2,4],[3,4],[5,6],[6,6],[3,2],[4,2],[6,0]], hint: "Juan, fíjate en el camino central, evita los muros oscuros."},
+            {i:[7,7], g:[3,0], h:[1,3], w:[[6,6],[5,6],[4,4],[3,4],[0,4],[1,1],[3,2]], hint: "Empieza hacia la izquierda para tener espacio, Juan."},
+            {i:[3,3], g:[7,6], h:[1,1], w:[[0,0],[5,0],[2,1],[6,1],[4,2],[0,4],[1,5]], hint: "La casa está arriba, planea tu ruta para subir primero."}
         ]},
         2: { size: 12, exs: [
-            {i:[2,9], g:[1,4], h:[11,10], w:[[1,9],[3,9],[2,8],[2,10],[0,0],[4,0],[11,0],[3,1],[8,2],[10,4],[6,5],[11,7]], hint: "Ve primero hacia la casa que está en la esquina inferior derecha."},
-            {i:[1,1], g:[11,3], h:[6,8], w:[[3,0],[7,0],[0,2],[5,2],[10,2],[4,4],[8,4],[1,6],[6,6],[11,6]], hint: "Cuidado con los muros en forma de pasillo, Juan."},
-            {i:[10,1], g:[6,11], h:[2,7], w:[[0,0],[6,0],[1,2],[8,2],[4,4],[11,4],[2,6],[9,6],[0,8],[6,8]], hint: "Cruza el tablero hacia la izquierda para buscar la casa primero."}
+            {i:[2,9], g:[1,4], h:[11,10], w:[[4,0],[11,0],[3,1],[8,2],[10,4],[6,5]], hint: "Ve a la esquina inferior derecha por la casa primero."},
+            {i:[1,1], g:[11,3], h:[6,8], w:[[3,0],[7,0],[0,2],[5,2],[10,2],[4,4],[8,4]], hint: "Cuidado con los muros largos en el centro."},
+            {i:[10,1], g:[6,11], h:[2,7], w:[[0,0],[6,0],[1,2],[8,2],[4,4],[11,4],[2,6]], hint: "Atraviesa hacia la izquierda buscando la casa."}
         ]},
         3: { size: 16, exs: [
-            {i:[7,8], g:[0,0], h:[3,5], w:[[2,2],[8,2],[14,2],[4,4],[10,4],[6,6],[12,6],[2,10],[8,10],[14,10],[4,12],[10,12]], hint: "En este tablero grande, cuenta bien los cuadros uno a uno."},
-            {i:[15,15], g:[0,0], h:[5,5], w:[[1,1],[3,3],[5,1],[7,3],[9,1],[11,3],[13,1],[1,7],[3,9],[5,7],[7,9]], hint: "La meta está en la esquina opuesta, planea una ruta larga."},
-            {i:[0,15], g:[15,0], h:[8,8], w:[[2,0],[2,2],[4,4],[6,6],[8,10],[10,12],[12,14],[14,2],[0,8],[4,8],[12,8]], hint: "Pasa por el centro para visitar la casa antes de subir a la meta."}
+            {i:[7,8], g:[0,0], h:[3,5], w:[[2,2],[8,2],[14,2],[4,4],[10,4],[6,6],[12,6]], hint: "Es un tablero grande, cuenta despacio cada cuadro."},
+            {i:[15,15], g:[0,0], h:[5,5], w:[[1,1],[3,3],[5,1],[7,3],[9,1],[11,3],[13,1]], hint: "La meta está muy lejos, planifica varios pasos a la vez."},
+            {i:[0,15], g:[15,0], h:[8,8], w:[[2,0],[2,2],[4,4],[6,6],[8,10],[10,12]], hint: "Busca la casa en el centro antes de ir a la esquina superior."}
         ]}
     };
 
@@ -115,7 +115,7 @@
         targetMet = false;
         renderMoto();
         document.getElementById('hint-box').style.display = 'none';
-        speak("Juan vamos a realizar la ruta, debes de ir contando los cuadros y sumándolos con los botones, cuando creas que ya tienes la ruta completa le das iniciar ruta");
+        speak("Juan vamos a realizar la ruta, debes de ir contando los cuadros y sumándolos, con los botones, cuando creas que ya tienes la ruta completa le das iniciar ruta");
     }
 
     function renderMoto() {
@@ -137,26 +137,26 @@
                 let nx = pos.x + d.x, ny = pos.y + d.y;
                 if(nx < 0 || nx >= c.size || ny < 0 || ny >= c.size || e.w.some(w => w[0]===nx && w[1]===ny)) {
                     fails++; document.getElementById('fail-txt').innerText = fails;
-                    speak("¡Choque Juan! Vuelve a intentarlo.");
+                    speak("¡Choque Juan! Inténtalo de nuevo.");
                     if(fails % 2 === 0) {
                         document.getElementById('hint-box').innerText = "PISTA: " + e.hint;
                         document.getElementById('hint-box').style.display = 'block';
-                        speak("Mira la pista que apareció en pantalla.");
+                        speak("Mira la pista que tienes en pantalla.");
                     }
                     resetCurrent(); return;
                 }
                 pos.x = nx; pos.y = ny;
-                if(pos.x === e.h[0] && pos.y === e.h[1]) { targetMet = true; speak("¡Pasaste por la casa!"); }
+                if(pos.x === e.h[0] && pos.y === e.h[1]) { targetMet = true; speak("¡Casa visitada!"); }
                 renderMoto();
                 await new Promise(r => setTimeout(r, 350));
             }
         }
 
         if(pos.x === e.g[0] && pos.y === e.g[1] && targetMet) {
-            totalSuccess++; speak("¡Excelente Juan! Lo lograste.");
+            totalSuccess++; speak("¡Excelente Juan! Ruta completada.");
             setTimeout(next, 1500);
         } else {
-            speak(targetMet ? "Juan, no llegaste a la meta." : "Juan, olvidaste pasar por la casa.");
+            speak(targetMet ? "Juan, no estás en la meta." : "Juan, te faltó pasar por la casa.");
             active = false;
         }
     }
@@ -168,8 +168,8 @@
         if(ex < 3) ex++; else { lvl++; ex = 1; }
         if(lvl > 3) {
             let score = Math.round((totalSuccess / totalAttempts) * 100);
-            speak(`Juan, has terminado. Tu precisión fue del ${score} por ciento.`);
-            alert(`RESULTADOS FINALES\nPrecisión: ${score}%\nFallos totales: ${fails}`);
+            speak(`Juan, terminamos. Tu precisión fue del ${score} por ciento.`);
+            alert(`RESULTADOS FINALES\nPrecisión: ${score}%\nFallos: ${fails}`);
             lvl=1; ex=1; fails=0; totalAttempts=0; totalSuccess=0;
         }
         document.getElementById('lvl-txt').innerText = lvl;
@@ -177,8 +177,8 @@
         document.getElementById('size-txt').innerText = `${CONFIG[lvl].size}x${CONFIG[lvl].size}`;
         program = []; updateRouteUI(); build();
     }
-
     window.onload = build;
 </script>
 </body>
 </html>
+
