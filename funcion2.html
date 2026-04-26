@@ -6,180 +6,157 @@
     <title>Flexibilidad - REHABILIDIA</title>
     <style>
         :root { 
-            --p-purple: #4A148C; 
-            --bg: #CEE5D6; 
-            --gold: #FFD700; 
-            --dark: #103A57;
+            --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; --dark: #103A57;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* RESET TOTAL PARA EVITAR SCROLL */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            margin: 0; background: #1a1a1a; 
+            background: #1a1a1a; 
+            height: 100vh; height: 100dvh; /* Altura dinámica real */
             display: flex; align-items: center; justify-content: center; 
-            height: 100vh; overflow: hidden; 
+            overflow: hidden; 
         }
 
         #contenedor-principal {
-            width: 100vw; height: 100vh;
-            max-width: 1024px; max-height: 800px;
+            width: 100%; height: 100%;
+            max-width: 900px; max-height: 100%;
             background: var(--bg);
             display: flex; flex-direction: column;
-            position: relative; overflow: hidden;
+            position: relative;
         }
 
         header { 
-            background: var(--dark); height: 8%; 
+            background: var(--dark); height: 45px; 
             display: flex; align-items: center; justify-content: center; 
-            color: white; font-weight: bold; font-size: 1.2rem;
+            color: white; font-weight: bold; flex-shrink: 0;
         }
         
         #contenedor-juego { 
-            flex-grow: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-evenly; 
-            padding: 10px; overflow: hidden;
+            flex: 1; /* Ocupa el espacio restante sin pasarse */
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-around; 
+            padding: 5px; min-height: 0; /* Vital para que los hijos puedan achicarse */
         }
 
         .panel-regla { 
-            width: 90%; background: var(--p-purple); color: white; 
-            padding: 15px; border-radius: 15px; 
-            font-size: clamp(1.4rem, 5vw, 2.2rem); 
-            font-weight: bold; border: 4px solid var(--gold); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            width: 95%; background: var(--p-purple); color: white; 
+            padding: 10px; border-radius: 12px; 
+            font-size: clamp(1.2rem, 4vh, 1.8rem); 
+            text-align: center; font-weight: bold; border: 3px solid var(--gold); 
+            flex-shrink: 0;
         }
         
         #zona-objetos { 
             display: grid; gap: 8px; width: 95%; 
-            height: 60%; /* Limitamos altura para que no empuje el resto */
-            justify-content: center; align-content: center;
+            flex: 1; /* La grilla se estira o encoge según el espacio */
+            align-content: center; justify-content: center;
+            min-height: 0;
         }
 
-        /* Grillas que se adaptan al tamaño del dispositivo */
+        /* Tamaños de grilla inteligentes */
         .grid-1 { grid-template-columns: repeat(4, 1fr); }
         .grid-2 { grid-template-columns: repeat(4, 1fr); }
         .grid-3 { grid-template-columns: repeat(5, 1fr); }
 
         .objeto { 
-            background: white; border-radius: 12px; padding: 5px; 
-            cursor: pointer; border: 3px solid transparent; 
+            background: white; border-radius: 10px; padding: 5px; 
+            border: 2px solid transparent; 
             display: flex; align-items: center; justify-content: center; 
-            aspect-ratio: 1; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-height: 100px; /* Evita que crezcan demasiado */
+            aspect-ratio: 1; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+            max-height: 85px; /* Limita el tamaño de la imagen para que no empuje todo */
         }
         
-        .objeto img { max-width: 85%; max-height: 85%; object-fit: contain; pointer-events: none; }
-        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); transition: 0.4s; }
+        .objeto img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .seleccionado { opacity: 0.1; pointer-events: none; }
 
         .area-asistente { 
-            height: 15%; background: white; padding: 10px 20px; 
-            display: flex; align-items: center; gap: 15px; 
-            border-top: 4px solid var(--p-purple);
+            height: 85px; background: white; padding: 5px 15px; 
+            display: flex; align-items: center; gap: 10px; 
+            border-top: 3px solid var(--p-purple); flex-shrink: 0;
         }
-        .avatar-img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--p-purple); }
-        .burbuja { font-size: 1rem; color: var(--dark); flex: 1; text-align: left; font-weight: 500; }
+        .avatar-img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--p-purple); }
+        .burbuja { font-size: 0.9rem; color: var(--dark); flex: 1; }
 
         #overlay-transicion, #overlay-final { 
-            position: absolute; top:0; left:0; width:100%; height:100%; 
+            position: absolute; inset: 0; 
             display:none; flex-direction:column; justify-content:center; 
-            align-items:center; z-index:2000; background: rgba(16, 58, 87, 0.98); color: white; 
+            align-items:center; z-index:100; background: rgba(16, 58, 87, 0.98); color: white; 
         }
 
         .cuadro-resultados {
-            background: white; color: var(--dark); padding: 25px;
-            border-radius: 20px; width: 85%; max-width: 400px; border: 5px solid var(--gold);
+            background: white; color: var(--dark); padding: 20px;
+            border-radius: 15px; width: 80%; border: 4px solid var(--gold);
         }
-
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
     </style>
 </head>
 <body>
 
 <div id="contenedor-principal">
-    <header>SESIÓN 2: FLEXIBILIDAD COGNITIVA</header>
+    <header>SESIÓN 2: FLEXIBILIDAD</header>
 
     <div id="contenedor-juego">
-        <div id="panel-regla" class="panel-regla" id="regla-texto">PREPÁRATE...</div>
+        <div id="panel-regla" class="panel-regla">ESPERA...</div>
         <div id="zona-objetos"></div>
     </div>
 
     <div class="area-asistente">
         <img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" class="avatar-img">
-        <div class="burbuja" id="texto-asistente">¡Hola Juan! Escucha con atención la regla.</div>
+        <div class="burbuja" id="texto-asistente">Juan, fíjate bien en la regla de arriba.</div>
     </div>
 
     <div id="overlay-transicion">
-        <h1 style="color: var(--gold); font-size: 5rem; margin: 0;">¡CAMBIO!</h1>
-        <p style="font-size: 1.8rem;">Atención Juan, busca otra cosa...</p>
+        <h1 style="color: var(--gold); font-size: 4rem;">¡CAMBIO!</h1>
+        <p>Atento a la nueva regla...</p>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="margin: 0; color: var(--p-purple);">¡SESIÓN COMPLETA!</h1>
-            <p id="resumen-texto" style="font-size: 1.2rem; margin: 15px 0;"></p>
-            <div id="metricas-finales" style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-bottom: 20px;"></div>
-            <button onclick="finalizarGuardado()" style="padding: 15px 30px; background: var(--p-purple); color:white; border:none; border-radius:25px; font-weight:bold; cursor:pointer;">FINALIZAR</button>
+            <h1>¡SESIÓN LISTA!</h1>
+            <p id="metricas-finales" style="margin: 15px 0;"></p>
+            <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 10px 20px; background: var(--p-purple); color:white; border-radius:15px; border:none; font-weight:bold;">SALIR</button>
         </div>
     </div>
 </div>
 
 <script>
-    let aciertosTotales = 0, erroresTotales = 0, nivelActual = 1, cambiosHechos = 0, aciertosRegla = 0;
-    let rK = "", rV = "", ultimaReglaNombre = "", bloqueado = false;
+    let aciertos = 0, errores = 0, nivel = 1, cambios = 0, aciertosRegla = 0, bloqueado = false;
+    let rK = "", rV = "", ultimaRegla = "";
 
-    const niveles = { 
-        1: {est: 12, camb: 2, grid: 'grid-1'}, 
-        2: {est: 16, camb: 3, grid: 'grid-2'}, 
-        3: {est: 20, camb: 3, grid: 'grid-3'} 
-    };
+    const niveles = { 1: {est: 12, camb: 2, grid: 'grid-1'}, 2: {est: 16, camb: 2, grid: 'grid-2'}, 3: {est: 20, camb: 2, grid: 'grid-3'} };
 
     const banco = [
         { f: "fresa.png", c: "rojo", t: "fruta" }, { f: "corazon.png", c: "rojo", t: "forma" }, { f: "cereza.png", c: "rojo", t: "fruta" }, { f: "alicate.png", c: "rojo", t: "herramienta" },
         { f: "avion.png", c: "gris", t: "transporte" }, { f: "tren.png", c: "azul", t: "transporte" }, { f: "camion.png", c: "blanco", t: "transporte" },
         { f: "perro.png", c: "cafe", t: "animal" }, { f: "gato.png", c: "gris", t: "animal" }, { f: "pajaro.png", c: "azul", t: "animal" },
-        { f: "banano.png", c: "amarillo", t: "fruta" }, { f: "uva.png", c: "morado", t: "fruta" }, { f: "pina.png", c: "amarillo", t: "fruta" },
-        { f: "martillo.png", c: "cafe", t: "herramienta" }, { f: "destornillador.png", c: "amarillo", t: "herramienta" },
-        { f: "camiseta.png", c: "azul", t: "ropa" }, { f: "calcetines.png", c: "blanco", t: "ropa" }, { f: "globo_azul.png", c: "azul", t: "forma" },
-        { f: "sarten.png", c: "negro", t: "cocina" }, { f: "tenedor.png", c: "gris", t: "cocina" }, { f: "bate.png", c: "cafe", t: "deporte" }
+        { f: "banano.png", c: "amarillo", t: "fruta" }, { f: "uva.png", c: "morado", t: "fruta" }, { f: "martillo.png", c: "cafe", t: "herramienta" },
+        { f: "camiseta.png", c: "azul", t: "ropa" }, { f: "sarten.png", c: "negro", t: "cocina" }
     ];
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'es-ES'; m.rate = 0.85;
+        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
         m.onend = () => { if(callback) callback(); };
         window.speechSynthesis.speak(m);
         document.getElementById('texto-asistente').innerText = t;
     }
 
-    window.onload = () => { setTimeout(generarTablero, 500); };
-
     function generarTablero() {
         bloqueado = true;
         document.getElementById('overlay-transicion').style.display = 'none';
-        const config = niveles[nivelActual];
+        const config = niveles[nivel];
         const zona = document.getElementById('zona-objetos');
         zona.className = config.grid;
         
-        const reglas = [
-            {n:"ROJOS", k:"c", v:"rojo"}, {n:"ANIMALES", k:"t", v:"animal"},
-            {n:"FRUTAS", k:"t", v:"fruta"}, {n:"AZULES", k:"c", v:"azul"},
-            {n:"HERRAMIENTAS", k:"t", v:"herramienta"}, {n:"TRANSPORTE", k:"t", v:"transporte"}
-        ];
-
-        let sel;
-        do { sel = reglas[Math.floor(Math.random() * reglas.length)]; } 
-        while (sel.n === ultimaReglaNombre);
+        const reglas = [{n:"ROJOS", k:"c", v:"rojo"}, {n:"ANIMALES", k:"t", v:"animal"}, {n:"FRUTAS", k:"t", v:"fruta"}, {n:"AZULES", k:"c", v:"azul"}];
+        let sel; do { sel = reglas[Math.floor(Math.random() * reglas.length)]; } while (sel.n === ultimaRegla);
         
-        ultimaReglaNombre = sel.n;
-        rK = sel.k; rV = sel.v;
-        aciertosRegla = 0;
-
+        ultimaRegla = sel.n; rK = sel.k; rV = sel.v; aciertosRegla = 0;
         document.getElementById('panel-regla').innerText = "BUSCA: " + sel.n;
         
-        hablar("Juan, ahora busca todos los objetos que sean " + sel.n, () => {
-            bloqueado = false;
-        });
+        hablar("Juan, busca los objetos " + sel.n, () => bloqueado = false);
 
         let objetivos = banco.filter(b => b[rK] === rV).sort(()=>0.5-Math.random()).slice(0, 4);
         let dist = banco.filter(b => b[rK] !== rV).sort(()=>0.5-Math.random()).slice(0, config.est - objetivos.length);
@@ -189,66 +166,32 @@
         mezcla.forEach(item => {
             const div = document.createElement('div');
             div.className = 'objeto';
-            div.innerHTML = `<img src="./fun2/${item.f}" onerror="this.src='https://via.placeholder.com/80?text=OBJ'">`;
+            div.innerHTML = `<img src="./fun2/${item.f}" onerror="this.src='https://via.placeholder.com/60?text=OBJ'">`;
             div.onpointerdown = () => {
                 if(bloqueado) return;
                 if(item[rK] === rV) {
-                    aciertosTotales++; aciertosRegla++;
-                    div.classList.add('seleccionado');
-                    if(aciertosRegla >= 2 && cambiosHechos < config.camb) {
-                        ejecutarCambio();
-                    } else { chequearVictoria(); }
-                } else {
-                    erroresTotales++; 
-                    div.style.animation = "shake 0.4s";
-                    setTimeout(()=> div.style.animation="", 400);
-                }
+                    aciertos++; aciertosRegla++; div.classList.add('seleccionado');
+                    if(aciertosRegla >= 2 && cambios < config.camb) {
+                        bloqueado = true; cambios++;
+                        document.getElementById('overlay-transicion').style.display = 'flex';
+                        hablar("¡Cambio! Mucha atención.", () => setTimeout(generarTablero, 1000));
+                    } else if (Array.from(document.querySelectorAll('.objeto:not(.seleccionado)')).filter(d => banco.find(b=>b.f === d.querySelector('img').src.split('/').pop())[rK] === rV).length === 0) {
+                        if(nivel < 3) { nivel++; cambios = 0; hablar("¡Muy bien! Siguiente nivel.", () => generarTablero()); }
+                        else { finalizar(); }
+                    }
+                } else { errores++; div.style.borderColor = "red"; setTimeout(()=> div.style.borderColor="transparent", 400); }
             };
             zona.appendChild(div);
         });
     }
 
-    function ejecutarCambio() {
-        bloqueado = true;
-        cambiosHechos++;
-        document.getElementById('overlay-transicion').style.display = 'flex';
-        hablar("¡Atención Juan! La regla ha cambiado.", () => {
-            setTimeout(generarTablero, 1000);
-        });
-    }
-
-    function chequearVictoria() {
-        const objetivosEnPantalla = Array.from(document.querySelectorAll('.objeto:not(.seleccionado)')).filter(div => {
-            const imgName = div.querySelector('img').src.split('/').pop();
-            const item = banco.find(b => b.f === imgName);
-            return item && item[rK] === rV;
-        });
-
-        if(objetosEnPantalla.length === 0) {
-            if(nivelActual < 3) { 
-                nivelActual++; cambiosHechos = 0; 
-                hablar("¡Muy bien! Vamos a un reto más difícil.", () => setTimeout(generarTablero, 1000));
-            } else { mostrarResumenFinal(); }
-        }
-    }
-
-    function mostrarResumenFinal() {
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
-        document.getElementById('resumen-texto').innerText = "Juan, tu cerebro se ha adaptado perfectamente a los cambios de reglas.";
-        document.getElementById('metricas-finales').innerHTML = `
-            <strong>Aciertos:</strong> ${aciertosTotales}<br>
-            <strong>Errores:</strong> ${erroresTotales}<br>
-            <strong>Precisión:</strong> ${eficacia}%
-        `;
+    function finalizar() {
+        document.getElementById('metricas-finales').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente! Hemos terminado la práctica de flexibilidad.");
+        hablar("¡Excelente trabajo, Juan!");
     }
 
-    function finalizarGuardado() {
-        // Redirigir o guardar
-        window.location.href = 'funcion_sesiones.html';
-    }
+    window.onload = () => generarTablero();
 </script>
 </body>
 </html>
-
