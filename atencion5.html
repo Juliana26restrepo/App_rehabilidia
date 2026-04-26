@@ -12,7 +12,7 @@
         body { 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
-            background: var(--bg-gray); /* Fondo original restaurado */
+            background: #eef2f5; /* El azulito suave de fondo */
             overflow: hidden; 
             display: flex; 
             justify-content: center; 
@@ -25,11 +25,12 @@
             height: 100vh;
             max-width: 1024px;
             max-height: 768px;
-            background: var(--bg-gray);
+            background: white;
             position: relative;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
         header { 
@@ -41,64 +42,61 @@
         #guia-box { 
             width: 95%; margin: 10px auto; background: white; border: 3px solid var(--t-blue); 
             border-radius: 12px; padding: 10px; display: flex; align-items: center; 
-            min-height: 70px; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            min-height: 70px; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
         }
         #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--t-blue); }
-        #texto-guia { font-size: 0.9rem; font-weight: bold; color: var(--p-blue); margin: 0; flex: 1; }
+        #texto-guia { font-size: 0.95rem; font-weight: bold; color: var(--p-blue); margin: 0; flex: 1; }
 
         #zona-cestos { 
             display: flex; justify-content: space-around; align-items: flex-end; 
-            width: 100%; height: 35%; 
-            background: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)), url('Img5/fondo_lavanderia.png') no-repeat center; 
-            background-size: cover; border-bottom: 4px solid #ddd; position: relative;
-            padding-bottom: 20px;
+            width: 100%; height: 38%; 
+            background: url('Img5/fondo_lavanderia.png') no-repeat center bottom; 
+            background-size: cover; border-bottom: 2px solid #e0e0e0; position: relative;
+            padding-bottom: 10px;
         }
         
-        /* Cesto con área de interacción mejorada */
         .cesto { 
-            width: 25%; text-align: center; position: relative; 
-            padding: 10px; border-radius: 15px;
+            width: 28%; text-align: center; position: relative; 
+            z-index: 5; transition: transform 0.2s;
         }
-        .cesto img { width: 100%; max-width: 120px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .cesto img { width: 100%; max-width: 130px; pointer-events: auto; }
         .cesto b { 
-            display: block; color: white; text-transform: uppercase; font-size: 0.7rem; 
-            margin-top: 5px; background: var(--p-blue); border-radius: 10px; padding: 2px 5px;
+            display: block; color: white; text-transform: uppercase; font-size: 0.75rem; 
+            margin-top: 2px; background: var(--p-blue); border-radius: 10px; padding: 3px 8px;
         }
 
         #panel-objetos { 
-            flex: 1; background: rgba(255, 255, 255, 0.7); 
-            border: 3px dashed var(--t-blue); border-radius: 20px; 
-            margin: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-            gap: 15px; padding: 20px; align-content: start; justify-items: center;
+            flex: 1; background: #fdfdfd; 
+            border: 2px dashed #cbd5e1; border-radius: 15px; 
+            margin: 15px; display: flex; flex-wrap: wrap;
+            gap: 15px; padding: 20px; justify-content: center; align-content: flex-start;
         }
 
         .prenda { 
-            width: 70px; height: 70px; cursor: grab; 
-            object-fit: contain; z-index: 100; touch-action: none;
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
-            user-select: none;
+            width: 75px; height: 75px; cursor: grab; 
+            object-fit: contain; z-index: 100;
         }
         
         .dragging { 
             position: fixed !important; 
-            width: 85px !important; height: 85px !important; 
+            width: 90px !important; height: 90px !important; 
             z-index: 5000 !important; 
-            pointer-events: none; 
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+            pointer-events: none; /* Crucial para que elementFromPoint funcione */
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
         }
-
-        #mosca { position: absolute; width: 40px; display: none; z-index: 500; pointer-events: none; }
-        @keyframes volar { 0% {top:15%; left:5%;} 50% {top:45%; left:85%;} 100% {top:15%; left:5%;} }
 
         #modal-resultados {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 9999; display: none;
+            background: rgba(16, 58, 87, 0.9); z-index: 9999; display: none;
             justify-content: center; align-items: center;
         }
         .resumen-card {
-            background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px;
-            text-align: center; color: var(--p-blue);
+            background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 380px;
+            text-align: center; color: var(--p-blue); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
+
+        #mosca { position: absolute; width: 35px; display: none; z-index: 500; pointer-events: none; }
+        @keyframes volar { 0% {top:15%; left:5%;} 50% {top:40%; left:80%;} 100% {top:15%; left:5%;} }
     </style>
 </head>
 <body>
@@ -132,14 +130,13 @@
 
 <script>
     let nivelActual = 1, aciertosTotales = 0, erroresTotales = 0, aciertosEnNivel = 0, totalNivel = 0, iniciado = false;
-    
     const sonidos = { exito: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg") };
 
     function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
-        msg.rate = 0.95;
+        msg.rate = 0.9;
         window.speechSynthesis.speak(msg);
         document.getElementById('texto-guia').innerText = txt;
     }
@@ -164,14 +161,14 @@
             for(let i=1; i<=3; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); }
         } else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Nivel 2. Separa blanco y color. Ignora los distractores.");
+            hablar("Nivel 2. Separa blanco y color. Cuidado con los distractores.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             for(let i=4; i<=6; i++) { items.push({img: `b${i}.png`, tipo: 'B'}); items.push({img: `color${i}.png`, tipo: 'C'}); }
             for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         } else {
             totalNivel = 9;
-            hablar("Nivel final. Usa los tres cestos.");
+            hablar("Nivel final. Usa los tres cestos correctamente.");
             mosca.style.display = 'block'; mosca.style.animation = "volar 4s infinite linear";
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
@@ -197,6 +194,7 @@
         const d = document.createElement('div');
         d.className = 'cesto';
         d.id = `cesto-${tipo}`;
+        d.dataset.tipo = tipo;
         d.innerHTML = `<img src="Img5/${file}"><b>${label}</b>`;
         document.getElementById('zona-cestos').appendChild(d);
     }
@@ -217,37 +215,34 @@
         };
 
         const stopDrag = (se) => {
+            const clientX = se.clientX || (se.changedTouches ? se.changedTouches[0].clientX : 0);
+            const clientY = se.clientY || (se.changedTouches ? se.changedTouches[0].clientY : 0);
+
             el.classList.remove('dragging');
             document.removeEventListener('pointermove', moveDrag);
             document.removeEventListener('pointerup', stopDrag);
 
-            const pRect = el.getBoundingClientRect();
-            const centerX = pRect.left + (pRect.width / 2);
-            const centerY = pRect.top + (pRect.height / 2);
+            // DETECCIÓN SEGURA: Miramos qué hay debajo del dedo
+            const elementUnder = document.elementFromPoint(clientX, clientY);
+            const targetCesto = elementUnder ? elementUnder.closest('.cesto') : null;
 
-            const cestoCorrecto = document.getElementById(`cesto-${el.dataset.tipo}`);
-            let acierto = false;
-
-            // Si el objeto es ropa (no distractor) y hay un cesto destino
-            if (el.dataset.tipo !== 'D' && cestoCorrecto) {
-                const cRect = cestoCorrecto.getBoundingClientRect();
-                // DETECCIÓN AMPLIA: Si el centro de la prenda entra en el área del cesto (con margen de 50px extra)
-                if (centerX > cRect.left - 50 && centerX < cRect.right + 50 &&
-                    centerY > cRect.top - 50 && centerY < cRect.bottom + 80) {
-                    acierto = true;
-                }
+            if (el.dataset.tipo === 'D') {
+                erroresTotales++;
+                hablar("Eso no es para lavar.");
+                el.style.position = 'static';
+                return;
             }
 
-            if (acierto) {
-                el.remove();
+            if (targetCesto && targetCesto.dataset.tipo === el.dataset.tipo) {
+                el.style.display = 'none';
                 aciertosEnNivel++;
                 aciertosTotales++;
                 sonidos.exito.play();
                 document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertosEnNivel}/${totalNivel}`;
-                if(aciertosEnNivel === totalNivel) setTimeout(pasarNivel, 1000);
+                if(aciertosEnNivel === totalNivel) setTimeout(pasarNivel, 800);
             } else {
                 erroresTotales++;
-                hablar(el.dataset.tipo === 'D' ? "Eso no es ropa." : "Esa prenda no va ahí.");
+                hablar("Esa prenda no va ahí.");
                 el.style.position = 'static';
             }
         };
@@ -260,11 +255,9 @@
 
     function finalizarSesion() {
         const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
-        const data = { fecha: new Date().toLocaleDateString(), modulo: "Atención", id_sesion: 5, aciertos: aciertosTotales, errores: erroresTotales, eficacia: eficacia + "%" };
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(data));
         document.getElementById('stats-finales').innerHTML = `<b>Aciertos:</b> ${aciertosTotales}<br><b>Errores:</b> ${erroresTotales}<br><b>Eficacia:</b> ${eficacia}%`;
         document.getElementById('modal-resultados').style.display = 'flex';
-        hablar("¡Excelente trabajo!");
+        hablar("¡Excelente! Has terminado la tarea.");
     }
 
     function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
