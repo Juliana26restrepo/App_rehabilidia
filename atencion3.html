@@ -2,60 +2,85 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Atención 3 - REHABILIDIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sesión 3: Clasificación de Objetos - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --success: #16a34a; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #000; overflow: hidden; touch-action: none; }
         
+        /* Contenedor con Sistema de Escalado Adaptativo */
         #game-container {
             position: relative; width: 100vw; height: 100vh;
             background: url('img/fondo_habitacion3.jpg') no-repeat center center;
-            background-size: cover; z-index: 1;
+            background-size: cover; z-index: 1; display: flex; align-items: center; justify-content: center;
         }
 
-        header { position: fixed; top: 0; width: 100%; padding: 15px; background: rgba(16, 58, 87, 0.9); color: white; display: flex; justify-content: space-between; z-index: 3000; box-sizing: border-box; }
+        header { 
+            position: fixed; top: 0; width: 100%; padding: 10px 20px; 
+            background: rgba(16, 58, 87, 0.9); color: white; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 3000; box-sizing: border-box; 
+        }
 
-        /* COTERAPEUTA */
         #guia-box {
-            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; background: white;
-            border: 4px solid var(--t-blue); border-radius: 50px;
-            padding: 10px 20px; width: 85%; max-width: 650px; z-index: 1000;
+            border: 3px solid var(--t-blue); border-radius: 50px;
+            padding: 8px 15px; width: 85%; max-width: 550px; z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        #avatar { width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--t-blue); margin-right: 15px; }
-        #texto-guia { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); margin: 0; }
+        #avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--t-blue); margin-right: 12px; }
+        #texto-guia { font-size: 0.95rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
 
-        /* METAS DISTRIBUIDAS */
+        /* METAS DISTRIBUIDAS CON UNIDADES RELATIVAS */
         .meta {
-            position: absolute; width: 200px; height: 260px;
-            border: 4px dashed rgba(255,255,255,0.7); border-radius: 25px;
-            background: rgba(255,255,255,0.2); display: flex; flex-direction: column;
+            position: absolute; width: 22vw; height: 32vh; max-width: 180px; max-height: 250px;
+            border: 3px dashed rgba(255,255,255,0.7); border-radius: 20px;
+            background: rgba(255,255,255,0.15); display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 10;
         }
-        .meta img { width: 130px; pointer-events: none; }
-        .meta span { color: white; font-weight: bold; font-size: 1.2rem; margin-top: 8px; text-shadow: 2px 2px 4px #000; }
+        .meta img { width: 70%; pointer-events: none; }
+        .meta span { color: white; font-weight: bold; font-size: 0.8rem; margin-top: 5px; text-shadow: 1px 1px 3px #000; text-align: center;}
 
-        #meta-R { top: 180px; left: 40px; } /* Armario Arriba */
-        #meta-B { bottom: 40px; left: 40px; } /* Cesto Abajo */
-        #meta-L { top: 50%; left: 280px; transform: translateY(-50%); } /* Estante Medio-Derecha */
+        #meta-R { top: 20vh; left: 5vw; } 
+        #meta-B { bottom: 5vh; left: 5vw; } 
+        #meta-L { top: 50%; left: 35vw; transform: translateY(-50%); } 
 
-        /* OBJETOS A LA DERECHA */
         #contenedor-objetos {
-            position: absolute; top: 180px; right: 40px; bottom: 40px;
-            width: 250px; display: grid; grid-template-columns: 1fr 1fr;
-            gap: 20px; align-content: start; z-index: 20;
+            position: absolute; top: 20vh; right: 5vw; bottom: 5vh;
+            width: 28vw; max-width: 250px; display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; align-content: start; z-index: 20;
         }
-        .draggable { width: 110px; height: 110px; cursor: grab; touch-action: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); z-index: 25; }
+        .draggable { 
+            width: 100%; height: auto; aspect-ratio: 1/1; 
+            cursor: grab; touch-action: none; 
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.5)); z-index: 25; 
+        }
 
-        #mosca { position: absolute; width: 65px; z-index: 5000; display: none; pointer-events: none; }
+        #mosca { position: absolute; width: 50px; z-index: 5000; display: none; pointer-events: none; }
+
+        /* Cuadro de Resultados */
+        #modal-resultados {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 6000; display: none;
+            justify-content: center; align-items: center;
+        }
+        .resumen-card {
+            background: white; padding: 25px; border-radius: 20px; width: 80%; max-width: 350px;
+            text-align: center; color: var(--p-blue);
+        }
+        .btn-final {
+            background: var(--t-blue); color: white; border: none; padding: 12px 25px;
+            border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; width: 100%;
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight:bold;">Sesión 3 - Atención</div>
-    <div id="puntos" style="font-size: 1.4rem; font-weight: bold;">ACIERTO: 0/3</div>
+    <div style="font-weight:bold;">Atención 3: Orden en Casa</div>
+    <div id="puntos" style="font-size: 1.1rem; font-weight: bold;">0/3</div>
 </header>
 
 <div id="game-container">
@@ -63,7 +88,7 @@
     
     <div id="guia-box">
         <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
+        <p id="texto-guia">Cargando habitación...</p>
     </div>
 
     <div class="meta" data-tipo="R" id="meta-R"><img src="img/meta_armario.png"><span>ARMARIO</span></div>
@@ -73,15 +98,30 @@
     <div id="contenedor-objetos"></div>
 </div>
 
+<div id="modal-resultados">
+    <div class="resumen-card">
+        <h2 style="margin:0">Sesión Completada</h2>
+        <div id="stats-finales" style="text-align: left; margin: 20px 0; font-size: 1.1rem;"></div>
+        <button class="btn-final" onclick="irAlMenu()">FINALIZAR</button>
+    </div>
+</div>
+
 <script>
-    let nivel = 1; let aciertos = 0;
-    const config = { 1: 1, 2: 2, 3: 3 };
+    // MÉTRICAS ACUMULATIVAS
+    let nivelActual = 1; 
+    let aciertosTotales = 0;
+    let erroresTotales = 0;
+    let aciertosEnNivel = 0;
+    const configNiveles = { 1: 1, 2: 2, 3: 3 }; 
 
     function hablar(msg, emocion = 'NORMAL') {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(msg);
         u.lang = 'es-ES';
+        const vel = localStorage.getItem('config_voz') || '0.85';
+        u.rate = parseFloat(vel);
         window.speechSynthesis.speak(u);
+        
         document.getElementById('texto-guia').innerText = msg;
         const img = document.getElementById('avatar');
         img.src = emocion === 'FELIZ' ? "COTERAPEUTA_FELIZ.JPG" : (emocion === 'PENSATIVO' ? "COTERAPEUTA_PENSATIVO.JPG" : "COTERAPEUTA.JPG");
@@ -90,97 +130,160 @@
 
     function cargarNivel() {
         const div = document.getElementById('contenedor-objetos');
-        div.innerHTML = ""; aciertos = 0;
+        div.innerHTML = ""; 
+        aciertosEnNivel = 0;
         let pool = [];
 
         ['R', 'L', 'B'].forEach(t => {
-            for(let i=0; i<config[nivel]; i++) pool.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
+            for(let i=0; i<configNiveles[nivelActual]; i++) {
+                pool.push({t: t, img: `${t}${Math.floor(Math.random()*5)+1}.png`});
+            }
         });
 
-        if(nivel === 2) for(let i=0; i<3; i++) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
-        if(nivel === 3) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
+        // Distractores según nivel
+        if(nivelActual >= 2) for(let i=0; i<3; i++) pool.push({t: 'D', img: `D${Math.floor(Math.random()*5)+1}.png`});
 
         pool.sort(() => Math.random() - 0.5).forEach(item => {
             const img = document.createElement('img');
-            img.src = `img/${item.img}`; img.className = 'draggable'; img.dataset.t = item.t;
-            activarDrag(img);
+            img.src = `img/${item.img}`; 
+            img.className = 'draggable'; 
+            img.dataset.t = item.t;
+            img.setAttribute('draggable', 'false'); // Evita conflicto con drag nativo
+            activarInteractividad(img);
             div.appendChild(img);
         });
 
-        document.getElementById('puntos').innerText = `ACIERTO: 0/${config[nivel]*3}`;
+        const totalMeta = configNiveles[nivelActual] * 3;
+        document.getElementById('puntos').innerText = `Nivel ${nivelActual}: 0/${totalMeta}`;
         
-        const instruccion = "Ordena la habitación: pon la ropa en el armario, los libros en el estante y la basura en el cesto.";
-        hablar(instruccion);
+        hablar("Ordena la habitación: pon la ropa en el armario, los libros en el estante y la basura en el cesto.");
         
-        if(nivel === 3) { document.getElementById('mosca').style.display = 'block'; moverMosca(); }
+        if(nivelActual === 3) { 
+            document.getElementById('mosca').style.display = 'block'; 
+            moverMosca(); 
+        } else {
+            document.getElementById('mosca').style.display = 'none';
+        }
     }
 
-    function activarDrag(el) {
-        el.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            const startX = touch.clientX - el.offsetLeft;
-            const startY = touch.clientY - el.offsetTop;
+    function activarInteractividad(el) {
+        // Soporte Universal (Touch y Mouse)
+        const startEvent = (e) => {
+            e.preventDefault();
+            const pos = e.type === 'touchstart' ? e.touches[0] : e;
+            const startX = pos.clientX - el.getBoundingClientRect().left;
+            const startY = pos.clientY - el.getBoundingClientRect().top;
             
             el.style.position = 'fixed';
             el.style.zIndex = 10000;
+            el.style.width = '100px'; 
 
             const mover = (me) => {
-                me.preventDefault();
-                const mt = me.touches[0];
-                el.style.left = (mt.clientX - 55) + 'px';
-                el.style.top = (mt.clientY - 55) + 'px';
+                const mp = me.type === 'touchmove' ? me.touches[0] : me;
+                el.style.left = (mp.clientX - 50) + 'px';
+                el.style.top = (mp.clientY - 50) + 'px';
             };
 
             const soltar = (se) => {
+                const sp = se.type === 'touchend' ? se.changedTouches[0] : se;
+                document.removeEventListener('mousemove', mover);
+                document.removeEventListener('mouseup', soltar);
                 document.removeEventListener('touchmove', mover);
                 document.removeEventListener('touchend', soltar);
-                verificar(el, se.changedTouches[0]);
+                verificarColision(el, sp);
             };
 
+            document.addEventListener('mousemove', mover);
+            document.addEventListener('mouseup', soltar);
             document.addEventListener('touchmove', mover, {passive: false});
             document.addEventListener('touchend', soltar);
-        });
+        };
+
+        el.addEventListener('mousedown', startEvent);
+        el.addEventListener('touchstart', startEvent, {passive: false});
     }
 
-    function verificar(el, pos) {
+    function verificarColision(el, pos) {
         const metas = document.querySelectorAll('.meta');
-        let acerto = false;
-        const centroX = pos.clientX;
-        const centroY = pos.clientY;
+        let colocadoCorrectamente = false;
+        const totalMetaNivel = configNiveles[nivelActual] * 3;
 
         metas.forEach(m => {
             const r = m.getBoundingClientRect();
-            // DETECCIÓN MATEMÁTICA PURA
-            if(centroX > r.left && centroX < r.right && centroY > r.top && centroY < r.bottom) {
+            if(pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom) {
                 if(el.dataset.t === m.dataset.tipo) {
-                    el.style.display = 'none'; aciertos++; acerto = true;
-                    document.getElementById('puntos').innerText = `ACIERTO: ${aciertos}/${config[nivel]*3}`;
+                    el.style.display = 'none'; 
+                    aciertosEnNivel++;
+                    aciertosTotales++;
+                    colocadoCorrectamente = true;
+                    document.getElementById('puntos').innerText = `Nivel ${nivelActual}: ${aciertosEnNivel}/${totalMetaNivel}`;
                     hablar("¡Excelente!", "FELIZ");
-                } else if(el.dataset.t !== 'D') {
-                    hablar("Ese no va ahí.", "PENSATIVO");
                 } else {
-                    hablar("Ese es un distractor.", "PENSATIVO");
+                    erroresTotales++;
+                    hablar("Ese no va ahí.", "PENSATIVO");
                 }
             }
         });
 
-        if(!acerto) {
-            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 25;
+        // Si es un distractor y lo suelta en cualquier meta
+        if(!colocadoCorrectamente && el.dataset.t === 'D') {
+            // Se considera error si intenta meter un distractor en una meta
+            const enAlgunaMeta = Array.from(metas).some(m => {
+                const r = m.getBoundingClientRect();
+                return (pos.clientX > r.left && pos.clientX < r.right && pos.clientY > r.top && pos.clientY < r.bottom);
+            });
+            if(enAlgunaMeta) { 
+                erroresTotales++; 
+                hablar("Eso es basura de la mosca, déjalo ahí.", "PENSATIVO");
+            }
         }
 
-        if(aciertos === config[nivel]*3) {
+        if(!colocadoCorrectamente) {
+            el.style.position = 'relative'; el.style.left = '0'; el.style.top = '0'; el.style.zIndex = 25; el.style.width = '100%';
+        }
+
+        if(aciertosEnNivel === totalMetaNivel) {
             setTimeout(() => {
-                if(nivel < 3) { nivel++; cargarNivel(); }
-                else { hablar("¡Felicidades! Has terminado el ejercicio."); }
+                if(nivelActual < 3) { nivelActual++; cargarNivel(); }
+                else { finalizarSesionCompleta(); }
             }, 1500);
         }
     }
 
+    function finalizarSesionCompleta() {
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+
+        // ALMACENAMIENTO CENTRALIZADO
+        const data = {
+            fecha: new Date().toLocaleString(),
+            modulo: "Atención",
+            id_sesion: 3,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
+            eficacia: eficacia
+        };
+
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(data);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        // MOSTRAR RESULTADOS
+        document.getElementById('stats-finales').innerHTML = `
+            <b>Aciertos Totales:</b> ${aciertosTotales}<br>
+            <b>Errores Totales:</b> ${erroresTotales}<br>
+            <b>Eficacia:</b> ${eficacia}%
+        `;
+        document.getElementById('modal-resultados').style.display = 'flex';
+        hablar("¡Felicidades Juan! Has ordenado toda la habitación.");
+    }
+
+    function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
+
     function moverMosca() {
-        if(nivel !== 3) return;
+        if(nivelActual !== 3) return;
         const m = document.getElementById('mosca');
-        m.style.left = Math.random() * 85 + "vw"; m.style.top = Math.random() * 80 + "vh";
-        setTimeout(moverMosca, 1000);
+        m.style.left = Math.random() * 80 + "vw"; m.style.top = Math.random() * 70 + "vh";
+        setTimeout(moverMosca, 1200);
     }
 
     window.onload = cargarNivel;
