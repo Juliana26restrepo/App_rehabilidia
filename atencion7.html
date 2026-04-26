@@ -2,145 +2,207 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nivel 7 - Atención Alternante Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sesión 7 - Atención Alternante Pro - REHABILIDIA</title>
     <style>
-        body { font-family: sans-serif; margin: 0; background: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
-        #cabecera { background: #0A253A; color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        #guia-box { background: white; color: #103A57; width: 90%; border-radius: 10px; padding: 12px; display: flex; align-items: center; border: 4px solid #307B8E; }
-        #avatar { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; }
+        :root { --p-blue: #0A253A; --t-blue: #307B8E; --bg-light: #f4f7f6; }
         
-        #escenario { flex-grow: 1; display: flex; background: url('img7/mesa.png') no-repeat center; background-size: cover; position: relative; }
-        
-        #zona-preparacion { width: 70%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 60px; }
-        #bowl { width: 300px; z-index: 5; }
-        #plato-final { width: 300px; display: none; z-index: 6; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; background: #fff; overflow: hidden; touch-action: none; 
+            display: flex; flex-direction: column; height: 100vh; width: 100vw;
+        }
 
-        #interfaz-derecha { width: 30%; background: rgba(255,255,255,0.85); display: flex; flex-direction: column; border-left: 4px solid #0A253A; }
-        #seccion-celular { height: 35%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 2px solid #ccc; text-align: center; }
-        #celular { width: 90px; cursor: pointer; }
+        /* Sistema de Escalado Universal Zoom */
+        #main-container {
+            display: flex; flex-direction: column; height: 100%; width: 100%;
+            max-width: 1200px; margin: 0 auto; position: relative;
+        }
+
+        #cabecera { 
+            background: var(--p-blue); color: white; padding: 10px; 
+            display: flex; flex-direction: column; align-items: center; z-index: 100;
+        }
+
+        #guia-box { 
+            background: white; color: #103A57; width: 95%; border-radius: 10px; 
+            padding: 10px; display: flex; align-items: center; border: 3px solid var(--t-blue);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
+        #texto-guia { font-size: 0.95rem; font-weight: bold; margin: 0; line-height: 1.2; }
         
-        #despensa { height: 65%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; overflow-y: auto; align-content: start; }
+        #escenario { 
+            flex-grow: 1; display: flex; background: url('img7/mesa.png') no-repeat center; 
+            background-size: cover; position: relative; overflow: hidden;
+        }
         
-        .item { width: 85px; height: 85px; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; }
-        .vibrar { animation: shake 0.2s infinite; filter: drop-shadow(0 0 15px red); }
+        #zona-preparacion { 
+            width: 65%; position: relative; display: flex; flex-direction: column; 
+            align-items: center; justify-content: flex-end; padding-bottom: 5vh; 
+        }
+        #bowl, #plato-final { width: 40vw; max-width: 320px; z-index: 5; transition: transform 0.3s; }
+
+        #interfaz-derecha { 
+            width: 35%; background: rgba(255,255,255,0.9); display: flex; 
+            flex-direction: column; border-left: 3px solid var(--p-blue); z-index: 10;
+        }
+        
+        #seccion-celular { 
+            height: 30%; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; border-bottom: 2px solid #ccc; text-align: center; padding: 5px;
+        }
+        #celular { width: 70px; cursor: pointer; transition: transform 0.2s; touch-action: none; }
+        
+        #despensa { 
+            height: 70%; display: grid; grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; padding: 10px; overflow-y: auto; align-content: start; 
+        }
+        
+        .item { 
+            width: 100%; aspect-ratio: 1/1; max-width: 80px; margin: 0 auto;
+            object-fit: contain; cursor: grab; touch-action: none; z-index: 100;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .vibrar { animation: shake 0.2s infinite; filter: drop-shadow(0 0 15px #e74c3c); }
         @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } }
 
-        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        button { padding: 15px 30px; font-size: 1.2rem; margin-top: 20px; cursor: pointer; background: #307B8E; color: white; border: none; border-radius: 10px; }
+        /* Cuadro de Resultados */
+        #modal-cierre { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(10, 37, 58, 0.95); z-index: 2000; color: white; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            text-align: center; padding: 20px; box-sizing: border-box;
+        }
+        .stats-box { background: white; color: var(--p-blue); padding: 25px; border-radius: 20px; width: 85%; max-width: 400px; }
+        button { padding: 15px 30px; font-size: 1.1rem; margin-top: 15px; cursor: pointer; background: var(--t-blue); color: white; border: none; border-radius: 50px; font-weight: bold; width: 100%; }
     </style>
 </head>
-<body onload="cargarNivel()">
+<body>
 
-<div id="cabecera">
-    <div id="guia-box">
-        <img src="COTERAPEUTA.JPG" id="avatar">
-        <p id="texto-guia">Cargando...</p>
-    </div>
-</div>
-
-<div id="escenario">
-    <div id="zona-preparacion">
-        <img src="img7/bowl.png" id="bowl">
-        <img src="" id="plato-final">
-    </div>
-
-    <div id="interfaz-derecha">
-        <div id="seccion-celular">
-            <p id="status-cel" style="font-size: 0.9rem; font-weight: bold;">TELÉFONO EN ESPERA</p>
-            <img src="img7/celular.png" id="celular" onclick="contestar()">
+<div id="main-container">
+    <div id="cabecera">
+        <div id="guia-box">
+            <img src="COTERAPEUTA.JPG" id="avatar">
+            <p id="texto-guia">Juan, prepárate para cocinar y estar atento al teléfono.</p>
         </div>
-        <div id="despensa"></div>
+    </div>
+
+    <div id="escenario">
+        <div id="zona-preparacion">
+            <img src="img7/bowl.png" id="bowl">
+            <img src="" id="plato-final" style="display:none;">
+        </div>
+
+        <div id="interfaz-derecha">
+            <div id="seccion-celular">
+                <p id="status-cel" style="font-size: 0.8rem; font-weight: bold; color: var(--p-blue);">TELÉFONO EN ESPERA</p>
+                <img src="img7/celular.png" id="celular">
+            </div>
+            <div id="despensa"></div>
+        </div>
     </div>
 </div>
 
 <div id="modal-cierre">
-    <h2 id="msg-final"></h2>
-    <p id="stats" style="font-size: 1.4rem;"></p>
-    <button onclick="location.reload()">Reiniciar Sesión</button>
+    <div class="stats-box">
+        <h2 id="msg-final" style="margin-top: 0;">¡Sesión Completada!</h2>
+        <div id="stats-detalle" style="text-align: left; margin: 15px 0; font-size: 1rem; line-height: 1.5;"></div>
+        <button onclick="window.location.href='menu.html'">Regresar al Menú</button>
+    </div>
 </div>
 
 <script>
-    let nivel = 1, aciertos = 0, llamadasOK = 0, llamadasTotales = 0;
+    // MÉTRICAS DINÁMICAS ACUMULATIVAS
+    let nivel = 1, aciertosNivel = 0, totalAciertos = 0, totalErrores = 0;
+    let llamadasOK = 0, llamadasPerdidas = 0;
     let receta = [], llamadaActiva = false;
+    
     const ringtone = new Audio("img7/ringtone.mp3");
 
-    function hablarCoterapeuta(txt) {
+    function hablar(txt, tipo = 'coterpeuta') {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
-        msg.pitch = 1.0; 
-        msg.rate = 1.0;
-        document.getElementById('texto-guia').innerText = txt;
-        window.speechSynthesis.speak(msg);
-    }
-
-    function hablarLlamada(txt) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = 'es-ES';
-        msg.pitch = 1.4; // Voz de "llamada" diferente
-        msg.rate = 1.1;
+        msg.rate = parseFloat(localStorage.getItem('config_voz')) || 0.95;
+        
+        if(tipo === 'llamada') {
+            msg.pitch = 1.4;
+            msg.rate = 1.1;
+        } else {
+            document.getElementById('texto-guia').innerText = txt;
+        }
         window.speechSynthesis.speak(msg);
     }
 
     const frasesLlamada = [
-        "Hola, solo llamo para ver cómo vas con el desayuno.",
-        "¡Oye! No te distraigas, sigue cocinando.",
-        "Recuerda que los polvos blancos se parecen, ¡mira bien!",
-        "¿Ya casi terminas? Me muero de hambre.",
-        "¡Excelente trabajo! Sigue así con la receta."
+        "Juan, no olvides que el sartén debe estar caliente.",
+        "¡Oye! Sigue cocinando, me dio hambre de solo verte.",
+        "Mira bien los frascos, ¡no te vayas a confundir!",
+        "¿Ya casi terminas el desayuno? Se ve delicioso.",
+        "Vas muy bien, sigue concentrado en los ingredientes."
     ];
 
     function cargarNivel() {
         const d = document.getElementById('despensa');
         const bowl = document.getElementById('bowl');
         const platoFinal = document.getElementById('plato-final');
-        d.innerHTML = ""; bowl.style.display = "block"; platoFinal.style.display = "none";
-        aciertos = 0;
+        d.innerHTML = ""; 
+        bowl.style.display = "block"; 
+        platoFinal.style.display = "none";
+        aciertosNivel = 0;
 
         let pool = [];
         if(nivel === 1) {
             receta = ['huevo_crudo.png', 'sal.png', 'tomate.png', 'cebolla.png'];
             platoFinal.src = "img7/omelette.png";
-            hablarCoterapeuta("Nivel Bajo: Preparemos un Omelette. Arrastra al bowl: huevo, sal, tomate y cebolla.");
+            hablar("Omelette: Necesitas huevo, sal, tomate y cebolla. ¡Atento al teléfono!");
         } else if(nivel === 2) {
             receta = ['avena_cruda.png', 'arandano.png', 'fresa.png', 'leche.png', 'banano.png', 'azucar_morena.png'];
             platoFinal.src = "img7/avena.png";
-            hablarCoterapeuta("Nivel Medio: Preparemos Avena. Agrega avena, arándanos, fresas, leche, banano y azúcar morena.");
+            hablar("Nivel Medio: Avena con frutas. Pon avena, arándanos, fresas, leche, banano y azúcar.");
         } else {
             receta = ['huevo_crudo.png', 'sal.png', 'azucar_morena.png', 'chocolate.png', 'harina.png'];
-            platoFinal.src = "img7/torta_chocolate.png"; // <-- Ajustado aquí
-            hablarCoterapeuta("Nivel Alto: Torta de chocolate. Busca huevo, sal, azúcar morena, chocolate y harina.");
+            platoFinal.src = "img7/torta_chocolate.png";
+            hablar("Nivel Alto: Torta de chocolate. Busca huevo, sal, azúcar morena, chocolate y harina.");
         }
 
         const distractores = ['uva.png', 'sandia.png', 'mango.png', 'perejil.png', 'miel.png'];
-        pool = [...receta, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 3)];
+        pool = [...receta, ...distractores.sort(() => 0.5 - Math.random()).slice(0, 4)];
 
         pool.sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
-            el.src = `img7/${img}`; el.className = 'item'; el.dataset.id = img;
-            el.ontouchstart = drag;
+            el.src = `img7/${img}`; 
+            el.className = 'item'; 
+            el.dataset.id = img;
+            el.setAttribute('draggable', 'false');
+            activarPointer(el);
             d.appendChild(el);
         });
 
-        setTimeout(lanzarLlamada, Math.random() * 5000 + 5000);
+        // Soporte para el botón de celular con Pointer
+        document.getElementById('celular').onpointerdown = (e) => { e.preventDefault(); contestar(); };
+
+        setTimeout(lanzarLlamada, 7000);
     }
 
     function lanzarLlamada() {
-        if(aciertos < receta.length) {
+        if(aciertosNivel < receta.length) {
             llamadaActiva = true;
-            llamadasTotales++;
             document.getElementById('celular').classList.add('vibrar');
             document.getElementById('status-cel').innerText = "¡LLAMADA ENTRANTE!";
+            document.getElementById('status-cel').style.color = "#e74c3c";
             ringtone.play();
 
-            let tLimite = nivel === 1 ? 8000 : (nivel === 2 ? 5500 : 3800);
+            let tLimite = nivel === 1 ? 9000 : (nivel === 2 ? 6500 : 4500);
             setTimeout(() => {
                 if(llamadaActiva) {
                     llamadaActiva = false;
-                    pararLlamada("Llamada perdida");
-                    if(aciertos < receta.length) setTimeout(lanzarLlamada, 10000);
+                    llamadasPerdidas++;
+                    totalErrores++;
+                    pararLlamada("LLAMADA PERDIDA");
+                    if(aciertosNivel < receta.length) setTimeout(lanzarLlamada, 12000);
                 }
             }, tLimite);
         }
@@ -150,14 +212,15 @@
         if(llamadaActiva) {
             llamadaActiva = false;
             llamadasOK++;
-            pararLlamada("En llamada...");
+            pararLlamada("EN LLAMADA...");
             const f = frasesLlamada[Math.floor(Math.random()*frasesLlamada.length)];
-            hablarLlamada(f);
+            hablar(f, 'llamada');
             
             setTimeout(() => {
                 document.getElementById('status-cel').innerText = "TELÉFONO EN ESPERA";
-                if(aciertos < receta.length) setTimeout(lanzarLlamada, 13000);
-            }, 4000);
+                document.getElementById('status-cel').style.color = "var(--p-blue)";
+                if(aciertosNivel < receta.length) setTimeout(lanzarLlamada, 15000);
+            }, 4500);
         }
     }
 
@@ -167,53 +230,101 @@
         ringtone.pause(); ringtone.currentTime = 0;
     }
 
-    function drag(e) {
-        const el = e.target;
-        el.style.position = 'fixed';
-        const mover = (me) => {
-            el.style.left = (me.touches[0].clientX - 40) + 'px';
-            el.style.top = (me.touches[0].clientY - 40) + 'px';
-        };
-        const soltar = (se) => {
-            document.removeEventListener('touchmove', mover);
-            document.removeEventListener('touchend', soltar);
-            const t = se.changedTouches[0];
-            const bowlRect = document.getElementById('bowl').getBoundingClientRect();
+    function activarPointer(el) {
+        el.onpointerdown = function(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startY = e.clientY;
+            el.style.position = 'fixed';
+            el.style.zIndex = "1000";
+            el.style.width = "80px";
 
-            if(t.clientX > bowlRect.left && t.clientX < bowlRect.right && t.clientY > bowlRect.top && t.clientY < bowlRect.bottom) {
-                if(receta.includes(el.dataset.id)) {
-                    aciertos++;
-                    el.remove();
-                    hablarCoterapeuta("¡Muy bien!");
-                    if(aciertos === receta.length) {
-                        document.getElementById('bowl').style.display = "none";
-                        document.getElementById('plato-final').style.display = "block";
-                        hablarCoterapeuta("¡Mezcla lista! El plato está servido.");
-                        setTimeout(() => {
-                            if(nivel < 3) { nivel++; cargarNivel(); }
-                            else { finalizarTodo(); }
-                        }, 4000);
+            function mover(me) {
+                el.style.left = (me.clientX - 40) + 'px';
+                el.style.top = (me.clientY - 40) + 'px';
+            }
+
+            function soltar(se) {
+                window.removeEventListener('pointermove', mover);
+                window.removeEventListener('pointerup', soltar);
+                
+                const bowlRect = document.getElementById('bowl').getBoundingClientRect();
+                const posX = se.clientX;
+                const posY = se.clientY;
+
+                if(posX > bowlRect.left && posX < bowlRect.right && posY > bowlRect.top && posY < bowlRect.bottom) {
+                    if(receta.includes(el.dataset.id)) {
+                        aciertosNivel++;
+                        totalAciertos++;
+                        el.remove();
+                        hablar("¡Muy bien!");
+                        if(aciertosNivel === receta.length) {
+                            limpiarNivel();
+                        }
+                    } else {
+                        totalErrores++;
+                        hablar("Ese ingrediente no va en esta receta.");
+                        resetEl();
                     }
                 } else {
-                    hablarCoterapeuta("No, ese ingrediente no es correcto.");
-                    el.style.position = 'static';
+                    resetEl();
                 }
-            } else { el.style.position = 'static'; }
+
+                function resetEl() {
+                    el.style.position = 'static';
+                    el.style.width = '100%';
+                }
+            }
+            window.addEventListener('pointermove', mover);
+            window.addEventListener('pointerup', soltar);
         };
-        document.addEventListener('touchmove', mover);
-        document.addEventListener('touchend', soltar);
+    }
+
+    function limpiarNivel() {
+        document.getElementById('bowl').style.display = "none";
+        document.getElementById('plato-final').style.display = "block";
+        hablar("¡Mezcla lista! Juan, el plato está servido.");
+        pararLlamada("NIVEL COMPLETADO");
+        
+        setTimeout(() => {
+            if(nivel < 3) { nivel++; cargarNivel(); }
+            else { finalizarTodo(); }
+        }, 4000);
     }
 
     function finalizarTodo() {
-        document.getElementById('modal-cierre').style.display = 'flex';
-        document.getElementById('msg-final').innerText = "Excelente, lograste cambiar de tarea sin perder el control de la situación";
-        let score = Math.round((llamadasOK / llamadasTotales) * 100) || 0;
-        document.getElementById('stats').innerText = `Eficacia en llamadas: ${score}%`;
+        const totalLlamadas = llamadasOK + llamadasPerdidas;
+        const eficaciaLlamadas = Math.round((llamadasOK / (totalLlamadas || 1)) * 100);
+        const eficaciaGeneral = Math.round((totalAciertos / (totalAciertos + totalErrores || 1)) * 100);
+
+        // ALMACENAMIENTO CENTRALIZADO
+        const dataGuardado = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Atención",
+            id_sesion: 7,
+            aciertos: totalAciertos,
+            errores: totalErrores,
+            eficacia: eficaciaGeneral
+        };
         
-        const finalVOZ = new SpeechSynthesisUtterance("Excelente, lograste cambiar de tarea sin perder el control de la situación");
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
+        historial.push(dataGuardado);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        // RESUMEN VISUAL
+        document.getElementById('stats-detalle').innerHTML = `
+            Aciertos (Ingredientes): <b>${totalAciertos}</b><br>
+            Errores (Ingredientes + Llamadas): <b>${totalErrores}</b><br>
+            Llamadas contestadas: <b>${llamadasOK}/${totalLlamadas}</b><br><br>
+            <b>Eficacia Global: ${eficaciaGeneral}%</b>
+        `;
+        document.getElementById('modal-cierre').style.display = 'flex';
+        
+        const finalVOZ = new SpeechSynthesisUtterance("Excelente Juan, lograste cambiar de tarea sin perder el control de la cocina.");
         finalVOZ.lang = 'es-ES';
         window.speechSynthesis.speak(finalVOZ);
     }
 </script>
 </body>
 </html>
+
