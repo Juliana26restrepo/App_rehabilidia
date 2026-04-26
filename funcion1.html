@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Planificación - REHABILIDIA</title>
+    <title>Planificación Completa - REHABILIDIA</title>
     <style>
         :root { 
             --p-purple: #4A148C; 
@@ -35,13 +35,13 @@
         #contenedor-principal { 
             flex-grow: 1; display: flex; flex-direction: column; 
             align-items: center; padding: 10px; overflow-y: auto;
-            padding-bottom: 110px; /* Espacio para que el botón no tape nada */
+            padding-bottom: 120px; 
         }
 
         .instruccion-reto { 
             font-size: 1.1rem; font-weight: bold; margin: 10px 0; 
             color: white; background: var(--p-purple); padding: 12px; 
-            border-radius: 15px; width: 95%; 
+            border-radius: 15px; width: 95%; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         #area-opciones { 
@@ -50,7 +50,7 @@
         }
 
         .tarjeta { 
-            width: 110px; padding: 10px; 
+            width: clamp(100px, 22vw, 130px); padding: 10px; 
             background: white; border: 3px solid var(--s-purple); 
             border-radius: 15px; cursor: pointer; display: flex; 
             flex-direction: column; align-items: center; 
@@ -63,9 +63,9 @@
         
         #area-secuencia { 
             display: flex; flex-direction: column; align-items: center; 
-            gap: 5px; padding: 10px; background: rgba(255,255,255,0.7); 
+            gap: 5px; padding: 10px; background: rgba(255,255,255,0.8); 
             border: 3px dashed var(--s-purple); border-radius: 20px; 
-            width: 95%; min-height: 80px;
+            width: 95%; min-height: 100px;
         }
 
         .item-ordenado { 
@@ -75,24 +75,23 @@
         }
 
         .num-orden { 
-            background: var(--p-purple); color: white; width: 24px; height: 24px; 
+            background: var(--p-purple); color: white; width: 26px; height: 26px; 
             border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; margin-right: 10px; font-weight: bold; font-size: 0.8rem;
+            justify-content: center; margin-right: 12px; font-weight: bold;
         }
 
-        /* BOTÓN FIXED: Siempre visible sobre el contenido */
         #btn-verificar { 
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 85%; max-width: 400px; padding: 18px; font-size: 1.4rem; 
+            width: 85%; max-width: 400px; padding: 20px; font-size: 1.5rem; 
             background: #2E7D32; color: white; border: none; border-radius: 50px; 
             cursor: pointer; display: none; font-weight: bold; 
-            box-shadow: 0 8px 15px rgba(0,0,0,0.3); z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 999;
         }
 
         #pantalla-transicion, #overlay-final { 
             position: absolute; top:0; left:0; width:100%; height:100%; 
             display:none; flex-direction:column; justify-content:center; 
-            align-items:center; z-index:1000; padding: 20px; background: var(--p-purple); color: white;
+            align-items:center; z-index:2000; padding: 20px; background: var(--p-purple); color: white;
         }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
@@ -102,10 +101,10 @@
 <body onload="iniciarEjercicio()">
 
 <div id="viewport-container">
-    <header><span style="font-weight:bold;">PLANIFICACIÓN: PASO A PASO</span></header>
+    <header><span style="font-weight:bold;">SESIÓN 1: PLANIFICACIÓN DETALLADA</span></header>
 
     <div id="contenedor-principal">
-        <div id="reto-texto" class="instruccion-reto">Cargando...</div>
+        <div id="reto-texto" class="instruccion-reto">Preparando actividad...</div>
         <div id="area-opciones"></div>
         <div id="area-secuencia"></div>
     </div>
@@ -113,26 +112,26 @@
     <button id="btn-verificar" onpointerdown="verificarSecuencia()">COMPROBAR ORDEN</button>
 
     <div id="pantalla-transicion">
-        <h1 id="tit-nivel" style="background:var(--gold); color:var(--p-purple); padding:10px 30px; border-radius:30px;"></h1>
-        <p id="desc-nivel" style="font-size:1.5rem;"></p>
+        <h1 id="tit-nivel" style="background:var(--gold); color:var(--p-purple); padding:10px 40px; border-radius:40px;"></h1>
+        <p id="desc-nivel" style="font-size:1.6rem; font-weight: bold;"></p>
     </div>
 
     <div id="overlay-final">
-        <div style="background:white; color:var(--p-purple); padding:30px; border-radius:25px; width:90%;">
-            <h1>¡SESIÓN TERMINADA!</h1>
-            <div id="stats-visual" style="font-size:1.2rem; margin:20px 0;"></div>
-            <button onpointerdown="location.reload()" style="padding:15px 30px; background:var(--p-purple); color:white; border-radius:50px; border:none; font-weight:bold;">REPETIR</button>
+        <div style="background:white; color:var(--p-purple); padding:30px; border-radius:25px; width:90%; max-width: 500px;">
+            <h1 style="margin-top:0;">¡EXCELENTE TRABAJO!</h1>
+            <div id="stats-visual" style="font-size:1.3rem; margin:20px 0; text-align: left;"></div>
+            <button onpointerdown="location.reload()" style="width:100%; padding:18px; background:var(--p-purple); color:white; border-radius:50px; border:none; font-weight:bold; font-size:1.2rem;">REPETIR ENTRENAMIENTO</button>
         </div>
     </div>
 </div>
 
 <script>
-    let totalAciertos = 0, totalErrores = 0, nivelActual = 1, intentoEnNivel = 1;
-    let secuenciaUsuario = [], retoActual = null, retosVistos = [];
+    let totalAciertos = 0, totalErrores = 0, nivelActual = 1;
+    let secuenciaUsuario = [], retoActual = null;
 
     const banco = {
         1: [
-            { t: "Beber agua", pasos: [{e:"🥛", p:"Coger vaso"}, {e:"🚰", p:"Llenar agua"}, {e:"😋", p:"Beber"}], dist: [] }
+            { t: "Lavar los platos", pasos: [{e:"🧼", p:"Poner jabón"}, {e:"🍽️", p:"Fregar plato"}, {e:"💧", p:"Enjuagar"}], dist: [] }
         ],
         2: [
             { 
@@ -143,14 +142,27 @@
                     {e:"🦮", p:"Poner correa"}, 
                     {e:"🛍️", p:"Coger bolsas de desechos"}, 
                     {e:"🚪", p:"Abrir puerta"}, 
+                    {e:"🚶", p:"Salir a la calle"},
                     {e:"🌳", p:"Ir al parque"}, 
-                    {e:"🏠", p:"Regresar"}
+                    {e:"💩", p:"Recoger desechos"},
+                    {e:"🏠", p:"Regresar a casa"}
                 ], 
-                dist: [{e:"🍳", p:"Hacer huevo"}] 
+                dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🚿", p:"Bañarse"}] 
             }
         ],
         3: [
-            { t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Poner dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Ir al correo"}, {e:"📬", p:"Depositar"}], dist: [{e:"🍕", p:"Pedir pizza"}] }
+            { 
+                t: "Enviar Carta", 
+                pasos: [
+                    {e:"📝", p:"Escribir nota"}, 
+                    {e:"✉️", p:"Meter en sobre"}, 
+                    {e:"✍️", p:"Escribir dirección"}, 
+                    {e:"📮", p:"Pegar sello"}, 
+                    {e:"🚶", p:"Caminar al correo"}, 
+                    {e:"📬", p:"Depositar en buzón"}
+                ], 
+                dist: [{e:"🍕", p:"Pedir pizza"}, {e:"📺", p:"Ver tele"}] 
+            }
         ]
     };
 
@@ -165,14 +177,14 @@
         document.getElementById('area-secuencia').innerHTML = "";
         document.getElementById('btn-verificar').style.display = "none";
 
-        retoActual = banco[nivelActual][0]; // Simplificado para este ejemplo
+        retoActual = banco[nivelActual][0];
         
         const textoNivel = nivelActual === 1 ? "BAJO" : (nivelActual === 2 ? "MEDIO" : "ALTO");
         document.getElementById('tit-nivel').innerText = `NIVEL ${textoNivel}`;
-        document.getElementById('desc-nivel').innerText = `Tarea: ${retoActual.t}`;
+        document.getElementById('desc-nivel').innerText = `Actividad: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, vamos a planificar como ${retoActual.t}`);
+        hablar(`Juan, vamos a planificar paso a paso cómo ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
@@ -180,7 +192,7 @@
     }
 
     function dibujarTarjetas() {
-        document.getElementById('reto-texto').innerText = "Actividad: " + retoActual.t;
+        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
         const area = document.getElementById('area-opciones');
         area.innerHTML = "";
         let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
@@ -193,7 +205,7 @@
                 if(retoActual.dist.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Eso no pertenece a esta tarea.");
+                    hablar("Eso no hace falta para esta tarea.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -211,8 +223,10 @@
         item.innerHTML = `<div class="num-orden">${secuenciaUsuario.length}</div> <strong>${obj.e} ${obj.p}</strong>`;
         document.getElementById('area-secuencia').appendChild(item);
         
+        // El botón aparece cuando se seleccionan todos los pasos correctos (sin contar distractores)
         if(secuenciaUsuario.length === retoActual.pasos.length) {
             document.getElementById('btn-verificar').style.display = "block";
+            hablar("¿Están todos los pasos en orden? Pulsa el botón verde.");
         }
     }
 
@@ -224,27 +238,32 @@
 
         if(correcto) {
             totalAciertos++;
-            hablar("¡Excelente orden!");
+            hablar("¡Excelente planificación!");
             setTimeout(() => {
                 if(nivelActual < 3) { nivelActual++; iniciarEjercicio(); }
                 else { finalizarSesion(); }
             }, 1500);
         } else {
             totalErrores++;
-            hablar("El orden no es correcto. Intenta de nuevo.");
+            hablar("El orden no es el adecuado. Vamos a intentarlo de nuevo.");
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
                 document.getElementById('btn-verificar').style.display = "none";
                 document.querySelectorAll('.tarjeta').forEach(t => t.classList.remove('seleccionada'));
-            }, 1500);
+            }, 2000);
         }
     }
 
     function finalizarSesion() {
-        document.getElementById('stats-visual').innerHTML = `Aciertos: ${totalAciertos}<br>Errores: ${totalErrores}`;
+        const eficacia = Math.round((totalAciertos / 3) * 100);
+        document.getElementById('stats-visual').innerHTML = `
+            <p><b>Actividades completadas:</b> ${totalAciertos}/3</p>
+            <p><b>Errores cometidos:</b> ${totalErrores}</p>
+            <h2 style="color:var(--p-purple)">Precisión final: ${eficacia}%</h2>
+        `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar("¡Muy buen trabajo Juan!");
+        hablar("Muy bien Juan. Has terminado tu entrenamiento de planificación de hoy.");
     }
 </script>
 </body>
