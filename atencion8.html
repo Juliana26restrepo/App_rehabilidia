@@ -19,7 +19,7 @@
         #punto1 { top: 15%; left: 39%; } #label1 { top: 10%; left: 39%; }
         #punto2 { top: 48%; left: 39%; } #label2 { top: 43%; left: 39%; }
         #punto3 { top: 80%; left: 39%; } #label3 { top: 75%; left: 39%; }
-        #despensa-prendas { width: 55%; background: rgba(255,255,255,0.9); border-radius: 20px; border: 3px solid var(--p-blue); display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px; padding: 20px; overflow-y: auto; align-content: start; }
+        #despensa-prendas { width: 55%; background: rgba(255,255,255,0.9); border-radius: 20px; border: 3px solid var(--p-blue); display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px; padding: 20px; overflow-y: auto; align-content: start; min-height: 200px; }
         .item { width: 100%; aspect-ratio: 1/1; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
         #notificacion { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 380px; background: var(--accent); border: 6px solid var(--p-blue); border-radius: 25px; padding: 25px; text-align: center; z-index: 5000; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
         .btn-notif { padding: 12px 25px; margin: 10px 5px; border-radius: 12px; border: 3px solid var(--p-blue); font-weight: bold; cursor: pointer; font-size: 1.1rem; background: var(--t-blue); color: white; }
@@ -83,13 +83,110 @@
         {q:"¿El azúcar es salado?", c:"N"}, {q:"¿El corazón bombea sangre?", c:"S"}, {q:"¿Los humanos tienen tres ojos?", c:"N"},
         {q:"¿Las plantas hacen fotosíntesis?", c:"S"}, {q:"¿El aire es sólido?", c:"N"}, {q:"¿El oro es un metal?", c:"S"},
         {q:"¿Las vacas vuelan?", c:"N"}, {q:"¿Un triángulo tiene tres lados?", c:"S"}, {q:"¿El agua es roja naturalmente?", c:"N"},
-        {q:"¿Los pájaros tienen alas?", c:"S"}, {q:"¿Los peces tienen pulmones como humanos?", c:"N"}, {q:"¿El día tiene 24 horas?", c:"S"},
+        {q:"¿Los pájaros tienen alas?", c:"S"}, {q:"¿Los peces tienen pulmones?", c:"N"}, {q:"¿El día tiene 24 horas?", c:"S"},
         {q:"¿El sol sale por el oeste?", c:"N"}, {q:"¿El cerebro controla el cuerpo?", c:"S"}, {q:"¿Los gatos ladran?", c:"N"},
         {q:"¿El hielo es agua sólida?", c:"S"}, {q:"¿La lluvia sube del suelo?", c:"N"}, {q:"¿Las abejas producen miel?", c:"S"},
-        {q:"¿Los humanos pueden respirar bajo el agua sin ayuda?", c:"N"}, {q:"¿El café contiene cafeína?", c:"S"},
-        {q:"¿El mar es dulce?", c:"N"}, {q:"¿El cielo puede verse azul?", c:"S"}, {q:"¿Los carros no tienen ruedas?", c:"N"},
-        {q:"¿El pan se hace con harina?", c:"S"}, {q:"¿El fuego es húmedo?", c:"N"}, {q:"¿El océano es grande?", c:"S"},
-        {q:"¿El hielo es caliente?", c:"N"}, {q:"¿Las flores tienen pétalos?", c:"S"}, {q:"¿El cuerpo humano no tiene huesos?", c:"N"},
-        {q:"¿Los libros sirven para leer?", c:"S"}, {q:"¿El sol es frío?", c:"N"}, {q:"¿Las frutas son saludables?", c:"S"},
-        {q:"¿Los árboles caminan?", c:"N"}, {q:"¿El agua moja?", c:"S"}, {q
+        {q:"¿El café contiene cafeína?", c:"S"}, {q:"¿El mar es dulce?", c:"N"}, {q:"¿El cielo es azul?", c:"S"},
+        {q:"¿El pan se hace con harina?", c:"S"}, {q:"¿El océano es grande?", c:"S"}, {q:"¿Las flores tienen pétalos?", c:"S"},
+        {q:"¿Los libros sirven para leer?", c:"S"}, {q:"¿Las frutas son saludables?", c:"S"}, {q:"¿El agua moja?", c:"S"},
+        {q:"¿El lápiz sirve para escribir?", c:"S"}, {q:"¿Los perros ladran?", c:"S"}, {q:"¿El hielo flota en el agua?", c:"S"},
+        {q:"¿El sol da luz?", c:"S"}, {q:"¿Los humanos respiran oxígeno?", c:"S"}, {q:"¿El fuego necesita oxígeno?", c:"S"},
+        {q:"¿Las bicicletas tienen ruedas?", c:"S"}, {q:"¿El corazón late?", c:"S"}, {q:"¿La leche es blanca?", c:"S"},
+        {q:"¿Los animales necesitan comida?", c:"S"}, {q:"¿El hielo se derrite con calor?", c:"S"}, {q:"¿El mar tiene olas?", c:"S"},
+        {q:"¿Las manos sirven para agarrar?", c:"S"}, {q:"¿El café es una bebida?", c:"S"}, {q:"¿Los ojos sirven para ver?", c:"S"},
+        {q:"¿El aire tiene oxígeno?", c:"S"}, {q:"¿El planeta Tierra gira?", c:"S"}, {q:"¿El chocolate es dulce?", c:"S"},
+        {q:"¿Las montañas son altas?", c:"S"}, {q:"¿El agua puede congelarse?", c:"S"}, {q:"¿Los zapatos se usan en los pies?", c:"S"},
+        {q:"¿El estómago digiere alimentos?", c:"S"}, {q:"¿Las flores huelen bien?", c:"S"}, {q:"¿El papel es delgado?", c:"S"},
+        {q:"¿El fuego quema?", c:"S"}, {q:"¿El arcoíris tiene colores?", c:"S"}, {q:"¿El mundo tiene países?", c:"S"}
+    ];
 
+    function hablar(txt) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(txt);
+        msg.lang = 'es-ES';
+        document.getElementById('texto-guia').innerText = txt;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function iniciarProgreso() {
+        hablar("Juan, organiza el closet: en el 1 colgar, en el 2 doblado y en el 3 zapatos.");
+        configurarNivel();
+    }
+
+    function configurarNivel() {
+        const d = document.getElementById('despensa-prendas');
+        if(!d) return;
+        d.innerHTML = "";
+        let items = [];
+        if(nivelActual === 1) items = ['chaqueta.png', 'pantalones.png', 'zapato1.png', 'camisa_polo.png'];
+        else if(nivelActual === 2) items = ['camisa_verde.png', 'pantalones_cortos.png', 'tacones.png', 'pijama.png', 'saco.png'];
+        else items = ['vestido.png', 'sueter.png', 'bota.png', 'chaqueta.png', 'pantalones.png', 'zapato1.png'];
+
+        items.forEach(imgName => {
+            const el = document.createElement('img');
+            el.src = `img8/${imgName}`; 
+            el.className = 'item';
+            el.dataset.zona = Object.keys(categorias).find(key => categorias[key].includes(imgName));
+            activarPointer(el); 
+            d.appendChild(el);
+        });
+        if(!timerNotif) timerNotif = setTimeout(lanzarNotificacion, 6000);
+    }
+
+    function activarPointer(el) {
+        el.onpointerdown = (e) => {
+            if(juegoFinalizado) return;
+            el.style.position = 'fixed'; 
+            el.style.zIndex = "2000"; 
+            el.style.width = '90px';
+            const move = (me) => { el.style.left = (me.clientX - 45) + 'px'; el.style.top = (me.clientY - 45) + 'px'; };
+            const stop = (se) => {
+                window.removeEventListener('pointermove', move); 
+                window.removeEventListener('pointerup', stop);
+                el.style.display = 'none'; 
+                const target = document.elementFromPoint(se.clientX, se.clientY); 
+                el.style.display = 'block';
+                if (target && target.classList.contains('punto-ubicacion') && target.dataset.zona == el.dataset.zona) {
+                    aciertosPrendas++; sonidos.exito.play(); el.remove();
+                    if (document.querySelectorAll('.item').length === 0) {
+                        if(nivelActual < 3) { nivelActual++; hablar("¡Muy bien! Siguiente nivel."); setTimeout(configurarNivel, 1000); }
+                        else finalizarJuego();
+                    }
+                } else { erroresPrendas++; el.style.position = 'static'; el.style.width = '100%'; }
+            };
+            window.addEventListener('pointermove', move); 
+            window.addEventListener('pointerup', stop);
+        };
+    }
+
+    function lanzarNotificacion() {
+        if (juegoFinalizado) return;
+        totalPreguntas++; 
+        sonidos.alarma.play();
+        const n = document.getElementById('notificacion');
+        const t = trivias[Math.floor(Math.random() * trivias.length)];
+        document.getElementById('pregunta-txt').innerText = t.q;
+        n.style.display = 'block';
+        const responder = (v) => {
+            if(v === t.c) aciertosTrivia++;
+            n.style.display = 'none'; 
+            sonidos.alarma.pause(); 
+            sonidos.alarma.currentTime = 0;
+            if(!juegoFinalizado) timerNotif = setTimeout(lanzarNotificacion, 10000);
+        };
+        document.getElementById('btnA').onclick = () => responder("S");
+        document.getElementById('btnB').onclick = () => responder("N");
+    }
+
+    function finalizarJuego() {
+        juegoFinalizado = true; 
+        clearTimeout(timerNotif); 
+        sonidos.alarma.pause();
+        const ef = Math.round((aciertosPrendas / (aciertosPrendas + erroresPrendas)) * 100) || 0;
+        document.getElementById('stats-finales').innerHTML = `<b>Prendas:</b> ${aciertosPrendas}<br><b>Errores:</b> ${erroresPrendas}<br><b>Trivia:</b> ${aciertosTrivia}/${totalPreguntas}<br><br><b style="color:var(--t-blue); font-size:1.3rem;">Éxito: ${ef}%</b>`;
+        document.getElementById('modal-cierre').style.display = 'flex';
+        hablar("¡Excelente trabajo Juan!");
+    }
+</script>
+</body>
+</html>
