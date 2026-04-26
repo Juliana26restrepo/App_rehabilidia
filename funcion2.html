@@ -2,60 +2,214 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flexibilidad Cognitiva - REHABILIDIA</title>
     <style>
-        :root { --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: #103A57; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: #103A57; height: 45px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-weight: bold; }
+        :root { 
+            --p-purple: #4A148C; 
+            --bg: #CEE5D6; 
+            --gold: #FFD700; 
+            --white: #ffffff;
+            --dark: #103A57;
+        }
+
+        /* UNIVERSAL ZOOM Y RESET */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
-        #contenedor-juego { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .panel-regla { width: 90%; background: var(--p-purple); color: white; padding: 15px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; margin-bottom: 10px; border: 4px solid var(--gold); }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #1a1a1a; /* Fondo externo para resaltar el contenedor */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* Contenedor Principal Adaptable */
+        #contenedor-principal {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1024px; /* Proporción Tablet/PC */
+            max-height: 768px;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        header { 
+            background: var(--dark); 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            flex-shrink: 0; 
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
         
-        #zona-objetos { display: grid; gap: 8px; max-width: 600px; width: 100%; justify-content: center; }
-        .grid-1, .grid-2 { grid-template-columns: repeat(4, 1fr); }
+        #contenedor-juego { 
+            flex-grow: 1; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .panel-regla { 
+            width: 90%; 
+            background: var(--p-purple); 
+            color: white; 
+            padding: clamp(10px, 2vh, 20px); 
+            border-radius: 15px; 
+            font-size: clamp(1.2rem, 4vw, 1.8rem); 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            border: 4px solid var(--gold); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        #zona-objetos { 
+            display: grid; 
+            gap: clamp(5px, 1vh, 12px); 
+            width: 95%; 
+            max-width: 700px; 
+            justify-content: center; 
+            margin: auto;
+        }
+
+        /* Grillas Responsivas Dinámicas */
+        .grid-1 { grid-template-columns: repeat(4, 1fr); }
+        .grid-2 { grid-template-columns: repeat(4, 1fr); }
         .grid-3 { grid-template-columns: repeat(5, 1fr); }
 
-        .objeto { background: white; border-radius: 10px; padding: 5px; cursor: pointer; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .objeto img { max-width: 85%; max-height: 85%; object-fit: contain; }
-        .seleccionado { opacity: 0.1; pointer-events: none; transform: scale(0.8); transition: 0.3s; }
+        .objeto { 
+            background: var(--white); 
+            border-radius: 12px; 
+            padding: 8px; 
+            cursor: pointer; 
+            border: 3px solid transparent; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            aspect-ratio: 1; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            transition: transform 0.2s;
+        }
+        
+        .objeto:active { transform: scale(0.95); }
+        .objeto img { max-width: 90%; max-height: 90%; object-fit: contain; pointer-events: none; }
+        
+        .seleccionado { opacity: 0.2; pointer-events: none; transform: scale(0.8); transition: 0.4s; }
 
-        .area-asistente { width: 100%; background: white; padding: 10px; display: flex; align-items: center; gap: 15px; border-top: 4px solid var(--p-purple); height: 100px; box-sizing: border-box; }
-        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--p-purple); object-fit: cover; }
-        .burbuja { background: #F0F0F0; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; text-align: left; border: 1px solid #ddd; height: 60px; overflow: hidden; }
+        /* Área Asistente */
+        .area-asistente { 
+            width: 100%; 
+            background: var(--white); 
+            padding: 10px 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            border-top: 4px solid var(--p-purple); 
+            height: 110px; 
+            box-sizing: border-box; 
+        }
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--p-purple); object-fit: cover; }
+        .burbuja { 
+            background: #F8F9FA; 
+            padding: 12px; 
+            border-radius: 15px; 
+            font-size: 1rem; 
+            flex: 1; 
+            text-align: left; 
+            border: 1px solid #ddd; 
+            height: 70px; 
+            overflow-y: auto; 
+            color: var(--dark);
+        }
 
-        #overlay-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; background: rgba(16, 58, 87, 0.98); color: white; }
+        /* Capas de Feedback */
+        #overlay-transicion, #overlay-final { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            display:none; flex-direction:column; justify-content:center; 
+            align-items:center; z-index:2000; 
+            background: rgba(16, 58, 87, 0.98); color: white; 
+            text-align: center;
+        }
+
+        .cuadro-resultados {
+            background: white;
+            color: var(--dark);
+            padding: 30px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 400px;
+            border: 5px solid var(--gold);
+        }
+
+        .btn-final {
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: var(--p-purple);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<header>SESIÓN 2: FLEXIBILIDAD COGNITIVA</header>
+<div id="contenedor-principal">
+    <header>SESIÓN 2: FLEXIBILIDAD COGNITIVA</header>
 
-<div id="contenedor-juego">
-    <div id="panel-regla" class="panel-regla">INICIANDO...</div>
-    <div id="zona-objetos"></div>
-</div>
+    <div id="contenedor-juego">
+        <div id="panel-regla" class="panel-regla">PREPÁRATE...</div>
+        <div id="zona-objetos"></div>
+    </div>
 
-<div class="area-asistente">
-    <img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" class="avatar-img" alt="Coterapeuta">
-    <div class="burbuja" id="texto-asistente">¡Hola Juan! Vamos a cambiar de reglas.</div>
-</div>
+    <div class="area-asistente">
+        <img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" class="avatar-img" alt="Coterapeuta">
+        <div class="burbuja" id="texto-asistente">¡Hola Juan! Vamos a trabajar la flexibilidad de tu mente.</div>
+    </div>
 
-<div id="overlay-transicion">
-    <h1 style="color: var(--gold); font-size: 3rem;">¡CAMBIO!</h1>
-    <p>Olvida lo anterior, viene una regla nueva.</p>
-</div>
+    <div id="overlay-transicion">
+        <h1 style="color: var(--gold); font-size: 4rem; margin: 0;">¡CAMBIO!</h1>
+        <p style="font-size: 1.5rem;">Atención Juan, la regla ha cambiado.</p>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: var(--gold);">¡SESIÓN COMPLETADA!</h1>
-    <p id="stats" style="font-size: 1.5rem;"></p>
-    <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 15px 30px; background: var(--gold); border:none; border-radius:20px; font-weight:bold; cursor:pointer; color: #4A148C;">FINALIZAR</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="margin: 0; color: var(--p-purple);">¡EXCELENTE TRABAJO!</h1>
+            <p id="resumen-texto" style="font-size: 1.2rem; margin: 20px 0;"></p>
+            <div id="metricas-finales" style="background: #f0f0f0; padding: 15px; border-radius: 10px; margin-bottom: 20px;"></div>
+            <button class="btn-final" onpointerdown="finalizarGuardado()">FINALIZAR</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const niveles = { 1: {est: 12, camb: 2, grid: 'grid-1'}, 2: {est: 16, camb: 3, grid: 'grid-2'}, 3: {est: 25, camb: 4, grid: 'grid-3'} };
-    let nivelActual = 1, cambiosHechos = 0, aciertosTotales = 0, erroresTotales = 0, aciertosRegla = 0;
+    // METRICAS DINAMICAS
+    let aciertosTotales = 0;
+    let erroresTotales = 0;
+    const TOTAL_RETOS_SESION = 10; // Definido por la lógica de cambios y niveles
+
+    let nivelActual = 1, cambiosHechos = 0, aciertosRegla = 0;
     let rK = "", rV = "", ultimaReglaNombre = "";
+
+    const niveles = { 
+        1: {est: 12, camb: 2, grid: 'grid-1'}, 
+        2: {est: 16, camb: 3, grid: 'grid-2'}, 
+        3: {est: 25, camb: 4, grid: 'grid-3'} 
+    };
 
     const banco = [
         { f: "fresa.png", c: "rojo", t: "fruta" }, { f: "corazon.png", c: "rojo", t: "forma" }, { f: "cereza.png", c: "rojo", t: "fruta" }, { f: "alicate.png", c: "rojo", t: "herramienta" },
@@ -69,12 +223,14 @@
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES';
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES';
+        m.rate = 0.9;
         window.speechSynthesis.speak(m);
         document.getElementById('texto-asistente').innerText = t;
     }
 
-    window.onload = () => { generarTablero(); };
+    window.onload = () => { setTimeout(generarTablero, 1000); };
 
     function generarTablero() {
         document.getElementById('overlay-transicion').style.display = 'none';
@@ -88,11 +244,9 @@
             {n:"HERRAMIENTAS", k:"t", v:"herramienta"}, {n:"TRANSPORTE", k:"t", v:"transporte"}
         ];
 
-        // FILTRO ANTI-REPETICIÓN:
         let sel;
-        do {
-            sel = reglas[Math.floor(Math.random() * reglas.length)];
-        } while (sel.n === ultimaReglaNombre);
+        do { sel = reglas[Math.floor(Math.random() * reglas.length)]; } 
+        while (sel.n === ultimaReglaNombre);
         
         ultimaReglaNombre = sel.n;
         rK = sel.k; rV = sel.v;
@@ -111,7 +265,10 @@
             div.className = 'objeto';
             div.dataset.nombre = item.f;
             div.innerHTML = `<img src="./fun2/${item.f}" onerror="this.src='https://via.placeholder.com/80?text=OBJ'">`;
-            div.onclick = () => {
+            
+            // Eventos Pointer para fluidez
+            div.onpointerdown = (e) => {
+                e.preventDefault();
                 if(item[rK] === rV) {
                     aciertosTotales++; aciertosRegla++;
                     div.classList.add('seleccionado');
@@ -121,7 +278,8 @@
                         setTimeout(generarTablero, 2000);
                     } else { chequearVictoria(); }
                 } else {
-                    erroresTotales++; div.style.borderColor = "red";
+                    erroresTotales++; 
+                    div.style.borderColor = "red";
                     setTimeout(()=> div.style.borderColor="transparent", 400);
                 }
             };
@@ -138,14 +296,42 @@
         if(restantes.length === 0) {
             if(nivelActual < 3) { 
                 nivelActual++; cambiosHechos = 0; 
-                hablar("¡Muy bien! Subimos de nivel.");
+                hablar("¡Muy bien Juan! Vamos a subir de nivel.");
                 setTimeout(generarTablero, 1500);
             } else { 
-                document.getElementById('overlay-final').style.display = 'flex';
-                document.getElementById('stats').innerText = `Aciertos: ${aciertosTotales} | Errores: ${erroresTotales}`;
-                hablar("¡Terminamos! Excelente trabajo de flexibilidad.");
+                mostrarResumenFinal();
             }
         }
+    }
+
+    function mostrarResumenFinal() {
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+        
+        document.getElementById('resumen-texto').innerText = "Juan, has fortalecido tu capacidad de adaptarte a nuevos retos.";
+        document.getElementById('metricas-finales').innerHTML = `
+            <strong>Aciertos:</strong> ${aciertosTotales}<br>
+            <strong>Errores:</strong> ${erroresTotales}<br>
+            <strong>Eficacia:</strong> ${eficacia}%
+        `;
+        
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("¡Terminamos! Excelente trabajo de flexibilidad cognitiva.");
+    }
+
+    function finalizarGuardado() {
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+        
+        const dataGuardado = {
+            fecha: new Date().toISOString().split('T')[0],
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 2,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
+            eficacia: eficacia + "%"
+        };
+
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataGuardado));
+        window.location.href = 'funcion_sesiones.html';
     }
 </script>
 </body>
