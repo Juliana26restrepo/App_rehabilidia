@@ -2,16 +2,112 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 6: Toma de Decisiones - REHABILIDIA</title>
     <style>
-        :root { --p-purple: #4A148C; --bg: #E3F2FD; --gold: #FFD700; --navy: #103A57; --red: #ff4d4d; --green: #4CAF50; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); text-align: center; color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy); color: white; padding: 12px; font-weight: bold; }
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 15px; }
-        .panel-instruccion { background: white; padding: 15px; border-radius: 15px; border: 3px solid var(--p-purple); width: 90%; max-width: 600px; margin-bottom: 10px; font-weight: bold; font-size: 1.1rem; min-height: 50px; display: flex; align-items: center; justify-content: center; }
-        .rejilla-numeros { display: grid; gap: 8px; width: 95%; max-width: 900px; margin: auto; padding: 10px; overflow-y: auto; max-height: 65vh; }
-        .num-card { background: white; border: 2px solid var(--navy); border-radius: 10px; font-size: 1.5rem; font-weight: bold; padding: 12px; cursor: pointer; transition: background-color 2s ease; display: flex; align-items: center; justify-content: center; min-height: 50px; }
+        :root { 
+            --p-purple: #4A148C; 
+            --bg: #E3F2FD; 
+            --gold: #FFD700; 
+            --navy: #103A57; 
+            --red: #ff4d4d; 
+            --green: #4CAF50; 
+            --white: #ffffff;
+        }
+
+        /* UNIVERSAL ZOOM & RESET */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #1a1a1a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        #viewport-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1024px;
+            max-height: 768px;
+            background: var(--bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        header { 
+            background: var(--navy); 
+            color: white; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+        }
+
+        #contenedor-juego { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            padding: 15px; 
+        }
+
+        .panel-instruccion { 
+            background: var(--white); 
+            padding: 15px; 
+            border-radius: 15px; 
+            border: 3px solid var(--p-purple); 
+            width: 95%; 
+            max-width: 700px; 
+            margin-bottom: 10px; 
+            font-weight: bold; 
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); 
+            min-height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .rejilla-numeros { 
+            display: grid; 
+            gap: 10px; 
+            width: 100%; 
+            max-width: 900px; 
+            margin: auto; 
+            padding: 10px; 
+            overflow-y: auto; 
+            max-height: 60vh; 
+        }
+
+        .num-card { 
+            background: var(--white); 
+            border: 3px solid var(--navy); 
+            border-radius: 12px; 
+            font-size: clamp(1.2rem, 4vw, 1.8rem); 
+            font-weight: bold; 
+            padding: 15px; 
+            cursor: pointer; 
+            transition: opacity 0.3s, transform 0.1s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 65px;
+            box-shadow: 0 4px 0px var(--navy);
+        }
+
+        .num-card:active { transform: translateY(4px); box-shadow: 0 0 0px var(--navy); }
         
         @keyframes parpadeoLento {
             0% { background-color: white; color: var(--navy); }
@@ -19,35 +115,43 @@
             55% { background-color: var(--green); color: white; }
             100% { background-color: white; color: var(--navy); }
         }
-        .resaltado { animation: parpadeoLento 10s infinite; }
-        .seleccionado { visibility: hidden; opacity: 0; }
+        .resaltado { animation: parpadeoLento 8s infinite; }
+        .seleccionado { visibility: hidden; pointer-events: none; }
         
-        #overlay-nivel, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
+        /* OVERLAYS */
+        #overlay-nivel, #overlay-final { position: absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
         #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
-        .btn-finalizar { background: var(--gold); border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.2rem; }
+
+        .cuadro-resultados { background: white; color: var(--navy); padding: 30px; border-radius: 25px; width: 90%; max-width: 450px; border: 5px solid var(--gold); }
+        
+        .btn-finalizar { background: var(--gold); border: none; padding: 18px 40px; border-radius: 35px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body onload="iniciarSesion()">
 
-<header>SESIÓN 6: DECISIONES E INHIBICIÓN</header>
+<div id="viewport-container">
+    <header>SESIÓN 6: DECISIONES E INHIBICIÓN</header>
 
-<div id="contenedor-juego">
-    <div id="panel-instruccion" class="panel-instruccion">Cargando...</div>
-    <div id="status-ronda" style="font-weight: bold; margin: 10px; color: var(--p-purple);"></div>
-    <div id="pantalla-juego" class="rejilla-numeros"></div>
-</div>
+    <div id="contenedor-juego">
+        <div id="panel-instruccion" class="panel-instruccion">Cargando...</div>
+        <div id="status-ronda" style="font-weight: bold; margin: 10px; color: var(--p-purple); font-size: 1.1rem;"></div>
+        <div id="pantalla-juego" class="rejilla-numeros"></div>
+    </div>
 
-<div id="overlay-nivel">
-    <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3rem;">NIVEL 1</h1>
-    <p id="lvl-mensaje" style="font-size: 1.5rem;"></p>
-</div>
+    <div id="overlay-nivel">
+        <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3.5rem; margin:0;">NIVEL 1</h1>
+        <p id="lvl-mensaje" style="font-size: 1.8rem;"></p>
+    </div>
 
-<div id="overlay-final">
-    <h1 style="color: var(--gold);">¡SESIÓN COMPLETADA!</h1>
-    <div id="resumen-stats" style="font-size: 1.2rem; color: white;"></div>
-    <p style="font-size: 1.3rem; font-weight: bold; margin: 20px;">"Tu mente se adapta cada vez mejor a los cambios."</p>
-    <button class="btn-finalizar" onclick="window.location.href='funcion_sesiones.html'">VOLVER A INICIO</button>
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--p-purple); margin: 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="resumen-stats" style="font-size: 1.2rem; margin: 20px 0; line-height: 1.6;"></div>
+            <p style="font-style: italic; color: #555;">"Tu mente se adapta cada vez mejor a los cambios, Juan."</p>
+            <button class="btn-finalizar" onpointerdown="guardarYSalir()">FINALIZAR</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -58,15 +162,18 @@
     let objetivosRestantes = 0;
     let siguienteCorrecto = 0;
     let listaActual = [];
+    const TOTAL_RONDAS = 3;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES'; 
+        m.rate = 0.95;
         window.speechSynthesis.speak(m);
     }
 
     function iniciarSesion() {
-        hablar("Juan, en esta actividad debes seleccionar los números más pequeños en orden. No te dejes engañar por los colores.");
+        hablar("Juan, selecciona los números más pequeños en orden. Ignora los colores que intentan confundirte.");
         cargarRonda();
     }
 
@@ -76,46 +183,47 @@
         pantalla.innerHTML = "";
         
         let cantTotal = (nivel === 1) ? 6 : (nivel === 2) ? 12 : 24;
-        let cantObj = cantTotal / 2;
-        let cols = (nivel === 1) ? "repeat(3, 1fr)" : "repeat(4, 1fr)";
-        pantalla.style.gridTemplateColumns = cols;
+        let cantObj = Math.floor(cantTotal / 2);
+        
+        let gridCols = "repeat(3, 1fr)";
+        if(nivel === 2) gridCols = "repeat(4, 1fr)";
+        if(nivel === 3) gridCols = "repeat(4, 1fr)";
+        pantalla.style.gridTemplateColumns = gridCols;
 
         let pool = [...baseDatos].sort(() => Math.random() - 0.5).slice(0, cantTotal);
         listaActual = [...pool].sort((a,b) => a - b).slice(0, cantObj);
         siguienteCorrecto = listaActual[0];
         objetivosRestantes = cantObj;
 
-        // Definir instrucción según nivel
         if (nivel === 1) {
-            instruccion.innerHTML = `Selecciona los ${cantObj} números más pequeños de la lista.`;
+            instruccion.innerHTML = `Busca los ${cantObj} números más pequeños de la rejilla.`;
         } else if (nivel === 2) {
-            instruccion.innerHTML = `<span style="color:var(--red)">¡ATENCIÓN!</span> Selecciona los números pequeños aunque brillen en rojo.`;
-            hablar("Cuidado Juan, ahora los colores pueden intentar confundirte. Sigue buscando el menor.");
+            instruccion.innerHTML = `<span style="color:var(--red)">¡ATENCIÓN!</span> Ignora el color rojo y sigue buscando el más pequeño.`;
+            hablar("Cuidado Juan, ahora los colores pueden intentar distraerte. Sigue buscando el menor.");
         } else {
-            instruccion.innerHTML = `Nivel Alto: Ignora las interferencias y selecciona los ${cantObj} menores.`;
+            instruccion.innerHTML = `Nivel de Interferencia Alto: Encuentra los ${cantObj} menores.`;
         }
 
-        document.getElementById('status-ronda').innerText = `Ronda ${ronda}/3 - Faltan ${objetivosRestantes} números`;
+        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Ronda ${ronda}/${TOTAL_RONDAS} | Faltan: ${objetivosRestantes}`;
 
         pool.forEach(num => {
             const card = document.createElement('div');
             card.className = 'num-card';
             card.innerText = num;
             
-            // Lógica de parpadeo contradictorio para Nivel 2 y 3
             if (nivel >= 2) {
                 card.classList.add('resaltado');
-                // En nivel 2, hacemos que los pequeños tiendan a estar en rojo (contradictorio)
                 if (nivel === 2 && listaActual.includes(num)) {
-                    card.style.animationDelay = "-2s"; // Fuerza inicio en rojo/verde desfasado
+                    card.style.animationDelay = "-2s"; 
                 } else {
                     card.style.animationDelay = (Math.random() * 8) + "s";
                 }
-            } else if (Math.random() > 0.5) {
+            } else if (Math.random() > 0.6) {
                 card.classList.add('resaltado');
             }
 
-            card.onclick = () => {
+            card.onpointerdown = (e) => {
+                e.preventDefault();
                 if (num === siguienteCorrecto) {
                     card.classList.add('seleccionado');
                     aciertos++;
@@ -123,15 +231,21 @@
                     objetivosRestantes--;
                     if (listaActual.length > 0) {
                         siguienteCorrecto = listaActual[0];
-                        document.getElementById('status-ronda').innerText = `Ronda ${ronda}/3 - Faltan ${objetivosRestantes} números`;
+                        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Ronda ${ronda}/${TOTAL_RONDAS} | Faltan: ${objetivosRestantes}`;
                     } else {
                         avanzar();
                     }
                 } else {
-                    errores++;
-                    hablar(num < siguienteCorrecto ? "Ya seleccionaste ese." : "Busca uno más pequeño.");
-                    card.style.border = "3px solid var(--red)";
-                    setTimeout(() => card.style.border = "2px solid var(--navy)", 500);
+                    if(!card.classList.contains('seleccionado')) {
+                        errores++;
+                        hablar("Ese no es el más pequeño, Juan.");
+                        card.style.borderColor = "var(--red)";
+                        card.style.transform = "translateX(5px)";
+                        setTimeout(() => {
+                            card.style.borderColor = "var(--navy)";
+                            card.style.transform = "none";
+                        }, 400);
+                    }
                 }
             };
             pantalla.appendChild(card);
@@ -139,10 +253,10 @@
     }
 
     function avanzar() {
-        if (ronda < 3) {
+        if (ronda < TOTAL_RONDAS) {
             ronda++;
-            hablar("¡Muy bien!");
-            setTimeout(cargarRonda, 1000);
+            hablar("¡Excelente decisión!");
+            setTimeout(cargarRonda, 1200);
         } else if (nivel < 3) {
             nivel++; ronda = 1;
             mostrarCambioNivel();
@@ -153,22 +267,43 @@
 
     function mostrarCambioNivel() {
         const overlay = document.getElementById('overlay-nivel');
-        let msj = nivel === 2 ? "Nivel 2: Instrucciones contradictorias." : "Nivel 3: Máxima dificultad.";
+        let msj = nivel === 2 ? "Ahora los números parpadearán para distraerte. ¡No les hagas caso!" : "Máxima concentración. Los números son más y cambian rápido.";
         document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
         document.getElementById('lvl-mensaje').innerText = msj;
         overlay.style.display = 'flex';
         hablar(msj);
-        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 3500);
+        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 4000);
     }
 
     function finalizar() {
+        const totalIntentos = aciertos + errores;
+        const eficacia = totalIntentos > 0 ? Math.round((aciertos / totalIntentos) * 100) : 0;
+        
         document.getElementById('overlay-final').style.display = 'flex';
-        let total = aciertos + errores;
-        let porc = Math.round((aciertos / total) * 100) || 0;
-        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertos} | Errores: ${errores} <br> Efectividad: ${porc}%`;
+        document.getElementById('resumen-stats').innerHTML = `
+            <b>Aciertos:</b> ${aciertos}<br>
+            <b>Errores:</b> ${errores}<br>
+            <b>Eficacia:</b> ${eficacia}%
+        `;
         hablar("Juan, has terminado con éxito. Tu mente se adapta cada vez mejor a los cambios.");
+    }
+
+    function guardarYSalir() {
+        const totalIntentos = aciertos + errores;
+        const eficacia = totalIntentos > 0 ? Math.round((aciertos / totalIntentos) * 100) : 0;
+
+        const dataLog = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 6,
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: eficacia + "%"
+        };
+
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
+        window.location.href = 'funcion_sesiones.html';
     }
 </script>
 </body>
 </html>
-
