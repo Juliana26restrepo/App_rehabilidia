@@ -13,7 +13,6 @@
             --gold: #FFD700;
         }
 
-        /* Sistema Universal Zoom */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: 'Segoe UI', sans-serif; margin: 0; background: #1a1a1a; 
@@ -36,7 +35,8 @@
         
         #contenedor-principal { 
             flex-grow: 1; display: flex; flex-direction: column; 
-            align-items: center; padding: 10px; overflow-y: auto; 
+            align-items: center; padding: 10px; overflow-y: auto;
+            padding-bottom: 120px; /* Espacio para el botón fijo */
         }
 
         .instruccion-reto { 
@@ -56,7 +56,7 @@
             border-radius: 15px; cursor: pointer; display: flex; 
             flex-direction: column; align-items: center; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
-            touch-action: none; /* Pointer Events */
+            touch-action: none;
         }
         .tarjeta .emoji { font-size: 2rem; }
         .tarjeta .texto { font-size: 0.75rem; font-weight: bold; margin-top: 5px; }
@@ -65,35 +65,49 @@
         
         #area-secuencia { 
             display: flex; flex-direction: column; align-items: center; 
-            gap: 6px; padding: 10px; background: rgba(255,255,255,0.7); 
+            gap: 6px; padding: 15px; background: rgba(255,255,255,0.7); 
             border: 3px dashed var(--s-purple); border-radius: 20px; 
-            min-height: 80px; width: 95%; margin-bottom: 80px; 
+            min-height: 100px; width: 95%; margin-top: 10px;
         }
 
         .item-ordenado { 
             width: 100%; display: flex; align-items: center; 
-            background: white; padding: 8px; border-radius: 10px; 
+            background: white; padding: 10px; border-radius: 10px; 
             border: 2px solid var(--p-purple); animation: slideIn 0.3s ease-out; 
+            margin-bottom: 5px;
         }
 
         .num-orden { 
-            background: var(--p-purple); color: white; width: 22px; height: 22px; 
+            background: var(--p-purple); color: white; width: 25px; height: 25px; 
             border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; margin-right: 10px; font-weight: bold; font-size: 0.75rem; 
+            justify-content: center; margin-right: 10px; font-weight: bold;
         }
 
+        /* BOTÓN CORREGIDO: FIJO Y SIEMPRE VISIBLE AL FINAL */
         #btn-verificar { 
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            padding: 12px 35px; font-size: 1.2rem; background: #2E7D32; 
-            color: white; border: none; border-radius: 50px; cursor: pointer; 
-            display: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10; 
+            position: fixed; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 80%; 
+            max-width: 350px;
+            padding: 18px; 
+            font-size: 1.4rem; 
+            background: #2E7D32; 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            display: none; 
+            font-weight: bold; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4); 
+            z-index: 2000;
         }
 
-        /* Capas de Feedback */
         #pantalla-transicion, #overlay-final { 
             position: absolute; top:0; left:0; width:100%; height:100%; 
             display:none; flex-direction:column; justify-content:center; 
-            align-items:center; z-index:1000; padding: 20px; text-align: center; 
+            align-items:center; z-index:5000; padding: 20px; text-align: center; 
         }
         #pantalla-transicion { background: var(--p-purple); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
@@ -103,8 +117,6 @@
             border-radius: 25px; border: 5px solid var(--gold);
             width: 90%; max-width: 450px;
         }
-
-        .stat-line { display: flex; justify-content: space-between; font-size: 1.2rem; margin: 10px 0; border-bottom: 1px solid #eee; }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
@@ -121,8 +133,9 @@
         <div id="reto-texto" class="instruccion-reto">Juan, planifica la siguiente actividad...</div>
         <div id="area-opciones"></div>
         <div id="area-secuencia"></div>
-        <button id="btn-verificar" onpointerdown="verificarSecuencia()">COMPROBAR ORDEN</button>
     </div>
+
+    <button id="btn-verificar" onpointerdown="verificarSecuencia()">COMPROBAR ORDEN</button>
 
     <div id="pantalla-transicion">
         <h1 id="tit-nivel" style="font-size: 2rem; background: var(--gold); color: var(--p-purple); padding: 10px 30px; border-radius: 30px;"></h1>
@@ -139,12 +152,8 @@
 </div>
 
 <script>
-    // --- LÓGICA DE MÉTRICAS ---
     let totalAciertos = 0;
     let totalErrores = 0;
-    let retosCompletados = 0;
-    const MAX_RETOS_SESION = 6; // 3 niveles x 2 retos cada uno
-
     let nivelActual = 1;
     let intentoEnNivel = 1; 
     let secuenciaUsuario = [];
@@ -187,7 +196,7 @@
         document.getElementById('desc-nivel').innerText = `Actividad ${intentoEnNivel} de 2: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, nivel ${textoNivel}. Vamos a ${retoActual.t}`);
+        hablar(`Juan, vamos a ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
@@ -195,7 +204,7 @@
     }
 
     function dibujarTarjetas() {
-        document.getElementById('reto-texto').innerText = "Actividad: " + retoActual.t;
+        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
         const area = document.getElementById('area-opciones');
         area.innerHTML = "";
         let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
@@ -204,14 +213,12 @@
             const div = document.createElement('div');
             div.className = 'tarjeta';
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="texto">${obj.p}</span>`;
-            
-            // Pointer support
             div.onpointerdown = (e) => {
                 e.preventDefault();
                 if(retoActual.dist.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Ese paso no pertenece a esta tarea.");
+                    hablar("Eso no es parte de esta tarea.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -228,9 +235,10 @@
         item.className = 'item-ordenado';
         item.innerHTML = `<div class="num-orden">${secuenciaUsuario.length}</div> <strong>${obj.e} ${obj.p}</strong>`;
         document.getElementById('area-secuencia').appendChild(item);
+        
         if(secuenciaUsuario.length === retoActual.pasos.length) {
             document.getElementById('btn-verificar').style.display = "block";
-            hablar("¿Es el orden correcto? Pulsa comprobar.");
+            hablar("¿Está bien el orden? Toca el botón verde.");
         }
     }
 
@@ -245,9 +253,7 @@
 
         if (esCorrecto) {
             totalAciertos++;
-            retosCompletados++;
-            hablar("¡Excelente planificación Juan!");
-            
+            hablar("¡Muy bien hecho!");
             setTimeout(() => {
                 if(intentoEnNivel < 2) {
                     intentoEnNivel++;
@@ -263,7 +269,7 @@
             }, 1500);
         } else {
             totalErrores++;
-            hablar("El orden no es del todo correcto. Inténtalo de nuevo.");
+            hablar("El orden no es correcto. Inténtalo otra vez.");
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
@@ -274,7 +280,9 @@
     }
 
     function finalizarSesion() {
-        const eficacia = Math.round((totalAciertos / MAX_RETOS_SESION) * 100);
+        const totalPreguntas = 6;
+        const eficacia = Math.round((totalAciertos / totalPreguntas) * 100);
+        
         const dataLog = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
@@ -284,21 +292,16 @@
             eficacia: eficacia + "%"
         };
 
-        // Almacenamiento Centralizado
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
 
-        // Resumen Visual
         document.getElementById('stats-visual').innerHTML = `
-            <div class="stat-line"><span>Actividades logradas:</span> <b>${totalAciertos}</b></div>
-            <div class="stat-line"><span>Fallos de secuencia:</span> <b>${totalErrores}</b></div>
-            <div class="stat-line" style="border:none; margin-top:15px; font-size:1.5rem;">
-                <span>Eficacia:</span> <b>${eficacia}%</b>
-            </div>
+            <p>Aciertos: ${totalAciertos}</p>
+            <p>Errores: ${totalErrores}</p>
+            <h3>Eficacia: ${eficacia}%</h3>
         `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar(`Juan, entrenamiento terminado. Tu precisión fue del ${eficacia} por ciento.`);
+        hablar("¡Entrenamiento terminado Juan!");
     }
 </script>
 </body>
 </html>
-
