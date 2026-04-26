@@ -37,7 +37,7 @@
     <div id="contenedor-juego">
         <div id="panel-codificacion">
             <div id="box-onda">
-                <div class="bar"></div><div class="bar"></div><div class="bar)</div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
                 <div id="txt-sonido-count" style="position: absolute; bottom: -40px; font-weight: bold; color: #103A57; font-size: 1.2rem;"></div>
             </div>
         </div>
@@ -62,6 +62,30 @@
     const metas = { 1: 3, 2: 4, 3: 5 };
     const sfxOk = new Audio('img8/exito.mp3');
 
+    // Función para manejar audios con límite de 10 segundos
+    function reproducirAudioLimitado(ruta, callback) {
+        const audio = new Audio(ruta);
+        let haTerminado = false;
+
+        const terminarLimpio = () => {
+            if (!haTerminado) {
+                haTerminado = true;
+                audio.pause();
+                audio.currentTime = 0;
+                if (callback) callback();
+            }
+        };
+
+        audio.onended = terminarLimpio;
+        
+        // Timer de seguridad: 10 segundos
+        setTimeout(() => {
+            if (!haTerminado) terminarLimpio();
+        }, 10000);
+
+        audio.play().catch(e => console.log("Error de audio:", e));
+    }
+
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
@@ -84,12 +108,11 @@
         if (idx < secuenciaReto.length) {
             document.getElementById('txt-sonido-count').innerText = `Sonido ${idx + 1} de ${secuenciaReto.length}`;
             document.getElementById('box-onda').classList.add('animating');
-            const audio = new Audio(`mem3/${secuenciaReto[idx]}.mp3`);
-            audio.play();
-            audio.onended = () => {
+            
+            reproducirAudioLimitado(`mem3/${secuenciaReto[idx]}.mp3`, () => {
                 document.getElementById('box-onda').classList.remove('animating');
                 setTimeout(() => reproducirSecuencia(idx + 1), 800);
-            };
+            });
         } else {
             setTimeout(prepararFaseRespuesta, 1000);
         }
@@ -119,7 +142,7 @@
             btn.innerHTML = `<img src="mem3/${id}.png">`;
             btn.dataset.id = id;
             btn.onpointerdown = (e) => {
-                new Audio(`mem3/${id}.mp3`).play();
+                reproducirAudioLimitado(`mem3/${id}.mp3`);
                 iniciarArrastre(e);
             };
             bancoDiv.appendChild(btn);
@@ -136,6 +159,7 @@
         clon.style.top = rect.top + 'px';
         clon.style.zIndex = 1000;
         clon.style.opacity = '0.8';
+        clon.style.pointerEvents = 'none';
         document.body.appendChild(clon);
 
         const mover = (me) => {
@@ -148,9 +172,11 @@
             window.removeEventListener('pointerup', soltar);
             const objIdx = respuestasUsuario.length;
             const hueco = document.getElementById(`hueco-${objIdx}`);
-            const hRect = hueco.getBoundingClientRect();
-            if (se.clientX > hRect.left && se.clientX < hRect.right && se.clientY > hRect.top && se.clientY < hRect.bottom) {
-                verificar(el.dataset.id, el);
+            if (hueco) {
+                const hRect = hueco.getBoundingClientRect();
+                if (se.clientX > hRect.left && se.clientX < hRect.right && se.clientY > hRect.top && se.clientY < hRect.bottom) {
+                    verificar(el.dataset.id, el);
+                }
             }
             clon.remove();
         };
@@ -182,7 +208,7 @@
     function finalizar() {
         document.getElementById('panel-respuesta').style.display = 'none';
         const total = aciertosGlobales + erroresGlobales;
-        const ef = Math.round((aciertosGlobales / total) * 100);
+        const ef = Math.round((aciertosGlobales / total) * 100) || 0;
         
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
         historial.push({ fecha: new Date().toLocaleDateString(), modulo: "Memoria", id_sesion: 3, aciertos: aciertosGlobales, errores: erroresGlobales, eficacia: ef + "%" });
