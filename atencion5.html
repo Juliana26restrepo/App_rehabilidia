@@ -2,66 +2,89 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sesión 5 - Clasificación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sesión 5: Clasificación de Lavandería - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; --success: #16a34a; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
         
-        #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; }
-        header { width: 100%; padding: 8px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; z-index: 10; font-size: 0.9rem; }
+        #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; width: 100vw; position: relative; }
+        header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; z-index: 10; font-size: 0.95rem; font-weight: bold; }
 
-        #guia-box { width: 90%; max-width: 800px; background: white; border: 3px solid var(--t-blue); border-radius: 12px; padding: 10px; display: flex; align-items: center; margin: 8px 0; min-height: 70px; cursor: pointer; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-        #texto-guia { font-size: 1rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
+        #guia-box { 
+            width: 90%; max-width: 600px; background: white; border: 3px solid var(--t-blue); 
+            border-radius: 12px; padding: 10px; display: flex; align-items: center; 
+            margin: 10px 0; min-height: 60px; cursor: pointer; z-index: 20; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--t-blue); }
+        #texto-guia { font-size: 0.95rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
 
-        /* ZONA SUPERIOR: FONDO Y CESTOS MEJORADOS */
+        /* ZONA SUPERIOR ADAPTATIVA */
         #zona-cestos { 
             display: flex; justify-content: space-around; align-items: flex-end; 
-            width: 95%; height: 260px; 
+            width: 95%; height: 35vh; 
             background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('Img5/fondo_lavanderia.png') no-repeat center; 
             background-size: cover; border-bottom: 4px solid #ddd; position: relative; border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 10px;
         }
         
-        .cesto { width: 150px; text-align: center; position: relative; padding-bottom: 20px; transition: transform 0.3s; }
-        /* Brillo para que el cesto resalte sobre el fondo */
+        .cesto { width: 22%; text-align: center; position: relative; padding-bottom: 10px; transition: transform 0.3s; }
         .cesto img { 
-            width: 100%; 
+            width: 100%; max-width: 130px;
             filter: drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); 
         }
         .cesto b { 
-            display: inline-block; color: white; text-transform: uppercase; font-size: 0.85rem; 
-            margin-top: 8px; background: var(--p-blue); border-radius: 20px; padding: 4px 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: block; color: white; text-transform: uppercase; font-size: 0.75rem; 
+            margin-top: 5px; background: var(--p-blue); border-radius: 20px; padding: 4px 8px;
         }
 
-        /* PANEL INFERIOR: MÁS TRANSPARENTE Y VISIBLE */
+        /* PANEL DE OBJETOS ADAPTATIVO */
         #panel-objetos { 
-            width: 88%; height: 150px; background: rgba(255, 255, 255, 0.6); 
+            width: 90%; flex-grow: 1; background: rgba(255, 255, 255, 0.7); 
             border: 3px dashed var(--t-blue); border-radius: 20px; 
-            margin: 15px 0; display: flex; flex-wrap: wrap; 
-            justify-content: center; align-content: center; gap: 15px; padding: 10px;
+            margin-bottom: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px; padding: 15px; box-sizing: border-box; overflow: hidden;
             backdrop-filter: blur(8px);
         }
 
-        .prenda { width: 70px; height: 70px; cursor: grab; object-fit: contain; z-index: 1000; touch-action: none; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+        .prenda { 
+            width: 100%; max-width: 70px; aspect-ratio: 1/1; cursor: grab; 
+            object-fit: contain; z-index: 100; touch-action: none; 
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); 
+        }
         
         #mosca { position: absolute; width: 45px; display: none; z-index: 500; pointer-events: none; }
-        @keyframes volar { 0% {top:10%; left:5%;} 50% {top:60%; left:85%;} 100% {top:10%; left:5%;} }
+        @keyframes volar { 0% {top:15%; left:5%;} 50% {top:45%; left:85%;} 100% {top:15%; left:5%;} }
+
+        /* Cuadro de Resultados */
+        #modal-resultados {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 5000; display: none;
+            justify-content: center; align-items: center;
+        }
+        .resumen-card {
+            background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px;
+            text-align: center; color: var(--p-blue); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .btn-final {
+            background: var(--t-blue); color: white; border: none; padding: 15px;
+            border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; width: 100%;
+        }
     </style>
 </head>
 <body onclick="iniciarSesion()">
 
 <header>
     <div id="nivel-text">NIVEL: 1</div>
-    <div id="progreso-text">ACIERTOS: 0/6</div>
+    <div id="progreso-text">0/6</div>
 </header>
 
 <div id="main-stage">
     <div id="guia-box">
-        <img src="COTERAPEUTA.JPG" id="avatar" onerror="this.src='https://via.placeholder.com/60'">
-        <p id="texto-guia">¡Hola! Toca aquí para empezar.</p>
+        <img src="COTERAPEUTA.JPG" id="avatar">
+        <p id="texto-guia">Juan, toca aquí para empezar a clasificar la ropa.</p>
     </div>
 
     <div id="zona-cestos">
@@ -71,8 +94,17 @@
     <div id="panel-objetos"></div>
 </div>
 
+<div id="modal-resultados">
+    <div class="resumen-card">
+        <h2 style="margin:0">Sesión Finalizada</h2>
+        <div id="stats-finales" style="text-align: left; margin: 20px 0; font-size: 1.1rem; line-height: 1.6;"></div>
+        <button class="btn-final" onclick="irAlMenu()">VOLVER AL MENÚ</button>
+    </div>
+</div>
+
 <script>
-    let nivelActual = 1, aciertos = 0, totalNivel = 0, iniciado = false;
+    // MÉTRICAS ACUMULATIVAS
+    let nivelActual = 1, aciertosTotales = 0, erroresTotales = 0, aciertosEnNivel = 0, totalNivel = 0, iniciado = false;
     
     const sonidos = {
         perro: new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg"),
@@ -85,14 +117,11 @@
     function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = 'es-ES'; msg.rate = 0.95;
+        msg.lang = 'es-ES'; 
+        const vel = localStorage.getItem('config_voz') || '0.95';
+        msg.rate = parseFloat(vel);
         window.speechSynthesis.speak(msg);
         document.getElementById('texto-guia').innerText = txt;
-    }
-
-    function feedbackPositivo() {
-        const frases = ["¡Eso es!", "¡Excelente!", "¡Muy bien hecho!", "¡Vas por buen camino!"];
-        hablar(frases[Math.floor(Math.random() * frases.length)]);
     }
 
     function pararAudios() {
@@ -110,14 +139,14 @@
         panel.innerHTML = "";
         zona.querySelectorAll('.cesto').forEach(c => c.remove());
         pararAudios();
-        aciertos = 0;
+        aciertosEnNivel = 0;
         mosca.style.display = 'none';
 
         let items = [];
 
         if(nivelActual === 1) {
             totalNivel = 6;
-            hablar("Nivel 1: Clasifica ropa blanca y de color. Ignora los ladridos.");
+            hablar("Juan, clasifica la ropa blanca y de color. Ignora los ladridos.");
             sonidos.perro.loop = true; sonidos.perro.play();
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
@@ -128,7 +157,7 @@
         } 
         else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Nivel 2: Ignora la ambulancia y las voces.");
+            hablar("Ahora hay más ruido. Ignora la ambulancia y las voces mientras clasificas.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
             sonidos.personas.loop = true; sonidos.personas.play();
@@ -138,11 +167,11 @@
                 items.push({img: `b${i}.png`, tipo: 'B'});
                 items.push({img: `color${i}.png`, tipo: 'C'});
             }
-            for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+            for(let i=1; i<=4; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         }
         else if(nivelActual === 3) {
             totalNivel = 9;
-            hablar("Nivel final: Máxima concentración. Ignora la mosca.");
+            hablar("Nivel final: Clasifica también las toallas. Ignora la mosca y la lavadora.");
             sonidos.perro.loop = true; sonidos.perro.play();
             sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
             sonidos.personas.loop = true; sonidos.personas.play();
@@ -157,7 +186,7 @@
                 items.push({img: `color${i}.png`, tipo: 'C'});
                 items.push({img: `to${i}.png`, tipo: 'T'});
             }
-            for(let i=4; i<=8; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+            for(let i=1; i<=6; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         }
 
         document.getElementById('nivel-text').innerText = `NIVEL: ${nivelActual}`;
@@ -168,7 +197,8 @@
             el.src = `Img5/${item.img}`;
             el.className = 'prenda';
             el.dataset.tipo = item.tipo;
-            drag(el);
+            el.setAttribute('draggable', 'false');
+            activarInteractividad(el);
             panel.appendChild(el);
         });
     }
@@ -181,56 +211,108 @@
         document.getElementById('zona-cestos').appendChild(d);
     }
 
-    function drag(el) {
-        el.ontouchstart = (e) => {
-            const parent = el.parentNode;
+    function activarInteractividad(el) {
+        const startEvent = (e) => {
+            e.preventDefault();
+            const pos = e.type === 'touchstart' ? e.touches[0] : e;
+            const originalParent = el.parentNode;
+            
             el.style.position = 'fixed';
             el.style.zIndex = 2000;
+            el.style.width = '80px'; 
 
-            const move = (me) => {
-                let t = me.touches[0];
-                el.style.left = (t.clientX - 35) + 'px';
-                el.style.top = (t.clientY - 35) + 'px';
+            const mover = (me) => {
+                const mp = me.type === 'touchmove' ? me.touches[0] : me;
+                el.style.left = (mp.clientX - 40) + 'px';
+                el.style.top = (mp.clientY - 40) + 'px';
             };
 
-            const end = (se) => {
-                document.removeEventListener('touchmove', move);
-                document.removeEventListener('touchend', end);
-                let t = se.changedTouches[0];
+            const soltar = (se) => {
+                const sp = se.type === 'touchend' ? se.changedTouches[0] : se;
+                document.removeEventListener('mousemove', mover);
+                document.removeEventListener('mouseup', soltar);
+                document.removeEventListener('touchmove', mover);
+                document.removeEventListener('touchend', soltar);
                 
                 if(el.dataset.tipo === 'D') {
-                    hablar("Cuidado, eso es un distractor.");
-                    reset(); return;
+                    erroresTotales++;
+                    hablar("Eso no es ropa para lavar.");
+                    resetPos(); return;
                 }
 
                 const target = document.getElementById(`target-${el.dataset.tipo}`);
                 if(target) {
                     const r = target.getBoundingClientRect();
-                    if(t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+                    if(sp.clientX > r.left && sp.clientX < r.right && sp.clientY > r.top && sp.clientY < r.bottom) {
                         el.remove();
-                        aciertos++;
+                        aciertosEnNivel++;
+                        aciertosTotales++;
                         sonidos.exito.play();
-                        document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertos}/${totalNivel}`;
-                        if(aciertos === totalNivel) {
-                            hablar("¡Increíble! Nivel completado.");
-                            setTimeout(() => {
-                                if(nivelActual < 3) { nivelActual++; cargarNivel(); }
-                                else { pararAudios(); hablar("Sesión 5 terminada. ¡Eres un experto!"); }
-                            }, 2500);
-                        } else { feedbackPositivo(); }
+                        document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertosEnNivel}/${totalNivel}`;
+                        if(aciertosEnNivel === totalNivel) {
+                            setTimeout(pasarNivel, 1000);
+                        }
                         return;
                     }
                 }
-                hablar("Esa no va ahí.");
-                reset();
+                
+                erroresTotales++;
+                hablar("Esa no va en ese cesto.");
+                resetPos();
             };
 
-            function reset() { el.style.position = 'static'; parent.appendChild(el); }
-            document.addEventListener('touchmove', move);
-            document.addEventListener('touchend', end);
+            function resetPos() {
+                el.style.position = 'static';
+                el.style.width = '100%';
+                originalParent.appendChild(el);
+            }
+
+            document.addEventListener('mousemove', mover);
+            document.addEventListener('mouseup', soltar);
+            document.addEventListener('touchmove', mover, {passive: false});
+            document.addEventListener('touchend', soltar);
         };
+
+        el.addEventListener('mousedown', startEvent);
+        el.addEventListener('touchstart', startEvent, {passive: false});
     }
+
+    function pasarNivel() {
+        if(nivelActual < 3) {
+            nivelActual++;
+            cargarNivel();
+        } else {
+            finalizarSesion();
+        }
+    }
+
+    function finalizarSesion() {
+        pararAudios();
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+
+        const data = {
+            fecha: new Date().toLocaleString(),
+            modulo: "Atención",
+            id_sesion: 5,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
+            eficacia: eficacia
+        };
+
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(data);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        document.getElementById('stats-finales').innerHTML = `
+            <b>Aciertos:</b> ${aciertosTotales}<br>
+            <b>Errores:</b> ${erroresTotales}<br>
+            <b>Eficacia:</b> ${eficacia}%
+        `;
+        document.getElementById('modal-resultados').style.display = 'flex';
+        hablar("¡Excelente Juan! Has terminado de organizar toda la lavandería.");
+    }
+
+    function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
 </script>
 </body>
 </html>
-
