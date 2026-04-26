@@ -4,85 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 5: Clasificación de Lavandería - REHABILIDIA</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; --success: #16a34a; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg-gray: #f8f9fa; --success: #16a34a; --gold: #FFD700; }
         
-        #main-stage { display: flex; flex-direction: column; align-items: center; height: 100vh; width: 100vw; position: relative; }
-        header { width: 100%; padding: 10px 20px; background: var(--p-blue); color: white; display: flex; justify-content: space-between; box-sizing: border-box; z-index: 10; font-size: 0.95rem; font-weight: bold; }
+        * { box-sizing: border-box; touch-action: none; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: #1a1a1a; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh;
+        }
+        
+        /* UNIVERSAL ZOOM CONTAINER */
+        #viewport {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1024px;
+            max-height: 768px;
+            background: var(--bg-gray);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        header { 
+            width: 100%; padding: 10px 20px; background: var(--p-blue); 
+            color: white; display: flex; justify-content: space-between; 
+            z-index: 10; font-weight: bold; border-bottom: 3px solid var(--gold);
+        }
 
         #guia-box { 
-            width: 90%; max-width: 600px; background: white; border: 3px solid var(--t-blue); 
+            width: 95%; margin: 10px auto; background: white; border: 3px solid var(--t-blue); 
             border-radius: 12px; padding: 10px; display: flex; align-items: center; 
-            margin: 10px 0; min-height: 60px; cursor: pointer; z-index: 20; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            min-height: 70px; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
         }
         #avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--t-blue); }
-        #texto-guia { font-size: 0.95rem; font-weight: bold; color: var(--p-blue); margin: 0; line-height: 1.2; }
+        #texto-guia { font-size: 0.9rem; font-weight: bold; color: var(--p-blue); margin: 0; flex: 1; }
 
-        /* ZONA SUPERIOR ADAPTATIVA */
         #zona-cestos { 
             display: flex; justify-content: space-around; align-items: flex-end; 
-            width: 95%; height: 35vh; 
-            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('Img5/fondo_lavanderia.png') no-repeat center; 
-            background-size: cover; border-bottom: 4px solid #ddd; position: relative; border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 10px;
+            width: 100%; height: 35%; 
+            background: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)), url('Img5/fondo_lavanderia.png') no-repeat center; 
+            background-size: cover; border-bottom: 4px solid #ddd; position: relative;
+            padding-bottom: 20px;
         }
         
-        .cesto { width: 22%; text-align: center; position: relative; padding-bottom: 10px; transition: transform 0.3s; }
-        .cesto img { 
-            width: 100%; max-width: 130px;
-            filter: drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); 
+        .cesto { 
+            width: 25%; text-align: center; position: relative; 
+            transition: transform 0.2s; pointer-events: none; /* La detección se hace por coordenadas */
         }
+        .cesto img { width: 100%; max-width: 120px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .cesto b { 
-            display: block; color: white; text-transform: uppercase; font-size: 0.75rem; 
-            margin-top: 5px; background: var(--p-blue); border-radius: 20px; padding: 4px 8px;
+            display: block; color: white; text-transform: uppercase; font-size: 0.7rem; 
+            margin-top: 5px; background: var(--p-blue); border-radius: 10px; padding: 2px 5px;
         }
 
-        /* PANEL DE OBJETOS ADAPTATIVO */
         #panel-objetos { 
-            width: 90%; flex-grow: 1; background: rgba(255, 255, 255, 0.7); 
+            flex: 1; background: rgba(255, 255, 255, 0.5); 
             border: 3px dashed var(--t-blue); border-radius: 20px; 
-            margin-bottom: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-            gap: 10px; padding: 15px; box-sizing: border-box; overflow: hidden;
-            backdrop-filter: blur(8px);
+            margin: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 15px; padding: 20px; align-content: start; justify-items: center;
         }
 
         .prenda { 
-            width: 100%; max-width: 70px; aspect-ratio: 1/1; cursor: grab; 
-            object-fit: contain; z-index: 100; touch-action: none; 
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); 
+            width: 70px; height: 70px; cursor: grab; 
+            object-fit: contain; z-index: 100; touch-action: none;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+            user-select: none;
         }
         
-        #mosca { position: absolute; width: 45px; display: none; z-index: 500; pointer-events: none; }
+        .dragging { 
+            position: fixed !important; 
+            width: 90px !important; height: 90px !important; 
+            z-index: 5000 !important; 
+            pointer-events: none; 
+            cursor: grabbing;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+        }
+
+        #mosca { position: absolute; width: 40px; display: none; z-index: 500; pointer-events: none; }
         @keyframes volar { 0% {top:15%; left:5%;} 50% {top:45%; left:85%;} 100% {top:15%; left:5%;} }
 
-        /* Cuadro de Resultados */
         #modal-resultados {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 5000; display: none;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999; display: none;
             justify-content: center; align-items: center;
         }
         .resumen-card {
             background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px;
-            text-align: center; color: var(--p-blue); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-        .btn-final {
-            background: var(--t-blue); color: white; border: none; padding: 15px;
-            border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; width: 100%;
+            text-align: center; color: var(--p-blue);
         }
     </style>
 </head>
-<body onclick="iniciarSesion()">
+<body>
 
-<header>
-    <div id="nivel-text">NIVEL: 1</div>
-    <div id="progreso-text">0/6</div>
-</header>
+<div id="viewport">
+    <header>
+        <div id="nivel-text">NIVEL: 1</div>
+        <div id="progreso-text">ACIERTOS: 0/6</div>
+    </header>
 
-<div id="main-stage">
-    <div id="guia-box">
+    <div id="guia-box" onclick="iniciarSesion()">
         <img src="COTERAPEUTA.JPG" id="avatar">
         <p id="texto-guia">Juan, toca aquí para empezar a clasificar la ropa.</p>
     </div>
@@ -92,24 +121,23 @@
     </div>
     
     <div id="panel-objetos"></div>
-</div>
 
-<div id="modal-resultados">
-    <div class="resumen-card">
-        <h2 style="margin:0">Sesión Finalizada</h2>
-        <div id="stats-finales" style="text-align: left; margin: 20px 0; font-size: 1.1rem; line-height: 1.6;"></div>
-        <button class="btn-final" onclick="irAlMenu()">VOLVER AL MENÚ</button>
+    <div id="modal-resultados">
+        <div class="resumen-card">
+            <h2 style="margin:0; color: var(--t-blue)">¡SESIÓN COMPLETADA!</h2>
+            <div id="stats-finales" style="text-align: left; margin: 20px 0; font-size: 1.1rem; border-top: 1px solid #eee; padding-top: 15px;"></div>
+            <button class="btn-final" onclick="location.reload()" style="width:100%; padding:15px; background:var(--p-blue); color:white; border:none; border-radius:10px; font-weight:bold;">REPETIR</button>
+            <button class="btn-final" onclick="irAlMenu()" style="width:100%; padding:15px; background:var(--t-blue); color:white; border:none; border-radius:10px; font-weight:bold; margin-top:10px;">CONTINUAR</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // MÉTRICAS ACUMULATIVAS
     let nivelActual = 1, aciertosTotales = 0, erroresTotales = 0, aciertosEnNivel = 0, totalNivel = 0, iniciado = false;
     
     const sonidos = {
         perro: new Audio("https://actions.google.com/sounds/v1/animals/dog_barking.ogg"),
         ambulancia: new Audio("https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg"),
-        personas: new Audio("https://actions.google.com/sounds/v1/human_voices/crowd_talking.ogg"),
         lavadora: new Audio("https://actions.google.com/sounds/v1/household/washing_machine_cycle.ogg"),
         exito: new Audio("https://actions.google.com/sounds/v1/cartoon/toy_honk.ogg")
     };
@@ -117,15 +145,10 @@
     function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = 'es-ES'; 
-        const vel = localStorage.getItem('config_voz') || '0.95';
-        msg.rate = parseFloat(vel);
+        msg.lang = 'es-ES';
+        msg.rate = 0.9;
         window.speechSynthesis.speak(msg);
         document.getElementById('texto-guia').innerText = txt;
-    }
-
-    function pararAudios() {
-        Object.values(sonidos).forEach(s => { s.pause(); s.currentTime = 0; });
     }
 
     function iniciarSesion() {
@@ -138,7 +161,6 @@
         const mosca = document.getElementById('mosca');
         panel.innerHTML = "";
         zona.querySelectorAll('.cesto').forEach(c => c.remove());
-        pararAudios();
         aciertosEnNivel = 0;
         mosca.style.display = 'none';
 
@@ -146,8 +168,7 @@
 
         if(nivelActual === 1) {
             totalNivel = 6;
-            hablar("Juan, clasifica la ropa blanca y de color. Ignora los ladridos.");
-            sonidos.perro.loop = true; sonidos.perro.play();
+            hablar("Juan, arrastra la ropa blanca y de color a su cesto. Ignora los ladridos.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             for(let i=1; i<=3; i++) {
@@ -157,25 +178,18 @@
         } 
         else if(nivelActual === 2) {
             totalNivel = 6;
-            hablar("Ahora hay más ruido. Ignora la ambulancia y las voces mientras clasificas.");
-            sonidos.perro.loop = true; sonidos.perro.play();
-            sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
-            sonidos.personas.loop = true; sonidos.personas.play();
+            hablar("Ignora la ambulancia. Separa blanco y color.");
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
             crearCesto('C', 'cesto_color.png', 'Color');
             for(let i=4; i<=6; i++) {
                 items.push({img: `b${i}.png`, tipo: 'B'});
                 items.push({img: `color${i}.png`, tipo: 'C'});
             }
-            for(let i=1; i<=4; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+            for(let i=1; i<=3; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         }
         else if(nivelActual === 3) {
             totalNivel = 9;
-            hablar("Nivel final: Clasifica también las toallas. Ignora la mosca y la lavadora.");
-            sonidos.perro.loop = true; sonidos.perro.play();
-            sonidos.ambulancia.loop = true; sonidos.ambulancia.play();
-            sonidos.personas.loop = true; sonidos.personas.play();
-            sonidos.lavadora.loop = true; sonidos.lavadora.play();
+            hablar("Nivel final: Blanco, color y toallas. Ignora la mosca.");
             mosca.style.display = 'block';
             mosca.style.animation = "volar 4s infinite linear";
             crearCesto('B', 'cesto_blanco.png', 'Blanca');
@@ -186,122 +200,102 @@
                 items.push({img: `color${i}.png`, tipo: 'C'});
                 items.push({img: `to${i}.png`, tipo: 'T'});
             }
-            for(let i=1; i<=6; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
+            for(let i=1; i<=4; i++) items.push({img: `dis${i}.png`, tipo: 'D'});
         }
 
         document.getElementById('nivel-text').innerText = `NIVEL: ${nivelActual}`;
         document.getElementById('progreso-text').innerText = `ACIERTOS: 0/${totalNivel}`;
 
         items.sort(() => Math.random() - 0.5).forEach(item => {
-            const el = document.createElement('img');
-            el.src = `Img5/${item.img}`;
-            el.className = 'prenda';
-            el.dataset.tipo = item.tipo;
-            el.setAttribute('draggable', 'false');
-            activarInteractividad(el);
-            panel.appendChild(el);
+            const img = document.createElement('img');
+            img.src = `Img5/${item.img}`;
+            img.className = 'prenda';
+            img.dataset.tipo = item.tipo;
+            img.onpointerdown = startDrag; // Uso de Pointer Events (Mouse + Touch)
+            panel.appendChild(img);
         });
     }
 
     function crearCesto(tipo, file, label) {
         const d = document.createElement('div');
         d.className = 'cesto';
-        d.id = `target-${tipo}`;
+        d.dataset.tipo = tipo;
+        d.id = `cesto-${tipo}`;
         d.innerHTML = `<img src="Img5/${file}"><b>${label}</b>`;
         document.getElementById('zona-cestos').appendChild(d);
     }
 
-    function activarInteractividad(el) {
-        const startEvent = (e) => {
-            e.preventDefault();
-            const pos = e.type === 'touchstart' ? e.touches[0] : e;
-            const originalParent = el.parentNode;
-            
-            el.style.position = 'fixed';
-            el.style.zIndex = 2000;
-            el.style.width = '80px'; 
+    // LÓGICA DE ARRASTRE OPTIMIZADA
+    function startDrag(e) {
+        const el = e.target;
+        const rect = el.getBoundingClientRect();
+        
+        // Calculamos el desfase inicial para que el objeto no de un "salto"
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
 
-            const mover = (me) => {
-                const mp = me.type === 'touchmove' ? me.touches[0] : me;
-                el.style.left = (mp.clientX - 40) + 'px';
-                el.style.top = (mp.clientY - 40) + 'px';
-            };
+        el.classList.add('dragging');
+        el.style.left = (e.clientX - offsetX) + 'px';
+        el.style.top = (e.clientY - offsetY) + 'px';
 
-            const soltar = (se) => {
-                const sp = se.type === 'touchend' ? se.changedTouches[0] : se;
-                document.removeEventListener('mousemove', mover);
-                document.removeEventListener('mouseup', soltar);
-                document.removeEventListener('touchmove', mover);
-                document.removeEventListener('touchend', soltar);
-                
-                if(el.dataset.tipo === 'D') {
-                    erroresTotales++;
-                    hablar("Eso no es ropa para lavar.");
-                    resetPos(); return;
-                }
+        function moveDrag(e) {
+            el.style.left = (e.clientX - (el.offsetWidth / 2)) + 'px';
+            el.style.top = (e.clientY - (el.offsetHeight / 2)) + 'px';
+        }
 
-                const target = document.getElementById(`target-${el.dataset.tipo}`);
-                if(target) {
-                    const r = target.getBoundingClientRect();
-                    if(sp.clientX > r.left && sp.clientX < r.right && sp.clientY > r.top && sp.clientY < r.bottom) {
-                        el.remove();
-                        aciertosEnNivel++;
-                        aciertosTotales++;
-                        sonidos.exito.play();
-                        document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertosEnNivel}/${totalNivel}`;
-                        if(aciertosEnNivel === totalNivel) {
-                            setTimeout(pasarNivel, 1000);
-                        }
-                        return;
-                    }
-                }
-                
+        function stopDrag(e) {
+            el.classList.remove('dragging');
+            document.removeEventListener('pointermove', moveDrag);
+            document.removeEventListener('pointerup', stopDrag);
+
+            // Detección de colisión por coordenadas (Hit Test)
+            const targetCesto = document.elementFromPoint(e.clientX, e.clientY)?.closest('.cesto');
+            const cestoCorrecto = document.getElementById(`cesto-${el.dataset.tipo}`);
+
+            if (el.dataset.tipo === 'D') {
                 erroresTotales++;
-                hablar("Esa no va en ese cesto.");
-                resetPos();
-            };
-
-            function resetPos() {
-                el.style.position = 'static';
-                el.style.width = '100%';
-                originalParent.appendChild(el);
+                hablar("Eso no se lava, Juan.");
+                return; 
             }
 
-            document.addEventListener('mousemove', mover);
-            document.addEventListener('mouseup', soltar);
-            document.addEventListener('touchmove', mover, {passive: false});
-            document.addEventListener('touchend', soltar);
-        };
+            if (targetCesto && targetCesto.dataset.tipo === el.dataset.tipo) {
+                // ÉXITO
+                el.style.visibility = 'hidden';
+                aciertosEnNivel++;
+                aciertosTotales++;
+                sonidos.exito.play();
+                document.getElementById('progreso-text').innerText = `ACIERTOS: ${aciertosEnNivel}/${totalNivel}`;
+                if(aciertosEnNivel === totalNivel) setTimeout(pasarNivel, 1000);
+            } else {
+                // ERROR
+                erroresTotales++;
+                hablar("Esa ropa no va ahí.");
+            }
+        }
 
-        el.addEventListener('mousedown', startEvent);
-        el.addEventListener('touchstart', startEvent, {passive: false});
+        document.addEventListener('pointermove', moveDrag);
+        document.addEventListener('pointerup', stopDrag);
     }
 
     function pasarNivel() {
-        if(nivelActual < 3) {
-            nivelActual++;
-            cargarNivel();
-        } else {
-            finalizarSesion();
-        }
+        if(nivelActual < 3) { nivelActual++; cargarNivel(); } 
+        else { finalizarSesion(); }
     }
 
     function finalizarSesion() {
-        pararAudios();
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
+        const totalIntentos = aciertosTotales + erroresTotales;
+        const eficacia = totalIntentos > 0 ? Math.round((aciertosTotales / totalIntentos) * 100) : 0;
 
         const data = {
-            fecha: new Date().toLocaleString(),
+            fecha: new Date().toLocaleDateString(),
             modulo: "Atención",
             id_sesion: 5,
             aciertos: aciertosTotales,
             errores: erroresTotales,
-            eficacia: eficacia
+            eficacia: eficacia + "%"
         };
 
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        historial.push(data);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(data));
 
         document.getElementById('stats-finales').innerHTML = `
             <b>Aciertos:</b> ${aciertosTotales}<br>
@@ -309,10 +303,11 @@
             <b>Eficacia:</b> ${eficacia}%
         `;
         document.getElementById('modal-resultados').style.display = 'flex';
-        hablar("¡Excelente Juan! Has terminado de organizar toda la lavandería.");
+        hablar("¡Excelente Juan! Lavandería organizada.");
     }
 
     function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
 </script>
 </body>
 </html>
+
