@@ -2,34 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Motoruta Pro: Protocolo de Rehabilitación</title>
+    <title>Motoruta Pro: Protocolo de Rehabilitación Fiel</title>
     <style>
         :root { --primary: #1e3a8a; --success: #22c55e; --danger: #ef4444; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
         header { background: var(--primary); color: white; width: 100%; padding: 15px; text-align: center; font-size: 1.5rem; font-weight: bold; }
         .stats { background: #fff; width: 100%; display: flex; justify-content: center; gap: 50px; padding: 10px; border-bottom: 2px solid #e2e8f0; font-weight: bold; color: var(--primary); }
-        
         .main-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; width: 100%; max-width: 1300px; }
-        
         #game-window { position: relative; border: 5px solid var(--primary); background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
         #grid { display: grid; gap: 1px; background: #cbd5e1; }
         .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .wall { background: #334155 !important; }
         .goal { background: #fef08a !important; border: 2px solid #eab308; }
         .house { background: #dbeafe !important; border: 2px dashed #3b82f6; }
-        
         #moto { position: absolute; z-index: 100; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-
-        .controls { width: 450px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .controls { width: 450px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
         #route-list { min-height: 80px; max-height: 150px; overflow-y: auto; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 10px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
         .step-tag { background: var(--primary); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
-
         .input-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .input-card { background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; }
         .stepper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
         .btn-mini { width: 30px; height: 30px; border: none; border-radius: 50%; background: #64748b; color: white; cursor: pointer; }
         .btn-add { width: 100%; background: var(--primary); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
-
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
         .btn-run { background: var(--success); color: white; }
         .btn-clear { background: var(--danger); color: white; margin-top: 10px; font-size: 0.9rem; }
@@ -37,7 +31,7 @@
 </head>
 <body>
 
-<header>MOTORUTA: ENTRENAMIENTO DE PLANIFICACIÓN BASADO EN DIBUJOS</header>
+<header>MOTORUTA: REHABILITACIÓN BASADA EN TUS DISEÑOS</header>
 <div class="stats">
     <span>NIVEL: <span id="lvl-txt">1</span>/3</span>
     <span>EJERCICIO: <span id="ex-txt">1</span>/3</span>
@@ -58,8 +52,8 @@
             <div class="input-card"><label>IZQ ⬅</label><div class="stepper"><button class="btn-mini" onclick="mod('izq',-1)">-</button><span id="tmp-izq">1</span><button class="btn-mini" onclick="mod('izq',1)">+</button></div><button class="btn-add" onclick="addStep('izq')">AÑADIR</button></div>
             <div class="input-card"><label>DER ➡</label><div class="stepper"><button class="btn-mini" onclick="mod('der',-1)">-</button><span id="tmp-der">1</span><button class="btn-mini" onclick="mod('der',1)">+</button></div><button class="btn-add" onclick="addStep('der')">AÑADIR</button></div>
         </div>
-        <button class="btn-main btn-run" onclick="execute()">ARRANCAR SECUENCIA 🏁</button>
-        <button class="btn-main btn-clear" onclick="clearRoute()">BORRAR TODO</button>
+        <button class="btn-main btn-run" onclick="execute()">INICIAR RUTA 🏁</button>
+        <button class="btn-main btn-clear" onclick="clearRoute()">BORRAR PROGRAMA</button>
     </div>
 </div>
 
@@ -67,22 +61,30 @@
     let lvl = 1, ex = 1, active = false, pos = {x: 0, y: 0}, cSize = 0, targetMet = false, program = [];
     let tmpVals = { arr: 1, aba: 1, izq: 1, der: 1 };
 
-    // CONFIGURACIÓN BASADA EN TUS FOTOS
     const CONFIG = {
         1: { size: 8, exs: [
-            {i:[0,7], h:[6,2], g:[3,3], w:[[0,0],[7,0],[3,1],[4,1],[1,2],[3,4],[3,5],[0,6],[6,6],[0,4]]}, // Ej 1.1
-            {i:[7,7], h:[1,3], g:[3,0], w:[[0,0],[4,0],[5,0],[1,1],[3,2],[6,2],[0,4],[3,4],[4,4],[5,6]]}, // Ej 1.2
-            {i:[3,3], h:[1,1], g:[7,6], w:[[0,0],[5,0],[2,1],[6,1],[4,2],[0,4],[1,5],[5,5],[0,7],[6,7]]}  // Ej 1.3
+            // Nivel 1 Ej 1: Inicio (0,7), Meta (3,3), Casa (6,2)
+            {i:[0,7], g:[3,3], h:[6,2], w:[[1,0],[6,0],[3,1],[4,1],[1,2],[1,3],[3,4],[3,5],[0,4],[0,6],[6,6],[0,5]]},
+            // Nivel 1 Ej 2: Inicio (7,7), Meta (3,0), Casa (1,3)
+            {i:[7,7], g:[3,0], h:[1,3], w:[[0,0],[4,0],[5,0],[1,1],[3,2],[6,2],[0,4],[3,4],[4,4],[5,6],[5,7],[0,7]]},
+            // Nivel 1 Ej 3: Inicio (3,3), Meta (7,6), Casa (1,1)
+            {i:[3,3], g:[7,6], h:[1,1], w:[[0,0],[5,0],[2,1],[6,1],[4,2],[0,4],[1,5],[5,5],[0,7],[6,7],[4,4]]}
         ]},
         2: { size: 12, exs: [
-            {i:[4,4], h:[10,10], g:[2,2], w:[[0,0],[5,0],[11,0],[1,2],[8,2],[3,4],[9,4],[0,6],[6,6],[11,6],[4,8],[10,8],[2,10],[11,11]]}, // Ej 2.1
-            {i:[1,1], h:[6,8], g:[11,3], w:[[3,0],[7,0],[0,2],[5,2],[10,2],[4,4],[8,4],[1,6],[6,6],[11,6],[3,8],[9,8],[0,10],[7,10]]}, // Ej 2.2
-            {i:[10,1], h:[2,7], g:[6,11], w:[[0,0],[6,0],[1,2],[8,2],[4,4],[11,4],[2,6],[9,6],[0,8],[6,8],[3,10],[10,10]]} // Ej 2.3
+            // Nivel 2 Ej 1: Inicio (2,9), Casa (11,10), Meta (1,4)
+            {i:[2,9], g:[1,4], h:[11,10], w:[[0,0],[4,0],[11,0],[3,1],[8,2],[1,3],[10,4],[6,5],[11,7],[4,8],[0,10],[10,11],[2,2],[5,5]]},
+            // Nivel 2 Ej 2: Inicio (1,1), Casa (6,8), Meta (11,3)
+            {i:[1,1], g:[11,3], h:[6,8], w:[[3,0],[7,0],[0,2],[5,2],[10,2],[4,4],[8,4],[1,6],[6,6],[11,6],[3,8],[9,8],[0,10],[7,10]]},
+            // Nivel 2 Ej 3: Inicio (10,1), Casa (2,7), Meta (6,11)
+            {i:[10,1], g:[6,11], h:[2,7], w:[[0,0],[6,0],[1,2],[8,2],[4,4],[11,4],[2,6],[9,6],[0,8],[6,8],[3,10],[10,10]]}
         ]},
         3: { size: 16, exs: [
-            {i:[7,8], h:[3,5], g:[0,0], w:[[2,2],[8,2],[14,2],[4,4],[10,4],[6,6],[12,6],[2,10],[8,10],[14,10],[4,12],[10,12],[6,14],[12,14]]}, // Ej 3.1
-            {i:[15,15], h:[5,5], g:[0,0], w:[[1,1],[3,3],[5,1],[7,3],[9,1],[11,3],[13,1],[1,7],[3,9],[5,7],[7,9],[9,7],[11,9],[13,7]]}, // Ej 3.2
-            {i:[0,15], h:[8,8], g:[15,0], w:[[2,0],[2,2],[4,4],[6,6],[8,10],[10,12],[12,14],[14,2],[0,8],[4,8],[12,8],[8,0],[8,4],[8,12]]}  // Ej 3.3
+            // Nivel 3 Ej 1: Inicio (7,8), Casa (3,5), Meta (0,0)
+            {i:[7,8], g:[0,0], h:[3,5], w:[[2,2],[8,2],[14,2],[4,4],[10,4],[6,6],[12,6],[2,10],[8,10],[14,10],[4,12],[10,12],[6,14],[12,14]]},
+            // Nivel 3 Ej 2: Inicio (15,15), Casa (5,5), Meta (0,0)
+            {i:[15,15], g:[0,0], h:[5,5], w:[[1,1],[3,3],[5,1],[7,3],[9,1],[11,3],[13,1],[1,7],[3,9],[5,7],[7,9],[9,7],[11,9],[13,7]]},
+            // Nivel 3 Ej 3: Inicio (0,15), Casa (8,8), Meta (15,0)
+            {i:[0,15], g:[15,0], h:[8,8], w:[[2,0],[2,2],[4,4],[6,6],[8,10],[10,12],[12,14],[14,2],[0,8],[4,8],[12,8],[8,0],[8,4],[8,12]]}
         ]}
     };
 
@@ -106,8 +108,7 @@
         
         for(let y=0; y<c.size; y++){
             for(let x=0; x<c.size; x++){
-                const d = document.createElement('div');
-                d.className = 'cell';
+                const d = document.createElement('div'); d.className = 'cell';
                 d.style.width = d.style.height = cSize + 'px';
                 if(e.w.some(w => w[0]===x && w[1]===y)) d.classList.add('wall');
                 if(x===e.g[0] && y===e.g[1]) { d.classList.add('goal'); d.innerText='🏁'; }
@@ -118,7 +119,7 @@
         pos = {x: e.i[0], y: e.i[1]};
         targetMet = false;
         renderMoto();
-        speak(`Nivel ${lvl}, Ejercicio ${ex}. Ve a la casa y luego a la meta.`);
+        speak(`Nivel ${lvl}, Ejercicio ${ex}. Sigue tu diseño manual. Debes visitar la casa antes de la meta.`);
     }
 
     function renderMoto() {
@@ -139,7 +140,7 @@
             for(let i=0; i<s.n; i++) {
                 let nx = pos.x + d.x, ny = pos.y + d.y;
                 if(nx < 0 || nx >= c.size || ny < 0 || ny >= c.size || e.w.some(w => w[0]===nx && w[1]===ny)) {
-                    speak("¡Choque! Intenta otra ruta.");
+                    speak("¡Choque! Revisa tu plan y vuelve a intentarlo.");
                     resetCurrent();
                     return;
                 }
@@ -151,10 +152,10 @@
         }
 
         if(pos.x === e.g[0] && pos.y === e.g[1] && targetMet) {
-            speak("¡Logrado!");
-            setTimeout(next, 1000);
+            speak("¡Excelente! Has seguido el camino correctamente.");
+            setTimeout(next, 1200);
         } else {
-            speak(targetMet ? "No llegaste a la meta." : "Olvidaste pasar por la casa.");
+            speak(targetMet ? "Recorrido incompleto: no estás en la meta." : "Error: olvidaste visitar la casa.");
             active = false;
         }
     }
@@ -164,7 +165,7 @@
 
     function next() {
         if(ex < 3) ex++; else { lvl++; ex = 1; }
-        if(lvl > 3) { speak("¡Misión cumplida! Eres un experto."); lvl=1; ex=1; }
+        if(lvl > 3) { speak("Protocolo finalizado. ¡Excelente trabajo de planificación!"); lvl=1; ex=1; }
         document.getElementById('lvl-txt').innerText = lvl;
         document.getElementById('ex-txt').innerText = ex;
         document.getElementById('size-txt').innerText = `${CONFIG[lvl].size}x${CONFIG[lvl].size}`;
