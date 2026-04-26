@@ -2,76 +2,161 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Memoria 7 - Concéntrese Pro</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background: #E1F5FE; text-align: center; color: #01579B; height: 100vh; display: flex; flex-direction: column; }
-        #cabecera { background: white; height: 75px; display: flex; align-items: center; justify-content: center; border-bottom: 4px solid #FFD700; flex-shrink: 0; }
-        #instruccion-box { display: flex; align-items: center; font-weight: bold; font-size: 1.3rem; color: #0288D1; }
-        #instruccion-box img { width: 55px; height: 55px; border-radius: 50%; margin-right: 15px; border: 2px solid #0288D1; }
+        :root {
+            --primary: #0288D1;
+            --deep: #01579B;
+            --accent: #FFD700;
+            --bg: #E1F5FE;
+            --white: #ffffff;
+        }
 
-        #tablero-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; overflow: hidden; background: #1a1a1a; 
+            text-align: center; color: var(--deep); 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Contenedor Universal Zoom */
+        #contenedor-proporcional {
+            width: 100vw; height: 100vh;
+            max-width: 1200px; max-height: 800px;
+            background: var(--bg);
+            position: relative;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        #cabecera { 
+            background: var(--white); height: 10%; display: flex; 
+            align-items: center; justify-content: center; 
+            border-bottom: 4px solid var(--accent); flex-shrink: 0; 
+        }
+
+        #instruccion-box { 
+            display: flex; align-items: center; font-weight: bold; 
+            font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--primary); 
+        }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--primary); }
+
+        #tablero-container { 
+            flex-grow: 1; display: flex; align-items: center; justify-content: center; 
+            padding: 10px; perspective: 1000px;
+        }
         
-        /* Ajuste: Siempre 3 filas, ancho automático para que se vea mejor */
         #tablero { 
             display: grid; 
             grid-template-rows: repeat(3, 1fr); 
-            grid-auto-flow: column; /* Esto hace que se llene por columnas manteniendo 3 filas */
-            gap: 15px; 
+            grid-auto-flow: column; 
+            gap: 10px; 
+            height: 90%; width: 95%;
             justify-content: center; 
-            align-content: center;
         }
 
-        .carta { width: 130px; aspect-ratio: 3/4; position: relative; cursor: pointer; transform-style: preserve-3d; transition: transform 0.4s; }
+        .carta { 
+            height: 100%; aspect-ratio: 3/4; position: relative; 
+            cursor: pointer; transform-style: preserve-3d; transition: transform 0.4s;
+            touch-action: none;
+        }
         .carta.flipped { transform: rotateY(180deg); }
         
-        .cara { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; border: 3px solid #0288D1; background: white; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-        .atras { background: #0288D1; color: white; font-size: 3rem; font-weight: bold; }
+        .cara { 
+            position: absolute; width: 100%; height: 100%; 
+            backface-visibility: hidden; border-radius: 8px; 
+            border: 2px solid var(--primary); background: var(--white); 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .atras { background: var(--primary); color: var(--white); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: bold; }
         .frente { transform: rotateY(180deg); }
-        .frente img { width: 94%; height: 94%; object-fit: cover; border-radius: 8px; }
+        .frente img { width: 90%; height: 90%; object-fit: contain; border-radius: 5px; }
 
         .matched { visibility: hidden; opacity: 0; transition: 0.6s; pointer-events: none; }
 
-        #pantalla-transicion, #overlay-final { position: fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
-        #pantalla-transicion { background: #0288D1; color: white; }
-        #overlay-final { background: rgba(1, 87, 155, 0.98); color: white; }
+        /* Capas de Pantalla */
+        #pantalla-transicion, #overlay-final { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            display:none; flex-direction:column; justify-content:center; 
+            align-items:center; z-index:1000; 
+        }
+        #pantalla-transicion { background: var(--primary); color: var(--white); }
+        #overlay-final { background: rgba(1, 87, 155, 0.98); color: var(--white); padding: 20px; }
         
-        .stat-box { display: flex; gap: 20px; margin-top: 20px; justify-content: center; }
-        .stat-item { background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 15px; font-weight: bold; font-size: 1.8rem; }
+        .cuadro-resultados {
+            background: var(--white); color: var(--deep); padding: 30px; 
+            border-radius: 20px; border: 5px solid var(--accent);
+            width: 90%; max-width: 500px;
+        }
+
+        .stat-line { 
+            display: flex; justify-content: space-between; 
+            font-size: 1.5rem; margin: 10px 0; border-bottom: 1px solid #eee;
+        }
+
+        .btn-principal {
+            padding: 15px 40px; background: var(--accent); color: var(--deep); 
+            border-radius: 15px; font-size: 1.5rem; cursor: pointer; 
+            font-weight: bold; border:none; margin-top: 20px;
+        }
     </style>
 </head>
 <body onload="iniciarJuego()">
 
-<div id="cabecera">
-    <div id="instruccion-box">
-        <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
-        <span id="label-guia">Memoriza la ubicación de las fichas</span>
+<div id="contenedor-proporcional">
+    <div id="cabecera">
+        <div id="instruccion-box">
+            <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+            <span id="label-guia">Memoriza la ubicación de las fichas</span>
+        </div>
+    </div>
+
+    <div id="tablero-container">
+        <div id="tablero"></div>
+    </div>
+
+    <div id="pantalla-transicion">
+        <h1 id="tit-nivel" style="font-size: clamp(2rem, 8vw, 4rem); background: var(--accent); color: var(--primary); padding: 10px 40px; border-radius: 50px;"></h1>
+        <h2 id="tit-ronda" style="font-size: 1.8rem; margin-top: 15px;"></h2>
+        <p id="desc-nivel" style="font-size: 1.4rem;"></p>
+    </div>
+
+    <div id="overlay-final">
+        <div class="cuadro-resultados">
+            <h1 style="color: var(--primary); margin-top: 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="resumen-stats"></div>
+            <p style="font-style: italic; margin-top: 20px;">“Recordar los detalles hacen más fácil tu día, sigue así”</p>
+            <button class="btn-principal" onpointerdown="location.reload()">REPETIR</button>
+        </div>
     </div>
 </div>
 
-<div id="tablero-container">
-    <div id="tablero"></div>
-</div>
-
-<div id="pantalla-transicion">
-    <h1 id="tit-nivel" style="font-size: 4rem; margin: 0; background: #FFD700; color: #0288D1; padding: 10px 50px; border-radius: 50px;"></h1>
-    <h2 id="tit-ronda" style="font-size: 2.5rem; margin-top: 15px;"></h2>
-    <p id="desc-nivel" style="font-size: 2rem; margin-top: 10px;"></p>
-</div>
-
-<div id="overlay-final">
-    <h1 style="color: #FFD700; font-size: 3.5rem;">¡OBJETIVO LOGRADO!</h1>
-    <div id="resumen-stats"></div>
-    <p style="font-size: 2.2rem; width: 80%; font-weight: bold; margin-top: 30px; line-height: 1.4;">“Recordar los detalles hacen más fácil tu día, sigue así”</p>
-    <button onclick="location.reload()" style="padding: 20px 60px; background: #FFD700; color: #01579B; border-radius: 20px; font-size: 2rem; cursor: pointer; font-weight: bold; border:none; margin-top: 25px;">REPETIR</button>
-</div>
-
 <script>
-    let nivel = 1, ronda = 1, cartasVolteadas = [], parejasEncontradas = 0, intentosTotal = 0, erroresTotal = 0, bloqueado = true;
+    let nivel = 1, ronda = 1, cartasVolteadas = [], parejasEncontradas = 0;
+    let aciertosGlobal = 0, erroresGlobal = 0, bloqueado = true;
+    
+    // Pool de imágenes (mismas de la sesión 5)
     const pool = Array.from({length: 70}, (_, i) => `escena${i + 1}.png`);
-    const config = { 1: { n: "Bajo", p: 6 }, 2: { n: "Medio", p: 9 }, 3: { n: "Alto", p: 12 } }; // Ajustados para que sean múltiplos de 3 si es posible
+    
+    // Configuración clínica original
+    const config = { 
+        1: { n: "Bajo", p: 4 }, // 4 parejas = 8 cartas
+        2: { n: "Medio", p: 6 }, // 6 parejas = 12 cartas
+        3: { n: "Alto", p: 9 }   // 9 parejas = 18 cartas
+    };
 
-    function hablar(t, cb) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.95; if(cb) m.onend = cb; window.speechSynthesis.speak(m); }
+    function hablar(t, cb) { 
+        window.speechSynthesis.cancel(); 
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES'; 
+        m.rate = 0.9; 
+        if(cb) m.onend = cb; 
+        window.speechSynthesis.speak(m); 
+    }
 
     function iniciarJuego() { prepararNivel(); }
 
@@ -82,13 +167,13 @@
         document.getElementById('pantalla-transicion').style.display = 'flex';
         document.getElementById('tit-nivel').innerText = "NIVEL " + c.n.toUpperCase();
         document.getElementById('tit-ronda').innerText = "Ronda " + ronda + " de 3";
-        document.getElementById('desc-nivel').innerText = "Observa las fichas por 5 segundos.";
+        document.getElementById('desc-nivel').innerText = "Juan, observa las fichas por 5 segundos.";
         
-        hablar("Juan, Nivel " + c.n + ", Ronda " + ronda + ". Observa las fichas.", () => {
+        hablar(`Nivel ${c.n}, ronda ${ronda}. Memoriza las posiciones.`, () => {
             setTimeout(() => {
                 document.getElementById('pantalla-transicion').style.display = 'none';
                 crearTablero();
-            }, 2000);
+            }, 1500);
         });
     }
 
@@ -102,47 +187,52 @@
 
         mazo.forEach(img => {
             const card = document.createElement('div');
-            card.className = 'carta flipped'; // Empiezan volteadas mostrando la imagen
+            card.className = 'carta flipped'; 
             card.dataset.v = img;
-            card.innerHTML = `<div class="cara atras">?</div><div class="cara frente"><img src="mem5/${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1160/1160358.png'"></div>`;
-            card.onclick = () => {
+            card.innerHTML = `
+                <div class="cara atras">?</div>
+                <div class="cara frente">
+                    <img src="mem5/${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1160/1160358.png'">
+                </div>`;
+            
+            // Soporte Pointer Events
+            card.onpointerdown = (e) => {
+                e.preventDefault();
                 if(bloqueado || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+                
                 card.classList.add('flipped');
                 cartasVolteadas.push(card);
+                
                 if(cartasVolteadas.length === 2) {
                     bloqueado = true;
-                    intentosTotal++;
-                    setTimeout(chequear, 700);
+                    setTimeout(chequear, 800);
                 }
             };
             tablero.appendChild(card);
         });
 
-        // 5 segundos de visualización
+        // Lógica clínica: 5 segundos de visualización inicial
         setTimeout(() => {
             document.querySelectorAll('.carta').forEach(k => k.classList.remove('flipped'));
             bloqueado = false;
-            hablar("¿Dónde están los pares?");
-            document.getElementById('label-guia').innerText = "Encuentra las fichas pares";
+            document.getElementById('label-guia').innerText = "Juan, ¿dónde están las parejas?";
         }, 5000);
     }
 
     function chequear() {
         const [a, b] = cartasVolteadas;
         if(a.dataset.v === b.dataset.v) {
+            aciertosGlobal++;
             parejasEncontradas++;
-            hablar("¡Es correcto!");
-            a.classList.add('matched'); b.classList.add('matched');
+            a.classList.add('matched'); 
+            b.classList.add('matched');
             if(parejasEncontradas === config[nivel].p) {
                 setTimeout(avanzar, 1000);
             }
         } else {
-            erroresTotal++;
-            hablar("Es incorrecto.");
-            setTimeout(() => {
-                a.classList.remove('flipped'); 
-                b.classList.remove('flipped');
-            }, 400);
+            erroresGlobal++;
+            a.classList.remove('flipped'); 
+            b.classList.remove('flipped');
         }
         cartasVolteadas = [];
         bloqueado = false;
@@ -157,22 +247,36 @@
             ronda = 1;
             prepararNivel();
         } else {
-            mostrarCierre();
+            finalizarSesion();
         }
     }
 
-    function mostrarCierre() {
-        const totalAciertos = (6*3) + (9*3) + (12*3); // Basado en los pares por ronda
-        const porc = Math.round((totalAciertos / intentosTotal) * 100);
+    function finalizarSesion() {
+        const eficacia = Math.round((aciertosGlobal / (aciertosGlobal + erroresGlobal)) * 100) || 0;
+        
+        // Guardado Centralizado
+        const resultado = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Memoria",
+            id_sesion: 7,
+            aciertos: aciertosGlobal,
+            errores: erroresGlobal,
+            eficacia: eficacia + "%"
+        };
+        
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(resultado));
+
+        // Resumen Visual
         document.getElementById('resumen-stats').innerHTML = `
-            <div class="stat-box">
-                <div class="stat-item" style="color:#FFF;">Aciertos: ${totalAciertos}</div>
-                <div class="stat-item" style="color:#FFD700;">Errores: ${erroresTotal}</div>
+            <div class="stat-line"><span>Parejas encontradas:</span> <b>${aciertosGlobal}</b></div>
+            <div class="stat-line"><span>Intentos fallidos:</span> <b>${erroresGlobal}</b></div>
+            <div class="stat-line" style="border:none; color:var(--primary); font-size:1.8rem;">
+                <span>Eficacia:</span> <b>${eficacia}%</b>
             </div>
-            <p style="font-size: 2.8rem; margin-top: 30px; color: #FFD700;">Precisión: ${porc}%</p>
         `;
+        
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Recordar los detalles hacen más fácil tu día, sigue así");
+        hablar("¡Excelente trabajo Juan! Has completado el ejercicio de memoria.");
     }
 </script>
 </body>
