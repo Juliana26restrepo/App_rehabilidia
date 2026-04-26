@@ -6,105 +6,26 @@
     <title>Sesión 8 - Organización de Closet Juan</title>
     <style>
         :root { --p-blue: #0A253A; --t-blue: #307B8E; --bg-gray: #f0f0f0; --accent: #FFD700; }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; background: var(--bg-gray); 
-            overflow: hidden; touch-action: none; 
-            display: flex; flex-direction: column; height: 100vh; width: 100vw;
-        }
-
-        #main-stage {
-            flex-grow: 1; display: flex; 
-            background: url('img8/habitacion_fondo8.jpg') no-repeat center; 
-            background-size: cover; position: relative; 
-            padding: 1vh; gap: 1vw; box-sizing: border-box;
-        }
-
-        #cabecera { 
-            background: var(--p-blue); color: white; padding: 10px; 
-            display: flex; flex-direction: column; align-items: center; z-index: 1000;
-        }
-
-        #guia-box { 
-            background: white; color: var(--p-blue); width: 95%; max-width: 800px;
-            border-radius: 12px; padding: 8px 15px; display: flex; align-items: center; 
-            border: 3px solid var(--t-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+        #main-stage { flex-grow: 1; display: flex; background: url('img8/habitacion_fondo8.jpg') no-repeat center; background-size: cover; position: relative; padding: 1vh; gap: 1vw; box-sizing: border-box; }
+        #cabecera { background: var(--p-blue); color: white; padding: 10px; display: flex; flex-direction: column; align-items: center; z-index: 1000; }
+        #guia-box { background: white; color: var(--p-blue); width: 95%; max-width: 800px; border-radius: 12px; padding: 8px 15px; display: flex; align-items: center; border: 3px solid var(--t-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         #avatar { width: 45px; height: 45px; border-radius: 50%; margin-right: 15px; border: 2px solid var(--t-blue); }
         #texto-guia { font-size: 0.95rem; font-weight: bold; margin: 0; line-height: 1.2; }
-
-        #contenedor-armario { 
-            width: 45%; height: 95%; position: relative; 
-            border: 4px solid var(--p-blue); border-radius: 20px; 
-            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-            margin: auto 0;
-        }
-
+        #contenedor-armario { width: 45%; height: 95%; position: relative; border: 4px solid var(--p-blue); border-radius: 20px; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); margin: auto 0; }
         #armario_img { width: 100%; height: 100%; object-fit: contain; }
-
-        .punto-ubicacion { 
-            position: absolute; width: 22%; aspect-ratio: 1/1; 
-            background: rgba(48, 123, 142, 0.7); color: white; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; border: 3px solid white; z-index: 20; font-size: 1.5rem;
-        }
-
-        .etiqueta-zona { 
-            position: absolute; background: var(--p-blue); color: white; 
-            padding: 2px 8px; border-radius: 5px; font-size: 0.7rem; 
-            font-weight: bold; z-index: 25; pointer-events: none; width: fit-content;
-        }
-
-        /* Ajuste de posiciones de los círculos para que coincidan con los estantes del armario.png */
+        .punto-ubicacion { position: absolute; width: 22%; aspect-ratio: 1/1; background: rgba(48, 123, 142, 0.7); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; z-index: 20; font-size: 1.5rem; }
+        .etiqueta-zona { position: absolute; background: var(--p-blue); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.7rem; font-weight: bold; z-index: 25; pointer-events: none; width: fit-content; }
         #punto1 { top: 15%; left: 39%; } #label1 { top: 10%; left: 39%; }
         #punto2 { top: 48%; left: 39%; } #label2 { top: 43%; left: 39%; }
         #punto3 { top: 80%; left: 39%; } #label3 { top: 75%; left: 39%; }
-
-        #despensa-prendas { 
-            width: 55%; background: rgba(255,255,255,0.9); 
-            border-radius: 20px; border: 3px solid var(--p-blue); 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); 
-            gap: 15px; padding: 20px; overflow-y: auto; align-content: start; 
-        }
-
-        .item { 
-            width: 100%; aspect-ratio: 1/1; object-fit: contain; 
-            cursor: grab; touch-action: none; z-index: 100;
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
-        }
-
-        #notificacion { 
-            display: none; position: fixed; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); width: 85%; max-width: 380px; 
-            background: var(--accent); border: 6px solid var(--p-blue); 
-            border-radius: 25px; padding: 25px; text-align: center; 
-            z-index: 5000; box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
-        }
-
-        .btn-notif { 
-            padding: 12px 25px; margin: 10px 5px; border-radius: 12px; 
-            border: 3px solid var(--p-blue); font-weight: bold; 
-            cursor: pointer; font-size: 1.1rem; background: var(--t-blue); color: white; 
-        }
-
-        #modal-cierre { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(10, 37, 58, 0.98); z-index: 9000; color: white; 
-            flex-direction: column; align-items: center; justify-content: center; 
-        }
-
-        .resumen-card {
-            background: white; color: var(--p-blue); padding: 30px; 
-            border-radius: 25px; width: 90%; max-width: 400px; text-align: center;
-        }
-
-        .btn-final {
-            background: var(--t-blue); color: white; border: none; 
-            padding: 15px; border-radius: 12px; font-weight: bold; 
-            margin-top: 20px; cursor: pointer; font-size: 1.1rem; width: 100%;
-        }
+        #despensa-prendas { width: 55%; background: rgba(255,255,255,0.9); border-radius: 20px; border: 3px solid var(--p-blue); display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px; padding: 20px; overflow-y: auto; align-content: start; }
+        .item { width: 100%; aspect-ratio: 1/1; object-fit: contain; cursor: grab; touch-action: none; z-index: 100; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+        #notificacion { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 380px; background: var(--accent); border: 6px solid var(--p-blue); border-radius: 25px; padding: 25px; text-align: center; z-index: 5000; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .btn-notif { padding: 12px 25px; margin: 10px 5px; border-radius: 12px; border: 3px solid var(--p-blue); font-weight: bold; cursor: pointer; font-size: 1.1rem; background: var(--t-blue); color: white; }
+        #modal-cierre { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 37, 58, 0.98); z-index: 9000; color: white; flex-direction: column; align-items: center; justify-content: center; }
+        .resumen-card { background: white; color: var(--p-blue); padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; text-align: center; }
+        .btn-final { background: var(--t-blue); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 1.1rem; width: 100%; }
     </style>
 </head>
 <body onload="iniciarProgreso()">
@@ -130,7 +51,7 @@
 </main>
 
 <div id="notificacion">
-    <p id="pregunta-txt" style="font-weight: bold; font-size: 1.3rem; color: #0A253A; margin-bottom: 20px;"></p>
+    <p id="pregunta-txt" style="font-weight: bold; font-size: 1.2rem; color: #0A253A; margin-bottom: 20px;"></p>
     <button class="btn-notif" id="btnA">SÍ</button>
     <button class="btn-notif" id="btnB">NO</button>
 </div>
@@ -147,144 +68,28 @@
     let nivelActual = 1; 
     let aciertosPrendas = 0, erroresPrendas = 0, aciertosTrivia = 0, totalPreguntas = 0;
     let timerNotif = null, juegoFinalizado = false;
+    const sonidos = { alarma: new Audio('img8/alarma.mp3'), exito: new Audio('img8/exito.mp3') };
 
-    const sonidos = {
-        alarma: new Audio('img8/alarma.mp3'),
-        exito: new Audio('img8/exito.mp3')
-    };
-
-    // CATEGORÍAS CORREGIDAS
     const categorias = {
         1: ['chaqueta.png', 'camisa_polo.png', 'camisa_verde.png', 'saco.png', 'vestido.png'],
         2: ['pantalones.png', 'pantalones_cortos.png', 'pijama.png', 'sueter.png'],
-        3: ['zapato1.png', 'tacones.png', 'bota.png', 'zapatos.png'] // Agregué zapatos.png por si acaso
+        3: ['zapato1.png', 'tacones.png', 'bota.png', 'zapatos.png']
     };
-    
+
     const trivias = [
-        {q:"¿El cielo es azul?", c:"S"}, {q:"¿El fuego es frío?", c:"N"},
-        {q:"¿Colombia está en África?", c:"N"}, {q:"¿Los perros ladran?", c:"S"},
-        {q:"¿El agua moja?", c:"S"}, {q:"¿La sal es dulce?", c:"N"}
-    ];
-
-    function hablar(txt) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = 'es-ES';
-        document.getElementById('texto-guia').innerText = txt;
-        window.speechSynthesis.speak(msg);
-    }
-
-    function iniciarProgreso() {
-        if(nivelActual === 1) {
-            hablar("Juan, organiza el closet: en el 1 lo de colgar, en el 2 lo doblado y en el 3 los zapatos.");
-        }
-        configurarNivel();
-    }
-
-    function configurarNivel() {
-        const d = document.getElementById('despensa-prendas');
-        d.innerHTML = "";
-        let items = [];
-
-        if(nivelActual === 1) items = ['chaqueta.png', 'pantalones.png', 'zapato1.png', 'camisa_polo.png'];
-        else if(nivelActual === 2) items = ['camisa_verde.png', 'pantalones_cortos.png', 'tacones.png', 'pijama.png', 'saco.png'];
-        else items = ['vestido.png', 'sueter.png', 'bota.png', 'chaqueta.png', 'pantalones.png', 'zapato1.png'];
-
-        items.forEach(imgName => {
-            const el = document.createElement('img');
-            el.src = `img8/${imgName}`;
-            el.className = 'item';
-            // Buscar a qué categoría pertenece el archivo
-            el.dataset.zona = Object.keys(categorias).find(key => categorias[key].includes(imgName));
-            activarPointer(el);
-            d.appendChild(el);
-        });
-
-        clearTimeout(timerNotif);
-        timerNotif = setTimeout(lanzarNotificacion, 7000);
-    }
-
-    function activarPointer(el) {
-        el.onpointerdown = (e) => {
-            if(juegoFinalizado) return;
-            el.style.position = 'fixed';
-            el.style.zIndex = "2000";
-            el.style.width = '90px';
-
-            const move = (me) => {
-                el.style.left = (me.clientX - 45) + 'px';
-                el.style.top = (me.clientY - 45) + 'px';
-            };
-
-            const stop = (se) => {
-                window.removeEventListener('pointermove', move);
-                window.removeEventListener('pointerup', stop);
-                
-                el.style.display = 'none';
-                const target = document.elementFromPoint(se.clientX, se.clientY);
-                el.style.display = 'block';
-
-                // Verificamos si el punto donde soltó es una "punto-ubicacion" y si coincide la zona
-                if (target && target.classList.contains('punto-ubicacion') && target.dataset.zona == el.dataset.zona) {
-                    aciertosPrendas++;
-                    sonidos.exito.play();
-                    el.remove();
-                    if (document.querySelectorAll('.item').length === 0) {
-                        if(nivelActual < 3) {
-                            nivelActual++;
-                            hablar("¡Muy bien! Vamos con más prendas.");
-                            setTimeout(configurarNivel, 1500);
-                        } else {
-                            finalizarJuego();
-                        }
-                    }
-                } else {
-                    erroresPrendas++;
-                    hablar("Esa prenda no va ahí, intenta de nuevo.");
-                    el.style.position = 'static'; 
-                    el.style.width = '100%';
-                }
-            };
-            window.addEventListener('pointermove', move);
-            window.addEventListener('pointerup', stop);
-        };
-    }
-
-    function lanzarNotificacion() {
-        if (juegoFinalizado) return;
-        totalPreguntas++;
-        sonidos.alarma.play();
-        const n = document.getElementById('notificacion');
-        const t = trivias[Math.floor(Math.random() * trivias.length)];
-        document.getElementById('pregunta-txt').innerText = t.q;
-        n.style.display = 'block';
-
-        const responder = (v) => {
-            if(v === t.c) aciertosTrivia++;
-            n.style.display = 'none';
-            sonidos.alarma.pause(); sonidos.alarma.currentTime = 0;
-            if(!juegoFinalizado) timerNotif = setTimeout(lanzarNotificacion, 12000);
-        };
-        document.getElementById('btnA').onclick = () => responder("S");
-        document.getElementById('btnB').onclick = () => responder("N");
-    }
-
-    function finalizarJuego() {
-        juegoFinalizado = true;
-        clearTimeout(timerNotif);
-        sonidos.alarma.pause();
-        const ef = Math.round((aciertosPrendas / (aciertosPrendas + erroresPrendas)) * 100) || 0;
-
-        document.getElementById('stats-finales').innerHTML = `
-            <b>Prendas correctas:</b> ${aciertosPrendas}<br>
-            <b>Errores:</b> ${erroresPrendas}<br>
-            <b>Preguntas contestadas:</b> ${aciertosTrivia} de ${totalPreguntas}<br><br>
-            <b style="color:var(--t-blue); font-size:1.3rem;">Eficacia: ${ef}%</b>
-        `;
-        document.getElementById('modal-cierre').style.display = 'flex';
-        hablar("¡Excelente trabajo Juan! El closet quedó perfecto.");
-    }
-</script>
-</body>
-</html>
+        {q:"¿La Tierra es redonda?", c:"S"}, {q:"¿El sol es un planeta?", c:"N"}, {q:"¿El agua hierve a 100°C?", c:"S"},
+        {q:"¿Los perros son reptiles?", c:"N"}, {q:"¿Colombia está en América?", c:"S"}, {q:"¿El hielo quema?", c:"N"},
+        {q:"¿Los peces viven en el agua?", c:"S"}, {q:"¿El fuego es frío?", c:"N"}, {q:"¿La Luna es un satélite?", c:"S"},
+        {q:"¿El azúcar es salado?", c:"N"}, {q:"¿El corazón bombea sangre?", c:"S"}, {q:"¿Los humanos tienen tres ojos?", c:"N"},
+        {q:"¿Las plantas hacen fotosíntesis?", c:"S"}, {q:"¿El aire es sólido?", c:"N"}, {q:"¿El oro es un metal?", c:"S"},
+        {q:"¿Las vacas vuelan?", c:"N"}, {q:"¿Un triángulo tiene tres lados?", c:"S"}, {q:"¿El agua es roja naturalmente?", c:"N"},
+        {q:"¿Los pájaros tienen alas?", c:"S"}, {q:"¿Los peces tienen pulmones como humanos?", c:"N"}, {q:"¿El día tiene 24 horas?", c:"S"},
+        {q:"¿El sol sale por el oeste?", c:"N"}, {q:"¿El cerebro controla el cuerpo?", c:"S"}, {q:"¿Los gatos ladran?", c:"N"},
+        {q:"¿El hielo es agua sólida?", c:"S"}, {q:"¿La lluvia sube del suelo?", c:"N"}, {q:"¿Las abejas producen miel?", c:"S"},
+        {q:"¿Los humanos pueden respirar bajo el agua sin ayuda?", c:"N"}, {q:"¿El café contiene cafeína?", c:"S"},
+        {q:"¿El mar es dulce?", c:"N"}, {q:"¿El cielo puede verse azul?", c:"S"}, {q:"¿Los carros no tienen ruedas?", c:"N"},
+        {q:"¿El pan se hace con harina?", c:"S"}, {q:"¿El fuego es húmedo?", c:"N"}, {q:"¿El océano es grande?", c:"S"},
+        {q:"¿El hielo es caliente?", c:"N"}, {q:"¿Las flores tienen pétalos?", c:"S"}, {q:"¿El cuerpo humano no tiene huesos?", c:"N"},
+        {q:"¿Los libros sirven para leer?", c:"S"}, {q:"¿El sol es frío?", c:"N"}, {q:"¿Las frutas son saludables?", c:"S"},
+        {q:"¿Los árboles caminan?", c:"N"}, {q:"¿El agua moja?", c:"S"}, {q
 
