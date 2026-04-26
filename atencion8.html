@@ -14,13 +14,11 @@
             display: flex; flex-direction: column; height: 100vh; width: 100vw;
         }
 
-        /* Sistema de Escalado Universal Zoom */
         #main-stage {
             flex-grow: 1; display: flex; 
             background: url('img8/habitacion_fondo8.jpg') no-repeat center; 
             background-size: cover; position: relative; 
             padding: 1vh; gap: 1vw; box-sizing: border-box;
-            max-height: calc(100vh - 80px);
         }
 
         #cabecera { 
@@ -38,36 +36,37 @@
         #texto-guia { font-size: 0.95rem; font-weight: bold; margin: 0; line-height: 1.2; }
 
         #contenedor-armario { 
-            width: 40%; height: 100%; position: relative; 
+            width: 45%; height: 95%; position: relative; 
             border: 4px solid var(--p-blue); border-radius: 20px; 
-            background: rgba(255,255,255,0.4); backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+            margin: auto 0;
         }
 
         #armario_img { width: 100%; height: 100%; object-fit: contain; }
 
         .punto-ubicacion { 
-            position: absolute; width: 15%; aspect-ratio: 1/1; 
-            background: rgba(48, 123, 142, 0.9); color: white; border-radius: 50%; 
+            position: absolute; width: 22%; aspect-ratio: 1/1; 
+            background: rgba(48, 123, 142, 0.7); color: white; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; 
             font-weight: bold; border: 3px solid white; z-index: 20; font-size: 1.5rem;
         }
 
         .etiqueta-zona { 
             position: absolute; background: var(--p-blue); color: white; 
-            padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; 
+            padding: 2px 8px; border-radius: 5px; font-size: 0.7rem; 
             font-weight: bold; z-index: 25; pointer-events: none; width: fit-content;
         }
 
-        /* Posiciones Proporcionales */
-        #punto1 { top: 15%; left: 42.5%; } #label1 { top: 8%; left: 42.5%; }
-        #punto2 { top: 48%; left: 42.5%; } #label2 { top: 41%; left: 42.5%; }
-        #punto3 { top: 82%; left: 42.5%; } #label3 { top: 75%; left: 42.5%; }
+        /* Ajuste de posiciones de los círculos para que coincidan con los estantes del armario.png */
+        #punto1 { top: 15%; left: 39%; } #label1 { top: 10%; left: 39%; }
+        #punto2 { top: 48%; left: 39%; } #label2 { top: 43%; left: 39%; }
+        #punto3 { top: 80%; left: 39%; } #label3 { top: 75%; left: 39%; }
 
         #despensa-prendas { 
-            width: 60%; background: rgba(255,255,255,0.85); 
+            width: 55%; background: rgba(255,255,255,0.9); 
             border-radius: 20px; border: 3px solid var(--p-blue); 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); 
-            gap: 10px; padding: 15px; overflow-y: hidden; align-content: start; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); 
+            gap: 15px; padding: 20px; overflow-y: auto; align-content: start; 
         }
 
         .item { 
@@ -76,7 +75,6 @@
             filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
         }
 
-        /* Notificación de Interrupción */
         #notificacion { 
             display: none; position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%); width: 85%; max-width: 380px; 
@@ -91,22 +89,20 @@
             cursor: pointer; font-size: 1.1rem; background: var(--t-blue); color: white; 
         }
 
-        /* Cuadro de Resultados Final */
         #modal-cierre { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(10, 37, 58, 0.98); z-index: 9000; color: white; 
             flex-direction: column; align-items: center; justify-content: center; 
-            text-align: center; padding: 20px; box-sizing: border-box;
         }
 
         .resumen-card {
             background: white; color: var(--p-blue); padding: 30px; 
-            border-radius: 25px; width: 90%; max-width: 400px;
+            border-radius: 25px; width: 90%; max-width: 400px; text-align: center;
         }
 
         .btn-final {
             background: var(--t-blue); color: white; border: none; 
-            padding: 15px 30px; border-radius: 50px; font-weight: bold; 
+            padding: 15px; border-radius: 12px; font-weight: bold; 
             margin-top: 20px; cursor: pointer; font-size: 1.1rem; width: 100%;
         }
     </style>
@@ -135,15 +131,15 @@
 
 <div id="notificacion">
     <p id="pregunta-txt" style="font-weight: bold; font-size: 1.3rem; color: #0A253A; margin-bottom: 20px;"></p>
-    <button class="btn-notif" id="btnA">Sí</button>
-    <button class="btn-notif" id="btnB">No</button>
+    <button class="btn-notif" id="btnA">SÍ</button>
+    <button class="btn-notif" id="btnB">NO</button>
 </div>
 
 <div id="modal-cierre">
     <div class="resumen-card">
-        <h2 style="margin: 0 0 15px 0;">¡Sesión Terminada!</h2>
+        <h2 style="margin-top:0">¡Closet Organizado!</h2>
         <div id="stats-finales" style="text-align: left; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;"></div>
-        <button class="btn-final" onclick="location.href='menu.html'">VOLVER AL MENÚ</button>
+        <button class="btn-final" onclick="location.href='index.html'">SALIR AL MENÚ</button>
     </div>
 </div>
 
@@ -157,30 +153,28 @@
         exito: new Audio('img8/exito.mp3')
     };
 
+    // CATEGORÍAS CORREGIDAS
     const categorias = {
         1: ['chaqueta.png', 'camisa_polo.png', 'camisa_verde.png', 'saco.png', 'vestido.png'],
         2: ['pantalones.png', 'pantalones_cortos.png', 'pijama.png', 'sueter.png'],
-        3: ['zapato1.png', 'tacones.png', 'bota.png']
+        3: ['zapato1.png', 'tacones.png', 'bota.png', 'zapatos.png'] // Agregué zapatos.png por si acaso
     };
     
     const trivias = [
         {q:"¿El cielo es azul?", c:"S"}, {q:"¿El fuego es frío?", c:"N"},
         {q:"¿Colombia está en África?", c:"N"}, {q:"¿Los perros ladran?", c:"S"},
-        {q:"¿El agua moja?", c:"S"}, {q:"¿La sal es dulce?", c:"N"},
-        {q:"¿El sol da calor?", c:"S"}, {q:"¿Los gatos vuelan?", c:"N"}
+        {q:"¿El agua moja?", c:"S"}, {q:"¿La sal es dulce?", c:"N"}
     ];
 
     function hablar(txt) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
         msg.lang = 'es-ES';
-        msg.rate = parseFloat(localStorage.getItem('velocidad_voz')) || 0.9;
         document.getElementById('texto-guia').innerText = txt;
         window.speechSynthesis.speak(msg);
     }
 
     function iniciarProgreso() {
-        aciertosPrendas = 0;
         if(nivelActual === 1) {
             hablar("Juan, organiza el closet: en el 1 lo de colgar, en el 2 lo doblado y en el 3 los zapatos.");
         }
@@ -191,55 +185,64 @@
         const d = document.getElementById('despensa-prendas');
         d.innerHTML = "";
         let items = [];
-        let numD = nivelActual === 1 ? 0 : (nivelActual === 2 ? 2 : 4);
 
-        // Selección de items según nivel
-        if(nivelActual === 1) items = [categorias[1][0], categorias[2][0], categorias[3][0], categorias[1][1]];
-        else if(nivelActual === 2) items = [categorias[1][2], categorias[2][1], categorias[3][1], categorias[1][3], categorias[2][2]];
-        else items = [...categorias[1], ...categorias[2], ...categorias[3]];
+        if(nivelActual === 1) items = ['chaqueta.png', 'pantalones.png', 'zapato1.png', 'camisa_polo.png'];
+        else if(nivelActual === 2) items = ['camisa_verde.png', 'pantalones_cortos.png', 'tacones.png', 'pijama.png', 'saco.png'];
+        else items = ['vestido.png', 'sueter.png', 'bota.png', 'chaqueta.png', 'pantalones.png', 'zapato1.png'];
 
         items.forEach(imgName => {
             const el = document.createElement('img');
             el.src = `img8/${imgName}`;
             el.className = 'item';
+            // Buscar a qué categoría pertenece el archivo
             el.dataset.zona = Object.keys(categorias).find(key => categorias[key].includes(imgName));
             activarPointer(el);
             d.appendChild(el);
         });
 
         clearTimeout(timerNotif);
-        timerNotif = setTimeout(lanzarNotificacion, 8000 / nivelActual);
+        timerNotif = setTimeout(lanzarNotificacion, 7000);
     }
 
     function activarPointer(el) {
         el.onpointerdown = (e) => {
             if(juegoFinalizado) return;
-            const startX = e.clientX, startY = e.clientY;
             el.style.position = 'fixed';
             el.style.zIndex = "2000";
-            el.style.width = '80px';
+            el.style.width = '90px';
 
             const move = (me) => {
-                el.style.left = (me.clientX - 40) + 'px';
-                el.style.top = (me.clientY - 40) + 'px';
+                el.style.left = (me.clientX - 45) + 'px';
+                el.style.top = (me.clientY - 45) + 'px';
             };
 
             const stop = (se) => {
                 window.removeEventListener('pointermove', move);
                 window.removeEventListener('pointerup', stop);
+                
                 el.style.display = 'none';
                 const target = document.elementFromPoint(se.clientX, se.clientY);
                 el.style.display = 'block';
 
+                // Verificamos si el punto donde soltó es una "punto-ubicacion" y si coincide la zona
                 if (target && target.classList.contains('punto-ubicacion') && target.dataset.zona == el.dataset.zona) {
                     aciertosPrendas++;
                     sonidos.exito.play();
                     el.remove();
-                    if (document.querySelectorAll('.item').length === 0) siguienteNivel();
+                    if (document.querySelectorAll('.item').length === 0) {
+                        if(nivelActual < 3) {
+                            nivelActual++;
+                            hablar("¡Muy bien! Vamos con más prendas.");
+                            setTimeout(configurarNivel, 1500);
+                        } else {
+                            finalizarJuego();
+                        }
+                    }
                 } else {
                     erroresPrendas++;
-                    hablar("Esa prenda no va en ese nivel.");
-                    el.style.position = 'static'; el.style.width = '100%';
+                    hablar("Esa prenda no va ahí, intenta de nuevo.");
+                    el.style.position = 'static'; 
+                    el.style.width = '100%';
                 }
             };
             window.addEventListener('pointermove', move);
@@ -258,52 +261,30 @@
 
         const responder = (v) => {
             if(v === t.c) aciertosTrivia++;
-            else erroresPrendas++;
             n.style.display = 'none';
-            timerNotif = setTimeout(lanzarNotificacion, 12000 / nivelActual);
+            sonidos.alarma.pause(); sonidos.alarma.currentTime = 0;
+            if(!juegoFinalizado) timerNotif = setTimeout(lanzarNotificacion, 12000);
         };
         document.getElementById('btnA').onclick = () => responder("S");
         document.getElementById('btnB').onclick = () => responder("N");
     }
 
-    function siguienteNivel() {
-        if (nivelActual < 3) {
-            nivelActual++;
-            hablar("¡Bien hecho Juan! Pasemos a la siguiente parte.");
-            iniciarProgreso();
-        } else {
-            finalizarJuego();
-        }
-    }
-
     function finalizarJuego() {
         juegoFinalizado = true;
         clearTimeout(timerNotif);
-        const totalIntentos = aciertosPrendas + erroresPrendas;
-        const eficacia = Math.round((aciertosPrendas / (totalIntentos || 1)) * 100);
-
-        const data = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Atención",
-            id_sesion: 8,
-            aciertos: aciertosPrendas,
-            errores: erroresPrendas,
-            eficacia: eficacia
-        };
-
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(data);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+        sonidos.alarma.pause();
+        const ef = Math.round((aciertosPrendas / (aciertosPrendas + erroresPrendas)) * 100) || 0;
 
         document.getElementById('stats-finales').innerHTML = `
-            <b>Prendas organizadas:</b> ${aciertosPrendas}<br>
-            <b>Errores cometidos:</b> ${erroresPrendas}<br>
-            <b>Trivias correctas:</b> ${aciertosTrivia}/${totalPreguntas}<br><br>
-            <b>Eficacia Global: ${eficacia}%</b>
+            <b>Prendas correctas:</b> ${aciertosPrendas}<br>
+            <b>Errores:</b> ${erroresPrendas}<br>
+            <b>Preguntas contestadas:</b> ${aciertosTrivia} de ${totalPreguntas}<br><br>
+            <b style="color:var(--t-blue); font-size:1.3rem;">Eficacia: ${ef}%</b>
         `;
         document.getElementById('modal-cierre').style.display = 'flex';
-        hablar("Excelente Juan, organizaste todo el closet y respondiste a las preguntas.");
+        hablar("¡Excelente trabajo Juan! El closet quedó perfecto.");
     }
 </script>
 </body>
 </html>
+
