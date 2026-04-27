@@ -15,7 +15,6 @@
             background-size: cover;
         }
 
-        /* Sistema de Escalado Universal Zoom */
         #main-container {
             flex-grow: 1; display: flex; flex-direction: column;
             width: 100%; max-width: 1200px; margin: 0 auto; position: relative;
@@ -77,7 +76,6 @@
 
         .item { width: 100%; aspect-ratio: 1/1; max-width: 80px; object-fit: contain; cursor: grab; touch-action: none; }
 
-        /* Alerta Emergencia */
         #alerta-emergencia { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             width: 320px; background: #C0392B; color: white; border: 6px solid #FFC300; 
@@ -85,7 +83,6 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* Resumen Final */
         #modal-resultados {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center;
@@ -140,19 +137,18 @@
     <div class="cuadro-resumen">
         <h2 style="color: var(--p-blue)">¡Chef Estrella!</h2>
         <div id="stats-finales" style="font-size: 1.2rem; margin: 20px 0; line-height: 1.6; text-align: left;"></div>
-        <button class="btn-accion" onclick="window.location.href='menu.html'">REGRESAR AL MENÚ</button>
+        <button class="btn-accion" onclick="irAlMenu()">CONTINUAR</button>
     </div>
 </div>
 
 <script>
-    // MÉTRICAS Y ESTADO
     let nivelActual = 1;
     let totalAciertos = 0, totalErrores = 0;
     let ingredientesRestantes = []; 
     let interrupcionActiva = false;
     let ingredienteObjetivo = ""; 
     let audioAmbiente = new Audio();
-    let totalRetosSesion = 16; // 4 + 4 + 8 ingredientes totales
+    let juegoTerminado = false;
 
     const todosLosIngredientes = [
         "apio.png", "arepa.png", "arroz.png", "azucar.png", "bowl.png", "camote.png", "carne.png", "cebolla.png", 
@@ -168,10 +164,10 @@
         3: { nombre: "Sancocho Trifásico", platoFinal: "img9/sancocho.png", meta: ["carne.png", "cerdo.png", "pollo.png", "papa.png", "yuca.png", "platano.png", "mazorca.png", "cilantro.png"], audio: "img9/licuadora.mp3", emergencia: "¡Apaga el fogón rápido!" }
     };
 
-    function hablar(txt, callback, voz = 'es-ES') {
+    function hablar(txt, callback) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(txt);
-        msg.lang = voz;
+        msg.lang = 'es-ES';
         msg.rate = 0.9;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
@@ -198,8 +194,6 @@
             img.src = `img9/${imgName}`;
             img.className = 'item';
             img.dataset.file = imgName;
-            img.setAttribute('draggable', 'false');
-            // SOPORTE POINTER PARA TODOS LOS DISPOSITIVOS
             img.onpointerdown = iniciarDrag;
             d.appendChild(img);
         });
@@ -224,7 +218,6 @@
             const pantallaPide = ingredientesRestantes[0];
             document.getElementById('paso-texto').innerText = pantallaPide.split('.')[0].toUpperCase();
             
-            // Lógica de Conflicto (Stroop Auditivo/Visual)
             if(Math.random() > 0.4 && ingredientesRestantes.length > 1) {
                 let opcionesVoz = ingredientesRestantes.filter(i => i !== pantallaPide);
                 ingredienteObjetivo = opcionesVoz[Math.floor(Math.random() * opcionesVoz.length)];
@@ -259,7 +252,6 @@
         const el = e.target;
         el.style.position = 'fixed';
         el.style.zIndex = "1000";
-        el.style.pointerEvents = 'none';
 
         const mover = (me) => {
             el.style.left = (me.clientX - 40) + 'px';
@@ -269,8 +261,7 @@
         const soltar = (se) => {
             window.removeEventListener('pointermove', mover);
             window.removeEventListener('pointerup', soltar);
-            el.style.pointerEvents = 'auto';
-
+            
             const target = document.getElementById('sarten-target').getBoundingClientRect();
             if(se.clientX > target.left && se.clientX < target.right && se.clientY > target.top && se.clientY < target.bottom) {
                 if(el.dataset.file === ingredienteObjetivo) {
@@ -288,12 +279,10 @@
                 el.style.position = 'static';
             }
         };
-
         window.addEventListener('pointermove', mover);
         window.addEventListener('pointerup', soltar);
     }
 
-    let juegoTerminado = false;
     function finalizarNivel() {
         audioAmbiente.pause();
         const pf = document.getElementById('plato-final-img');
@@ -307,65 +296,40 @@
                     iniciarSesion9(); 
                 } else { 
                     juegoTerminado = true;
-                    guardarResultados(); 
+                    mostrarResultados(); 
                 }
-            }, 3000);
+            }, 2500);
         });
     }
 
-    function guardarResultados() {
+    function mostrarResultados() {
         const eficacia = Math.round((totalAciertos / (totalAciertos + totalErrores || 1)) * 100);
-        
-        const data = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Atención",
-            id_sesion: 9,
-            aciertos: totalAciertos,
-            errores: totalErrores,
-            eficacia: eficacia
-        };
-
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(data);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
         document.getElementById('stats-finales').innerHTML = `
-            Aciertos (Ingredientes): <b>${totalAciertos}</b><br>
+            Ingredientes correctos: <b>${totalAciertos}</b><br>
             Errores cometidos: <b>${totalErrores}</b><br>
             Eficacia: <b>${eficacia}%</b>
         `;
         document.getElementById('modal-resultados').style.display = 'flex';
         hablar("¡Felicidades Juan! Completaste la sesión de cocina.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
+        const ef = Math.round((totalAciertos / (totalAciertos + totalErrores || 1)) * 100);
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención", 
             id_sesion: 9,      
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: totalAciertos,
+            errores: totalErrores,
             eficacia: ef + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
         window.location.href = "atencion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
