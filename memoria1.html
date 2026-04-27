@@ -13,7 +13,6 @@
             background: #222; height: 100vh; display: flex; justify-content: center; align-items: center;
         }
 
-        /* Sistema Universal Zoom */
         #contenedor-proporcional {
             width: 100vw; height: 100vh;
             max-width: 1200px; max-height: 800px;
@@ -71,7 +70,6 @@
             display: none; box-shadow: 0 4px 0 #a0520d;
         }
 
-        /* Resumen Final */
         #overlay-final { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); 
@@ -89,7 +87,6 @@
             background: #366B2B; color: white; border: none; cursor: pointer;
             font-weight: bold; margin-top: 20px; transition: 0.2s;
         }
-        .btn-grande:active { transform: scale(0.95); }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
@@ -113,18 +110,16 @@
     <div class="cuadro-resultados">
         <h1 style="margin-top:0">¡Sesión Finalizada!</h1>
         <div id="metricas-visuales" style="font-size: 1.4rem; text-align: left; margin: 20px 0;"></div>
-        <button class="btn-grande" onclick="location.href='menu.html'">VOLVER AL MENÚ</button>
+        <button class="btn-grande" onclick="irAlMenu()">VOLVER AL MENÚ</button>
     </div>
 </div>
 
 <script>
-    // ESTADO DE LA SESIÓN
     let nivelActual = 1;
     let aciertosTotales = 0;
     let erroresTotales = 0;
     let objetosReto = []; 
     let colocadasEnNivel = 0;
-    let totalRetosSesion = 12; // 2+4+6 objetos a memorizar en total
 
     const cuadricula = [
         {x: 30, y: 30}, {x: 45, y: 30}, {x: 60, y: 30}, {x: 75, y: 30},
@@ -145,7 +140,6 @@
         document.getElementById('label-guia').innerText = t;
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
@@ -164,7 +158,7 @@
         document.getElementById('objetos-layer').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'none';
 
-        hablar(`Juan, observa bien y memoriza dónde están estos ${config.memoriza} objetos.`, () => {
+        hablar(`Juan, memoriza dónde están estos objetos.`, () => {
             objetosReto.forEach(obj => {
                 const img = document.createElement('img');
                 img.src = `mem1/${obj.id}.png`; img.className = 'pieza';
@@ -181,11 +175,7 @@
         const cuenta = setInterval(() => {
             segundos--; 
             box.innerText = `00:${segundos < 10 ? '0' + segundos : segundos}`;
-            if(segundos <= 0) { 
-                clearInterval(cuenta); 
-                box.style.display = 'none'; 
-                faseReconocimiento(); 
-            }
+            if(segundos <= 0) { clearInterval(cuenta); box.style.display = 'none'; faseReconocimiento(); }
         }, 1000);
     }
 
@@ -193,26 +183,17 @@
         document.getElementById('objetos-layer').innerHTML = "";
         const panel = document.getElementById('panel-objetos');
         panel.style.display = 'flex'; panel.innerHTML = "";
-        
         const config = niveles[nivelActual];
-        
-        // Crear guías visuales (sombras) en los puntos correctos
         objetosReto.forEach(obj => crearSombra(obj.x, obj.y));
 
-        // Crear pool de objetos (objetos correctos + distractores)
         const distractoresPool = repo.filter(item => !objetosReto.some(o => o.id === item));
-        const poolFinal = [
-            ...objetosReto.map(o => o.id), 
-            ...distractoresPool.sort(() => Math.random() - 0.5).slice(0, config.distractores)
-        ].sort(() => Math.random() - 0.5);
+        const poolFinal = [...objetosReto.map(o => o.id), ...distractoresPool.sort(() => Math.random() - 0.5).slice(0, config.distractores)].sort(() => Math.random() - 0.5);
 
-        hablar("Ahora Juan, arrastra los objetos que recuerdes a su lugar correspondiente.");
+        hablar("Juan, arrastra los objetos a su lugar.");
 
         poolFinal.forEach(id => {
             const img = document.createElement('img');
-            img.src = `mem1/${id}.png`; 
-            img.className = 'draggable'; 
-            img.dataset.id = id;
+            img.src = `mem1/${id}.png`; img.className = 'draggable'; img.dataset.id = id;
             img.onpointerdown = iniciarDrag;
             panel.appendChild(img);
         });
@@ -229,123 +210,69 @@
         const el = e.target;
         el.style.position = 'fixed';
         el.style.zIndex = 2000;
-        el.style.width = '90px'; // Tamaño de juego durante drag
-
         const mover = (me) => {
             el.style.left = (me.clientX - 45) + 'px';
             el.style.top = (me.clientY - 45) + 'px';
         };
-
         const soltar = (se) => {
             window.removeEventListener('pointermove', mover);
             window.removeEventListener('pointerup', soltar);
-            
             const area = document.getElementById('zona-juego').getBoundingClientRect();
             const px = ((se.clientX - area.left) / area.width) * 100;
             const py = ((se.clientY - area.top) / area.height) * 100;
-            
-            // Lógica de validación
             const objCorrecto = objetosReto.find(o => o.id === el.dataset.id && !o.puesto);
             
             if(objCorrecto) {
-                const distancia = Math.sqrt(Math.pow(px - objCorrecto.x, 2) + Math.pow(py - objCorrecto.y, 2));
-                
-                if(distancia < 12) { // Margen de error aceptable
-                    aciertosTotales++;
-                    colocadasEnNivel++;
-                    objCorrecto.puesto = true;
-                    
+                const dist = Math.sqrt(Math.pow(px - objCorrecto.x, 2) + Math.pow(py - objCorrecto.y, 2));
+                if(dist < 12) {
+                    aciertosTotales++; colocadasEnNivel++; objCorrecto.puesto = true;
                     const f = document.createElement('img');
                     f.src = el.src; f.className = 'pieza';
                     f.style.left = objCorrecto.x + '%'; f.style.top = objCorrecto.y + '%';
                     document.getElementById('objetos-layer').appendChild(f);
                     el.remove();
-                    
-                    hablar("¡Excelente!");
-                    
-                    if(colocadasEnNivel >= niveles[nivelActual].memoriza) {
-                        setTimeout(pasarDeNivel, 1000);
-                    }
+                    if(colocadasEnNivel >= niveles[nivelActual].memoriza) setTimeout(pasarDeNivel, 1000);
                     return;
                 }
             }
-            
-            // Si llega aquí, es error
-            erroresTotales++;
-            el.style.position = 'static';
-            el.style.width = '80px';
-            hablar("Ese no va ahí, inténtalo de nuevo.");
+            erroresTotales++; el.style.position = 'static';
         };
-
         window.addEventListener('pointermove', mover);
         window.addEventListener('pointerup', soltar);
     }
 
     function pasarDeNivel() {
-        if(nivelActual < 3) { 
-            nivelActual++; 
-            prepararFaseMemorizacion(); 
-        } else {
-            finalizarSesion();
-        }
+        if(nivelActual < 3) { nivelActual++; prepararFaseMemorizacion(); }
+        else { finalizarSesion(); }
     }
 
     function finalizarSesion() {
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
-        
-        const dataSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria",
-            id_sesion: 1,
-            aciertos: aciertosTotales,
-            errores: erroresTotales,
-            eficacia: eficacia
-        };
-
-        // Guardado Centralizado
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(dataSesion);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        // Resumen Visual
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
         document.getElementById('metricas-visuales').innerHTML = `
             <strong>Aciertos:</strong> ${aciertosTotales} <br>
             <strong>Errores:</strong> ${erroresTotales} <br>
             <strong>Eficacia:</strong> ${eficacia}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Muy bien Juan! Has terminado tu primer entrenamiento de memoria.");
+        hablar("¡Muy bien Juan! Has terminado.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
-        const datosSesion = {
+        const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
+        const dataSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria", 
-            id_sesion: 1,      
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef + "%"
+            modulo: "Memoria", id_sesion: 1,
+            aciertos: aciertosTotales, errores: erroresTotales, eficacia: ef + "%"
         };
 
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
-        historial.push(datosSesion); 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
+        historial.push(dataSesion);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
 
-        window.location.href = "atencion_sesiones.html";
+        // REDIRECCIÓN A MEMORIA_SESIONES
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
 
