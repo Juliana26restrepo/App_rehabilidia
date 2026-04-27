@@ -3,241 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Memoria 6 - Juan: Memoria de Trabajo - REHABILIDIA</title>
+    <title>Memoria 6 - Juan (Reconocimiento Verbal)</title>
     <style>
         :root {
-            --primary: #5D4037;
-            --secondary: #8D6E63;
-            --accent: #FFD700;
-            --bg: #EFEBE9;
-            --success: #2E7D32;
-            --error: #C62828;
+            --baby-blue: #E1F5FE;
+            --ocean: #0288D1;
+            --deep-blue: #01579B;
+            --gold: #FFD700;
+            --success: #43A047;
+            --error: #E53935;
         }
 
+        * { box-sizing: border-box; }
         body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; 
-            background: var(--bg); height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; overflow: hidden; 
+            background: var(--baby-blue); 
+            text-align: center; color: #2C3E50; 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
         }
-        
+
         #contenedor-proporcional {
-            width: 100vw; height: 100vh; max-width: 1200px; max-height: 800px;
-            background: white; position: relative; display: flex; flex-direction: column; overflow: hidden;
+            width: 100vw; height: 100vh;
+            max-width: 1200px; max-height: 800px;
+            display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
         }
 
         #cabecera { 
-            background: var(--primary); color: white; height: 12%; 
-            display: flex; align-items: center; padding: 0 20px; border-bottom: 4px solid var(--accent);
+            background: rgba(255, 255, 255, 0.7); height: 10%; 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 0 15px; border-bottom: 3px solid var(--gold); flex-shrink: 0; 
         }
 
         #instruccion-box { 
-            background: white; padding: 10px 25px; border-radius: 30px; 
-            color: var(--primary); display: flex; align-items: center; 
-            font-weight: bold; font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            background: white; padding: 10px 20px; border-radius: 30px; 
+            color: var(--ocean); display: flex; align-items: center; 
+            font-weight: bold; width: 90%; max-width: 650px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); font-size: clamp(0.8rem, 2.5vw, 1.1rem);
         }
-        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
+        #instruccion-box img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-
-        /* Estilos de Juego */
-        #display-memorizar { display: none; font-size: 8rem; font-weight: bold; color: var(--primary); }
-        
-        #panel-reto { display: none; width: 100%; flex-direction: column; align-items: center; }
-        
-        #teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
-        
-        .btn-num { 
-            width: 80px; height: 80px; background: white; border: 4px solid var(--primary);
-            border-radius: 15px; font-size: 2rem; font-weight: bold; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        #contenedor-juego { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; width: 100%; padding: 15px; 
         }
-        .btn-num:active { transform: scale(0.9); background: var(--accent); }
 
-        #overlay-final { 
-            display: none; position: absolute; top: 0; left: 0; 
-            width: 100%; height: 100%; background: rgba(93, 64, 55, 0.98); 
-            z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; 
+        #palabra-display { 
+            font-size: clamp(2.5rem, 8vw, 5rem); font-weight: bold; color: var(--deep-blue); 
+            background: white; padding: 30px 60px; border-radius: 30px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 6px solid var(--ocean); 
+            display: none; margin-bottom: 20px; text-transform: uppercase; 
         }
+
+        #ensalada-container { 
+            display: none; grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; width: 95%; max-width: 1000px; 
+        }
+
+        .word-card { 
+            background: white; padding: 15px; border-radius: 12px; 
+            font-size: clamp(1rem, 2.5vw, 1.4rem); font-weight: bold; 
+            cursor: pointer; border: 4px solid #CFD8DC; color: var(--deep-blue); 
+            transition: 0.2s; touch-action: manipulation;
+        }
+
+        .word-card.correct-hit { background: #C8E6C9 !important; border-color: var(--success) !important; color: #1B5E20; pointer-events: none; }
+        .word-card.error-hit { background: #FFCDD2 !important; border-color: var(--error) !important; }
+
+        #pantalla-transicion, #overlay-final { 
+            display: none; position: absolute; top:0; left:0; width:100%; height:100%; 
+            z-index:2000; flex-direction:column; justify-content:center; align-items:center; color: white; 
+        }
+        #pantalla-transicion { background: var(--ocean); }
+        #overlay-final { background: rgba(1, 87, 155, 0.98); overflow-y: auto; padding: 20px; }
 
         .cuadro-resultados {
-            background: white; color: var(--primary); padding: 30px; 
-            border-radius: 20px; border: 5px solid var(--accent); width: 80%; max-width: 400px; text-align: center;
+            background: white; color: #2C3E50; padding: 20px; border-radius: 20px;
+            width: 95%; max-width: 550px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); text-align: center;
         }
 
-        .btn-finalizar {
-            padding: 15px 40px; background: var(--primary); color: white; 
-            border: none; border-radius: 12px; font-size: 1.4rem; cursor: pointer; font-weight: bold; margin-top: 20px;
+        .tabla-resultados { 
+            width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 1.1rem; 
+        }
+        .tabla-resultados th { background: var(--gold); color: var(--deep-blue); padding: 10px; border: 1px solid #ddd; }
+        .tabla-resultados td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+
+        .btn-accion {
+            padding: 15px 40px; background: var(--gold); color: var(--deep-blue); 
+            border-radius: 20px; font-size: 1.4rem; cursor: pointer; 
+            font-weight: bold; border: none; transition: 0.3s; width: 100%;
         }
     </style>
 </head>
-<body onload="iniciarSesion()">
+<body onload="iniciarEntrenamiento()">
 
 <div id="contenedor-proporcional">
     <div id="cabecera">
         <div id="instruccion-box">
             <img src="COTERAPEUTA.JPG">
-            <span id="label-guia">Juan, memoriza los números...</span>
+            <span id="label-guia">Cargando...</span>
         </div>
     </div>
 
     <div id="contenedor-juego">
-        <div id="display-memorizar"></div>
-        
-        <div id="panel-reto">
-            <div id="input-display" style="font-size: 3rem; background: #eee; width: 300px; height: 80px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid var(--primary);"></div>
-            <div id="teclado">
-                <button class="btn-num" onpointerdown="presionarTecla(1)">1</button>
-                <button class="btn-num" onpointerdown="presionarTecla(2)">2</button>
-                <button class="btn-num" onpointerdown="presionarTecla(3)">3</button>
-                <button class="btn-num" onpointerdown="presionarTecla(4)">4</button>
-                <button class="btn-num" onpointerdown="presionarTecla(5)">5</button>
-                <button class="btn-num" onpointerdown="presionarTecla(6)">6</button>
-                <button class="btn-num" onpointerdown="presionarTecla(7)">7</button>
-                <button class="btn-num" onpointerdown="presionarTecla(8)">8</button>
-                <button class="btn-num" onpointerdown="presionarTecla(9)">9</button>
-                <button class="btn-num" onpointerdown="borrar()">←</button>
-                <button class="btn-num" onpointerdown="presionarTecla(0)">0</button>
-                <button class="btn-num" onpointerdown="verificarRespuesta()" style="background: var(--success); color: white; border-color: white;">✓</button>
-            </div>
-        </div>
+        <div id="palabra-display"></div>
+        <div id="ensalada-container"></div>
+    </div>
+
+    <div id="pantalla-transicion">
+        <h1 id="txt-nivel-tit" style="background: var(--gold); color: var(--deep-blue); padding: 10px 40px; border-radius: 50px;"></h1>
+        <h2 id="txt-nivel-desc" style="margin-top: 20px;"></h2>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="margin-top: 0;">¡Sesión Exitosa!</h1>
-            <div id="resumen-lista" style="font-size: 1.2rem; margin-bottom: 20px;"></div>
-            <button class="btn-finalizar" onpointerdown="irAlMenu()">FINALIZAR Y VOLVER</button>
+            <h1 style="color: var(--ocean); margin-top: 0;">¡SESIÓN FINALIZADA!</h1>
+            <table class="tabla-resultados">
+                <thead>
+                    <tr><th>Nivel</th><th>Aciertos</th><th>Errores</th></tr>
+                </thead>
+                <tbody id="cuerpo-tabla"></tbody>
+            </table>
+            <div id="resumen-final-texto"></div>
+            <button class="btn-accion" onpointerdown="irAlMenu()">GUARDAR Y FINALIZAR</button>
         </div>
     </div>
 </div>
 
 <script>
-    let secuencia = [];
-    let entradaUsuario = "";
-    let nivelActual = 2; // Cantidad de números inicial
-    let aciertos = 0;
-    let errores = 0;
-    let intentosPorNivel = 0;
+    const lista = ["Casa", "Perro", "Gato", "Mesa", "Silla", "Agua", "Pan", "Sol", "Luna", "Flor", "Árbol", "Cielo", "Mar", "Río", "Libro", "Lápiz", "Zapato", "Camisa", "Puerta", "Ventana", "Niño", "Niña", "Mamá", "Papá", "Abuelo", "Abuela", "Amigo", "Comida", "Fruta", "Leche", "Queso", "Huevo", "Café", "Té", "Azúcar", "Sal", "Dulce", "Frío", "Calor", "Viento", "Lluvia", "Nube", "Rayo", "Trueno", "Montaña", "Playa", "Isla", "Barco", "Carro", "Moto", "Bus", "Calle", "Camino", "Parque", "Jardín", "Escuela", "Clase", "Tarea", "Juego", "Pelota", "Muñeca", "Robot", "Caja", "Bolsa", "Llave", "Reloj", "Teléfono", "Foto", "Música", "Canción", "Baile", "Risa", "Llanto", "Voz", "Mano", "Pie", "Cabeza", "Ojo", "Boca", "Nariz", "Oreja", "Pelo", "Cara", "Cuerpo", "Salud", "Médico", "Pastilla", "Hospital", "Dolor", "Sueño", "Cama", "Almohada", "Sábana", "Luz", "Oscuro", "Día", "Noche", "Mañana", "Tarde", "Tiempo", "Hora", "Minuto", "Segundo", "Número", "Color", "Rojo", "Azul", "Verde", "Amarillo", "Negro", "Blanco", "Gris", "Rosa", "Morado", "Naranja", "Feliz", "Triste", "Enojado", "Miedo", "Amor", "Paz", "Guerra", "Trabajo", "Dinero", "Banco", "Compra", "Venta", "Mercado", "Tienda", "Precio", "Regalo", "Sorpresa", "Fiesta", "Cumpleaños", "Navidad", "Viaje", "Maleta", "Avión", "Hotel", "Playa", "Campo", "Ciudad", "Pueblo", "Vecino", "Familia", "Historia", "Cuento", "Palabra", "Idioma", "Letra", "Número", "Forma", "Línea", "Punto", "Dibujo", "Pintura", "Arte", "Imagen", "Pantalla", "Computador", "Internet", "Video", "Cámara", "Radio", "Televisión", "Control", "Botón", "Puente", "Torre", "Castillo", "Rey", "Reina", "Príncipe", "Dragón", "Espada", "Escudo", "Héroe", "Villano", "Aventura", "Misterio", "Secreto", "Camino", "Meta", "Sueño", "Idea", "Pensamiento", "Recuerdo", "Olvido", "Atención", "Memoria", "Aprender", "Enseñar", "Escuchar", "Hablar", "Mirar", "Sentir", "Tocar", "Probar", "Oler", "Vivir"];
 
-    function hablar(t, callback) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(t);
-        msg.lang = 'es-ES';
-        if(callback) msg.onend = callback;
-        window.speechSynthesis.speak(msg);
+    let nivel = 1, ronda = 1, objetivo = [], encontrados = 0;
+    let aciertosGlobales = 0, erroresGlobales = 0;
+    let stats = { 1: { a: 0, e: 0 }, 2: { a: 0, e: 0 }, 3: { a: 0, e: 0 } };
+
+    const config = { 
+        1: { n: "Bajo", c: 3, e: 8, r: 3 }, 
+        2: { n: "Medio", c: 6, e: 12, r: 3 }, 
+        3: { n: "Alto", c: 10, e: 16, r: 3 } 
+    };
+
+    function hablar(t, cb) { 
+        window.speechSynthesis.cancel(); 
+        const m = new SpeechSynthesisUtterance(t); 
+        m.lang = 'es-ES'; 
+        if(cb) m.onend = cb; 
+        window.speechSynthesis.speak(m); 
     }
 
-    function iniciarSesion() {
-        hablar("Juan, observa los números y luego escríbelos.", () => {
-            setTimeout(generarSecuencia, 1000);
-        });
+    function iniciarEntrenamiento() { 
+        nivel = 1; ronda = 1; 
+        aciertosGlobales = 0; erroresGlobales = 0;
+        prepararNivel(); 
     }
 
-    function generarSecuencia() {
-        secuencia = [];
-        entradaUsuario = "";
-        actualizarDisplayInput();
-        document.getElementById('panel-reto').style.display = 'none';
-        document.getElementById('display-memorizar').style.display = 'block';
-        
-        for(let i=0; i < nivelActual; i++) {
-            secuencia.push(Math.floor(Math.random() * 10));
-        }
-        
-        mostrarNumero(0);
+    function prepararNivel() { 
+        const c = config[nivel]; 
+        document.getElementById('txt-nivel-tit').innerText = "NIVEL " + c.n.toUpperCase(); 
+        document.getElementById('txt-nivel-desc').innerText = "Memoriza estas " + c.c + " palabras."; 
+        document.getElementById('pantalla-transicion').style.display = 'flex'; 
+        hablar("Juan, Nivel " + c.n + ". Memoriza las palabras.", () => { 
+            setTimeout(() => { 
+                document.getElementById('pantalla-transicion').style.display = 'none'; 
+                nuevaRonda(); 
+            }, 2000); 
+        }); 
     }
 
-    function mostrarNumero(idx) {
-        if(idx < secuencia.length) {
-            const display = document.getElementById('display-memorizar');
-            display.innerText = secuencia[idx];
-            
-            // Sonar el número
-            const audio = new SpeechSynthesisUtterance(secuencia[idx]);
-            audio.lang = 'es-ES';
-            window.speechSynthesis.speak(audio);
+    function nuevaRonda() { 
+        objetivo = []; encontrados = 0; 
+        document.getElementById('ensalada-container').style.display = 'none'; 
+        let b = [...lista].sort(() => 0.5 - Math.random()); 
+        objetivo = b.slice(0, config[nivel].c); 
+        mostrarSecuencia(0); 
+    }
 
-            setTimeout(() => {
-                display.innerText = "";
-                setTimeout(() => mostrarNumero(idx + 1), 500);
-            }, 1000);
+    function mostrarSecuencia(i) { 
+        const d = document.getElementById('palabra-display'); 
+        if(i < objetivo.length) { 
+            d.innerText = objetivo[i]; d.style.display = 'block'; 
+            document.getElementById('label-guia').innerText = "Palabra " + (i+1) + " de " + objetivo.length; 
+            hablar(objetivo[i], () => { 
+                setTimeout(() => { d.style.display = 'none'; setTimeout(() => mostrarSecuencia(i+1), 400); }, 1200); 
+            }); 
+        } else { generarEnsalada(); } 
+    }
+
+    function generarEnsalada() { 
+        const container = document.getElementById('ensalada-container'); 
+        container.innerHTML = ""; container.style.display = 'grid'; 
+        document.getElementById('label-guia').innerText = "¿Cuáles palabras memorizaste?"; 
+        let distractores = lista.filter(p => !objetivo.includes(p)).sort(() => 0.5 - Math.random()).slice(0, config[nivel].e - objetivo.length); 
+        let mix = [...objetivo, ...distractores].sort(() => 0.5 - Math.random()); 
+        mix.forEach(p => { 
+            const card = document.createElement('div'); 
+            card.className = 'word-card'; card.innerText = p; 
+            card.onpointerdown = () => verificar(p, card); 
+            container.appendChild(card); 
+        }); 
+        hablar("¿Cuáles palabras estaban?");
+    }
+
+    function verificar(p, card) {
+        if(card.classList.contains('correct-hit') || card.classList.contains('error-hit')) return;
+        if(objetivo.includes(p)) {
+            card.classList.add('correct-hit');
+            encontrados++; aciertosGlobales++; stats[nivel].a++;
+            hablar("Bien.");
+            if(encontrados === objetivo.length) setTimeout(saltarARonda, 1000); 
         } else {
-            prepararInput();
+            card.classList.add('error-hit');
+            erroresGlobales++; stats[nivel].e++;
+            hablar("No.");
+            setTimeout(() => card.classList.remove('error-hit'), 800);
         }
     }
 
-    function prepararInput() {
-        document.getElementById('display-memorizar').style.display = 'none';
-        document.getElementById('panel-reto').style.display = 'flex';
-        hablar("¿Qué números viste?");
-    }
-
-    function presionarTecla(n) {
-        if(entradaUsuario.length < secuencia.length) {
-            entradaUsuario += n;
-            actualizarDisplayInput();
+    function saltarARonda() {
+        if(ronda < config[nivel].r) { ronda++; nuevaRonda(); } 
+        else {
+            if(nivel < 3) { nivel++; ronda = 1; prepararNivel(); } 
+            else { mostrarResultados(); }
         }
     }
 
-    function borrar() {
-        entradaUsuario = entradaUsuario.slice(0, -1);
-        actualizarDisplayInput();
-    }
-
-    function actualizarDisplayInput() {
-        document.getElementById('input-display').innerText = entradaUsuario;
-    }
-
-    function verificarRespuesta() {
-        const respuestaCorrecta = secuencia.join("");
-        if(entradaUsuario === respuestaCorrecta) {
-            aciertos++;
-            hablar("¡Muy bien!");
-            subirDificultad();
-        } else {
-            errores++;
-            hablar("No era ese. Intenta con otros números.");
-            setTimeout(generarSecuencia, 1500);
+    function mostrarResultados() { 
+        const cuerpo = document.getElementById('cuerpo-tabla');
+        cuerpo.innerHTML = "";
+        for(let n in stats) {
+            cuerpo.innerHTML += `<tr><td>${config[n].n}</td><td>${stats[n].a}</td><td>${stats[n].e}</td></tr>`;
         }
-    }
-
-    function subirDificultad() {
-        intentosPorNivel++;
-        if(intentosPorNivel >= 2) { // Cada 2 aciertos sube un número la carga
-            nivelActual++;
-            intentosPorNivel = 0;
-        }
-        
-        if(nivelActual > 6) { // Finaliza al llegar a 6 números
-            finalizar();
-        } else {
-            setTimeout(generarSecuencia, 1500);
-        }
-    }
-
-    function finalizar() {
-        const ef = Math.round((aciertos / (aciertos + errores || 1)) * 100);
-        document.getElementById('resumen-lista').innerHTML = `
-            Aciertos: ${aciertos}<br>
-            Errores: ${errores}<br>
-            Eficacia: ${ef}%
-        `;
-        document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Excelente Juan, hemos terminado por hoy.");
+        const eficacia = Math.round((aciertosGlobales / (aciertosGlobales + erroresGlobales || 1)) * 100);
+        document.getElementById('resumen-final-texto').innerHTML = `<h2 style="color:var(--ocean)">Eficacia: ${eficacia}%</h2>`;
+        document.getElementById('overlay-final').style.display = 'flex'; 
+        hablar("Muy bien Juan, hemos terminado."); 
     }
 
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores || 1)) * 100);
-        const datos = {
+        const total = aciertosGlobales + erroresGlobales;
+        const ef = Math.round((aciertosGlobales / (total || 1)) * 100);
+        
+        const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria", 
+            modulo: "Memoria",
             id_sesion: 6,       
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosGlobales,
+            errores: erroresGlobales,
             eficacia: ef + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        historial.push(datos); 
+        historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
         window.location.href = "memoria_sesiones.html";
@@ -245,4 +262,3 @@
 </script>
 </body>
 </html>
-
