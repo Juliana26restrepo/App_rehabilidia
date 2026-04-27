@@ -12,7 +12,7 @@
         body { 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
-            background: #eef2f5; /* El azulito suave de fondo */
+            background: #eef2f5; 
             overflow: hidden; 
             display: flex; 
             justify-content: center; 
@@ -81,7 +81,7 @@
             position: fixed !important; 
             width: 90px !important; height: 90px !important; 
             z-index: 5000 !important; 
-            pointer-events: none; /* Crucial para que elementFromPoint funcione */
+            pointer-events: none; 
             filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
         }
 
@@ -222,7 +222,6 @@
             document.removeEventListener('pointermove', moveDrag);
             document.removeEventListener('pointerup', stopDrag);
 
-            // DETECCIÓN SEGURA: Miramos qué hay debajo del dedo
             const elementUnder = document.elementFromPoint(clientX, clientY);
             const targetCesto = elementUnder ? elementUnder.closest('.cesto') : null;
 
@@ -260,17 +259,16 @@
         hablar("¡Excelente! Has terminado la tarea.");
     }
 
-    function irAlMenu() { window.location.href = "atencion_sesiones.html"; }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const totalIntentos = aciertosTotales + erroresTotales;
+        const ef = totalIntentos > 0 ? Math.round((aciertosTotales / totalIntentos) * 100) : 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención", 
             id_sesion: 5,      
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
             eficacia: ef + "%"
         };
 
@@ -281,15 +279,6 @@
 
         window.location.href = "atencion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
