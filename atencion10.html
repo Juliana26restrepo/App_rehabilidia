@@ -3,214 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Logística Progresiva - REHABILIDIA</title>
+    <title>Logística Progresiva V2 - REHABILIDIA</title>
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --gold: #FFD700; --road: #444; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --road: #333; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #FDF5E6; touch-action: none; }
         
-        #overlay-inicio { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.95); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; cursor: pointer; }
+        #escenario { width: 100vw; height: 100vh; position: relative; background: #444; display: flex; justify-content: center; }
+        .carril { height: 100%; border-left: 1px dashed rgba(255,255,255,0.5); border-right: 1px dashed rgba(255,255,255,0.5); background: var(--road); position: relative; }
         
-        #guia { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: white; padding: 10px; border-radius: 15px; border: 3px solid var(--t-blue); width: 90%; max-width: 450px; display: flex; align-items: center; gap: 10px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        #guia img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--t-blue); }
+        /* Casas y Carritos */
+        .casa { position: absolute; font-size: 3.5rem; top: 2%; left: 50%; transform: translateX(-50%); text-align: center; width: 100%; }
+        .carrito { position: absolute; font-size: 4rem; cursor: pointer; z-index: 10; bottom: -10%; transition: left 0.15s ease-out; filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.5)); }
 
-        /* Carretera y Carriles */
-        #escenario { width: 100vw; height: 100vh; position: relative; background: #555; display: flex; justify-content: center; }
-        .carril { height: 100%; border-left: 2px dashed white; border-right: 2px dashed white; position: relative; display: flex; justify-content: center; background: var(--road); }
-        
-        .flecha-guia { position: absolute; bottom: 10%; font-size: 2rem; color: rgba(255,255,255,0.3); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 0.7; } 100% { opacity: 0.2; } }
+        /* Anuncios de Progresión */
+        #anuncio-transicion { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(16, 58, 87, 0.9); color: white; padding: 30px; border-radius: 20px; z-index: 500; display: none; text-align: center; border: 4px solid #FFD700; width: 70%; }
 
-        .casa { position: absolute; font-size: 3.5rem; top: 2%; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
-        .carrito { position: absolute; font-size: 3.5rem; cursor: pointer; z-index: 10; transition: left 0.2s ease, transform 0.2s; bottom: -10%; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); }
-
-        #info-superior { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: space-around; z-index: 100; }
-        .stat-box { background: white; padding: 8px 15px; border-radius: 10px; font-weight: bold; border: 2px solid var(--p-blue); }
-
-        #modal-resultados { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 300; display: none; justify-content: center; align-items: center; color: white; text-align: center; }
-        .card-final { background: white; color: var(--p-blue); padding: 40px; border-radius: 25px; width: 80%; max-width: 400px; border: 5px solid var(--gold); }
+        #guia { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: white; padding: 10px; border-radius: 15px; border: 3px solid var(--t-blue); width: 85%; display: flex; align-items: center; gap: 10px; z-index: 100; }
+        #guia img { width: 50px; height: 50px; border-radius: 50%; }
     </style>
 </head>
 <body>
 
-<div id="overlay-inicio" onclick="comenzar()">
-    <i class="fas fa-route" style="font-size: 5rem; color: var(--gold); margin-bottom: 20px;"></i>
-    <h1>LOGÍSTICA DE TRANSPORTES</h1>
-    <p>Ayuda a Juan con los suministros</p>
-    <small>Toca para iniciar el entrenamiento completo</small>
+<div id="anuncio-transicion">
+    <h1 id="txt-anuncio-titulo">NIVEL COMPLETADO</h1>
+    <p id="txt-anuncio-sub">Preparando siguiente ejercicio...</p>
 </div>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG">
-    <p id="texto-instruccion">Cargando instrucciones...</p>
+    <p id="texto-instruccion">Juan, guía los carros a su casa.</p>
 </div>
 
 <div id="escenario"></div>
 
-<div id="info-superior">
-    <div class="stat-box" id="label-nivel">Nivel: Básico</div>
-    <div class="stat-box" id="label-ejercicio">Ejercicio: 1/3</div>
-</div>
-
-<div id="modal-resultados">
-    <div class="card-final">
-        <h2 style="margin-top:0">¡Misión Cumplida!</h2>
-        <p>Los datos se han guardado correctamente en el perfil del neuropsicólogo.</p>
-        <div id="detalles-puntos" style="font-size: 1.2rem; margin: 20px 0;"></div>
-        <button onclick="irAlMenu()" style="background:var(--p-blue); color:white; border:none; padding:15px 30px; border-radius:15px; font-weight:bold; width:100%; cursor:pointer;">FINALIZAR SESIÓN</button>
-    </div>
-</div>
-
 <script>
-    // Configuración de niveles
     const niveles = [
-        { nombre: "Básico", carros: 4, velocidad: 1.2, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
-        { nombre: "Medio", carros: 6, velocidad: 1.7, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
-        { nombre: "Superior", carros: 10, velocidad: 2.3, carriles: 3, casas: ["🔴", "🔵", "🟢"], emojis: ["🚗", "🚙", "🚛"] }
+        { nombre: "Básico", carros: 4, vel: 1.3, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
+        { nombre: "Medio", carros: 6, vel: 1.8, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
+        { nombre: "Superior", carros: 10, vel: 2.4, carriles: 3, casas: ["🔴", "🔵", "🟢"], emojis: ["🚗", "🚙", "🚛"] }
     ];
 
-    let nivelIdx = 0, ejercicioActual = 1, aciertos = 0, errores = 0;
-    let carrosFinalizadosEnRonda = 0, carrosLanzadosEnRonda = 0;
+    let nIdx = 0, ejIdx = 1, aciertos = 0, errores = 0, finalizadosRonda = 0;
 
     function hablar(m) {
         window.speechSynthesis.cancel();
         const v = new SpeechSynthesisUtterance(m);
-        v.lang = 'es-ES'; v.rate = 0.95;
+        v.lang = 'es-ES'; v.rate = 1;
         window.speechSynthesis.speak(v);
     }
 
-    function comenzar() {
-        document.getElementById('overlay-inicio').style.display = 'none';
-        iniciarNivelActual();
+    function mostrarAnuncio(titulo, sub, tiempo) {
+        const box = document.getElementById('anuncio-transicion');
+        document.getElementById('txt-anuncio-titulo').innerText = titulo;
+        document.getElementById('txt-anuncio-sub').innerText = sub;
+        box.style.display = 'block';
+        hablar(titulo + ". " + sub);
+        setTimeout(() => box.style.display = 'none', tiempo);
     }
 
-    function iniciarNivelActual() {
-        const n = niveles[nivelIdx];
-        document.getElementById('label-nivel').innerText = `Nivel: ${n.nombre}`;
+    function iniciarNivel() {
+        const n = niveles[nIdx];
         dibujarEscenario();
-        
-        const frase = `Juan, estamos en el nivel ${n.nombre}. Toca los carros para cambiarlos de carril. El color del carro debe coincidir con el de la casa al final de la vía. ¡Comencemos!`;
-        document.getElementById('texto-instruccion').innerText = "Juan, guía los carros a su casa correspondiente.";
-        hablar(frase);
-        
-        setTimeout(iniciarEjercicio, 4000);
+        mostrarAnuncio(`NIVEL ${n.nombre.toUpperCase()}`, `Ejercicio ${ejIdx} de 3`, 3000);
+        setTimeout(lanzarTanda, 3500);
     }
 
     function dibujarEscenario() {
         const esc = document.getElementById('escenario');
         esc.innerHTML = "";
-        const n = niveles[nivelIdx];
-        const anchoCarril = 100 / n.carriles;
-
-        n.casas.forEach((color, i) => {
-            const divCarril = document.createElement('div');
-            divCarril.className = "carril";
-            divCarril.style.width = anchoCarril + "vw";
-            
-            divCarril.innerHTML = `
-                <div class="flecha-guia">↑</div>
-                <div class="casa" style="left:50%; transform:translateX(-50%);">🏠${color}</div>
-            `;
-            esc.appendChild(divCarril);
+        const n = niveles[nIdx];
+        n.casas.forEach((emoji, i) => {
+            const c = document.createElement('div');
+            c.className = "carril";
+            c.style.width = (100 / n.carriles) + "vw";
+            c.innerHTML = `<div class="casa">🏠${emoji}</div>`;
+            esc.appendChild(c);
         });
     }
 
-    function iniciarEjercicio() {
-        carrosLanzadosEnRonda = 0;
-        carrosFinalizadosEnRonda = 0;
-        document.getElementById('label-ejercicio').innerText = `Ejercicio: ${ejercicioActual}/3`;
-        lanzarProximoCarro();
-    }
-
-    function lanzarProximoCarro() {
-        const n = niveles[nivelIdx];
-        if (carrosLanzadosEnRonda < n.carros) {
-            crearCarrito();
-            carrosLanzadosEnRonda++;
-            setTimeout(lanzarProximoCarro, 2500 / n.velocidad);
+    function lanzarTanda() {
+        finalizadosRonda = 0;
+        for(let i=0; i < niveles[nIdx].carros; i++) {
+            setTimeout(crearCarro, i * 2800 / niveles[nIdx].vel);
         }
     }
 
-    function crearCarrito() {
-        const n = niveles[nivelIdx];
-        const esc = document.getElementById('escenario');
+    function crearCarro() {
+        const n = niveles[nIdx];
         const car = document.createElement('div');
-        
-        const tipoIdx = Math.floor(Math.random() * n.emojis.length);
-        const emoji = n.emojis[tipoIdx];
-        let carrilActual = Math.floor(Math.random() * n.carriles);
+        const tipo = Math.floor(Math.random() * n.emojis.length);
+        let carril = Math.floor(Math.random() * n.carriles);
 
         car.className = 'carrito';
-        car.innerHTML = emoji;
+        car.innerHTML = n.emojis[tipo];
         
-        const actualizarPosicionLateral = () => {
-            const ancho = 100 / n.carriles;
-            car.style.width = ancho + "vw";
-            car.style.left = (carrilActual * ancho) + "vw";
+        const moverLado = () => {
+            const w = 100 / n.carriles;
+            car.style.width = w + "vw";
+            car.style.left = (carril * w) + "vw";
             car.style.textAlign = "center";
         };
 
-        actualizarPosicionLateral();
-        esc.appendChild(car);
-
-        car.onclick = () => {
-            carrilActual = (carrilActual + 1) % n.carriles;
-            actualizarPosicionLateral();
-            car.style.transform = "scale(1.2)";
-            setTimeout(() => car.style.transform = "scale(1)", 100);
+        // MEJORA TÁCTIL: onpointerdown es más rápido que onclick
+        car.onpointerdown = (e) => {
+            e.preventDefault();
+            carril = (carril + 1) % n.carriles;
+            moverLado();
         };
 
-        let pos = -10;
-        const anim = setInterval(() => {
-            pos += n.velocidad;
-            car.style.bottom = pos + "%";
+        moverLado();
+        document.getElementById('escenario').appendChild(car);
 
-            if (pos >= 85) {
-                clearInterval(anim);
-                if (carrilActual === tipoIdx) { aciertos++; hablar("¡Bien!"); } 
-                else { errores++; hablar("No."); }
-                
+        let p = -10;
+        const loop = setInterval(() => {
+            p += n.vel;
+            car.style.bottom = p + "%";
+            if(p >= 85) {
+                clearInterval(loop);
+                if(carril === tipo) aciertos++; else errores++;
                 car.remove();
-                carrosFinalizadosEnRonda++;
-
-                if (carrosFinalizadosEnRonda === n.carros) {
-                    gestionarProgreso();
-                }
+                finalizadosRonda++;
+                if(finalizadosRonda === n.carros) revisarProgreso();
             }
         }, 50);
     }
 
-    function gestionarProgreso() {
-        if (ejercicioActual < 3) {
-            ejercicioActual++;
-            setTimeout(iniciarEjercicio, 2000);
+    function revisarProgreso() {
+        if(ejIdx < 3) {
+            ejIdx++;
+            mostrarAnuncio("¡BIEN HECHO!", `Iniciando Ejercicio ${ejIdx}`, 2000);
+            setTimeout(lanzarTanda, 2500);
+        } else if(nIdx < niveles.length - 1) {
+            nIdx++; ejIdx = 1;
+            mostrarAnuncio("¡SIGUIENTE NIVEL!", `Subiendo a dificultad ${niveles[nIdx].nombre}`, 3000);
+            setTimeout(iniciarNivel, 3500);
         } else {
-            if (nivelIdx < niveles.length - 1) {
-                nivelIdx++;
-                ejercicioActual = 1;
-                setTimeout(iniciarNivelActual, 3000);
-            } else {
-                mostrarResultadosFinales();
-            }
+            finalizarSesion();
         }
     }
 
-    function mostrarResultadosFinales() {
-        const totalCarros = niveles.reduce((acc, n) => acc + (n.carros * 3), 0);
-        const ef = Math.round((aciertos / totalCarros) * 100);
-        document.getElementById('detalles-puntos').innerHTML = `
-            <b>Aciertos:</b> ${aciertos}<br>
-            <b>Errores:</b> ${errores}<br>
-            <b>Eficacia Final:</b> ${ef}%
-        `;
-        document.getElementById('modal-resultados').style.display = 'flex';
-        hablar("Juan, excelente trabajo. Hemos completado todos los niveles de logística.");
-    }
-
-    function irAlMenu() {
-        const totalCarros = niveles.reduce((acc, n) => acc + (n.carros * 3), 0);
-        const ef = Math.round((aciertos / totalCarros) * 100);
+    function finalizarSesion() {
+        const total = niveles.reduce((a, b) => a + (b.carros * 3), 0);
+        const ef = Math.round((aciertos / total) * 100);
         
-        const datosSesion = {
+        // GUARDADO AUTOMÁTICO
+        const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención",
             id_sesion: 10,
@@ -220,12 +157,16 @@
         };
 
         let h = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        if (!Array.isArray(h)) h = [];
-        h.push(datosSesion);
+        h.push(datos);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(h));
 
+        hablar("Juan, has completado toda la logística con éxito.");
+        alert(`Sesión terminada. Eficacia: ${ef}%`);
         window.location.href = "atencion_sesiones.html";
     }
+
+    // Iniciar automáticamente al cargar
+    window.onload = iniciarNivel;
 </script>
 </body>
 </html>
