@@ -54,7 +54,7 @@
     <div class="card-resultados">
         <h1>¡SESIÓN COMPLETADA!</h1>
         <div id="detalle-niveles" style="text-align: left; font-size: 1.3rem;"></div>
-        <button onpointerdown="location.href='index.html'" style="padding: 18px 50px; width:100%; font-size: 1.5rem; background: var(--accent); color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 25px; font-weight: bold;">FINALIZAR</button>
+        <button onpointerdown="finalizarYSalir()" style="padding: 18px 50px; width:100%; font-size: 1.5rem; background: var(--accent); color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 25px; font-weight: bold;">FINALIZAR</button>
     </div>
 </div>
 
@@ -66,8 +66,6 @@
     let nivelActual = 1, palabrasReto = [], indicePregunta = 0, totalAciertos = 0, totalErrores = 0;
     let aciertosPorNivel = { 1: 0, 2: 0, 3: 0 };
     const metasPorNivel = { 1: 6, 2: 8, 3: 10 };
-    const sfxOk = new Audio('img8/exito.mp3'); 
-    const sfxErr = new Audio('img8/alarma.mp3');
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
@@ -117,20 +115,16 @@
         if (indicePregunta < palabrasReto.length) {
             const correcta = palabrasReto[indicePregunta];
             let dist;
-            // Lógica de distracción progresiva
             if (nivelActual === 1) dist = distNeutros[Math.floor(Math.random()*distNeutros.length)];
             else {
                 let fon = distFoneticos[mercado.indexOf(correcta)];
                 dist = fon ? fon : distNeutros[Math.floor(Math.random()*distNeutros.length)];
             }
-
             const opciones = [correcta, dist].sort(() => 0.5 - Math.random());
             document.getElementById('btn-a').innerText = opciones[0];
             document.getElementById('btn-b').innerText = opciones[1];
             document.getElementById('btn-a').style.background = "white";
             document.getElementById('btn-b').style.background = "white";
-
-            // LA CORRECCIÓN CLAVE: HABLAR SIEMPRE
             hablar(`¿Cuál estaba en la lista? ¿${opciones[0]} o ${opciones[1]}?`);
         } else {
             if (nivelActual < 3) { nivelActual++; iniciarNivel(); }
@@ -141,9 +135,9 @@
     function verificar(elegida, btn) {
         if (elegida === palabrasReto[indicePregunta]) {
             aciertosPorNivel[nivelActual]++; totalAciertos++;
-            btn.style.background = "#d4edda"; sfxOk.play();
+            btn.style.background = "#d4edda";
         } else {
-            totalErrores++; btn.style.background = "#f8d7da"; sfxErr.play();
+            totalErrores++; btn.style.background = "#f8d7da";
         }
         indicePregunta++;
         setTimeout(presentarPregunta, 1200);
@@ -153,39 +147,36 @@
         const total = metasPorNivel[1] + metasPorNivel[2] + metasPorNivel[3];
         const ef = Math.round((totalAciertos / total) * 100);
         document.getElementById('zona-reconocimiento').style.display = 'none';
-        document.getElementById('detalle-niveles').innerHTML = `Nivel 1: ${aciertosPorNivel[1]}<br>Nivel 2: ${aciertosPorNivel[2]}<br>Nivel 3: ${aciertosPorNivel[3]}<br><br><strong>Eficacia Total: ${ef}%</strong>`;
+        document.getElementById('detalle-niveles').innerHTML = `
+            Nivel 1: ${aciertosPorNivel[1]} aciertos<br>
+            Nivel 2: ${aciertosPorNivel[2]} aciertos<br>
+            Nivel 3: ${aciertosPorNivel[3]} aciertos<br><br>
+            <strong>Eficacia Total: ${ef}%</strong>`;
         document.getElementById('overlay-final').style.display = 'flex';
         hablar("¡Muy bien Juan! Has terminado el ejercicio de memoria.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+
+    // CORRECCIÓN: FUNCIÓN DE GUARDADO Y SALIDA
+    function finalizarYSalir() {
+        const total = metasPorNivel[1] + metasPorNivel[2] + metasPorNivel[3];
+        const ef = Math.round((totalAciertos / total) * 100) || 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria", 
+            modulo: "Memoria", 
             id_sesion: 2,       
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: totalAciertos,
+            errores: totalErrores,
             eficacia: ef + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        // REDIRECCIÓN CORREGIDA
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
