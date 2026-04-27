@@ -60,7 +60,7 @@
     <div class="resumen-card">
         <h2 style="margin-top:0">¡Closet Organizado!</h2>
         <div id="stats-finales" style="text-align: left; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;"></div>
-        <button class="btn-final" onclick="location.href='index.html'">SALIR AL MENÚ</button>
+        <button class="btn-final" onclick="irAlMenu()">CONTINUAR</button>
     </div>
 </div>
 
@@ -80,24 +80,7 @@
         {q:"¿La Tierra es redonda?", c:"S"}, {q:"¿El sol es un planeta?", c:"N"}, {q:"¿El agua hierve a 100°C?", c:"S"},
         {q:"¿Los perros son reptiles?", c:"N"}, {q:"¿Colombia está en América?", c:"S"}, {q:"¿El hielo quema?", c:"N"},
         {q:"¿Los peces viven en el agua?", c:"S"}, {q:"¿El fuego es frío?", c:"N"}, {q:"¿La Luna es un satélite?", c:"S"},
-        {q:"¿El azúcar es salado?", c:"N"}, {q:"¿El corazón bombea sangre?", c:"S"}, {q:"¿Los humanos tienen tres ojos?", c:"N"},
-        {q:"¿Las plantas hacen fotosíntesis?", c:"S"}, {q:"¿El aire es sólido?", c:"N"}, {q:"¿El oro es un metal?", c:"S"},
-        {q:"¿Las vacas vuelan?", c:"N"}, {q:"¿Un triángulo tiene tres lados?", c:"S"}, {q:"¿El agua es roja naturalmente?", c:"N"},
-        {q:"¿Los pájaros tienen alas?", c:"S"}, {q:"¿Los peces tienen pulmones?", c:"N"}, {q:"¿El día tiene 24 horas?", c:"S"},
-        {q:"¿El sol sale por el oeste?", c:"N"}, {q:"¿El cerebro controla el cuerpo?", c:"S"}, {q:"¿Los gatos ladran?", c:"N"},
-        {q:"¿El hielo es agua sólida?", c:"S"}, {q:"¿La lluvia sube del suelo?", c:"N"}, {q:"¿Las abejas producen miel?", c:"S"},
-        {q:"¿El café contiene cafeína?", c:"S"}, {q:"¿El mar es dulce?", c:"N"}, {q:"¿El cielo es azul?", c:"S"},
-        {q:"¿El pan se hace con harina?", c:"S"}, {q:"¿El océano es grande?", c:"S"}, {q:"¿Las flores tienen pétalos?", c:"S"},
-        {q:"¿Los libros sirven para leer?", c:"S"}, {q:"¿Las frutas son saludables?", c:"S"}, {q:"¿El agua moja?", c:"S"},
-        {q:"¿El lápiz sirve para escribir?", c:"S"}, {q:"¿Los perros ladran?", c:"S"}, {q:"¿El hielo flota en el agua?", c:"S"},
-        {q:"¿El sol da luz?", c:"S"}, {q:"¿Los humanos respiran oxígeno?", c:"S"}, {q:"¿El fuego necesita oxígeno?", c:"S"},
-        {q:"¿Las bicicletas tienen ruedas?", c:"S"}, {q:"¿El corazón late?", c:"S"}, {q:"¿La leche es blanca?", c:"S"},
-        {q:"¿Los animales necesitan comida?", c:"S"}, {q:"¿El hielo se derrite con calor?", c:"S"}, {q:"¿El mar tiene olas?", c:"S"},
-        {q:"¿Las manos sirven para agarrar?", c:"S"}, {q:"¿El café es una bebida?", c:"S"}, {q:"¿Los ojos sirven para ver?", c:"S"},
-        {q:"¿El aire tiene oxígeno?", c:"S"}, {q:"¿El planeta Tierra gira?", c:"S"}, {q:"¿El chocolate es dulce?", c:"S"},
-        {q:"¿Las montañas son altas?", c:"S"}, {q:"¿El agua puede congelarse?", c:"S"}, {q:"¿Los zapatos se usan en los pies?", c:"S"},
-        {q:"¿El estómago digiere alimentos?", c:"S"}, {q:"¿Las flores huelen bien?", c:"S"}, {q:"¿El papel es delgado?", c:"S"},
-        {q:"¿El fuego quema?", c:"S"}, {q:"¿El arcoíris tiene colores?", c:"S"}, {q:"¿El mundo tiene países?", c:"S"}
+        {q:"¿El azúcar es salado?", c:"N"}, {q:"¿El corazón bombea sangre?", c:"S"}, {q:"¿Los humanos tienen tres ojos?", c:"N"}
     ];
 
     function hablar(txt) {
@@ -130,7 +113,7 @@
             activarPointer(el); 
             d.appendChild(el);
         });
-        if(!timerNotif) timerNotif = setTimeout(lanzarNotificacion, 6000);
+        if(!timerNotif) timerNotif = setTimeout(lanzarNotificacion, 7000);
     }
 
     function activarPointer(el) {
@@ -172,7 +155,8 @@
             n.style.display = 'none'; 
             sonidos.alarma.pause(); 
             sonidos.alarma.currentTime = 0;
-            if(!juegoFinalizado) timerNotif = setTimeout(lanzarNotificacion, 10000);
+            // Configurado a 7 segundos para la próxima pregunta
+            if(!juegoFinalizado) timerNotif = setTimeout(lanzarNotificacion, 7000);
         };
         document.getElementById('btnA').onclick = () => responder("S");
         document.getElementById('btnB').onclick = () => responder("N");
@@ -183,20 +167,24 @@
         clearTimeout(timerNotif); 
         sonidos.alarma.pause();
         const ef = Math.round((aciertosPrendas / (aciertosPrendas + erroresPrendas)) * 100) || 0;
-        document.getElementById('stats-finales').innerHTML = `<b>Prendas:</b> ${aciertosPrendas}<br><b>Errores:</b> ${erroresPrendas}<br><b>Trivia:</b> ${aciertosTrivia}/${totalPreguntas}<br><br><b style="color:var(--t-blue); font-size:1.3rem;">Éxito: ${ef}%</b>`;
+        document.getElementById('stats-finales').innerHTML = `
+            <b>Prendas:</b> ${aciertosPrendas}<br>
+            <b>Errores:</b> ${erroresPrendas}<br>
+            <b>Trivia:</b> ${aciertosTrivia}/${totalPreguntas}<br><br>
+            <b style="color:var(--t-blue); font-size:1.3rem;">Éxito: ${ef}%</b>`;
         document.getElementById('modal-cierre').style.display = 'flex';
         hablar("¡Excelente trabajo Juan!");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const ef = Math.round((aciertosPrendas / (aciertosPrendas + erroresPrendas)) * 100) || 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención", 
             id_sesion: 8,       
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosPrendas,
+            errores: erroresPrendas,
             eficacia: ef + "%"
         };
 
@@ -207,14 +195,6 @@
 
         window.location.href = "atencion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
