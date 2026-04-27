@@ -286,6 +286,34 @@
         document.getElementById('overlay-final').style.display = 'flex';
         hablar("¡Objetivo logrado, Juan! Has hecho un excelente trabajo reconociendo a estas personas.");
     }
+    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+    function irAlMenu() {
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        
+        const datosSesion = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "memoria", 
+            id_sesion: 8,       
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: ef + "%"
+        };
+
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
+        if (!Array.isArray(historial)) historial = []; 
+        historial.push(datosSesion); 
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+
+        window.location.href = "atencion_sesiones.html";
+    }
+
+    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
+    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
+    document.querySelectorAll('button').forEach(boton => {
+        if(boton.innerText.includes("FINALIZAR")) {
+            boton.onclick = irAlMenu;
+        }
+    });
 </script>
 </body>
 </html>
