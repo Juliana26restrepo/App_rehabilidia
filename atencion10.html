@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Logística Progresiva Calibrada - REHABILIDIA</title>
+    <title>Logística Progresiva - Taxi Amarillo</title>
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --road: #333; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow: hidden; background-color: #FDF5E6; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
@@ -54,11 +54,11 @@
 </div>
 
 <script>
-    // CALIBRACIÓN DE VELOCIDAD: Se bajaron los valores para que el nivel superior sea jugable
     const niveles = [
         { nombre: "Básico", carros: 4, vel: 1.1, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
         { nombre: "Medio", carros: 6, vel: 1.4, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
-        { nombre: "Superior", carros: 10, vel: 1.8, carriles: 3, casas: ["🔴", "🔵", "🟢"], emojis: ["🚗", "🚙", "🚛"] }
+        // NIVEL SUPERIOR: Casa Roja, Casa Azul y Casa Amarilla (con Taxi 🚕)
+        { nombre: "Superior", carros: 10, vel: 1.8, carriles: 3, casas: ["🔴", "🔵", "🟡"], emojis: ["🚗", "🚙", "🚕"] }
     ];
 
     let nIdx = 0, ejIdx = 1, aciertos = 0, errores = 0, finalizadosRonda = 0;
@@ -104,7 +104,6 @@
         finalizadosRonda = 0;
         const n = niveles[nIdx];
         for(let i=0; i < n.carros; i++) {
-            // Se aumentó el tiempo entre carros para evitar amontonamientos
             setTimeout(crearCarro, i * (4500 / n.vel));
         }
     }
@@ -116,6 +115,7 @@
         const tipoDestino = Math.floor(Math.random() * n.emojis.length);
         
         let carrilActual;
+        // 70% de probabilidad de aparecer en carril equivocado para obligar al cambio
         if(Math.random() < 0.7) {
             carrilActual = (tipoDestino + 1) % n.carriles;
         } else {
@@ -191,3 +191,4 @@
 </script>
 </body>
 </html>
+
