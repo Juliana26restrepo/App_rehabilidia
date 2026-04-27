@@ -6,7 +6,7 @@
     <title>Estadísticas - REHABILIDIA</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --m-green: #366B2B; --silver: #CEE5D6; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --silver: #CEE5D6; }
         body { font-family: sans-serif; margin: 0; background: var(--silver); color: var(--p-blue); }
         header { background: var(--p-blue); color: white; padding: 15px; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; position: relative; }
         .btn-retroceder { position: absolute; left: 15px; color: white; text-decoration: none; font-size: 1.5rem; }
@@ -38,15 +38,13 @@
     </div>
 
     <div id="sd">
-        <div class="card"><h3>Energía</h3><canvas id="graf"></canvas></div>
+        <div class="card"><h3>Historial de Energía</h3><canvas id="graf"></canvas></div>
         <div class="card"><h3>Historial Diario</h3><div id="listD"></div></div>
     </div>
 
     <div id="ss" class="hidden">
-        <div class="card">
-            <h3>Progreso de Ejercicios</h3>
-            <div id="listS"></div>
-        </div>
+        <div class="card"><h3>Evolución de Sesiones</h3><canvas id="grafSesiones"></canvas></div>
+        <div class="card"><h3>Progreso de Ejercicios</h3><div id="listS"></div></div>
     </div>
 </div>
 
@@ -60,79 +58,60 @@
 
     window.onload = function() {
         try {
-            // 1. CARGAR DATOS
             const historialDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
-            let sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-            
-            // Si por algún error 'sesiones' no es un array, lo convertimos
-            if (!Array.isArray(sesiones)) {
-                sesiones = sesiones ? [sesiones] : [];
-            }
+            const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
 
-            // 2. LÓGICA DEL DIARIO
-            const ld = document.getElementById('listD');
+            // 1. GRÁFICA DIARIO
             if(historialDiario.length > 0) {
                 new Chart(document.getElementById('graf'), {
                     type: 'line',
                     data: {
                         labels: historialDiario.map(r => r.fecha.split(',')[0]),
-                        datasets: [{ label: 'Energía', data: historialDiario.map(r => r.energia), borderColor: '#307B8E', tension: 0.3, fill: false }]
+                        datasets: [{ label: 'Energía', data: historialDiario.map(r => r.energia), borderColor: '#307B8E' }]
                     }
                 });
+                const ld = document.getElementById('listD');
                 [...historialDiario].reverse().forEach(r => {
-                    ld.innerHTML += `
+                    ld.innerHTML += `<div class="item"><span class="fecha-historial">${r.fecha}</span><b>Estado: ${r.emocion}</b><br><small>Energía: ${r.energia}/10</small></div>`;
+                });
+            }
+
+            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - AQUÍ ESTABA EL ERROR
+            const ls = document.getElementById('listS');
+            if(sesiones.length > 0) {
+                // Crear gráfica de evolución de eficacia
+                new Chart(document.getElementById('grafSesiones'), {
+                    type: 'line',
+                    data: {
+                        labels: sesiones.map((s, i) => `S${i+1}`),
+                        datasets: [{
+                            label: '% Eficacia',
+                            data: sesiones.map(s => parseInt(s.eficacia)),
+                            borderColor: '#e11d48',
+                            backgroundColor: 'rgba(225, 29, 72, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+                });
+
+                // Lista de sesiones sin borrar las anteriores
+                ls.innerHTML = "";
+                [...sesiones].reverse().forEach(s => {
+                    let clase = s.modulo === "Memoria" ? "tag-memoria" : (s.modulo === "Funciones Ejecutivas" ? "tag-ejecutiva" : "tag-atencion");
+                    ls.innerHTML += `
                         <div class="item">
-                            <span class="fecha-historial">${r.fecha.split(',')[0]}</span>
-                            <b>Estado: ${r.emocion}</b><br>
-                            <small>Energía: ${r.energia}/10 | Sueño: ${r.horasSueño}h</small>
+                            <span class="fecha-historial">${s.fecha}</span>
+                            <span class="tag ${clase}">${s.modulo}</span><br>
+                            <b>Sesión ${s.id_sesion}</b> - <strong>${s.eficacia}</strong>
+                            <br><small>Aciertos: ${s.aciertos} | Errores: ${s.errores}</small>
                         </div>`;
                 });
             } else {
-                ld.innerHTML = "No hay registros en el diario aún.";
+                ls.innerHTML = "No hay sesiones registradas.";
             }
-
-            // 3. LÓGICA DE LAS SESIONES (REPARADA)
-            const ls = document.getElementById('listS');
-            if(sesiones.length > 0) {
-                ls.innerHTML = ""; // Limpiar
-                [...sesiones].reverse().forEach(s => {
-                    // --- LIMPIADOR DE DATOS CRÍTICO ---
-                    // Fecha: si no hay, hoy
-                    let f = s.fecha || new Date().toLocaleDateString();
-                    // Módulo: si no hay, Atención
-                    let mod = s.modulo || "Atención";
-                    // ID Sesión: busca en varias etiquetas por si acaso
-                    let id = s.id_sesion || s.sesion || "?";
-                    // Eficacia: Asegura que sea un string con %
-                    let ef = s.eficacia;
-                    if (typeof ef === 'number') ef = ef + "%";
-                    if (!ef) ef = "0%";
-                    // Aciertos y Errores: asegura que sean números
-                    let ac = (s.aciertos !== undefined) ? s.aciertos : 0;
-                    let er = (s.errores !== undefined) ? s.errores : 0;
-
-                    // Color de etiqueta
-                    let clase = "tag-atencion";
-                    if(mod.toLowerCase().includes("memoria")) clase = "tag-memoria";
-                    if(mod.toLowerCase().includes("ejecutiva") || mod.toLowerCase().includes("flexibilidad")) clase = "tag-ejecutiva";
-
-                    ls.innerHTML += `
-                        <div class="item">
-                            <span class="fecha-historial">${f}</span>
-                            <span class="tag ${clase}">${mod}</span><br>
-                            <b>Sesión ${id}</b> - <span style="font-weight:bold; color:var(--p-blue);">${ef}</span>
-                            <br><small>Aciertos: ${ac} | Errores: ${er}</small>
-                        </div>`;
-                });
-            } else { 
-                ls.innerHTML = "<p style='text-align:center; padding:20px;'>Aún no has completado ninguna sesión hoy.</p>"; 
-            }
-        } catch (e) { 
-            console.error("Error al cargar datos:", e); 
-            document.getElementById('listS').innerHTML = "Error al leer los datos guardados.";
-        }
+        } catch (e) { console.error(e); }
     }
 </script>
 </body>
 </html>
-
