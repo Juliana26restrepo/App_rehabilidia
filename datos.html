@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas - REHABILIDIA</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -42,7 +43,10 @@
     </div>
 
     <div id="ss" class="hidden">
-        <div class="card"><h3>Progreso de Ejercicios</h3><div id="listS"></div></div>
+        <div class="card">
+            <h3>Progreso de Ejercicios</h3>
+            <div id="listS"></div>
+        </div>
     </div>
 </div>
 
@@ -56,14 +60,18 @@
 
     window.onload = function() {
         try {
-            // Cargar datos de LocalStorage
+            // 1. CARGAR DATOS
             const historialDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
-            const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+            let sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
             
-            // --- LÓGICA DEL DIARIO ---
+            // Si por algún error 'sesiones' no es un array, lo convertimos
+            if (!Array.isArray(sesiones)) {
+                sesiones = sesiones ? [sesiones] : [];
+            }
+
+            // 2. LÓGICA DEL DIARIO
             const ld = document.getElementById('listD');
             if(historialDiario.length > 0) {
-                // Gráfico de Energía
                 new Chart(document.getElementById('graf'), {
                     type: 'line',
                     data: {
@@ -71,7 +79,6 @@
                         datasets: [{ label: 'Energía', data: historialDiario.map(r => r.energia), borderColor: '#307B8E', tension: 0.3, fill: false }]
                     }
                 });
-                // Lista de historial diario
                 [...historialDiario].reverse().forEach(r => {
                     ld.innerHTML += `
                         <div class="item">
@@ -84,31 +91,45 @@
                 ld.innerHTML = "No hay registros en el diario aún.";
             }
 
-            // --- LÓGICA DE LAS SESIONES ---
+            // 3. LÓGICA DE LAS SESIONES (REPARADA)
             const ls = document.getElementById('listS');
             if(sesiones.length > 0) {
+                ls.innerHTML = ""; // Limpiar
                 [...sesiones].reverse().forEach(s => {
-                    // Si la sesión no tiene fecha guardada, ponemos la de hoy por defecto
-                    let fechaSesion = s.fecha ? s.fecha : new Date().toLocaleDateString();
-                    
-                    // Determinar color de etiqueta por módulo
+                    // --- LIMPIADOR DE DATOS CRÍTICO ---
+                    // Fecha: si no hay, hoy
+                    let f = s.fecha || new Date().toLocaleDateString();
+                    // Módulo: si no hay, Atención
+                    let mod = s.modulo || "Atención";
+                    // ID Sesión: busca en varias etiquetas por si acaso
+                    let id = s.id_sesion || s.sesion || "?";
+                    // Eficacia: Asegura que sea un string con %
+                    let ef = s.eficacia;
+                    if (typeof ef === 'number') ef = ef + "%";
+                    if (!ef) ef = "0%";
+                    // Aciertos y Errores: asegura que sean números
+                    let ac = (s.aciertos !== undefined) ? s.aciertos : 0;
+                    let er = (s.errores !== undefined) ? s.errores : 0;
+
+                    // Color de etiqueta
                     let clase = "tag-atencion";
-                    if(s.modulo && s.modulo.includes("Memoria")) clase = "tag-memoria";
-                    if(s.modulo && s.modulo.includes("Ejecutiva")) clase = "tag-ejecutiva";
+                    if(mod.toLowerCase().includes("memoria")) clase = "tag-memoria";
+                    if(mod.toLowerCase().includes("ejecutiva") || mod.toLowerCase().includes("flexibilidad")) clase = "tag-ejecutiva";
 
                     ls.innerHTML += `
                         <div class="item">
-                            <span class="fecha-historial">${fechaSesion}</span>
-                            <span class="tag ${clase}">${s.modulo || "Atención"}</span><br>
-                            <b>Sesión ${s.id_sesion || s.sesion || "?"}</b> - ${s.eficacia}
-                            <br><small>Aciertos: ${s.aciertos} | Errores: ${s.errores}</small>
+                            <span class="fecha-historial">${f}</span>
+                            <span class="tag ${clase}">${mod}</span><br>
+                            <b>Sesión ${id}</b> - <span style="font-weight:bold; color:var(--p-blue);">${ef}</span>
+                            <br><small>Aciertos: ${ac} | Errores: ${er}</small>
                         </div>`;
                 });
             } else { 
-                ls.innerHTML = "<p style='text-align:center; padding:20px;'>Aún no has completado ninguna sesión.</p>"; 
+                ls.innerHTML = "<p style='text-align:center; padding:20px;'>Aún no has completado ninguna sesión hoy.</p>"; 
             }
         } catch (e) { 
             console.error("Error al cargar datos:", e); 
+            document.getElementById('listS').innerHTML = "Error al leer los datos guardados.";
         }
     }
 </script>
