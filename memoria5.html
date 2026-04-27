@@ -116,7 +116,7 @@
         <div class="cuadro-resultados">
             <h1 style="color: var(--ocean); margin-top: 0;">¡SESIÓN COMPLETADA!</h1>
             <div id="resumen-final" style="font-size: 1.3rem; margin: 20px 0; text-align: left;"></div>
-            <button onpointerdown="location.reload()" style="width: 100%; padding: 20px; background: var(--gold); color: var(--deep-blue); border: none; border-radius: 15px; font-size: 1.5rem; cursor: pointer; font-weight: bold;">REPETIR SESIÓN</button>
+            <button onpointerdown="irAlMenu()" style="width: 100%; padding: 20px; background: var(--gold); color: var(--deep-blue); border: none; border-radius: 15px; font-size: 1.5rem; cursor: pointer; font-weight: bold;">GUARDAR Y FINALIZAR</button>
         </div>
     </div>
 </div>
@@ -267,7 +267,6 @@
         }
     }
 
-    // Nueva lógica: Siempre avanza a la siguiente imagen de la secuencia actual, falle o no
     function avanzar() {
         setTimeout(() => {
             pasoReconocimiento++;
@@ -292,14 +291,10 @@
     }
 
     function finalizarSesion() {
-        const total = aciertosGlobales + erroresGlobales;
-        const eficacia = Math.round((aciertosGlobales / total) * 100);
-        
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push({ fecha: new Date().toLocaleDateString(), modulo: "Memoria", id_sesion: 5, aciertos: aciertosGlobales, errores: erroresGlobales, eficacia: eficacia + "%" });
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
         document.getElementById('panel-reto').style.display = 'none';
+        const total = aciertosGlobales + erroresGlobales;
+        const eficacia = Math.round((aciertosGlobales / (total || 1)) * 100);
+
         document.getElementById('resumen-final').innerHTML = `
             <p>Nivel Bajo: ${Math.round((statsNiveles[1].a / (statsNiveles[1].a + statsNiveles[1].e || 1)) * 100)}%</p>
             <p>Nivel Medio: ${Math.round((statsNiveles[2].a / (statsNiveles[2].a + statsNiveles[2].e || 1)) * 100)}%</p>
@@ -307,38 +302,30 @@
             <h2 style="color:var(--ocean)">Eficacia Total: ${eficacia}%</h2>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Muy bien Juan! Hemos terminado el entrenamiento de memoria visual de hoy.");
+        hablar("¡Muy bien Juan! Hemos terminado el entrenamiento de memoria visual de hoy. Toca el botón para guardar.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertosGlobales + erroresGlobales;
+        const ef = Math.round((aciertosGlobales / (total || 1)) * 100);
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria", 
+            modulo: "Memoria", 
             id_sesion: 5,       
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosGlobales,
+            errores: erroresGlobales,
             eficacia: ef + "%"
         };
 
+        // Guardar en LocalStorage
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        // Regresar a la página de sesiones de memoria
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
-
