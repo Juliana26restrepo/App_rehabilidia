@@ -53,7 +53,6 @@
         
         #tablero { 
             display: grid; 
-            /* Forzamos 3 filas fijas y columnas automáticas según el nivel */
             grid-template-rows: repeat(3, 1fr); 
             grid-auto-flow: column;
             gap: 12px; 
@@ -65,7 +64,7 @@
 
         .carta { 
             height: 100%; 
-            aspect-ratio: 1 / 1; /* Cartas cuadradas para mejor ajuste */
+            aspect-ratio: 1 / 1;
             position: relative; 
             cursor: pointer; 
             transform-style: preserve-3d; 
@@ -98,7 +97,7 @@
         .cuadro-resultados {
             background: var(--white); color: var(--deep); padding: 30px; 
             border-radius: 20px; border: 5px solid var(--accent);
-            width: 90%; max-width: 500px;
+            width: 90%; max-width: 500px; text-align: center;
         }
 
         .stat-line { 
@@ -144,7 +143,7 @@
             <h1 style="color: var(--primary); margin-top: 0;">¡SESIÓN COMPLETADA!</h1>
             <div id="resumen-stats"></div>
             <p style="font-style: italic; margin-top: 20px; color: #666;">“Recordar los detalles hacen más fácil tu día, sigue así”</p>
-            <button class="btn-principal" onpointerdown="location.reload()">REPETIR SESIÓN</button>
+            <button class="btn-principal" onpointerdown="irAlMenu()">GUARDAR Y FINALIZAR</button>
         </div>
     </div>
 </div>
@@ -156,9 +155,9 @@
     const pool = Array.from({length: 70}, (_, i) => `escena${i + 1}.png`);
     
     const config = { 
-        1: { n: "Bajo", p: 3 }, // 3 parejas = 6 cartas (2 columnas x 3 filas)
-        2: { n: "Medio", p: 6 }, // 6 parejas = 12 cartas (4 columnas x 3 filas)
-        3: { n: "Alto", p: 9 }   // 9 parejas = 18 cartas (6 columnas x 3 filas)
+        1: { n: "Bajo", p: 3 }, 
+        2: { n: "Medio", p: 6 }, 
+        3: { n: "Alto", p: 9 }   
     };
 
     function hablar(t, cb) { 
@@ -263,17 +262,6 @@
     function finalizarSesion() {
         const total = aciertosGlobal + erroresGlobal;
         const eficacia = total > 0 ? Math.round((aciertosGlobal / total) * 100) : 0;
-        
-        const resultado = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria",
-            id_sesion: 7,
-            aciertos: aciertosGlobal,
-            errores: erroresGlobal,
-            eficacia: eficacia + "%"
-        };
-        
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(resultado));
 
         document.getElementById('resumen-stats').innerHTML = `
             <div class="stat-line"><span>Parejas logradas:</span> <b>${aciertosGlobal}</b></div>
@@ -284,37 +272,28 @@
         `;
         
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente trabajo Juan! Has completado el ejercicio de memoria.");
+        hablar("¡Excelente trabajo Juan! Has completado el ejercicio de memoria. Toca el botón para guardar.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertosGlobal + erroresGlobal;
+        const ef = total > 0 ? Math.round((aciertosGlobal / total) * 100) : 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria", 
+            modulo: "Memoria", 
             id_sesion: 7,       
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosGlobal,
+            errores: erroresGlobal,
             eficacia: ef + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
