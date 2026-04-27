@@ -69,7 +69,7 @@
     <div class="stats-box">
         <h2 style="margin:0 0 15px 0; color: var(--p-blue);">¡Sesión Completada!</h2>
         <div id="stats-detalle" style="text-align: left; font-size: 1rem; line-height: 1.6; margin-bottom: 20px;"></div>
-        <button class="btn-final" onclick="window.location.href='atencion.html'">Volver a Atención</button>
+        <button class="btn-final" onclick="irAlMenu()">Continuar</button>
     </div>
 </div>
 
@@ -215,30 +215,31 @@
     function finalizar() {
         iniciada = false;
         const efIngredientes = Math.round((totalAciertos / (totalAciertos + totalErrores)) * 100) || 0;
-        const efLlamadas = Math.round((llamadasOK / totalLlamadas) * 100) || 0;
+        const efLlamadas = totalLlamadas > 0 ? Math.round((llamadasOK / totalLlamadas) * 100) : 100;
+        const efFinal = Math.round((efIngredientes + efLlamadas) / 2);
 
         document.getElementById('stats-detalle').innerHTML = `
-            <b>Recetas completadas:</b> 3<br>
             <b>Ingredientes correctos:</b> ${totalAciertos}<br>
-            <b>Errores cometidos:</b> ${totalErrores}<br><br>
-            <b>Llamadas contestadas:</b> ${llamadasOK} de ${totalLlamadas}<br>
-            <b>Eficacia en llamadas:</b> ${efLlamadas}%<br><br>
-            <b style="color:var(--t-blue); font-size:1.1rem;">Eficacia General: ${Math.round((efIngredientes + efLlamadas)/2)}%</b>
+            <b>Errores:</b> ${totalErrores}<br>
+            <b>Llamadas atendidas:</b> ${llamadasOK} de ${totalLlamadas}<br><br>
+            <b style="color:var(--t-blue); font-size:1.1rem;">Eficacia General: ${efFinal}%</b>
         `;
         document.getElementById('modal-cierre').style.display = 'flex';
         hablar("¡Muy bien Juan! Completaste todas las tareas de hoy.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const efIngredientes = Math.round((totalAciertos / (totalAciertos + totalErrores)) * 100) || 0;
+        const efLlamadas = totalLlamadas > 0 ? Math.round((llamadasOK / totalLlamadas) * 100) : 100;
+        const efFinal = Math.round((efIngredientes + efLlamadas) / 2);
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención", 
             id_sesion: 7,       
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef + "%"
+            aciertos: totalAciertos,
+            errores: totalErrores,
+            eficacia: efFinal + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
@@ -248,17 +249,6 @@
 
         window.location.href = "atencion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
-
-
