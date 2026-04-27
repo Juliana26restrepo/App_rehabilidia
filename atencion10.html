@@ -3,40 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Logística Progresiva - REHABILIDIA</title>
+    <title>Logística Progresiva Calibrada - REHABILIDIA</title>
     <style>
         :root { --p-blue: #103A57; --t-blue: #307B8E; --road: #333; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow: hidden; background-color: #FDF5E6; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
         
-        /* ZONA SUPERIOR: FIJA Y BLANCA PARA LA GUÍA */
         #cabecera-guia { 
-            height: 80px; background: white; width: 100%; 
+            height: 85px; background: white; width: 100%; 
             display: flex; align-items: center; justify-content: center;
             border-bottom: 3px solid var(--t-blue); z-index: 100; padding: 5px; box-sizing: border-box;
         }
-        #guia-box { 
-            display: flex; align-items: center; gap: 10px; width: 95%; max-width: 600px;
-        }
+        #guia-box { display: flex; align-items: center; gap: 10px; width: 95%; max-width: 600px; }
         #guia-box img { width: 50px; height: 50px; border-radius: 50%; }
         #texto-instruccion { margin: 0; font-weight: bold; color: var(--p-blue); font-size: 0.9rem; line-height: 1.2; }
 
-        /* ZONA INFERIOR: LA CARRETERA */
-        #escenario { 
-            flex-grow: 1; position: relative; background: #444; 
-            display: flex; justify-content: center; overflow: hidden;
-        }
-        
+        #escenario { flex-grow: 1; position: relative; background: #444; display: flex; justify-content: center; overflow: hidden; }
         .carril { height: 100%; border-left: 1px dashed rgba(255,255,255,0.4); border-right: 1px dashed rgba(255,255,255,0.4); background: var(--road); position: relative; flex-grow: 1; }
         
-        /* CASAS: Ahora están al inicio de la carretera, debajo del texto */
-        .casa-contenedor { 
-            position: absolute; top: 10px; left: 0; width: 100%; text-align: center; z-index: 20; 
-        }
+        .casa-contenedor { position: absolute; top: 15px; left: 0; width: 100%; text-align: center; z-index: 20; }
         .casa-emoji { font-size: 3.5rem; display: block; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
 
         .carrito { 
             position: absolute; font-size: 4rem; cursor: pointer; z-index: 50; 
-            bottom: -100px; transition: left 0.2s ease-out; 
+            bottom: -100px; transition: left 0.18s ease-out; 
             filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.5)); transform: translateX(-50%); 
         }
 
@@ -65,10 +54,11 @@
 </div>
 
 <script>
+    // CALIBRACIÓN DE VELOCIDAD: Se bajaron los valores para que el nivel superior sea jugable
     const niveles = [
-        { nombre: "Básico", carros: 4, vel: 1.4, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
-        { nombre: "Medio", carros: 6, vel: 1.9, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
-        { nombre: "Superior", carros: 10, vel: 2.5, carriles: 3, casas: ["🔴", "🔵", "🟢"], emojis: ["🚗", "🚙", "🚛"] }
+        { nombre: "Básico", carros: 4, vel: 1.1, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
+        { nombre: "Medio", carros: 6, vel: 1.4, carriles: 2, casas: ["🔴", "🔵"], emojis: ["🚗", "🚙"] },
+        { nombre: "Superior", carros: 10, vel: 1.8, carriles: 3, casas: ["🔴", "🔵", "🟢"], emojis: ["🚗", "🚙", "🚛"] }
     ];
 
     let nIdx = 0, ejIdx = 1, aciertos = 0, errores = 0, finalizadosRonda = 0;
@@ -91,11 +81,9 @@
     function iniciarNivel() {
         dibujarEscenario();
         const n = niveles[nIdx];
-        
         if(nIdx === 0 && ejIdx === 1) {
             hablar("Juan toca los carros para cambiarlos de carril y llevarlos a la casa que corresponde según su color");
         }
-
         mostrarAnuncio(`NIVEL ${n.nombre.toUpperCase()}`, `Ejercicio ${ejIdx} de 3`, 2500);
         setTimeout(lanzarTanda, 3000);
     }
@@ -116,7 +104,8 @@
         finalizadosRonda = 0;
         const n = niveles[nIdx];
         for(let i=0; i < n.carros; i++) {
-            setTimeout(crearCarro, i * (3500 / n.vel));
+            // Se aumentó el tiempo entre carros para evitar amontonamientos
+            setTimeout(crearCarro, i * (4500 / n.vel));
         }
     }
 
@@ -124,15 +113,13 @@
         const n = niveles[nIdx];
         const esc = document.getElementById('escenario');
         const car = document.createElement('div');
+        const tipoDestino = Math.floor(Math.random() * n.emojis.length);
         
-        const tipoDestino = Math.floor(Math.random() * n.emojis.length); // El color que DEBE ser
-        
-        // LÓGICA DE DESAFÍO: 70% de probabilidad de aparecer en carril incorrecto
         let carrilActual;
         if(Math.random() < 0.7) {
-            carrilActual = (tipoDestino + 1) % n.carriles; // Carril equivocado
+            carrilActual = (tipoDestino + 1) % n.carriles;
         } else {
-            carrilActual = tipoDestino; // Carril correcto
+            carrilActual = tipoDestino;
         }
 
         car.className = 'carrito';
@@ -156,17 +143,10 @@
         const loop = setInterval(() => {
             p += n.vel;
             car.style.bottom = p + "%";
-            
-            // Meta: Justo antes de tocar las casas (que están al 10% superior)
-            if(p >= 82) { 
+            if(p >= 80) { 
                 clearInterval(loop);
-                if(carrilActual === tipoDestino) {
-                    aciertos++;
-                    hablar("¡Bien!");
-                } else {
-                    errores++;
-                    hablar("No.");
-                }
+                if(carrilActual === tipoDestino) { aciertos++; hablar("¡Bien!"); } 
+                else { errores++; hablar("No."); }
                 car.remove();
                 finalizadosRonda++;
                 if(finalizadosRonda === n.carros) revisarProgreso();
@@ -177,12 +157,12 @@
     function revisarProgreso() {
         if(ejIdx < 3) {
             ejIdx++;
-            mostrarAnuncio("¡EXCELENTE!", `Iniciando Ejercicio ${ejIdx}`, 2000);
+            mostrarAnuncio("¡EXCELENTE!", `Ejercicio ${ejIdx}`, 2000);
             setTimeout(lanzarTanda, 2500);
         } else if(nIdx < niveles.length - 1) {
             nIdx++; ejIdx = 1;
             dibujarEscenario();
-            mostrarAnuncio("¡NIVEL SUPERADO!", `Ahora dificultad ${niveles[nIdx].nombre}`, 3000);
+            mostrarAnuncio("¡NIVEL LOGRADO!", `Nivel ${niveles[nIdx].nombre}`, 3000);
             setTimeout(iniciarNivel, 3500);
         } else {
             finalizarSesion();
@@ -192,7 +172,6 @@
     function finalizarSesion() {
         const total = niveles.reduce((a, b) => a + (b.carros * 3), 0);
         const ef = Math.round((aciertos / total) * 100);
-        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención",
@@ -201,12 +180,10 @@
             errores: errores,
             eficacia: ef + "%"
         };
-
         let h = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         h.push(datosSesion);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(h));
-
-        hablar("Muy bien Juan. Has terminado todos los niveles.");
+        hablar("Muy bien Juan. Has terminado el entrenamiento.");
         setTimeout(() => { window.location.href = "atencion_sesiones.html"; }, 3000);
     }
 
