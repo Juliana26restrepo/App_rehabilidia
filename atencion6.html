@@ -108,7 +108,8 @@
     <div class="cuadro-resumen">
         <h2 style="color: var(--p-blue)">¡Cocina Terminada!</h2>
         <div id="stats-finales" style="font-size: 1.2rem; margin: 20px 0;"></div>
-        <button onclick="location.reload()" style="padding:12px 25px; background:var(--t-blue); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:bold;">REPETIR</button>
+        <button onclick="location.reload()" style="width:100%; padding:12px; background:var(--p-blue); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:10px;">REPETIR</button>
+        <button onclick="irAlMenu()" style="width:100%; padding:12px; background:var(--t-blue); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">CONTINUAR</button>
     </div>
 </div>
 
@@ -135,7 +136,6 @@
         document.getElementById('status-nivel').innerText = `Nivel ${nivel}`;
 
         let pool = [];
-        // Ingredientes según lógica original
         const todasBases = ['pan_blanco.png', 'pan_integral.png', 'galleta.png', 'arepa.png'];
         const todasPros = ['jamon.png', 'queso.png', 'huevo.png', 'pollo.png', 'atun.png'];
         const todosNoCom = ['jabon.png', 'esponja.png', 'moneda.png', 'pila.png'];
@@ -149,13 +149,12 @@
             hablar("Nivel 2: Haz galletas con Atún, Pepino y Tomate.");
             pool = [...receta, 'salami.png', 'lechuga.png', 'pila.png', 'moneda.png'];
         } else {
-            // NIVEL 3: TODA LA CARGA DE ATENCIÓN
+            // NIVEL 3 CORREGIDO: Menciona todos los ingredientes
             receta = ['arepa.png', 'huevo.png', 'pollo.png', 'aguacate.png', 'cebolla.png', 'sal.png'];
-            hablar("Nivel Final: Arepa completa. ¡Cuidado con lo que no se come!");
+            hablar("Nivel Final: Haz una arepa con Huevo, Pollo, Aguacate, Cebolla y Sal. ¡Cuidado con lo que no se come!");
             pool = [...todasBases, ...todasPros, ...todosNoCom, 'cebolla.png', 'aguacate.png', 'sal.png', 'tomate.png'];
         }
 
-        // Barajar y mostrar
         [...new Set(pool)].sort(() => Math.random() - 0.5).forEach(img => {
             const el = document.createElement('img');
             el.src = `img6/${img}`; el.className = 'item'; el.dataset.id = img;
@@ -173,8 +172,8 @@
         el.classList.add('dragging');
 
         const moveDrag = (me) => {
-            const cx = me.clientX || me.touches[0].clientX;
-            const cy = me.clientY || me.touches[0].clientY;
+            const cx = me.clientX || (me.touches ? me.touches[0].clientX : 0);
+            const cy = me.clientY || (me.touches ? me.touches[0].clientY : 0);
             el.style.left = (cx - offsetX) + 'px';
             el.style.top = (cy - offsetY) + 'px';
         };
@@ -230,16 +229,17 @@
         document.getElementById('modal-resultados').style.display = 'flex';
         hablar("¡Excelente trabajo, Juan! Has completado todas las recetas.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const totalIntentos = totalAciertos + totalErrores;
+        const ef = totalIntentos > 0 ? Math.round((totalAciertos / totalIntentos) * 100) : 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención",
             id_sesion: 6,     
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: totalAciertos,
+            errores: totalErrores,
             eficacia: ef + "%"
         };
 
@@ -250,15 +250,6 @@
 
         window.location.href = "atencion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
