@@ -51,7 +51,6 @@
             border-radius: 50px; margin-bottom: 10px; display: none; align-items: center; 
             gap: 15px; border: 4px solid var(--ocean); color: var(--ocean); font-weight: bold; 
         }
-        .urgente { color: var(--error); border-color: var(--error) !important; animation: pulse 0.6s infinite; }
 
         #display-memorizar, #panel-reto { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
         .img-memoria { width: auto; max-width: 90%; max-height: 55vh; border: 8px solid white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -77,10 +76,13 @@
         #pantalla-cambio-nivel { background: var(--ocean); color: white; }
         #overlay-final { background: rgba(1, 87, 155, 0.98); color: white; }
         
-        .badge-nivel { background: var(--gold); color: var(--deep-blue); padding: 15px 50px; border-radius: 50px; font-size: 2.2rem; font-weight: bold; margin-bottom: 20px; }
         .cuadro-resultados { background: white; color: var(--deep-blue); padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; text-align: center; }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .btn-finalizar {
+            width: 100%; padding: 20px; background: var(--gold); color: var(--deep-blue); 
+            border: none; border-radius: 15px; font-size: 1.5rem; cursor: pointer; 
+            font-weight: bold; margin-top: 20px;
+        }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
@@ -88,35 +90,33 @@
 <div id="contenedor-proporcional">
     <div id="cabecera">
         <div id="instruccion-box">
-            <img src="COTERAPEUTA.JPG" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+            <img src="COTERAPEUTA.JPG">
             <span id="label-guia">¡Hola Juan! Prepárate.</span>
         </div>
     </div>
 
     <div id="contenedor-juego">
         <div id="reloj-visual">⏱️ <span id="segundos">8</span>s</div>
-
         <div id="display-memorizar">
             <img id="img-target" class="img-memoria" src="">
-            <h2 id="contador-secuencia" style="margin-top:15px; font-size: 1.5rem; color: var(--deep-blue);"></h2>
+            <h2 id="contador-secuencia" style="margin-top:15px; color: var(--deep-blue);"></h2>
         </div>
-
         <div id="panel-reto">
-            <h2 id="pregunta-texto" style="font-size: clamp(1.2rem, 4vw, 1.8rem); margin-bottom: 10px; color: var(--deep-blue);"></h2>
+            <h2 id="pregunta-texto" style="color: var(--deep-blue);"></h2>
             <div id="grid-opciones"></div>
         </div>
     </div>
 
     <div id="pantalla-cambio-nivel">
-        <div class="badge-nivel" id="num-nivel-tit">NIVEL 1</div>
-        <h1 id="desc-nivel" style="font-size: 2rem; width: 85%; text-align: center;"></h1>
+        <div style="background: var(--gold); color: var(--deep-blue); padding: 15px 50px; border-radius: 50px; font-size: 2rem; font-weight: bold;" id="num-nivel-tit">NIVEL 1</div>
+        <h1 id="desc-nivel"></h1>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="color: var(--ocean); margin-top: 0;">¡SESIÓN COMPLETADA!</h1>
-            <div id="resumen-final" style="font-size: 1.3rem; margin: 20px 0; text-align: left;"></div>
-            <button onpointerdown="irAlMenu()" style="width: 100%; padding: 20px; background: var(--gold); color: var(--deep-blue); border: none; border-radius: 15px; font-size: 1.5rem; cursor: pointer; font-weight: bold;">GUARDAR Y FINALIZAR</button>
+            <h1 style="color: var(--ocean);">¡SESIÓN COMPLETADA!</h1>
+            <div id="resumen-final" style="font-size: 1.2rem; text-align: left; margin-bottom: 20px;"></div>
+            <button class="btn-finalizar" onpointerdown="irAlMenu()">FINALIZAR Y VOLVER</button>
         </div>
     </div>
 </div>
@@ -138,14 +138,7 @@
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
-        
-        let fallSafe = setTimeout(() => { if(callback) callback(); }, 10000);
-        
-        msg.onend = () => { 
-            clearTimeout(fallSafe);
-            if(callback) callback(); 
-        };
+        if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
 
@@ -156,14 +149,13 @@
 
     function presentarCambioNivel() {
         const c = config[nivelActual];
-        const pantalla = document.getElementById('pantalla-cambio-nivel');
+        document.getElementById('pantalla-cambio-nivel').style.display = 'flex';
         document.getElementById('num-nivel-tit').innerText = c.nombre.toUpperCase();
         document.getElementById('desc-nivel').innerText = c.desc;
-        pantalla.style.display = 'flex';
         
-        hablar(`Juan, iniciamos el ${c.nombre}. ${c.desc}`, () => {
+        hablar(`Juan, iniciamos el ${c.nombre}.`, () => {
             setTimeout(() => {
-                pantalla.style.display = 'none';
+                document.getElementById('pantalla-cambio-nivel').style.display = 'none';
                 intentoActual = 0;
                 iniciarIntento();
             }, 2000);
@@ -175,10 +167,7 @@
         secuenciaActual = [];
         const c = config[nivelActual];
         for(let i=0; i<c.carga; i++) {
-            if(bolsaGlobal.length === 0) {
-                bolsaGlobal = Array.from({length: TOTAL_ESCENAS}, (_, i) => i + 1).sort(() => 0.5 - Math.random());
-            }
-            secuenciaActual.push(bolsaGlobal.shift());
+            secuenciaActual.push(bolsaGlobal.shift() || Math.floor(Math.random() * 70) + 1);
         }
         mostrarSecuencia(0);
     }
@@ -191,11 +180,7 @@
             const num = secuenciaActual[idx];
             document.getElementById('img-target').src = `mem5/escena${num}.png`;
             document.getElementById('contador-secuencia').innerText = `Imagen ${idx + 1} de ${secuenciaActual.length}`;
-            document.getElementById('label-guia').innerText = "Juan, observa esta imagen.";
-            
-            hablar("Mira bien esta escena.", () => {
-                iniciarReloj(8, () => mostrarSecuencia(idx + 1));
-            });
+            hablar("Mira bien esta escena.", () => iniciarReloj(8, () => mostrarSecuencia(idx + 1)));
         } else {
             prepararReconocimiento();
         }
@@ -205,20 +190,13 @@
         clearInterval(timerInterval);
         const reloj = document.getElementById('reloj-visual');
         const span = document.getElementById('segundos');
-        reloj.classList.remove('urgente');
         reloj.style.display = 'flex';
         let restante = segundos;
         span.innerText = restante;
-
         timerInterval = setInterval(() => {
             restante--;
             span.innerText = restante;
-            if(restante <= 3) reloj.classList.add('urgente');
-            if(restante <= 0) {
-                clearInterval(timerInterval);
-                reloj.style.display = 'none';
-                finCallback();
-            }
+            if(restante <= 0) { clearInterval(timerInterval); reloj.style.display = 'none'; finCallback(); }
         }, 1000);
     }
 
@@ -226,16 +204,12 @@
         bloqueado = false;
         document.getElementById('display-memorizar').style.display = 'none';
         document.getElementById('panel-reto').style.display = 'flex';
-        
         const numCorrecto = secuenciaActual[pasoReconocimiento];
-        const pregunta = (secuenciaActual.length === 1) ? "¿Cuál imagen acabas de ver?" : `¿Cuál era la imagen número ${pasoReconocimiento + 1}?`;
-        
+        const pregunta = `¿Cuál era la imagen número ${pasoReconocimiento + 1}?`;
         document.getElementById('pregunta-texto').innerText = pregunta;
-        document.getElementById('label-guia').innerText = pregunta;
         
         const grid = document.getElementById('grid-opciones');
         grid.innerHTML = "";
-
         let opciones = [
             { id: numCorrecto, img: `escena${numCorrecto}.png`, esCorrecta: true },
             { id: numCorrecto, img: `escena${numCorrecto}b.png`, esCorrecta: false }
@@ -244,11 +218,10 @@
         opciones.forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-tarjeta';
-            btn.innerHTML = `<img src="mem5/${opt.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Error'">`;
-            btn.onpointerdown = (e) => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
+            btn.innerHTML = `<img src="mem5/${opt.img}">`;
+            btn.onpointerdown = () => { if(!bloqueado) verificar(opt.esCorrecta, btn); };
             grid.appendChild(btn);
         });
-
         hablar(pregunta);
     }
 
@@ -258,58 +231,45 @@
             el.classList.add('correcto');
             aciertosGlobales++;
             statsNiveles[nivelActual].a++;
-            hablar("¡Excelente!", avanzar);
+            hablar("¡Bien!");
         } else {
             el.classList.add('incorrecto');
             erroresGlobales++;
             statsNiveles[nivelActual].e++;
-            hablar("Esa tenía un cambio. Ánimo.", avanzar);
+            hablar("Esa no era.");
         }
-    }
-
-    function avanzar() {
         setTimeout(() => {
             pasoReconocimiento++;
-            if(pasoReconocimiento < secuenciaActual.length) {
-                prepararReconocimiento();
-            } else {
-                proximoIntento();
-            }
-        }, 1200);
+            if(pasoReconocimiento < secuenciaActual.length) prepararReconocimiento();
+            else proximoIntento();
+        }, 1500);
     }
 
     function proximoIntento() {
         intentoActual++;
-        if(intentoActual < config[nivelActual].intentos) {
-            iniciarIntento();
-        } else if(nivelActual < 3) {
-            nivelActual++;
-            presentarCambioNivel();
-        } else {
-            finalizarSesion();
-        }
+        if(intentoActual < config[nivelActual].intentos) iniciarIntento();
+        else if(nivelActual < 3) { nivelActual++; presentarCambioNivel(); }
+        else finalizarSesion();
     }
 
     function finalizarSesion() {
-        document.getElementById('panel-reto').style.display = 'none';
         const total = aciertosGlobales + erroresGlobales;
         const eficacia = Math.round((aciertosGlobales / (total || 1)) * 100);
-
+        document.getElementById('panel-reto').style.display = 'none';
         document.getElementById('resumen-final').innerHTML = `
-            <p>Nivel Bajo: ${Math.round((statsNiveles[1].a / (statsNiveles[1].a + statsNiveles[1].e || 1)) * 100)}%</p>
-            <p>Nivel Medio: ${Math.round((statsNiveles[2].a / (statsNiveles[2].a + statsNiveles[2].e || 1)) * 100)}%</p>
-            <p>Nivel Alto: ${Math.round((statsNiveles[3].a / (statsNiveles[3].a + statsNiveles[3].e || 1)) * 100)}%</p>
-            <h2 style="color:var(--ocean)">Eficacia Total: ${eficacia}%</h2>
+            <p>Aciertos totales: <b>${aciertosGlobales}</b></p>
+            <p>Errores totales: <b>${erroresGlobales}</b></p>
+            <p>Eficacia: <b>${eficacia}%</b></p>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Muy bien Juan! Hemos terminado el entrenamiento de memoria visual de hoy. Toca el botón para guardar.");
+        hablar("Muy bien Juan, hemos terminado.");
     }
 
     function irAlMenu() {
+        // GUARDAR DATOS
         const total = aciertosGlobales + erroresGlobales;
         const ef = Math.round((aciertosGlobales / (total || 1)) * 100);
-        
-        const datosSesion = {
+        const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Memoria", 
             id_sesion: 5,       
@@ -317,13 +277,11 @@
             errores: erroresGlobales,
             eficacia: ef + "%"
         };
-
-        // Guardar en LocalStorage
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        historial.push(datosSesion); 
+        historial.push(datos); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        // Regresar a la página de sesiones de memoria
+        // REDIRIGIR AL MENÚ DE MEMORIA
         window.location.href = "memoria_sesiones.html";
     }
 </script>
