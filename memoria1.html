@@ -6,87 +6,21 @@
     <title>Memoria 1 - Juan - REHABILIDIA</title>
     <style>
         :root { --primary: #6C5B7B; --secondary: #307B8E; --accent: #E67E22; --white: #ffffff; }
-
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            margin: 0; overflow: hidden; touch-action: none; 
-            background: #222; height: 100vh; display: flex; justify-content: center; align-items: center;
-        }
-
-        #contenedor-proporcional {
-            width: 100vw; height: 100vh;
-            max-width: 1200px; max-height: 800px;
-            background: url('mem1/fondo.jpg') no-repeat center center;
-            background-size: cover;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column;
-        }
-
-        #cabecera { 
-            background: rgba(108, 91, 123, 0.95); color: white; 
-            height: 80px; display: flex; align-items: center; 
-            justify-content: space-between; padding: 0 20px; 
-            border-bottom: 4px solid var(--secondary); z-index: 1000; 
-        }
-
-        #instruccion-box { 
-            background: var(--white); padding: 10px 25px; border-radius: 30px; 
-            color: #103A57; display: flex; align-items: center; 
-            border: 3px solid var(--primary); font-weight: bold; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; overflow: hidden; background: #222; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        #contenedor-proporcional { width: 100vw; height: 100vh; max-width: 1200px; max-height: 800px; background: url('mem1/fondo.jpg') no-repeat center center; background-size: cover; position: relative; display: flex; flex-direction: column; }
+        #cabecera { background: rgba(108, 91, 123, 0.95); color: white; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--secondary); z-index: 1000; }
+        #instruccion-box { background: var(--white); padding: 10px 25px; border-radius: 30px; color: #103A57; display: flex; align-items: center; border: 3px solid var(--primary); font-weight: bold; }
         #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-
         #area-trabajo { display: flex; flex-grow: 1; position: relative; overflow: hidden; }
-
-        #panel-objetos { 
-            width: 160px; background: rgba(255,255,255,0.95); 
-            border-right: 4px solid var(--primary); display: none; 
-            flex-direction: column; gap: 15px; padding: 15px; 
-            align-items: center; overflow-y: auto; z-index: 500; 
-        }
-
+        #panel-objetos { width: 160px; background: rgba(255,255,255,0.95); border-right: 4px solid var(--primary); display: none; flex-direction: column; gap: 15px; padding: 15px; align-items: center; overflow-y: auto; z-index: 500; }
         .draggable { width: 80px; height: 80px; object-fit: contain; cursor: grab; touch-action: none; }
-
         #zona-juego { flex-grow: 1; position: relative; }
-
-        .pieza { 
-            position: absolute; width: 90px; height: 90px; object-fit: contain;
-            transform: translate(-50%, -50%); z-index: 20; pointer-events: none; 
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
-        }
-
-        .guia-sombra { 
-            position: absolute; width: 95px; height: 95px; 
-            border: 3px dashed var(--primary); border-radius: 15px; 
-            background: rgba(255,255,255,0.2); transform: translate(-50%, -50%); 
-            display: none; z-index: 10; 
-        }
-
-        #timer-box { 
-            background: var(--accent); color: white; padding: 10px 25px; 
-            border-radius: 15px; font-size: 1.8rem; font-weight: bold; 
-            display: none; box-shadow: 0 4px 0 #a0520d;
-        }
-
-        #overlay-final { 
-            display: none; position: fixed; top: 0; left: 0; 
-            width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); 
-            z-index: 5000; flex-direction: column; justify-content: center; 
-            align-items: center; color: white; text-align: center; 
-        }
-        .cuadro-resultados {
-            background: white; color: #103A57; padding: 30px; 
-            border-radius: 25px; border: 6px solid var(--accent);
-            max-width: 400px; width: 85%;
-        }
-
-        .btn-grande {
-            padding: 15px 40px; font-size: 1.3rem; border-radius: 15px;
-            background: #366B2B; color: white; border: none; cursor: pointer;
-            font-weight: bold; margin-top: 20px; transition: 0.2s;
-        }
+        .pieza { position: absolute; width: 90px; height: 90px; object-fit: contain; transform: translate(-50%, -50%); z-index: 20; pointer-events: none; }
+        .guia-sombra { position: absolute; width: 95px; height: 95px; border: 3px dashed var(--primary); border-radius: 15px; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%); display: none; z-index: 10; }
+        #timer-box { background: var(--accent); color: white; padding: 10px 25px; border-radius: 15px; font-size: 1.8rem; font-weight: bold; display: none; }
+        #overlay-final { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        .cuadro-resultados { background: white; color: #103A57; padding: 30px; border-radius: 25px; border: 6px solid var(--accent); max-width: 400px; width: 85%; }
+        .btn-grande { padding: 15px 40px; font-size: 1.3rem; border-radius: 15px; background: #366B2B; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body onload="iniciarEntrenamiento()">
@@ -96,21 +30,17 @@
         <div id="instruccion-box"><img src="COTERAPEUTA.JPG"><span id="label-guia">Cargando...</span></div>
         <div id="timer-box">00:00</div>
     </div>
-    
     <div id="area-trabajo">
         <div id="panel-objetos"></div>
-        <div id="zona-juego">
-            <div id="guias-layer"></div>
-            <div id="objetos-layer"></div>
-        </div>
+        <div id="zona-juego"><div id="guias-layer"></div><div id="objetos-layer"></div></div>
     </div>
 </div>
 
 <div id="overlay-final">
     <div class="cuadro-resultados">
-        <h1 style="margin-top:0">¡Sesión Finalizada!</h1>
+        <h1>¡Sesión Finalizada!</h1>
         <div id="metricas-visuales" style="font-size: 1.4rem; text-align: left; margin: 20px 0;"></div>
-        <button class="btn-grande" onclick="irAlMenu()">VOLVER AL MENÚ</button>
+        <button class="btn-grande" onclick="irAlMenuSesiones()">VOLVER AL MENÚ</button>
     </div>
 </div>
 
@@ -128,12 +58,7 @@
     ];
 
     const repo = ["billetera", "camisa", "celular", "crema_dental", "frasco_gotas", "gafas", "libro", "pantalon", "pastillero", "reloj", "toalla_manos", "vaso"];
-    
-    const niveles = { 
-        1: { memoriza: 2, distractores: 3, tiempo: 8 },
-        2: { memoriza: 4, distractores: 4, tiempo: 12 },
-        3: { memoriza: 6, distractores: 4, tiempo: 18 }
-    };
+    const niveles = { 1: { memoriza: 2, distractores: 3, tiempo: 8 }, 2: { memoriza: 4, distractores: 4, tiempo: 12 }, 3: { memoriza: 6, distractores: 4, tiempo: 18 } };
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
@@ -151,14 +76,11 @@
         const config = niveles[nivelActual];
         const puntos = [...cuadricula].sort(() => Math.random() - 0.5);
         const seleccionados = [...repo].sort(() => Math.random() - 0.5).slice(0, config.memoriza);
-        
         objetosReto = seleccionados.map((id, i) => ({ id: id, x: puntos[i].x, y: puntos[i].y, puesto: false }));
-        
         document.getElementById('guias-layer').innerHTML = "";
         document.getElementById('objetos-layer').innerHTML = "";
         document.getElementById('panel-objetos').style.display = 'none';
-
-        hablar(`Juan, memoriza dónde están estos objetos.`, () => {
+        hablar(`Memoriza dónde están los objetos.`, () => {
             objetosReto.forEach(obj => {
                 const img = document.createElement('img');
                 img.src = `mem1/${obj.id}.png`; img.className = 'pieza';
@@ -183,15 +105,15 @@
         document.getElementById('objetos-layer').innerHTML = "";
         const panel = document.getElementById('panel-objetos');
         panel.style.display = 'flex'; panel.innerHTML = "";
-        const config = niveles[nivelActual];
-        objetosReto.forEach(obj => crearSombra(obj.x, obj.y));
-
-        const distractoresPool = repo.filter(item => !objetosReto.some(o => o.id === item));
-        const poolFinal = [...objetosReto.map(o => o.id), ...distractoresPool.sort(() => Math.random() - 0.5).slice(0, config.distractores)].sort(() => Math.random() - 0.5);
-
+        objetosReto.forEach(obj => {
+            const g = document.createElement('div');
+            g.className = 'guia-sombra'; g.style.display = 'block';
+            g.style.left = obj.x + '%'; g.style.top = obj.y + '%';
+            document.getElementById('guias-layer').appendChild(g);
+        });
+        const pool = [...objetosReto.map(o => o.id), ...repo.filter(item => !objetosReto.some(o => o.id === item)).sort(() => Math.random() - 0.5).slice(0, niveles[nivelActual].distractores)].sort(() => Math.random() - 0.5);
         hablar("Juan, arrastra los objetos a su lugar.");
-
-        poolFinal.forEach(id => {
+        pool.forEach(id => {
             const img = document.createElement('img');
             img.src = `mem1/${id}.png`; img.className = 'draggable'; img.dataset.id = id;
             img.onpointerdown = iniciarDrag;
@@ -199,80 +121,44 @@
         });
     }
 
-    function crearSombra(x, y) {
-        const g = document.createElement('div');
-        g.className = 'guia-sombra'; g.style.display = 'block';
-        g.style.left = x + '%'; g.style.top = y + '%';
-        document.getElementById('guias-layer').appendChild(g);
-    }
-
     function iniciarDrag(e) {
         const el = e.target;
-        el.style.position = 'fixed';
-        el.style.zIndex = 2000;
-        const mover = (me) => {
-            el.style.left = (me.clientX - 45) + 'px';
-            el.style.top = (me.clientY - 45) + 'px';
-        };
+        el.style.position = 'fixed'; el.style.zIndex = 2000;
+        const mover = (me) => { el.style.left = (me.clientX - 45) + 'px'; el.style.top = (me.clientY - 45) + 'px'; };
         const soltar = (se) => {
-            window.removeEventListener('pointermove', mover);
-            window.removeEventListener('pointerup', soltar);
+            window.removeEventListener('pointermove', mover); window.removeEventListener('pointerup', soltar);
             const area = document.getElementById('zona-juego').getBoundingClientRect();
             const px = ((se.clientX - area.left) / area.width) * 100;
             const py = ((se.clientY - area.top) / area.height) * 100;
             const objCorrecto = objetosReto.find(o => o.id === el.dataset.id && !o.puesto);
-            
-            if(objCorrecto) {
-                const dist = Math.sqrt(Math.pow(px - objCorrecto.x, 2) + Math.pow(py - objCorrecto.y, 2));
-                if(dist < 12) {
-                    aciertosTotales++; colocadasEnNivel++; objCorrecto.puesto = true;
-                    const f = document.createElement('img');
-                    f.src = el.src; f.className = 'pieza';
-                    f.style.left = objCorrecto.x + '%'; f.style.top = objCorrecto.y + '%';
-                    document.getElementById('objetos-layer').appendChild(f);
-                    el.remove();
-                    if(colocadasEnNivel >= niveles[nivelActual].memoriza) setTimeout(pasarDeNivel, 1000);
-                    return;
-                }
-            }
-            erroresTotales++; el.style.position = 'static';
+            if(objCorrecto && Math.sqrt(Math.pow(px - objCorrecto.x, 2) + Math.pow(py - objCorrecto.y, 2)) < 12) {
+                aciertosTotales++; colocadasEnNivel++; objCorrecto.puesto = true;
+                const f = document.createElement('img'); f.src = el.src; f.className = 'pieza'; f.style.left = objCorrecto.x + '%'; f.style.top = objCorrecto.y + '%';
+                document.getElementById('objetos-layer').appendChild(f); el.remove();
+                if(colocadasEnNivel >= niveles[nivelActual].memoriza) setTimeout(() => nivelActual < 3 ? (nivelActual++, prepararFaseMemorizacion()) : finalizarSesion(), 1000);
+            } else { erroresTotales++; el.style.position = 'static'; }
         };
-        window.addEventListener('pointermove', mover);
-        window.addEventListener('pointerup', soltar);
-    }
-
-    function pasarDeNivel() {
-        if(nivelActual < 3) { nivelActual++; prepararFaseMemorizacion(); }
-        else { finalizarSesion(); }
+        window.addEventListener('pointermove', mover); window.addEventListener('pointerup', soltar);
     }
 
     function finalizarSesion() {
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
-        document.getElementById('metricas-visuales').innerHTML = `
-            <strong>Aciertos:</strong> ${aciertosTotales} <br>
-            <strong>Errores:</strong> ${erroresTotales} <br>
-            <strong>Eficacia:</strong> ${eficacia}%
-        `;
+        const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
+        document.getElementById('metricas-visuales').innerHTML = `Aciertos: ${aciertosTotales}<br>Errores: ${erroresTotales}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
         hablar("¡Muy bien Juan! Has terminado.");
     }
 
-    function irAlMenu() {
+    // ESTA ES LA FUNCIÓN QUE IMPORTA
+    function irAlMenuSesiones() {
         const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
-        const dataSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria", id_sesion: 1,
-            aciertos: aciertosTotales, errores: erroresTotales, eficacia: ef + "%"
-        };
-
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(dataSesion);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        // REDIRECCIÓN A MEMORIA_SESIONES
+        const data = { fecha: new Date().toLocaleDateString(), modulo: "Memoria", id_sesion: 1, aciertos: aciertosTotales, errores: erroresTotales, eficacia: ef + "%" };
+        let h = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        h.push(data);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(h));
+        
+        // REDIRECCIÓN EXACTA
         window.location.href = "memoria_sesiones.html";
     }
 </script>
 </body>
 </html>
-
