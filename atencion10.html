@@ -8,30 +8,37 @@
         :root { --p-blue: #103A57; --t-blue: #307B8E; --road: #333; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; background-color: #FDF5E6; touch-action: none; }
         
-        #escenario { width: 100vw; height: 100vh; position: relative; background: #444; display: flex; justify-content: center; }
-        .carril { height: 100%; border-left: 1px dashed rgba(255,255,255,0.5); border-right: 1px dashed rgba(255,255,255,0.5); background: var(--road); position: relative; }
+        /* Contenedor de la carretera */
+        #escenario { width: 100vw; height: 100vh; position: relative; background: #444; display: flex; justify-content: center; align-items: stretch; }
         
-        /* Casas y Carritos */
-        .casa { position: absolute; font-size: 3.5rem; top: 2%; left: 50%; transform: translateX(-50%); text-align: center; width: 100%; }
-        .carrito { position: absolute; font-size: 4rem; cursor: pointer; z-index: 10; bottom: -10%; transition: left 0.15s ease-out; filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.5)); }
+        /* Carriles con líneas divisoras claras */
+        .carril { height: 100%; border-left: 2px dashed rgba(255,255,255,0.5); border-right: 2px dashed rgba(255,255,255,0.5); background: var(--road); position: relative; flex-grow: 1; }
+        
+        /* Casas: Aseguramos que siempre estén arriba y visibles */
+        .casa-contenedor { position: absolute; top: 2%; left: 0; width: 100%; text-align: center; z-index: 20; }
+        .casa-emoji { font-size: 3.5rem; display: block; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
 
-        /* Anuncios de Progresión */
-        #anuncio-transicion { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(16, 58, 87, 0.9); color: white; padding: 30px; border-radius: 20px; z-index: 500; display: none; text-align: center; border: 4px solid #FFD700; width: 70%; }
+        /* Carritos: Ajuste de tamaño y fluidez */
+        .carrito { position: absolute; font-size: 4rem; cursor: pointer; z-index: 50; bottom: -10%; transition: left 0.15s ease-out; filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.5)); transform: translateX(-50%); }
 
-        #guia { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: white; padding: 10px; border-radius: 15px; border: 3px solid var(--t-blue); width: 85%; display: flex; align-items: center; gap: 10px; z-index: 100; }
+        /* Anuncios de Progresión mejorados */
+        #anuncio-transicion { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(16, 58, 87, 0.95); color: white; padding: 40px; border-radius: 25px; z-index: 500; display: none; text-align: center; border: 5px solid #FFD700; width: 80%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+
+        #guia { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: white; padding: 10px; border-radius: 15px; border: 3px solid var(--t-blue); width: 85%; display: flex; align-items: center; gap: 10px; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         #guia img { width: 50px; height: 50px; border-radius: 50%; }
+        #texto-instruccion { margin: 0; font-weight: bold; color: var(--p-blue); font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div id="anuncio-transicion">
-    <h1 id="txt-anuncio-titulo">NIVEL COMPLETADO</h1>
-    <p id="txt-anuncio-sub">Preparando siguiente ejercicio...</p>
+    <h1 id="txt-anuncio-titulo" style="font-size: 2.5rem; margin-bottom: 10px;">NIVEL COMPLETADO</h1>
+    <p id="txt-anuncio-sub" style="font-size: 1.5rem;">Preparando siguiente ejercicio...</p>
 </div>
 
 <div id="guia">
     <img src="COTERAPEUTA.JPG">
-    <p id="texto-instruccion">Juan, guía los carros a su casa.</p>
+    <p id="texto-instruccion">Juan, guía los carros a su casa correspondiente.</p>
 </div>
 
 <div id="escenario"></div>
@@ -58,38 +65,45 @@
         document.getElementById('txt-anuncio-sub').innerText = sub;
         box.style.display = 'block';
         hablar(titulo + ". " + sub);
-        setTimeout(() => box.style.display = 'none', tiempo);
+        setTimeout(() => { box.style.display = 'none'; }, tiempo);
     }
 
     function iniciarNivel() {
-        const n = niveles[nIdx];
         dibujarEscenario();
+        const n = niveles[nIdx];
         mostrarAnuncio(`NIVEL ${n.nombre.toUpperCase()}`, `Ejercicio ${ejIdx} de 3`, 3000);
         setTimeout(lanzarTanda, 3500);
     }
 
     function dibujarEscenario() {
         const esc = document.getElementById('escenario');
-        esc.innerHTML = "";
+        esc.innerHTML = ""; // Limpiar
         const n = niveles[nIdx];
+        
         n.casas.forEach((emoji, i) => {
-            const c = document.createElement('div');
-            c.className = "carril";
-            c.style.width = (100 / n.carriles) + "vw";
-            c.innerHTML = `<div class="casa">🏠${emoji}</div>`;
-            esc.appendChild(c);
+            const divCarril = document.createElement('div');
+            divCarril.className = "carril";
+            // Estructura fija para que la casa no desaparezca
+            divCarril.innerHTML = `
+                <div class="casa-contenedor">
+                    <span class="casa-emoji">🏠${emoji}</span>
+                </div>
+            `;
+            esc.appendChild(divCarril);
         });
     }
 
     function lanzarTanda() {
         finalizadosRonda = 0;
-        for(let i=0; i < niveles[nIdx].carros; i++) {
-            setTimeout(crearCarro, i * 2800 / niveles[nIdx].vel);
+        const n = niveles[nIdx];
+        for(let i=0; i < n.carros; i++) {
+            setTimeout(crearCarro, i * (3000 / n.vel));
         }
     }
 
     function crearCarro() {
         const n = niveles[nIdx];
+        const esc = document.getElementById('escenario');
         const car = document.createElement('div');
         const tipo = Math.floor(Math.random() * n.emojis.length);
         let carril = Math.floor(Math.random() * n.carriles);
@@ -97,30 +111,35 @@
         car.className = 'carrito';
         car.innerHTML = n.emojis[tipo];
         
-        const moverLado = () => {
-            const w = 100 / n.carriles;
-            car.style.width = w + "vw";
-            car.style.left = (carril * w) + "vw";
-            car.style.textAlign = "center";
+        const actualizarPosicion = () => {
+            const anchoCarrilPerc = 100 / n.carriles;
+            // Posicionamos el carro en el centro del carril actual
+            car.style.left = ((carril * anchoCarrilPerc) + (anchoCarrilPerc / 2)) + "vw";
         };
 
-        // MEJORA TÁCTIL: onpointerdown es más rápido que onclick
+        // MEJORA TÁCTIL: Instantáneo al tocar
         car.onpointerdown = (e) => {
             e.preventDefault();
             carril = (carril + 1) % n.carriles;
-            moverLado();
+            actualizarPosicion();
         };
 
-        moverLado();
-        document.getElementById('escenario').appendChild(car);
+        actualizarPosicion();
+        esc.appendChild(car);
 
         let p = -10;
         const loop = setInterval(() => {
             p += n.vel;
             car.style.bottom = p + "%";
-            if(p >= 85) {
+            if(p >= 85) { // Al llegar a la zona de las casas
                 clearInterval(loop);
-                if(carril === tipo) aciertos++; else errores++;
+                if(carril === tipo) {
+                    aciertos++;
+                    hablar("¡Muy bien!");
+                } else {
+                    errores++;
+                    hablar("Color equivocado");
+                }
                 car.remove();
                 finalizadosRonda++;
                 if(finalizadosRonda === n.carros) revisarProgreso();
@@ -134,9 +153,12 @@
             mostrarAnuncio("¡BIEN HECHO!", `Iniciando Ejercicio ${ejIdx}`, 2000);
             setTimeout(lanzarTanda, 2500);
         } else if(nIdx < niveles.length - 1) {
-            nIdx++; ejIdx = 1;
+            nIdx++; 
+            ejIdx = 1;
+            // Al cambiar de nivel (de 2 carriles a 3 carriles), redibujamos todo
+            dibujarEscenario();
             mostrarAnuncio("¡SIGUIENTE NIVEL!", `Subiendo a dificultad ${niveles[nIdx].nombre}`, 3000);
-            setTimeout(iniciarNivel, 3500);
+            setTimeout(lanzarTanda, 3500);
         } else {
             finalizarSesion();
         }
@@ -146,7 +168,6 @@
         const total = niveles.reduce((a, b) => a + (b.carros * 3), 0);
         const ef = Math.round((aciertos / total) * 100);
         
-        // GUARDADO AUTOMÁTICO
         const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Atención",
@@ -160,13 +181,13 @@
         h.push(datos);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(h));
 
-        hablar("Juan, has completado toda la logística con éxito.");
-        alert(`Sesión terminada. Eficacia: ${ef}%`);
+        hablar("Excelente Juan. Has completado toda la logística.");
+        alert(`Sesión terminada con éxito. Eficacia: ${ef}%`);
         window.location.href = "atencion_sesiones.html";
     }
 
-    // Iniciar automáticamente al cargar
     window.onload = iniciarNivel;
 </script>
 </body>
 </html>
+
