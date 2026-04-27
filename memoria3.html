@@ -20,7 +20,7 @@
         #panel-respuesta { display: none; flex: 1; flex-direction: column; align-items: center; padding: 15px; overflow: hidden; }
         #zona-banco-sonidos { background: rgba(255,255,255,0.9); border: 3px solid var(--primary); border-radius: 15px; width: 95%; height: 45%; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 15px; overflow-y: auto; box-sizing: border-box; justify-items: center; }
         #zona-linea-arrastre { background: rgba(54, 107, 43, 0.9); border: 3px dashed var(--accent); border-radius: 15px; width: 95%; height: 45%; display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; overflow-y: auto; }
-        .btn-sonido { background: white; border: 3px solid #103A57; border-radius: 15px; width: 90px; height: 90px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); touch-action: none; transition: transform 0.1s; }
+        .btn-sonido { background: white; border: 3px solid #103A57; border-radius: 15px; width: 90px; height: 90px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); touch-action: none; }
         .btn-sonido img { width: 75px; height: 75px; pointer-events: none; }
         .hueco-arrastre { background: rgba(255,255,255,0.2); border: 3px dashed white; border-radius: 15px; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.8rem; }
         .hueco-arrastre img { width: 85px; height: 85px; }
@@ -50,40 +50,41 @@
 
 <div id="overlay-final">
     <div class="cuadro-resultados">
-        <h1 style="margin-top:0">¡Muy bien Juan!</h1>
+        <h1 style="margin-top:0">¡Misión Cumplida!</h1>
         <div id="resumen-final-box" style="font-size: 1.4rem; margin: 20px 0;"></div>
-        <button onclick="window.location.href='index.html'" style="padding: 18px 40px; width: 100%; background: var(--secondary); color: white; border: none; border-radius: 50px; font-size: 1.4rem; font-weight: bold; cursor: pointer;">GUARDAR Y SALIR</button>
+        <button onclick="irAlMenu()" style="padding: 18px 40px; width: 100%; background: var(--correct); color: white; border: none; border-radius: 50px; font-size: 1.4rem; font-weight: bold; cursor: pointer;">FINALIZAR</button>
     </div>
 </div>
 
 <script>
     const banco = ["ambulancia", "aplausos", "avion", "bebe", "carro", "freno", "gato", "lluvia", "martillo", "moto", "pajaro", "pasos", "perro", "puerta", "taladro", "telefono", "timbre", "trueno", "vaca", "vidrio"];
     let nivelActual = 1, aciertosGlobales = 0, erroresGlobales = 0, secuenciaReto = [], respuestasUsuario = [];
+    let audioActual = null; // Para controlar que no se solapen
     const metas = { 1: 3, 2: 4, 3: 5 };
-    const sfxOk = new Audio('img8/exito.mp3');
 
-    // Función para manejar audios con límite de 10 segundos
+    function pararAudios() {
+        if (audioActual) {
+            audioActual.pause();
+            audioActual.currentTime = 0;
+            audioActual = null;
+        }
+    }
+
     function reproducirAudioLimitado(ruta, callback) {
-        const audio = new Audio(ruta);
+        pararAudios(); // Para el audio anterior antes de empezar el nuevo
+        audioActual = new Audio(ruta);
         let haTerminado = false;
 
         const terminarLimpio = () => {
             if (!haTerminado) {
                 haTerminado = true;
-                audio.pause();
-                audio.currentTime = 0;
                 if (callback) callback();
             }
         };
 
-        audio.onended = terminarLimpio;
-        
-        // Timer de seguridad: 10 segundos
-        setTimeout(() => {
-            if (!haTerminado) terminarLimpio();
-        }, 10000);
-
-        audio.play().catch(e => console.log("Error de audio:", e));
+        audioActual.onended = terminarLimpio;
+        setTimeout(() => { if (!haTerminado) terminarLimpio(); }, 10000);
+        audioActual.play().catch(e => console.log("Error:", e));
     }
 
     function hablar(t, callback) {
@@ -95,6 +96,7 @@
     }
 
     function iniciarNivel() {
+        pararAudios();
         respuestasUsuario = [];
         secuenciaReto = [...banco].sort(() => 0.5 - Math.random()).slice(0, metas[nivelActual]);
         document.getElementById('panel-respuesta').style.display = 'none';
@@ -125,7 +127,7 @@
         bancoDiv.innerHTML = ""; lineaDiv.innerHTML = "";
         document.getElementById('panel-respuesta').style.display = 'flex';
         
-        hablar("Juan, toca las fotos para escuchar y arrástralas en el orden correcto.");
+        hablar("Juan, arrastra las fotos en el orden que escuchaste.");
 
         secuenciaReto.forEach((_, i) => {
             const h = document.createElement('div');
@@ -158,7 +160,6 @@
         clon.style.left = rect.left + 'px';
         clon.style.top = rect.top + 'px';
         clon.style.zIndex = 1000;
-        clon.style.opacity = '0.8';
         clon.style.pointerEvents = 'none';
         document.body.appendChild(clon);
 
@@ -192,61 +193,51 @@
             respuestasUsuario.push(id);
             aciertosGlobales++;
             elementoOriginal.style.visibility = 'hidden';
-            sfxOk.play();
             if (respuestasUsuario.length === secuenciaReto.length) {
                 setTimeout(() => {
                     if (nivelActual < 3) { nivelActual++; iniciarNivel(); }
                     else finalizar();
-                }, 1200);
+                }, 1000);
             }
         } else {
             erroresGlobales++;
-            hablar("Ese no era el orden.");
+            hablar("Ese no era el orden correcto.");
         }
     }
 
     function finalizar() {
+        pararAudios();
         document.getElementById('panel-respuesta').style.display = 'none';
-        const total = aciertosGlobales + erroresGlobales;
-        const ef = Math.round((aciertosGlobales / total) * 100) || 0;
+        const ef = Math.round((aciertosGlobales / (aciertosGlobales + erroresGlobales || 1)) * 100);
         
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push({ fecha: new Date().toLocaleDateString(), modulo: "Memoria", id_sesion: 3, aciertos: aciertosGlobales, errores: erroresGlobales, eficacia: ef + "%" });
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        document.getElementById('resumen-final-box').innerHTML = `Aciertos: ${aciertosGlobales}<br>Eficacia: ${ef}%`;
+        document.getElementById('resumen-final-box').innerHTML = `
+            Aciertos: ${aciertosGlobales}<br>
+            Errores: ${erroresGlobales}<br>
+            Eficacia: ${ef}%
+        `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Misión cumplida Juan! Has recordado los sonidos perfectamente.");
+        hablar("¡Excelente Juan! Has terminado el nivel 3.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertosGlobales + erroresGlobales;
+        const ef = Math.round((aciertosGlobales / (total || 1)) * 100);
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria",
+            modulo: "Memoria", 
             id_sesion: 3,       
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosGlobales,
+            errores: erroresGlobales,
             eficacia: ef + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
