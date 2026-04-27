@@ -23,7 +23,6 @@
             display: flex; align-items: center; justify-content: center;
         }
         
-        /* Sistema Universal Zoom */
         #contenedor-proporcional {
             width: 100vw; height: 100vh;
             max-width: 1200px; max-height: 800px;
@@ -31,7 +30,6 @@
             background-size: cover;
             position: relative;
             display: flex; flex-direction: column;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
@@ -56,17 +54,14 @@
             position: relative; padding: 20px;
         }
 
-        /* Fase Aprendizaje */
         #display-aprendizaje { 
             background: rgba(255,255,255,0.95); border: 5px solid var(--accent); 
             border-radius: 25px; padding: 30px; display: none; 
             flex-direction: column; align-items: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             max-width: 80%;
         }
         #img-aprendizaje { width: clamp(200px, 40vh, 350px); height: auto; border-radius: 15px; margin-bottom: 15px; }
         
-        /* Fase Reto */
         #panel-reto { 
             display: none; width: 95%; height: 90%; 
             background: rgba(255,255,255,0.92); border-radius: 20px; 
@@ -87,12 +82,9 @@
             border-radius: 15px; width: 130px; height: 130px; 
             cursor: pointer; display: flex; align-items: center; 
             justify-content: center; transition: 0.2s;
-            touch-action: manipulation;
         }
         .btn-opcion img { width: 110px; height: 110px; object-fit: contain; pointer-events: none; }
-        .btn-opcion:active { transform: scale(0.95); }
         
-        /* Pantallas de Estado */
         #pantalla-paso { 
             display: none; position: absolute; top: 0; left: 0; 
             width: 100%; height: 100%; background: rgba(54, 107, 43, 0.98); 
@@ -111,11 +103,6 @@
             background: white; color: #103A57; padding: 30px; 
             border-radius: 20px; border: 5px solid var(--accent);
             width: 80%; max-width: 400px; text-align: center;
-        }
-
-        .linea-resumen { 
-            margin: 10px 0; display: flex; justify-content: space-between; 
-            font-size: 1.3rem; border-bottom: 2px solid #eee; padding-bottom: 5px; 
         }
 
         .btn-grande {
@@ -138,7 +125,7 @@
     <div id="contenedor-juego">
         <div id="display-aprendizaje">
             <img id="img-aprendizaje" src="">
-            <div style="font-size: 50px; animation: pulse 1s infinite;">🔊</div>
+            <div style="font-size: 50px;">🔊</div>
         </div>
 
         <div id="panel-reto">
@@ -149,14 +136,13 @@
 
     <div id="pantalla-paso">
         <h2 id="txt-paso-nivel" style="font-size: 2.5rem; color: var(--accent);">¡Nivel Completado!</h2>
-        <p id="txt-puntos-paso" style="font-size: 1.8rem;"></p>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
             <h1 style="color: var(--primary); margin-top: 0;">¡Sesión Exitosa!</h1>
-            <div id="resumen-lista"></div>
-            <button class="btn-grande" onpointerdown="location.href='menu.html'">TERMINAR</button>
+            <div id="resumen-lista" style="font-size: 1.3rem; margin-bottom: 20px;"></div>
+            <button class="btn-grande" onpointerdown="irAlMenu()">TERMINAR</button>
         </div>
     </div>
 </div>
@@ -175,19 +161,13 @@
         {id: "vaca", img2: "vaca2.png"}, {id: "vidrio", img2: "vidrio2.png"}
     ];
     
-    // MÉTRICAS
-    let nivelActual = 1;
-    let itemsNivel = [];
-    let actualIdx = 0;
-    let aciertosTotales = 0;
-    let erroresTotales = 0;
+    let nivelActual = 1, itemsNivel = [], actualIdx = 0;
+    let aciertosTotales = 0, erroresTotales = 0;
     const metas = { 1: 4, 2: 6, 3: 8 }; 
-    const totalRetosEsperados = 18; // 4+6+8
-
     let audioActivo = null;
 
     function detenerTodo() {
-        if(audioActivo) { audioActivo.pause(); audioActivo.currentTime = 0; }
+        if(audioActivo) { audioActivo.pause(); audioActivo.currentTime = 0; audioActivo = null; }
         window.speechSynthesis.cancel();
     }
 
@@ -195,7 +175,6 @@
         detenerTodo();
         const msg = new SpeechSynthesisUtterance(t);
         msg.lang = 'es-ES';
-        msg.rate = 0.9;
         if(callback) msg.onend = callback;
         window.speechSynthesis.speak(msg);
     }
@@ -207,7 +186,7 @@
         document.getElementById('panel-reto').style.display = 'none';
         document.getElementById('display-aprendizaje').style.display = 'flex';
         
-        hablar(`Juan, memoriza bien la imagen y el sonido para el Nivel ${nivelActual}.`, () => {
+        hablar(`Juan, memoriza estas imágenes y sonidos.`, () => {
             setTimeout(() => mostrarAprendizaje(0), 1000);
         });
     }
@@ -216,15 +195,13 @@
         if (idx < itemsNivel.length) {
             const item = itemsNivel[idx];
             document.getElementById('img-aprendizaje').src = `mem4/${item.id}.png`;
-            
             detenerTodo();
             audioActivo = new Audio(`mem4/${item.id}.mp3`);
-            audioActivo.play().catch(e => console.log("Audio no cargado"));
-            
+            audioActivo.play();
             setTimeout(() => {
                 detenerTodo();
                 setTimeout(() => mostrarAprendizaje(idx + 1), 1000);
-            }, 3500);
+            }, 3000);
         } else {
             prepararReto();
         }
@@ -242,20 +219,14 @@
     function reproducirPregunta() {
         detenerTodo();
         audioActivo = new Audio(`mem4/${itemsNivel[actualIdx].id}.mp3`);
-        audioActivo.play().catch(e => console.log("Audio no cargado"));
+        audioActivo.play();
     }
 
     function dibujarOpciones() {
         const grid = document.getElementById('grid-opciones');
         grid.innerHTML = "";
         const itemCorrecto = itemsNivel[actualIdx];
-
-        // Discriminadores: Correcta, Variante del mismo objeto, y Distractores
-        let pool = [
-            { img: itemCorrecto.id + '.png', esCorrecta: true },
-            { img: itemCorrecto.img2, esCorrecta: false }
-        ];
-
+        let pool = [{ img: itemCorrecto.id + '.png', esCorrecta: true }, { img: itemCorrecto.img2, esCorrecta: false }];
         let distractores = banco.filter(x => x.id !== itemCorrecto.id).sort(() => 0.5 - Math.random());
         const numOpciones = nivelActual === 1 ? 4 : (nivelActual === 2 ? 6 : 8);
 
@@ -267,109 +238,61 @@
         pool.sort(() => 0.5 - Math.random()).forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'btn-opcion';
-            btn.innerHTML = `<img src="mem4/${opt.img}" onerror="this.src='mem4/error.png'">`;
-            btn.onpointerdown = (e) => {
-                e.preventDefault();
-                verificar(opt.esCorrecta, btn);
-            };
+            btn.innerHTML = `<img src="mem4/${opt.img}">`;
+            btn.onpointerdown = () => verificar(opt.esCorrecta, btn);
             grid.appendChild(btn);
         });
     }
 
     function verificar(esCorrecta, el) {
         if (esCorrecta) {
-            el.style.borderColor = "var(--success)";
-            el.style.backgroundColor = "#e8f5e9";
             aciertosTotales++;
-            hablar("¡Excelente!", () => {
+            el.style.borderColor = "var(--success)";
+            setTimeout(() => {
                 actualIdx++;
                 if (actualIdx < itemsNivel.length) {
                     reproducirPregunta();
                     dibujarOpciones();
                 } else {
-                    gestionarPasoNivel();
+                    if (nivelActual < 3) {
+                        nivelActual++;
+                        document.getElementById('pantalla-paso').style.display = 'flex';
+                        setTimeout(iniciarNivel, 2000);
+                    } else {
+                        finalizar();
+                    }
                 }
-            });
+            }, 1000);
         } else {
             erroresTotales++;
             el.style.borderColor = "var(--error)";
-            el.style.backgroundColor = "#ffebee";
-            hablar("No es ese, Juan. Escucha de nuevo.");
-            reproducirPregunta();
-        }
-    }
-
-    function gestionarPasoNivel() {
-        if (nivelActual < 3) {
-            document.getElementById('txt-paso-nivel').innerText = `¡Nivel ${nivelActual} Superado!`;
-            document.getElementById('pantalla-paso').style.display = 'flex';
-            setTimeout(() => {
-                nivelActual++;
-                iniciarNivel();
-            }, 3000);
-        } else {
-            finalizar();
+            hablar("Ese no es, intenta de nuevo.");
         }
     }
 
     function finalizar() {
+        detenerTodo();
         document.getElementById('panel-reto').style.display = 'none';
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
-        
-        // GUARDADO CENTRALIZADO
-        const objetoSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria",
-            id_sesion: 4,
-            aciertos: aciertosTotales,
-            errores: erroresTotales,
-            eficacia: eficacia
-        };
-        
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia') || "[]");
-        historial.push(objetoSesion);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
-        // MOSTRAR RESULTADOS
-        const res = document.getElementById('resumen-lista');
-        res.innerHTML = `
-            <div class="linea-resumen"><span>Aciertos:</span> <b>${aciertosTotales}</b></div>
-            <div class="linea-resumen"><span>Errores:</span> <b>${erroresTotales}</b></div>
-            <div class="linea-resumen" style="color:var(--primary); font-weight:bold"><span>Eficacia:</span> <b>${eficacia}%</b></div>
-        `;
-        
+        const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
+        document.getElementById('resumen-lista').innerHTML = `Aciertos: ${aciertosTotales}<br>Errores: ${erroresTotales}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Muy bien hecho, Juan! Hemos terminado la sesión de hoy.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
+        const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria", 
+            modulo: "Memoria", 
             id_sesion: 4,     
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
             eficacia: ef + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
