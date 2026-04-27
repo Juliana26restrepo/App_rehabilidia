@@ -101,15 +101,15 @@
         if(nivel === 1) {
             receta = ['huevo_crudo.png', 'sal.png', 'tomate.png', 'cebolla.png'];
             platoFinal.src = "img7/omelette.png";
-            hablar("Nivel 1: Pon en el bowl huevo, sal, tomate y cebolla. ¡Atento al teléfono!");
+            hablar("Nivel 1: Para el omelette usa Huevo, Sal, Tomate y Cebolla. ¡Atento al teléfono!");
         } else if(nivel === 2) {
             receta = ['avena_cruda.png', 'arandano.png', 'fresa.png', 'leche.png', 'banano.png', 'azucar_morena.png'];
             platoFinal.src = "img7/avena.png";
-            hablar("Nivel 2: Prepara la avena con todos sus ingredientes.");
+            hablar("Nivel 2: Para la avena usa Avena, Arándanos, Fresa, Leche, Banano y Azúcar.");
         } else {
             receta = ['huevo_crudo.png', 'sal.png', 'azucar_morena.png', 'chocolate.png', 'harina.png'];
             platoFinal.src = "img7/torta_chocolate.png";
-            hablar("Nivel 3: Vamos por la torta de chocolate. ¡No descuides el celular!");
+            hablar("Nivel 3: Para la torta usa Huevo, Sal, Azúcar, Chocolate y Harina.");
         }
 
         const distractores = ['uva.png', 'sandia.png', 'mango.png', 'perejil.png', 'miel.png'];
@@ -191,7 +191,7 @@
                     }
                 } else {
                     totalErrores++;
-                    hablar("Ese ingrediente no es parte de la receta.");
+                    hablar("Ese ingrediente no va en esta receta.");
                     el.style.position = 'static';
                 }
             } else { el.style.position = 'static'; }
@@ -204,7 +204,7 @@
         document.getElementById('bowl').style.display = "none";
         document.getElementById('plato-final').style.display = "block";
         pararLlamada("NIVEL COMPLETADO");
-        hablar("¡Excelente! Mira qué bien quedó el plato.");
+        hablar("¡Excelente! El plato está listo.");
         
         setTimeout(() => {
             if(nivel < 3) { nivel++; cargarNivel(); }
