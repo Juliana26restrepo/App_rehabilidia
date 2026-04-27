@@ -142,7 +142,7 @@
         <div class="cuadro-resultados">
             <h1 style="color: var(--primary); margin-top: 0;">¡Sesión Exitosa!</h1>
             <div id="resumen-lista" style="font-size: 1.3rem; margin-bottom: 20px;"></div>
-            <button class="btn-grande" onpointerdown="irAlMenu()">TERMINAR</button>
+            <button class="btn-grande" onpointerdown="irAlMenu()">FINALIZAR</button>
         </div>
     </div>
 </div>
@@ -276,10 +276,13 @@
         const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
         document.getElementById('resumen-lista').innerHTML = `Aciertos: ${aciertosTotales}<br>Errores: ${erroresTotales}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
+        hablar("¡Excelente Juan! Has terminado la sesión.");
     }
 
     function irAlMenu() {
-        const ef = Math.round((aciertosTotales / (aciertosTotales + erroresTotales || 1)) * 100);
+        const total = aciertosTotales + erroresTotales;
+        const ef = Math.round((aciertosTotales / (total || 1)) * 100);
+        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Memoria", 
@@ -288,11 +291,15 @@
             errores: erroresTotales,
             eficacia: ef + "%"
         };
+
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+
+        // REDIRECCIÓN EXACTA A LA PÁGINA DE SESIONES DE MEMORIA
         window.location.href = "memoria_sesiones.html";
     }
 </script>
 </body>
 </html>
+
