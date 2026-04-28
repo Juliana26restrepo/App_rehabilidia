@@ -9,13 +9,12 @@
             --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; --dark: #103A57;
         }
 
-        /* RESET TOTAL PARA EVITAR SCROLL */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #1a1a1a; 
-            height: 100vh; height: 100dvh; /* Altura dinámica real */
+            height: 100dvh; 
             display: flex; align-items: center; justify-content: center; 
             overflow: hidden; 
         }
@@ -35,10 +34,9 @@
         }
         
         #contenedor-juego { 
-            flex: 1; /* Ocupa el espacio restante sin pasarse */
-            display: flex; flex-direction: column; 
+            flex: 1; display: flex; flex-direction: column; 
             align-items: center; justify-content: space-around; 
-            padding: 5px; min-height: 0; /* Vital para que los hijos puedan achicarse */
+            padding: 10px; min-height: 0;
         }
 
         .panel-regla { 
@@ -46,49 +44,54 @@
             padding: 10px; border-radius: 12px; 
             font-size: clamp(1.2rem, 4vh, 1.8rem); 
             text-align: center; font-weight: bold; border: 3px solid var(--gold); 
-            flex-shrink: 0;
+            flex-shrink: 0; margin-bottom: 10px;
         }
         
         #zona-objetos { 
             display: grid; gap: 8px; width: 95%; 
-            flex: 1; /* La grilla se estira o encoge según el espacio */
-            align-content: center; justify-content: center;
+            flex: 1; align-content: center; justify-content: center;
             min-height: 0;
         }
 
-        /* Tamaños de grilla inteligentes */
         .grid-1 { grid-template-columns: repeat(4, 1fr); }
         .grid-2 { grid-template-columns: repeat(4, 1fr); }
         .grid-3 { grid-template-columns: repeat(5, 1fr); }
 
         .objeto { 
             background: white; border-radius: 10px; padding: 5px; 
-            border: 2px solid transparent; 
+            border: 3px solid transparent; 
             display: flex; align-items: center; justify-content: center; 
             aspect-ratio: 1; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
-            max-height: 85px; /* Limita el tamaño de la imagen para que no empuje todo */
+            max-height: 80px; cursor: pointer;
         }
         
-        .objeto img { max-width: 90%; max-height: 90%; object-fit: contain; }
-        .seleccionado { opacity: 0.1; pointer-events: none; }
+        .objeto img { max-width: 85%; max-height: 85%; object-fit: contain; }
+        .seleccionado { opacity: 0.2; pointer-events: none; transform: scale(0.9); transition: 0.3s; }
 
         .area-asistente { 
-            height: 85px; background: white; padding: 5px 15px; 
+            height: 80px; background: white; padding: 5px 15px; 
             display: flex; align-items: center; gap: 10px; 
             border-top: 3px solid var(--p-purple); flex-shrink: 0;
         }
-        .avatar-img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--p-purple); }
-        .burbuja { font-size: 0.9rem; color: var(--dark); flex: 1; }
+        .avatar-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--p-purple); }
+        .burbuja { font-size: 0.9rem; color: var(--dark); flex: 1; font-weight: 500; }
 
         #overlay-transicion, #overlay-final { 
             position: absolute; inset: 0; 
             display:none; flex-direction:column; justify-content:center; 
-            align-items:center; z-index:100; background: rgba(16, 58, 87, 0.98); color: white; 
+            align-items:center; z-index:100; background: rgba(16, 58, 87, 0.95); color: white; 
         }
 
         .cuadro-resultados {
-            background: white; color: var(--dark); padding: 20px;
-            border-radius: 15px; width: 80%; border: 4px solid var(--gold);
+            background: white; color: var(--dark); padding: 30px;
+            border-radius: 20px; width: 85%; max-width: 400px; border: 5px solid var(--gold);
+            text-align: center;
+        }
+
+        .btn-final {
+            margin-top: 20px; padding: 15px 30px; background: var(--p-purple); 
+            color:white; border-radius: 50px; border:none; font-weight:bold; 
+            font-size: 1.1rem; cursor:pointer; width: 100%;
         }
     </style>
 </head>
@@ -108,24 +111,28 @@
     </div>
 
     <div id="overlay-transicion">
-        <h1 style="color: var(--gold); font-size: 4rem;">¡CAMBIO!</h1>
-        <p>Atento a la nueva regla...</p>
+        <h1 style="color: var(--gold); font-size: 4rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">¡CAMBIO!</h1>
+        <p style="font-size: 1.5rem;">Atento a la nueva regla...</p>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1>¡SESIÓN LISTA!</h1>
-            <p id="metricas-finales" style="margin: 15px 0;"></p>
-            <button onclick="window.location.href='funcion_sesiones.html'" style="padding: 10px 20px; background: var(--p-purple); color:white; border-radius:15px; border:none; font-weight:bold;">SALIR</button>
+            <h1 style="color: var(--p-purple)">¡SESIÓN LISTA!</h1>
+            <div id="metricas-finales" style="margin: 20px 0; font-size: 1.2rem; font-weight: bold;"></div>
+            <button class="btn-final" onclick="guardarYSalir()">FINALIZAR Y SALIR</button>
         </div>
     </div>
 </div>
 
 <script>
-    let aciertos = 0, errores = 0, nivel = 1, cambios = 0, aciertosRegla = 0, bloqueado = false;
-    let rK = "", rV = "", ultimaRegla = "";
+    let aciertos = 0, errores = 0, nivel = 1, cambiosEnNivel = 0, aciertosReglaActual = 0, bloqueado = false;
+    let rK = "", rV = "", ultimaReglaNom = "";
 
-    const niveles = { 1: {est: 12, camb: 2, grid: 'grid-1'}, 2: {est: 16, camb: 2, grid: 'grid-2'}, 3: {est: 20, camb: 2, grid: 'grid-3'} };
+    const niveles = { 
+        1: {est: 12, cambMax: 2, grid: 'grid-1'}, 
+        2: {est: 16, cambMax: 2, grid: 'grid-2'}, 
+        3: {est: 20, cambMax: 2, grid: 'grid-3'} 
+    };
 
     const banco = [
         { f: "fresa.png", c: "rojo", t: "fruta" }, { f: "corazon.png", c: "rojo", t: "forma" }, { f: "cereza.png", c: "rojo", t: "fruta" }, { f: "alicate.png", c: "rojo", t: "herramienta" },
@@ -150,14 +157,23 @@
         const zona = document.getElementById('zona-objetos');
         zona.className = config.grid;
         
-        const reglas = [{n:"ROJOS", k:"c", v:"rojo"}, {n:"ANIMALES", k:"t", v:"animal"}, {n:"FRUTAS", k:"t", v:"fruta"}, {n:"AZULES", k:"c", v:"azul"}];
-        let sel; do { sel = reglas[Math.floor(Math.random() * reglas.length)]; } while (sel.n === ultimaRegla);
+        const reglas = [
+            {n:"ROJOS", k:"c", v:"rojo"}, 
+            {n:"ANIMALES", k:"t", v:"animal"}, 
+            {n:"FRUTAS", k:"t", v:"fruta"}, 
+            {n:"AZULES", k:"c", v:"azul"}
+        ];
         
-        ultimaRegla = sel.n; rK = sel.k; rV = sel.v; aciertosRegla = 0;
+        let sel; 
+        do { sel = reglas[Math.floor(Math.random() * reglas.length)]; } 
+        while (sel.n === ultimaReglaNom);
+        
+        ultimaReglaNom = sel.n; rK = sel.k; rV = sel.v; aciertosReglaActual = 0;
         document.getElementById('panel-regla').innerText = "BUSCA: " + sel.n;
         
         hablar("Juan, busca los objetos " + sel.n, () => bloqueado = false);
 
+        // Selección lógica para asegurar que existan objetivos
         let objetivos = banco.filter(b => b[rK] === rV).sort(()=>0.5-Math.random()).slice(0, 4);
         let dist = banco.filter(b => b[rK] !== rV).sort(()=>0.5-Math.random()).slice(0, config.est - objetivos.length);
         let mezcla = objetivos.concat(dist).sort(()=>0.5-Math.random());
@@ -170,35 +186,66 @@
             div.onpointerdown = () => {
                 if(bloqueado) return;
                 if(item[rK] === rV) {
-                    aciertos++; aciertosRegla++; div.classList.add('seleccionado');
-                    if(aciertosRegla >= 2 && cambios < config.camb) {
-                        bloqueado = true; cambios++;
-                        document.getElementById('overlay-transicion').style.display = 'flex';
-                        hablar("¡Cambio! Mucha atención.", () => setTimeout(generarTablero, 1000));
-                    } else if (Array.from(document.querySelectorAll('.objeto:not(.seleccionado)')).filter(d => banco.find(b=>b.f === d.querySelector('img').src.split('/').pop())[rK] === rV).length === 0) {
-                        if(nivel < 3) { nivel++; cambios = 0; hablar("¡Muy bien! Siguiente nivel.", () => generarTablero()); }
-                        else { finalizar(); }
+                    aciertos++; 
+                    aciertosReglaActual++; 
+                    div.classList.add('seleccionado');
+                    
+                    // Lógica de cambio de regla
+                    if(aciertosReglaActual >= 2 && cambiosEnNivel < config.cambMax) {
+                        bloqueado = true; 
+                        cambiosEnNivel++;
+                        setTimeout(() => {
+                            document.getElementById('overlay-transicion').style.display = 'flex';
+                            hablar("¡Cambio! Mucha atención.", () => {
+                                setTimeout(generarTablero, 1200);
+                            });
+                        }, 500);
+                    } else if (verificarSiNoHayMas()) {
+                        // Avanzar nivel o finalizar
+                        if(nivel < 3) { 
+                            nivel++; 
+                            cambiosEnNivel = 0; 
+                            hablar("¡Excelente! Vamos al siguiente nivel.", () => generarTablero()); 
+                        } else { 
+                            finalizar(); 
+                        }
                     }
-                } else { errores++; div.style.borderColor = "red"; setTimeout(()=> div.style.borderColor="transparent", 400); }
+                } else { 
+                    errores++; 
+                    div.style.borderColor = "red"; 
+                    setTimeout(()=> div.style.borderColor="transparent", 400); 
+                    hablar("Ese no cumple la regla.");
+                }
             };
             zona.appendChild(div);
         });
     }
 
-    function finalizar() {
-        document.getElementById('metricas-finales').innerText = `Aciertos: ${aciertos} | Errores: ${errores}`;
-        document.getElementById('overlay-final').style.display = 'flex';
-        hablar("¡Excelente trabajo, Juan!");
+    function verificarSiNoHayMas() {
+        const restantes = Array.from(document.querySelectorAll('.objeto:not(.seleccionado)'));
+        return !restantes.some(div => {
+            const imgName = div.querySelector('img').src.split('/').pop();
+            const itemOriginal = banco.find(b => b.f === imgName);
+            return itemOriginal && itemOriginal[rK] === rV;
+        });
     }
 
-    window.onload = () => generarTablero();
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
+    function finalizar() {
         const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
+        document.getElementById('metricas-finales').innerHTML = `
+            <div style="color: green">Aciertos: ${aciertos}</div>
+            <div style="color: red">Errores: ${errores}</div>
+            <div style="margin-top:10px; font-size: 1.5rem">Eficacia: ${ef}%</div>
+        `;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("¡Misión cumplida Juan! Has demostrado una gran flexibilidad.");
+    }
+
+    function guardarYSalir() {
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
+            modulo: "Función Ejecutiva", 
             id_sesion: 2,       
             aciertos: aciertos,
             errores: errores,
@@ -206,20 +253,15 @@
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "funcion_sesiones.html";
     }
 
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
+    window.onload = () => {
+        setTimeout(generarTablero, 500);
+    };
 </script>
 </body>
 </html>
