@@ -23,7 +23,6 @@
             height: 100vh; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Contenedor Universal Zoom */
         #contenedor-proporcional {
             width: 100vw; height: 100vh;
             max-width: 1024px; max-height: 768px;
@@ -60,12 +59,8 @@
             font-size: clamp(1rem, 2.5vw, 1.4rem); border: 2px solid #CFD8DC; 
             border-radius: 12px; cursor: pointer; background: #F8F9FA; 
             color: #37474F; font-weight: bold; transition: all 0.2s;
-            touch-action: manipulation;
         }
 
-        .btn-opcion:active { background: var(--secondary); color: white; transform: scale(0.98); }
-
-        /* Capas de Estado */
         #pantalla-transicion, #overlay-final { 
             position: absolute; top:0; left:0; width:100%; height:100%; 
             display:none; flex-direction:column; justify-content:center; 
@@ -84,9 +79,10 @@
         .stat-item { background: #f0f4f8; padding: 15px; border-radius: 15px; flex: 1; margin: 0 5px; }
         .stat-item b { font-size: 1.8rem; color: var(--primary); display: block; }
 
-        .btn-principal {
-            padding: 15px 40px; background: var(--secondary); color: white; 
-            border-radius: 12px; font-size: 1.3rem; border:none; cursor:pointer; font-weight:bold;
+        .btn-final {
+            padding: 18px 30px; background: #2E7D32; color: white; 
+            border-radius: 12px; font-size: 1.3rem; border:none; 
+            cursor:pointer; font-weight:bold; width: 100%; margin-top: 10px;
         }
     </style>
 </head>
@@ -95,7 +91,7 @@
 <div id="contenedor-proporcional">
     <div id="cabecera">
         <div style="display:flex; align-items:center;">
-            <img src="COTERAPEUTA.JPG" style="width:40px; height:40px; border-radius:50%; margin-right:12px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1041/1041916.png'">
+            <img src="COTERAPEUTA.JPG" style="width:40px; height:40px; border-radius:50%; margin-right:12px;">
             <span style="font-weight:bold; font-size: 1.1rem; color: var(--primary);">Sesión 10: Memoria de Video</span>
         </div>
     </div>
@@ -103,14 +99,14 @@
     <div id="contenedor-principal">
         <video id="display-video" playsinline></video>
         <div id="quiz-box">
-            <div id="pregunta-texto"></div>
+            <div id="pregunta-texto" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;"></div>
             <div id="opciones-box"></div>
         </div>
     </div>
 
     <div id="pantalla-transicion">
         <h1 id="tit-nivel" style="font-size: clamp(2rem, 8vw, 3.5rem); background: var(--accent); color: var(--primary); padding: 10px 50px; border-radius: 50px;"></h1>
-        <p id="desc-nivel" style="font-size: 1.5rem; margin-top: 20px;">Observa con atención cada detalle...</p>
+        <p style="font-size: 1.5rem; margin-top: 20px;">Juan, observa con atención cada detalle...</p>
     </div>
 
     <div id="overlay-final">
@@ -118,21 +114,20 @@
             <h1 style="color: var(--primary); margin: 0;">¡SESIÓN COMPLETADA!</h1>
             <div id="resumen-stats" class="stat-box"></div>
             <div id="eficacia-box" style="font-size: 2rem; font-weight: bold; margin-bottom: 20px; color: var(--secondary);"></div>
-            <p style="font-style: italic; margin-bottom: 20px;">“Cada vez que recuerdas un detalle fortaleces tu mente”</p>
-            <button class="btn-principal" onpointerdown="location.reload()">REPETIR SESIÓN</button>
+            <button class="btn-final" onclick="guardarYFinalizar()">GUARDAR Y FINALIZAR</button>
         </div>
     </div>
 </div>
 
 <script>
-    let nivel = 1, aciertosGlobal = 0, erroresGlobal = 0, videoActualId = 0, preguntaIndice = 0;
+    let nivel = 1, aciertos = 0, errores = 0, videoActualId = 0, preguntaIndice = 0;
     let videosUsados = [];
-    const TOTAL_PREGUNTAS_SESION = 12; // 3 niveles * 4 preguntas por video
+    const TOTAL_PREGUNTAS_SESION = 12;
 
     const configNiveles = {
-        1: { n: "1", videos: [1, 2, 3] },
-        2: { n: "2", videos: [4, 5, 6, 7] },
-        3: { n: "3", videos: [8, 9, 10] }
+        1: { videos: [1, 2, 3] },
+        2: { videos: [4, 5, 6, 7] },
+        3: { videos: [8, 9, 10] }
     };
 
     const bancoDatos = {
@@ -209,7 +204,6 @@
     function iniciarJuego() { prepararNivel(); }
 
     function prepararNivel() {
-        const c = configNiveles[nivel];
         document.getElementById('tit-nivel').innerText = "NIVEL " + nivel;
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
@@ -251,11 +245,7 @@
             const btn = document.createElement('button');
             btn.className = 'btn-opcion';
             btn.innerText = opt;
-            // Soporte táctil y mouse con pointerdown
-            btn.onpointerdown = (e) => {
-                e.preventDefault();
-                verificar(index, data.r);
-            };
+            btn.onclick = () => verificar(index, data.r);
             box.appendChild(btn);
         });
 
@@ -264,15 +254,12 @@
     }
 
     function verificar(elegido, correcto) {
-        const botones = document.querySelectorAll('.btn-opcion');
-        botones.forEach(b => b.style.pointerEvents = 'none');
-
         if(elegido === correcto) { 
-            aciertosGlobal++; 
+            aciertos++; 
             hablar("¡Muy bien!"); 
         } else { 
-            erroresGlobal++; 
-            hablar("Ese detalle era diferente."); 
+            errores++; 
+            hablar("No era así."); 
         }
         
         setTimeout(() => {
@@ -292,35 +279,21 @@
     }
 
     function finalizarSesion() {
-        const eficacia = Math.round((aciertosGlobal / TOTAL_PREGUNTAS_SESION) * 100);
-        
-        // Guardado Centralizado según protocolo
-        const datosSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Memoria",
-            id_sesion: 10,
-            aciertos: aciertosGlobal,
-            errores: erroresGlobal,
-            eficacia: eficacia + "%"
-        };
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(datosSesion));
-
-        // UI Final
+        const eficacia = Math.round((aciertos / TOTAL_PREGUNTAS_SESION) * 100);
         document.getElementById('resumen-stats').innerHTML = `
-            <div class="stat-item">ACIERTOS<b>${aciertosGlobal}</b></div>
-            <div class="stat-item">ERRORES<b>${erroresGlobal}</b></div>
+            <div class="stat-item">ACIERTOS<b>${aciertos}</b></div>
+            <div class="stat-item">ERRORES<b>${errores}</b></div>
         `;
         document.getElementById('eficacia-box').innerText = `Eficacia: ${eficacia}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Sesión terminada. Cada vez que recuerdas un detalle fortaleces tu mente");
+        hablar("Sesión terminada. Buen trabajo Juan.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
+
+    function guardarYFinalizar() {
         const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "memoria", 
+            modulo: "Memoria", 
             id_sesion: 10,       
             aciertos: aciertos,
             errores: errores,
@@ -332,17 +305,8 @@
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "memoria_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
