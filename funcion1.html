@@ -106,7 +106,7 @@
     <header><span style="font-weight:bold;">FUNCIÓN EJECUTIVA 1: PLANIFICACIÓN</span></header>
 
     <div id="contenedor-principal">
-        <div id="reto-texto" class="instruccion-reto">Cargando...</div>
+        <div id="reto-texto" class="instruccion-reto">Cargando reto...</div>
         <div id="area-opciones"></div>
         <div id="area-secuencia"></div>
     </div>
@@ -120,7 +120,7 @@
 
     <div id="overlay-final">
         <div class="cuadro-final">
-            <h1 style="margin:0;">¡EXCELENTE TRABAJO!</h1>
+            <h1 style="margin:0;">¡SESIÓN COMPLETADA!</h1>
             <div id="stats-visual" style="font-size:1.2rem; margin:20px 0; text-align: left;"></div>
             <button onclick="irAlMenu()" style="width:100%; padding:18px; background:#2E7D32; color:white; border-radius:50px; border:none; font-weight:bold; font-size:1.2rem; cursor:pointer;">FINALIZAR Y GUARDAR</button>
         </div>
@@ -132,17 +132,20 @@
     let secuenciaUsuario = [], retoActual = null;
 
     const banco = {
-        1: [ // NIVEL BAJO - 5 PASOS
+        1: [ // NIVEL BAJO - CAFÉ DE FILTRO (LINEAL)
             { 
-                t: "Preparar un Café", 
+                t: "Preparar Café de Filtro", 
                 pasos: [
-                    {e:"🔥", p:"Calentar agua"}, {e:"☕", p:"Echar café en taza"}, 
-                    {e:"💧", p:"Verter agua"}, {e:"🥄", p:"Revolver"}, {e:"🥛", p:"Añadir leche"}
+                    {e:"💧", p:"Llenar cafetera con agua"}, 
+                    {e:"☕", p:"Poner café en el filtro"}, 
+                    {e:"⚡", p:"Encender la cafetera"}, 
+                    {e:"🍶", p:"Servir café en la taza"}, 
+                    {e:"🍯", p:"Endulzar al gusto"}
                 ], 
                 dist: [{e:"👟", p:"Atar zapatos"}] 
             }
         ],
-        2: [ // NIVEL MEDIO - 7 PASOS
+        2: [ // NIVEL MEDIO - ENVIAR CARTA
             { 
                 t: "Enviar una Carta", 
                 pasos: [
@@ -154,9 +157,9 @@
                 dist: [{e:"🍕", p:"Pedir pizza"}, {e:"📺", p:"Ver tele"}] 
             }
         ],
-        3: [ // NIVEL ALTO - 10 PASOS
+        3: [ // NIVEL ALTO - SACAR AL PERRO (COMPLETO)
             { 
-                t: "Sacar al Perro (Completo)", 
+                t: "Sacar al Perro", 
                 pasos: [
                     {e:"📢", p:"Llamar al perro"}, {e:"🐕", p:"Poner collar"}, 
                     {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Coger bolsas"}, 
@@ -186,7 +189,7 @@
         document.getElementById('desc-nivel').innerText = `Actividad: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, vamos a planificar cómo ${retoActual.t}`);
+        hablar(`Juan, vamos a planificar paso a paso cómo ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
@@ -194,7 +197,7 @@
     }
 
     function dibujarTarjetas() {
-        document.getElementById('reto-texto').innerText = "Ordena los pasos para: " + retoActual.t;
+        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
         const area = document.getElementById('area-opciones');
         area.innerHTML = "";
         let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
@@ -207,7 +210,7 @@
                 if(retoActual.dist.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Eso no es necesario.");
+                    hablar("Ese paso no es necesario.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -227,7 +230,7 @@
         
         if(secuenciaUsuario.length === retoActual.pasos.length) {
             document.getElementById('btn-verificar').style.display = "block";
-            hablar("¿Están en el orden correcto?");
+            hablar("¿Están todos los pasos en orden? Pulsa el botón verde.");
         }
     }
 
@@ -246,7 +249,7 @@
             }, 1500);
         } else {
             totalErrores++;
-            hablar("El orden no es correcto. Intenta de nuevo.");
+            hablar("El orden no es el adecuado. Intenta de nuevo.");
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
@@ -259,12 +262,12 @@
     function finalizarSesion() {
         const ef = Math.round((totalAciertos / 3) * 100);
         document.getElementById('stats-visual').innerHTML = `
-            <p><b>Niveles logrados:</b> ${totalAciertos}/3</p>
-            <p><b>Errores totales:</b> ${totalErrores}</p>
-            <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
+            <p><b>Actividades completadas:</b> ${totalAciertos}/3</p>
+            <p><b>Errores cometidos:</b> ${totalErrores}</p>
+            <h2 style="color:#2E7D32">Eficacia Final: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar("Sesión de planificación terminada. Excelente progreso Juan.");
+        hablar("Juan, has terminado tu entrenamiento de planificación de hoy. Excelente trabajo.");
     }
 
     function irAlMenu() {
