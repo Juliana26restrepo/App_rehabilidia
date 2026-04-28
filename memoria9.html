@@ -33,16 +33,16 @@
         }
 
         #cabecera { 
-            background: var(--white); height: 10%; display: flex; 
+            background: var(--white); height: 12%; display: flex; 
             align-items: center; justify-content: center; 
-            border-bottom: 4px solid var(--accent-gold); flex-shrink: 0; 
+            border-bottom: 4px solid var(--accent-gold); flex-shrink: 0; padding: 0 15px;
         }
 
         #instruccion-box { 
             display: flex; align-items: center; font-weight: bold; 
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem); color: var(--dark-green); 
+            font-size: clamp(0.85rem, 2.2vw, 1.1rem); color: var(--dark-green); 
         }
-        #instruccion-box img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; }
+        #instruccion-box img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--primary-green); }
 
         #contenedor-principal { 
             flex-grow: 1; display: flex; flex-direction: column; 
@@ -51,33 +51,32 @@
 
         #display-imagen { 
             max-width: 85%; 
-            max-height: 55vh; /* Tamaño reducido para ver el tiempo abajo */
+            max-height: 45vh; 
             border: 6px solid var(--white); border-radius: 15px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
             display: none; object-fit: contain;
         }
 
         #timer { 
-            font-size: 2.5rem; font-weight: bold; 
+            font-size: 2.8rem; font-weight: bold; 
             color: var(--primary-green); 
-            background: var(--white); padding: 5px 30px; border-radius: 30px; 
+            background: var(--white); padding: 5px 35px; border-radius: 40px; 
             border: 3px solid var(--accent-gold); display: none;
         }
 
         #quiz-box { 
-            display: none; background: var(--white); padding: 20px; 
-            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            width: 90%; max-width: 550px; 
+            display: none; background: var(--white); padding: 25px; 
+            border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 92%; max-width: 550px; 
         }
 
         .btn-opcion { 
-            display: block; width: 100%; padding: 12px; margin: 8px 0; 
-            font-size: 1.2rem; border: 2px solid #C8E6C9; 
-            border-radius: 12px; cursor: pointer; background: #F1F8E9; 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            font-size: 1.3rem; border: 2px solid #C8E6C9; 
+            border-radius: 15px; cursor: pointer; background: #F1F8E9; 
             color: var(--dark-green); font-weight: bold;
         }
 
-        /* Capas finales */
         #pantalla-transicion, #overlay-final { 
             position: absolute; top:0; left:0; width:100%; height:100%; 
             display:none; flex-direction:column; justify-content:center; 
@@ -85,8 +84,8 @@
         }
 
         .cuadro-resultados {
-            background: var(--white); color: var(--dark-green); padding: 25px;
-            border-radius: 20px; border: 5px solid var(--accent-gold); width: 85%;
+            background: var(--white); color: var(--dark-green); padding: 30px;
+            border-radius: 25px; border: 6px solid var(--accent-gold); width: 85%;
         }
     </style>
 </head>
@@ -96,7 +95,7 @@
     <div id="cabecera">
         <div id="instruccion-box">
             <img src="COTERAPEUTA.JPG">
-            <span id="label-guia">Juan, fíjate bien en los detalles...</span>
+            <span id="label-guia">Juan, observa los detalles de las imágenes porque luego responderemos unas preguntas.</span>
         </div>
     </div>
 
@@ -105,21 +104,20 @@
         <div id="timer">10</div>
         
         <div id="quiz-box">
-            <div id="pregunta-texto" style="font-size: 1.4rem; font-weight: bold; margin-bottom: 15px;"></div>
+            <div id="pregunta-texto" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;"></div>
             <div id="opciones-box"></div>
         </div>
     </div>
 
     <div id="pantalla-transicion">
-        <h1 id="tit-nivel" style="background: var(--accent-gold); color: var(--dark-green); padding: 10px 30px; border-radius: 30px;"></h1>
-        <p style="font-size: 1.4rem;">¡Prepárate!</p>
+        <h1 id="tit-nivel" style="background: var(--accent-gold); color: var(--dark-green); padding: 10px 40px; border-radius: 40px;"></h1>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h2>¡Sesión Completada!</h2>
-            <div id="resumen-stats" style="font-size: 1.3rem; margin-bottom: 20px;"></div>
-            <button onclick="irAlMenu()" style="padding: 15px 30px; background: var(--accent-gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">FINALIZAR Y GUARDAR</button>
+            <h2 style="font-size: 2rem; margin: 0;">¡SESIÓN LOGRADA!</h2>
+            <div id="resumen-stats" style="font-size: 1.6rem; margin: 20px 0; font-weight: bold;"></div>
+            <button onclick="irAlMenu()" style="padding: 18px 40px; background: var(--accent-gold); border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.4rem; color: var(--dark-green); width: 100%;">FINALIZAR Y GUARDAR</button>
         </div>
     </div>
 </div>
@@ -131,43 +129,42 @@
     let preguntaIndice = 0;
 
     const configNivel = {
-        1: { n: "Inicial", r: [1, 10] },
-        2: { n: "Intermedio", r: [11, 20] },
-        3: { n: "Avanzado", r: [21, 30] }
+        1: { n: "INICIAL", r: [1, 10] },
+        2: { n: "INTERMEDIO", r: [11, 20] },
+        3: { n: "AVANZADO", r: [21, 30] }
     };
 
-    // Banco actualizado con 3 opciones por pregunta
     const bancoPreguntas = {
-        1: [{p:"¿El florero era azul?", o:["Sí, azul","No, era rojo","Era transparente"], r:0}, {p:"¿Qué tenía el vaso?", o:["Agua","Jugo de naranja","Vino tinto"], r:0}],
-        2: [{p:"¿Color de la alfombra?", o:["Verde","Gris","Café"], r:0}, {p:"¿Había un libro en la mesa?", o:["Sí","No","No se veía la mesa"], r:0}],
-        3: [{p:"¿Dónde estaba el niño?", o:["En la casa","En el parque","En la escuela"], r:1}, {p:"¿Color de su camiseta?", o:["Azul","Amarilla","Verde"], r:1}],
-        4: [{p:"¿Cuántas materas había?", o:["1","2","3"], r:2}, {p:"¿El gato estaba en la mesa?", o:["Sí","No","No había gato"], r:1}],
-        5: [{p:"¿Qué había en el plato?", o:["Fruta","Pan con huevo","Tostadas"], r:1}, {p:"¿Había personas?", o:["Sí","No","Solo se veía la mano"], r:0}],
-        6: [{p:"¿Flores en la ventana?", o:["2 flores","3 flores","Ninguna"], r:1}, {p:"¿Color de la manta?", o:["Blanca","Beige","Azul"], r:1}],
-        7: [{p:"¿Marca de la pelota?", o:["HEAD","Wilson","Penn"], r:0}, {p:"¿Cordones blancos?", o:["Sí","No, eran negros","No tenía cordones"], r:1}],
-        8: [{p:"¿Libro sobre el abierto?", o:["Un lápiz","Gafas","Una taza"], r:1}, {p:"¿Había dibujos?", o:["Sí","No","Solo en la portada"], r:1}],
-        9: [{p:"¿Ciudad del regalo?", o:["Bogotá","Medellín","Cali"], r:1}, {p:"¿Color del moño?", o:["Rojo","Dorado","Plateado"], r:1}],
-        10: [{p:"¿Color de la bicicleta?", o:["Azul","Roja","Verde"], r:1}, {p:"¿Qué había en el canasto?", o:["Flores","Botella y bolso","Fruta"], r:1}],
-        11: [{p:"¿Ollas en la estufa?", o:["Una","Dos","Tres"], r:1}, {p:"¿Qué fruta era?", o:["Pera","Mango","Manzana"], r:1}],
-        12: [{p:"¿Qué leía el señor?", o:["El Tiempo","El Espectador","Una revista"], r:0}, {p:"¿Tenía sombrero?", o:["Sí","No","Lo tenía en la mano"], r:0}],
-        13: [{p:"¿Cuántos lápices?", o:["1 lápiz","3 lápices","5 lápices"], r:1}, {p:"¿Qué decía la taza?", o:["Papá","Juan","Café"], r:0}],
-        14: [{p:"¿Color de la toalla?", o:["Blanca","Roja","Verde"], r:1}, {p:"¿Forma del espejo?", o:["Cuadrado","Redondo","Ovalado"], r:1}],
-        15: [{p:"¿Montañas con nieve?", o:["Sí","No","No se veían montañas"], r:0}, {p:"¿Cuántos cojines?", o:["2","4","5"], r:1}],
-        16: [{p:"¿Sabor mermelada?", o:["Mora","Fresa","Durazno"], r:1}, {p:"¿Color servilleta?", o:["Blanca","Azul","Cuadros"], r:1}],
-        17: [{p:"¿Libro del medio?", o:["Verde","Rojo","Azul"], r:1}, {p:"¿Flash encendido?", o:["Sí","No","La cámara estaba tapada"], r:1}],
-        18: [{p:"¿Color regadera?", o:["Verde","Roja","Azul"], r:1}, {p:"¿Pares de guantes?", o:["1 par","2 pares","Ninguno"], r:0}],
-        19: [{p:"¿Cuántas almohadas?", o:["2","4","6"], r:1}, {p:"¿Color pantuflas?", o:["Azules","Gris","Negras"], r:1}],
-        20: [{p:"¿Botella de agua vacía?", o:["Sí","No, llena","A la mitad"], r:1}, {p:"¿Color correa cámara?", o:["Negra","Café","Azul"], r:1}],
-        21: [{p:"¿Compró lechuga?", o:["Sí","No","Compró tomates"], r:0}, {p:"¿Color del delantal?", o:["Blanco","Azul","Rojo"], r:1}],
-        22: [{p:"¿Año del calendario?", o:["2023","2024","2025"], r:1}, {p:"¿Color extintor?", o:["Rojo","Amarillo","Verde"], r:0}],
-        23: [{p:"¿Piso 1 de la torta?", o:["Círculos","Estrellas","Corazones"], r:1}, {p:"¿Cuántos globos?", o:["3","5","7"], r:1}],
-        24: [{p:"¿Nombre panadería?", o:["El Sol","La Luna","Pan Rico"], r:0}, {p:"¿Semáforo en verde?", o:["Sí","No, rojo","Estaba apagado"], r:1}],
-        25: [{p:"¿Color de la maleta?", o:["Azul","Amarilla","Verde"], r:1}, {p:"¿Cuántos escritorios?", o:["2","4","5"], r:1}],
-        26: [{p:"¿Plantas en la sala?", o:["1 planta","2 plantas","Ninguna"], r:1}, {p:"¿Frascos en mesa?", o:["2","3","4"], r:1}],
-        27: [{p:"¿Lámpara de gas?", o:["Sí","No","Era una linterna"], r:0}, {p:"¿Color de la carpa?", o:["Verde","Azul","Gris"], r:1}],
-        28: [{p:"¿Había una chiva?", o:["Sí","No","Era un camión"], r:0}, {p:"¿Planta en estante?", o:["Sí","No","Estaba en el suelo"], r:1}],
-        29: [{p:"¿Color de sandalias?", o:["Rojas","Amarillas","Blancas"], r:1}, {p:"¿Color del balde?", o:["Verde","Azul","Rojo"], r:1}],
-        30: [{p:"¿Personas en escena?", o:["1 persona","3 personas","5 personas"], r:1}, {p:"¿Había computadores?", o:["Sí","No","Solo uno"], r:1}]
+        1: [{p:"¿El florero era de color azul?", o:["Sí","No","Era blanco"], r:0}, {p:"¿La manzana estaba en la esquina de la mesa?", o:["Sí","No","Estaba al centro"], r:1}, {p:"¿Qué tenía el vaso?", o:["Agua","Jugo","Vino"], r:0}, {p:"¿Habían flores moradas en el florero?", o:["Sí","No"], r:0}],
+        2: [{p:"¿El perro estaba dormido?", o:["Sí","No"], r:0}, {p:"¿De qué color era la alfombra?", o:["Roja","Verde","Azul"], r:1}, {p:"¿Había un libro sobre la mesa?", o:["Sí","No"], r:0}, {p:"¿La manta estaba sobre la ventana?", o:["Sí","No"], r:1}],
+        3: [{p:"¿En donde estaba el niño?", o:["En la casa","En el parque","En el colegio"], r:1}, {p:"¿De qué color era la camiseta del niño?", o:["Roja","Amarilla","Verde"], r:1}, {p:"¿El globo era de feliz cumpleaños?", o:["Sí","No"], r:1}, {p:"¿Habían más niños en la foto?", o:["Sí","No"], r:0}],
+        4: [{p:"¿En la mesa había una taza?", o:["Sí","No"], r:0}, {p:"¿Cuántas materas habían?", o:["1","2","3"], r:2}, {p:"¿El gato estaba sobre la mesa?", o:["Sí","No"], r:1}],
+        5: [{p:"¿El café estaba humeando?", o:["Sí","No"], r:0}, {p:"¿Qué había en el plato?", o:["Fruta","Pan con huevo","Tostadas"], r:1}, {p:"¿Había personas?", o:["Sí","No"], r:0}, {p:"¿En el plato había un tenedor?", o:["Sí","No"], r:1}],
+        6: [{p:"¿Cuántas flores había en la ventana?", o:["2","3","5"], r:1}, {p:"¿Qué había sobre la mesa?", o:["Un libro y una taza","Solo platos","Nada"], r:0}, {p:"¿Las cortinas estaban abiertas?", o:["Sí","No"], r:0}, {p:"¿De qué color era la manta que había en la silla?", o:["Azul","Beige","Blanca"], r:1}],
+        7: [{p:"¿En donde estaba el zapato?", o:["En el patio","En una cancha","En el closet"], r:1}, {p:"¿Qué decía la pelota de tenis?", o:["HEAD","Wilson","Penn"], r:0}, {p:"¿El zapato estaba amarrado?", o:["Sí","No"], r:0}, {p:"¿Los cordones eran blancos?", o:["Sí","No"], r:1}],
+        8: [{p:"¿Como se llamaba el libro que estaba cerrado?", o:["La montaña mágica","Don Quijote","El Principito"], r:0}, {p:"¿Que había sobre el libro abierto?", o:["Un lápiz","Unas gafas","Una lupa"], r:1}, {p:"¿Se veían las montañas desde la ventana?", o:["Sí","No"], r:0}, {p:"¿El libro abierto tenía dibujos?", o:["Sí","No"], r:1}],
+        9: [{p:"¿Atrás del regalo que había?", o:["Un florero","Una lámpara","Un cuadro"], r:0}, {p:"¿De qué ciudad era el regalo?", o:["Bogotá","Medellín","Cali"], r:1}, {p:"¿De qué color era el moño?", o:["Rojo","Dorado","Plata"], r:1}, {p:"¿El regalo tenía una decoración con flores?", o:["Sí","No"], r:1}],
+        10: [{p:"¿De qué color era la bicicleta?", o:["Azul","Roja","Negra"], r:1}, {p:"¿Había un pato en la foto?", o:["Sí","No"], r:1}, {p:"¿El árbol tenía alguna fruta?", o:["Sí","No"], r:1}, {p:"¿Que había en el canasto de la bicicleta?", o:["Pan","Botella de agua y un bolso","Frutas"], r:1}],
+        11: [{p:"¿Cuantas ollas había sobre la estufa?", o:["1","2","3"], r:1}, {p:"¿Que hora marcaba el reloj?", o:["8 am","10 am","12 pm"], r:1}, {p:"¿La jarra tenía jugo?", o:["Sí","No"], r:0}, {p:"¿Que fruta estaba en la tabla de picar?", o:["Pera","Mango","Manzana"], r:1}],
+        12: [{p:"¿Que periódico estaba leyendo el señor?", o:["El Tiempo","El Espectador","El Mundo"], r:0}, {p:"¿De qué color era la camisa del niño?", o:["Verde","Amarilla","Azul"], r:1}, {p:"¿El señor tenía sombrero?", o:["Sí","No"], r:0}, {p:"¿Que habia en la banca junto al señor?", o:["Comida","Una taza y una Tula","Un libro"], r:1}],
+        13: [{p:"¿Cuantos lápices habían?", o:["1","3","5"], r:1}, {p:"¿El computador estaba encendido?", o:["Sí","No"], r:0}, {p:"¿Qué decía la taza?", o:["Papá","Juan","Café"], r:0}, {p:"¿Había un cuadro de una planta?", o:["Sí","No"], r:1}],
+        14: [{p:"¿De qué color era la toalla?", o:["Blanca","Roja","Azul"], r:1}, {p:"¿Cuantos cepillos de dientes habían?", o:["1","2","3"], r:0}, {p:"¿El grifo del agua estaba abierto?", o:["Sí","No"], r:1}, {p:"¿De que forma era el espejo?", o:["Cuadrado","Redondo","Triangular"], r:1}],
+        15: [{p:"¿Las montañas del cuadro tenían nieve?", o:["Sí","No"], r:0}, {p:"¿Cuantos cojines habían?", o:["2","4","6"], r:1}, {p:"¿El gato estaba sobre la planta?", o:["Sí","No"], r:1}, {p:"¿Que habia en la mesa de centro?", o:["Taza y libro","Un florero","Nada"], r:0}],
+        16: [{p:"¿De qué sabor era la mermelada?", o:["Mora","Fresa","Piña"], r:1}, {p:"¿La tetera estaba humeando?", o:["Sí","No"], r:0}, {p:"¿De qué color era la servilleta?", o:["Blanca","Azul","Roja"], r:1}, {p:"¿En el plato se veía algún alimento?", o:["Sí","No"], r:1}],
+        17: [{p:"¿De qué color era el libro del medio?", o:["Verde","Rojo","Azul"], r:1}, {p:"¿El libro 'el alma de la montaña' de qué color era?", o:["Rojo","Azul","Gris"], r:1}, {p:"¿La cámara tenía el flash encendido?", o:["Sí","No"], r:1}, {p:"¿Como se llamaba el libro verde?", o:["El camino verde","Bosque","Sendas"], r:0}],
+        18: [{p:"¿La regadera de qué color era?", o:["Verde","Roja","Amarilla"], r:1}, {p:"¿Las flores eran blancas y amarillas?", o:["Sí","No"], r:0}, {p:"¿Cuantos pares de guantes habían?", o:["1","2"], r:0}, {p:"¿En la mesa había una pala?", o:["Sí","No"], r:1}],
+        19: [{p:"¿Cuantas almohadas habían?", o:["2","4","6"], r:1}, {p:"¿La ventana estaba cerrada?", o:["Sí","No"], r:1}, {p:"¿El libro sobre la mesa de noche estaba abierto?", o:["Sí","No"], r:0}, {p:"¿De qué color eran las pantuflas?", o:["Azules","Gris","Negras"], r:1}],
+        20: [{p:"¿La camisa era blanca con rayas verdes?", o:["Sí","No"], r:1}, {p:"¿La botella de agua estaba vacía?", o:["Sí","No"], r:1}, {p:"¿De qué color era la correa de la cámara?", o:["Negra","Café","Gris"], r:1}, {p:"¿La prenda que había abajo de la camisa era roja?", o:["Sí","No"], r:1}],
+        21: [{p:"¿La señora compró lechuga?", o:["Sí","No"], r:0}, {p:"¿Las manzanas estaban 4x2?", o:["Sí","No"], r:1}, {p:"¿De qué color era el delantal de la cajera?", o:["Verde","Azul","Blanco"], r:1}, {p:"¿La clienta tenía un sombrero?", o:["Sí","No"], r:1}],
+        22: [{p:"¿Cuantas llantas habían apiladas?", o:["2","4","6"], r:1}, {p:"¿De que año era el calendario?", o:["2023","2024","2025"], r:1}, {p:"¿La caja de herramientas estaba cerrada?", o:["Sí","No"], r:1}, {p:"¿El extintor era amarillo?", o:["Sí","No"], r:1}],
+        23: [{p:"¿Que figuras tenía el primer piso de la torta?", o:["Círculos","Estrellas","Corazones"], r:1}, {p:"¿Cuantos vasos habían?", o:["2","4","6"], r:1}, {p:"¿De qué color era el gorro de la niña?", o:["Rojo","Amarillo","Azul"], r:1}, {p:"¿Cuantos globos habían?", o:["3","5","8"], r:1}],
+        24: [{p:"¿Como se llamaba la panadería?", o:["Panadería El Sol","La Luna","Pan Rico"], r:0}, {p:"¿Perro y señora iban en la misma dirección?", o:["Sí","No"], r:1}, {p:"¿El semáforo estaba en verde?", o:["Sí","No"], r:1}, {p:"¿El bus era del metro?", o:["Sí","No"], r:1}],
+        25: [{p:"¿Cuantas manzanas habían?", o:["1","2","3"], r:1}, {p:"¿De qué color era la maleta del suelo?", o:["Roja","Amarilla","Azul"], r:1}, {p:"¿Cuantas materas habían?", o:["2","3","4"], r:1}, {p:"¿Cuantos escritorios habían?", o:["2","4","6"], r:1}],
+        26: [{p:"¿La imagen de la pared era sistema esquelético?", o:["Sí","No"], r:1}, {p:"¿Cuantas plantas habían?", o:["1","2","3"], r:1}, {p:"¿La báscula era digital?", o:["Sí","No"], r:1}, {p:"¿Cuantos frascos había sobre el escritorio?", o:["2","3","5"], r:1}],
+        27: [{p:"¿Había una lámpara de gas?", o:["Sí","No"], r:0}, {p:"¿Cuantos troncos había al rededor de la fogata?", o:["2","4","6"], r:0}, {p:"¿La carpa estaba cerrada?", o:["Sí","No"], r:1}, {p:"¿De qué color era la carpa?", o:["Verde","Azul","Gris"], r:1}],
+        28: [{p:"¿El archivador estaba cerrado?", o:["Sí","No"], r:1}, {p:"¿Había alguna chiva?", o:["Sí","No"], r:0}, {p:"¿En la impresora habían documentos?", o:["Sí","No"], r:0}, {p:"¿La planta estaba en la estantería?", o:["Sí","No"], r:1}],
+        29: [{p:"¿De qué color eran las sandalias?", o:["Rojas","Amarillas","Blancas"], r:1}, {p:"¿La sombrilla era roja y blanca?", o:["Sí","No"], r:1}, {p:"¿Cuantos veleros habían?", o:["1","2","3"], r:0}, {p:"¿De qué color era el balde de arena?", o:["Verde","Azul","Rojo"], r:1}],
+        30: [{p:"¿De qué color era la lámpara?", o:["Azul","Verde","Gris"], r:1}, {p:"¿Cuantas personas habían?", o:["1","3","5"], r:1}, {p:"¿Había una escalera?", o:["Sí","No"], r:0}, {p:"¿En la biblioteca habían computadores?", o:["Sí","No"], r:1}]
     };
 
     function hablar(t) {
@@ -181,12 +178,13 @@
 
     function prepararNivel() {
         rondaEnNivel = 1;
-        document.getElementById('tit-nivel').innerText = "Nivel " + configNivel[nivel].n;
+        document.getElementById('tit-nivel').innerText = "NIVEL " + configNivel[nivel].n;
         document.getElementById('pantalla-transicion').style.display = 'flex';
+        hablar("Juan, Nivel " + configNivel[nivel].n + ". Prepárate.");
         setTimeout(() => {
             document.getElementById('pantalla-transicion').style.display = 'none';
             iniciarObservacion();
-        }, 2000);
+        }, 3000);
     }
 
     function iniciarObservacion() {
@@ -198,7 +196,6 @@
         imagenesUsadasGlobal.push(idImg);
         escenaActual = idImg;
 
-        // Seleccionar 2 preguntas al azar
         let todas = [...bancoPreguntas[idImg]];
         preguntasRondaActual = todas.sort(() => 0.5 - Math.random()).slice(0, 2);
         preguntaIndice = 0;
@@ -209,8 +206,10 @@
         
         const timerTxt = document.getElementById('timer');
         timerTxt.style.display = 'block';
-        let segundos = 10; // Tiempo ajustado a 10 segundos
+        let segundos = 10;
         timerTxt.innerText = segundos;
+
+        hablar("Juan, observa los detalles de las imágenes porque luego responderemos unas preguntas.");
 
         let interval = setInterval(() => {
             segundos--;
@@ -243,8 +242,8 @@
     }
 
     function verificar(elegido, correcto) {
-        if(elegido === correcto) { aciertos++; hablar("¡Excelente!"); } 
-        else { errores++; hablar("Cerca, pero no."); }
+        if(elegido === correcto) { aciertos++; hablar("¡Excelente Juan!"); } 
+        else { errores++; hablar("No era así."); }
         
         setTimeout(() => {
             document.getElementById('quiz-box').style.display = 'none';
@@ -262,20 +261,23 @@
                     finalizarSesion();
                 }
             }
-        }, 1000);
+        }, 1200);
     }
 
     function finalizarSesion() {
-        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertos}<br>Errores: ${errores}`;
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100);
+        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertos}<br>Errores: ${errores}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
+        hablar("Muy bien Juan, hemos terminado la sesión de hoy.");
     }
 
     function irAlMenu() {
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100);
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Memoria", id_sesion: 9,      
             aciertos: aciertos, errores: errores,
-            eficacia: Math.round((aciertos / (aciertos + errores)) * 100) + "%"
+            eficacia: ef + "%"
         };
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         historial.push(datosSesion);
