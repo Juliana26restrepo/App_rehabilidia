@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Planificación - Función Ejecutiva 1</title>
+    <title>Planificación Progresiva - REHABILIDIA</title>
     <style>
         :root { 
             --p-purple: #4A148C; 
@@ -50,14 +50,14 @@
         }
 
         .tarjeta { 
-            width: clamp(100px, 22vw, 130px); padding: 10px; 
+            width: clamp(90px, 20vw, 120px); padding: 8px; 
             background: white; border: 3px solid var(--s-purple); 
             border-radius: 15px; cursor: pointer; display: flex; 
             flex-direction: column; align-items: center; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
         }
-        .tarjeta .emoji { font-size: 1.8rem; }
-        .tarjeta .texto { font-size: 0.75rem; font-weight: bold; margin-top: 5px; }
+        .tarjeta .emoji { font-size: 1.6rem; }
+        .tarjeta .texto { font-size: 0.7rem; font-weight: bold; margin-top: 5px; }
         .tarjeta.seleccionada { opacity: 0.3; pointer-events: none; }
         .tarjeta.error-distractor { animation: shake 0.4s; border-color: #f44336; }
         
@@ -70,19 +70,19 @@
 
         .item-ordenado { 
             width: 100%; display: flex; align-items: center; 
-            background: white; padding: 10px; border-radius: 10px; 
+            background: white; padding: 8px; border-radius: 10px; 
             border: 2px solid var(--p-purple); animation: slideIn 0.3s;
         }
 
         .num-orden { 
-            background: var(--p-purple); color: white; width: 26px; height: 26px; 
+            background: var(--p-purple); color: white; width: 22px; height: 22px; 
             border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; margin-right: 12px; font-weight: bold;
+            justify-content: center; margin-right: 12px; font-weight: bold; font-size: 0.8rem;
         }
 
         #btn-verificar { 
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 85%; max-width: 400px; padding: 20px; font-size: 1.5rem; 
+            width: 85%; max-width: 400px; padding: 18px; font-size: 1.3rem; 
             background: #2E7D32; color: white; border: none; border-radius: 50px; 
             cursor: pointer; display: none; font-weight: bold; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 999;
@@ -94,6 +94,8 @@
             align-items:center; z-index:2000; padding: 20px; background: var(--p-purple); color: white;
         }
 
+        .cuadro-final { background: white; color: var(--p-purple); padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; }
+
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
@@ -104,7 +106,7 @@
     <header><span style="font-weight:bold;">FUNCIÓN EJECUTIVA 1: PLANIFICACIÓN</span></header>
 
     <div id="contenedor-principal">
-        <div id="reto-texto" class="instruccion-reto">Preparando actividad...</div>
+        <div id="reto-texto" class="instruccion-reto">Cargando...</div>
         <div id="area-opciones"></div>
         <div id="area-secuencia"></div>
     </div>
@@ -113,14 +115,14 @@
 
     <div id="pantalla-transicion">
         <h1 id="tit-nivel" style="background:var(--gold); color:var(--p-purple); padding:10px 40px; border-radius:40px;"></h1>
-        <p id="desc-nivel" style="font-size:1.6rem; font-weight: bold;"></p>
+        <p id="desc-nivel" style="font-size:1.5rem; font-weight: bold; margin-top: 20px;"></p>
     </div>
 
     <div id="overlay-final">
-        <div style="background:white; color:var(--p-purple); padding:30px; border-radius:25px; width:90%; max-width: 500px;">
-            <h1 style="margin-top:0;">¡EXCELENTE TRABAJO!</h1>
-            <div id="stats-visual" style="font-size:1.3rem; margin:20px 0; text-align: left;"></div>
-            <button onpointerdown="irAlMenu()" style="width:100%; padding:18px; background:var(--p-purple); color:white; border-radius:50px; border:none; font-weight:bold; font-size:1.2rem;">FINALIZAR Y GUARDAR</button>
+        <div class="cuadro-final">
+            <h1 style="margin:0;">¡EXCELENTE TRABAJO!</h1>
+            <div id="stats-visual" style="font-size:1.2rem; margin:20px 0; text-align: left;"></div>
+            <button onclick="irAlMenu()" style="width:100%; padding:18px; background:#2E7D32; color:white; border-radius:50px; border:none; font-weight:bold; font-size:1.2rem; cursor:pointer;">FINALIZAR Y GUARDAR</button>
         </div>
     </div>
 </div>
@@ -130,9 +132,41 @@
     let secuenciaUsuario = [], retoActual = null;
 
     const banco = {
-        1: [{ t: "Lavar los platos", pasos: [{e:"🧼", p:"Poner jabón"}, {e:"🍽️", p:"Fregar plato"}, {e:"💧", p:"Enjuagar"}], dist: [] }],
-        2: [{ t: "Sacar al Perro", pasos: [{e:"📢", p:"Llamar al perro"}, {e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Coger bolsas"}, {e:"🚪", p:"Abrir puerta"}, {e:"🚶", p:"Salir a la calle"}, {e:"🌳", p:"Ir al parque"}, {e:"💩", p:"Recoger desechos"}, {e:"🏠", p:"Regresar casa"}], dist: [{e:"🍳", p:"Hacer huevo"}] }],
-        3: [{ t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Escribir dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Caminar al correo"}, {e:"📬", p:"Depositar buzón"}], dist: [{e:"🍕", p:"Pedir pizza"}] }]
+        1: [ // NIVEL BAJO - 5 PASOS
+            { 
+                t: "Preparar un Café", 
+                pasos: [
+                    {e:"🔥", p:"Calentar agua"}, {e:"☕", p:"Echar café en taza"}, 
+                    {e:"💧", p:"Verter agua"}, {e:"🥄", p:"Revolver"}, {e:"🥛", p:"Añadir leche"}
+                ], 
+                dist: [{e:"👟", p:"Atar zapatos"}] 
+            }
+        ],
+        2: [ // NIVEL MEDIO - 7 PASOS
+            { 
+                t: "Enviar una Carta", 
+                pasos: [
+                    {e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, 
+                    {e:"✍️", p:"Escribir dirección"}, {e:"📮", p:"Pegar sello"}, 
+                    {e:"🚶", p:"Caminar al buzón"}, {e:"📬", p:"Depositar carta"},
+                    {e:"🏠", p:"Regresar a casa"}
+                ], 
+                dist: [{e:"🍕", p:"Pedir pizza"}, {e:"📺", p:"Ver tele"}] 
+            }
+        ],
+        3: [ // NIVEL ALTO - 10 PASOS
+            { 
+                t: "Sacar al Perro (Completo)", 
+                pasos: [
+                    {e:"📢", p:"Llamar al perro"}, {e:"🐕", p:"Poner collar"}, 
+                    {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Coger bolsas"}, 
+                    {e:"🚪", p:"Abrir puerta"}, {e:"🚶", p:"Salir a calle"},
+                    {e:"🌳", p:"Ir al parque"}, {e:"💩", p:"Recoger desechos"},
+                    {e:"🚿", p:"Limpiar patas"}, {e:"🍖", p:"Dar premio"}
+                ], 
+                dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🛀", p:"Bañarse"}, {e:"🧹", p:"Barrer"}] 
+            }
+        ]
     };
 
     function hablar(t) {
@@ -147,12 +181,12 @@
         document.getElementById('btn-verificar').style.display = "none";
         retoActual = banco[nivelActual][0];
         
-        const textoNivel = nivelActual === 1 ? "BAJO" : (nivelActual === 2 ? "MEDIO" : "ALTO");
-        document.getElementById('tit-nivel').innerText = `NIVEL ${textoNivel}`;
+        const labels = ["", "BAJO", "MEDIO", "ALTO"];
+        document.getElementById('tit-nivel').innerText = `NIVEL ${labels[nivelActual]}`;
         document.getElementById('desc-nivel').innerText = `Actividad: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, vamos a planificar paso a paso cómo ${retoActual.t}`);
+        hablar(`Juan, vamos a planificar cómo ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
@@ -160,7 +194,7 @@
     }
 
     function dibujarTarjetas() {
-        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
+        document.getElementById('reto-texto').innerText = "Ordena los pasos para: " + retoActual.t;
         const area = document.getElementById('area-opciones');
         area.innerHTML = "";
         let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
@@ -169,11 +203,11 @@
             const div = document.createElement('div');
             div.className = 'tarjeta';
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="texto">${obj.p}</span>`;
-            div.onpointerdown = (e) => {
+            div.onpointerdown = () => {
                 if(retoActual.dist.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Eso no hace falta para esta tarea.");
+                    hablar("Eso no es necesario.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -193,65 +227,62 @@
         
         if(secuenciaUsuario.length === retoActual.pasos.length) {
             document.getElementById('btn-verificar').style.display = "block";
-            hablar("¿Están todos los pasos en orden? Pulsa el botón verde.");
+            hablar("¿Están en el orden correcto?");
         }
     }
 
     function verificarSecuencia() {
-        let correcto = true;
+        let esCorrecto = true;
         for(let i=0; i<secuenciaUsuario.length; i++) {
-            if(secuenciaUsuario[i] !== retoActual.pasos[i].p) { correcto = false; break; }
+            if(secuenciaUsuario[i] !== retoActual.pasos[i].p) { esCorrecto = false; break; }
         }
 
-        if(correcto) {
+        if(esCorrecto) {
             totalAciertos++;
-            hablar("¡Excelente planificación!");
+            hablar("¡Muy bien hecho!");
             setTimeout(() => {
                 if(nivelActual < 3) { nivelActual++; iniciarEjercicio(); }
                 else { finalizarSesion(); }
             }, 1500);
         } else {
             totalErrores++;
-            hablar("El orden no es el adecuado. Vamos a intentarlo de nuevo.");
+            hablar("El orden no es correcto. Intenta de nuevo.");
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
                 document.getElementById('btn-verificar').style.display = "none";
                 document.querySelectorAll('.tarjeta').forEach(t => t.classList.remove('seleccionada'));
-            }, 2000);
+            }, 1500);
         }
     }
 
     function finalizarSesion() {
         const ef = Math.round((totalAciertos / 3) * 100);
         document.getElementById('stats-visual').innerHTML = `
-            <p><b>Actividades completadas:</b> ${totalAciertos}/3</p>
-            <p><b>Errores cometidos:</b> ${totalErrores}</p>
-            <h2 style="color:var(--p-purple)">Precisión final: ${ef}%</h2>
+            <p><b>Niveles logrados:</b> ${totalAciertos}/3</p>
+            <p><b>Errores totales:</b> ${totalErrores}</p>
+            <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar("Muy bien Juan. Has terminado tu entrenamiento de planificación de hoy.");
+        hablar("Sesión de planificación terminada. Excelente progreso Juan.");
     }
 
     function irAlMenu() {
-        const eficaciaTotal = Math.round((totalAciertos / 3) * 100) || 0;
-        
-        const datosSesion = {
+        const ef = Math.round((totalAciertos / 3) * 100);
+        const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Función Ejecutiva", 
             id_sesion: 1,      
             aciertos: totalAciertos,
             errores: totalErrores,
-            eficacia: eficaciaTotal + "%"
+            eficacia: ef + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
-        historial.push(datosSesion); 
+        historial.push(datos); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
         window.location.href = "funcion_sesiones.html";
     }
 </script>
 </body>
 </html>
+
