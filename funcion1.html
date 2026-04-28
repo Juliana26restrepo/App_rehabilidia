@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Planificación Completa - REHABILIDIA</title>
+    <title>Planificación - Función Ejecutiva 1</title>
     <style>
         :root { 
             --p-purple: #4A148C; 
@@ -101,7 +101,7 @@
 <body onload="iniciarEjercicio()">
 
 <div id="viewport-container">
-    <header><span style="font-weight:bold;">SESIÓN 1: PLANIFICACIÓN DETALLADA</span></header>
+    <header><span style="font-weight:bold;">FUNCIÓN EJECUTIVA 1: PLANIFICACIÓN</span></header>
 
     <div id="contenedor-principal">
         <div id="reto-texto" class="instruccion-reto">Preparando actividad...</div>
@@ -120,7 +120,7 @@
         <div style="background:white; color:var(--p-purple); padding:30px; border-radius:25px; width:90%; max-width: 500px;">
             <h1 style="margin-top:0;">¡EXCELENTE TRABAJO!</h1>
             <div id="stats-visual" style="font-size:1.3rem; margin:20px 0; text-align: left;"></div>
-            <button onpointerdown="location.reload()" style="width:100%; padding:18px; background:var(--p-purple); color:white; border-radius:50px; border:none; font-weight:bold; font-size:1.2rem;">REPETIR ENTRENAMIENTO</button>
+            <button onpointerdown="irAlMenu()" style="width:100%; padding:18px; background:var(--p-purple); color:white; border-radius:50px; border:none; font-weight:bold; font-size:1.2rem;">FINALIZAR Y GUARDAR</button>
         </div>
     </div>
 </div>
@@ -130,40 +130,9 @@
     let secuenciaUsuario = [], retoActual = null;
 
     const banco = {
-        1: [
-            { t: "Lavar los platos", pasos: [{e:"🧼", p:"Poner jabón"}, {e:"🍽️", p:"Fregar plato"}, {e:"💧", p:"Enjuagar"}], dist: [] }
-        ],
-        2: [
-            { 
-                t: "Sacar al Perro", 
-                pasos: [
-                    {e:"📢", p:"Llamar al perro"}, 
-                    {e:"🐕", p:"Poner collar"}, 
-                    {e:"🦮", p:"Poner correa"}, 
-                    {e:"🛍️", p:"Coger bolsas de desechos"}, 
-                    {e:"🚪", p:"Abrir puerta"}, 
-                    {e:"🚶", p:"Salir a la calle"},
-                    {e:"🌳", p:"Ir al parque"}, 
-                    {e:"💩", p:"Recoger desechos"},
-                    {e:"🏠", p:"Regresar a casa"}
-                ], 
-                dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🚿", p:"Bañarse"}] 
-            }
-        ],
-        3: [
-            { 
-                t: "Enviar Carta", 
-                pasos: [
-                    {e:"📝", p:"Escribir nota"}, 
-                    {e:"✉️", p:"Meter en sobre"}, 
-                    {e:"✍️", p:"Escribir dirección"}, 
-                    {e:"📮", p:"Pegar sello"}, 
-                    {e:"🚶", p:"Caminar al correo"}, 
-                    {e:"📬", p:"Depositar en buzón"}
-                ], 
-                dist: [{e:"🍕", p:"Pedir pizza"}, {e:"📺", p:"Ver tele"}] 
-            }
-        ]
+        1: [{ t: "Lavar los platos", pasos: [{e:"🧼", p:"Poner jabón"}, {e:"🍽️", p:"Fregar plato"}, {e:"💧", p:"Enjuagar"}], dist: [] }],
+        2: [{ t: "Sacar al Perro", pasos: [{e:"📢", p:"Llamar al perro"}, {e:"🐕", p:"Poner collar"}, {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Coger bolsas"}, {e:"🚪", p:"Abrir puerta"}, {e:"🚶", p:"Salir a la calle"}, {e:"🌳", p:"Ir al parque"}, {e:"💩", p:"Recoger desechos"}, {e:"🏠", p:"Regresar casa"}], dist: [{e:"🍳", p:"Hacer huevo"}] }],
+        3: [{ t: "Enviar Carta", pasos: [{e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, {e:"✍️", p:"Escribir dirección"}, {e:"📮", p:"Pegar sello"}, {e:"🚶", p:"Caminar al correo"}, {e:"📬", p:"Depositar buzón"}], dist: [{e:"🍕", p:"Pedir pizza"}] }]
     };
 
     function hablar(t) {
@@ -176,7 +145,6 @@
         secuenciaUsuario = [];
         document.getElementById('area-secuencia').innerHTML = "";
         document.getElementById('btn-verificar').style.display = "none";
-
         retoActual = banco[nivelActual][0];
         
         const textoNivel = nivelActual === 1 ? "BAJO" : (nivelActual === 2 ? "MEDIO" : "ALTO");
@@ -223,7 +191,6 @@
         item.innerHTML = `<div class="num-orden">${secuenciaUsuario.length}</div> <strong>${obj.e} ${obj.p}</strong>`;
         document.getElementById('area-secuencia').appendChild(item);
         
-        // El botón aparece cuando se seleccionan todos los pasos correctos (sin contar distractores)
         if(secuenciaUsuario.length === retoActual.pasos.length) {
             document.getElementById('btn-verificar').style.display = "block";
             hablar("¿Están todos los pasos en orden? Pulsa el botón verde.");
@@ -256,26 +223,26 @@
     }
 
     function finalizarSesion() {
-        const eficacia = Math.round((totalAciertos / 3) * 100);
+        const ef = Math.round((totalAciertos / 3) * 100);
         document.getElementById('stats-visual').innerHTML = `
             <p><b>Actividades completadas:</b> ${totalAciertos}/3</p>
             <p><b>Errores cometidos:</b> ${totalErrores}</p>
-            <h2 style="color:var(--p-purple)">Precisión final: ${eficacia}%</h2>
+            <h2 style="color:var(--p-purple)">Precisión final: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = "flex";
         hablar("Muy bien Juan. Has terminado tu entrenamiento de planificación de hoy.");
     }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
+
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const eficaciaTotal = Math.round((totalAciertos / 3) * 100) || 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
+            modulo: "Función Ejecutiva", 
             id_sesion: 1,      
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef + "%"
+            aciertos: totalAciertos,
+            errores: totalErrores,
+            eficacia: eficaciaTotal + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
@@ -283,18 +250,8 @@
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "funcion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
-
