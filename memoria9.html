@@ -13,7 +13,6 @@
             --dark-green: #1B5E20;
         }
 
-        /* Sistema Universal Zoom */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -146,7 +145,8 @@
 <script>
     let nivel = 1, rondaEnNivel = 1, aciertos = 0, errores = 0, escenaActual = null;
     let imagenesUsadasGlobal = [];
-    const TOTAL_RETOS = 9;
+    let preguntasRondaActual = [];
+    let preguntaIndice = 0;
 
     const configNivel = {
         1: { n: "Bajo", t: 15, r: [1, 10] },
@@ -155,36 +155,36 @@
     };
 
     const bancoPreguntas = {
-        1: [{p:"¿De qué color era el florero?", o:["Rojo","Azul","Blanco"], r:1}, {p:"¿Había fruta en la mesa?", o:["No","Sí, una manzana","Sí, uvas"], r:1}],
-        2: [{p:"¿Sobre qué dormía el perro?", o:["Alfombra verde","Sofá","Cesta"], r:0}, {p:"¿De qué color es el perro?", o:["Café","Negro","Blanco"], r:0}],
-        3: [{p:"¿Color de la camiseta del niño?", o:["Azul","Amarilla","Roja"], r:1}, {p:"¿Qué tiene el niño en la mano?", o:["Un globo","Un pan","Nada"], r:0}],
-        4: [{p:"¿Qué animal está en la silla?", o:["Perro","Gato blanco","Ave"], r:1}, {p:"¿De qué es la silla?", o:["Madera","Metal","Plástico"], r:0}],
-        5: [{p:"¿Qué hay en el plato?", o:["Huevo y tostada","Fruta","Carne"], r:0}, {p:"¿El café tiene humo?", o:["No","Sí, está caliente","Está volcado"], r:1}],
-        6: [{p:"¿Color de las cortinas?", o:["Rojas","Blancas","Azules"], r:1}, {p:"¿La ventana está abierta?", o:["No","Sí","No hay ventana"], r:1}],
-        7: [{p:"¿Color del zapato?", o:["Negro","Café","Rojo"], r:2}, {p:"¿Es un zapato de hombre?", o:["Sí","No, de mujer","De niño"], r:1}],
-        8: [{p:"¿Qué hay sobre el libro?", o:["Gafas","Lápiz","Taza"], r:0}, {p:"¿El libro está abierto?", o:["No","Sí","Está roto"], r:1}],
-        9: [{p:"¿Color de la cinta del regalo?", o:["Roja","Dorada","Verde"], r:1}, {p:"¿El papel es azul?", o:["Sí","No, es morado","Es blanco"], r:1}],
-        10:[{p:"¿Qué hay en el árbol?", o:["Una red","Bicicleta","Silla"], r:1}, {p:"¿La bicicleta es roja?", o:["Sí","No, es azul","Es negra"], r:0}],
-        11:[{p:"¿Qué hora es en el reloj?", o:["10:00","12:00","8:00"], r:0}, {p:"¿El reloj es de pared?", o:["Sí","No, de mesa","Digital"], r:0}],
-        12:[{p:"¿Qué animal hay en el parque?", o:["Cisne","Pato","Perro"], r:1}, {p:"¿El agua está limpia?", o:["Sí","No","Está seca"], r:0}],
-        13:[{p:"¿Cuántos lápices hay?", o:["2","3","5"], r:1}, {p:"¿Hay un borrador?", o:["Sí","No","No se ve"], r:0}],
-        14:[{p:"¿Color de la toalla?", o:["Naranja","Azul","Blanca"], r:0}, {p:"¿Está colgada?", o:["Sí","No, en el piso","En la mano"], r:0}],
-        15:[{p:"¿Color de los cojines?", o:["Rojos","Azules","Amarillos"], r:2}, {p:"¿Cuántos cojines hay?", o:["1","2","3"], r:1}],
-        16:[{p:"¿Sabor de la mermelada?", o:["Fresa","Piña","Mora"], r:0}, {p:"¿El frasco está lleno?", o:["Sí","No, a la mitad","Vacío"], r:1}],
-        17:[{p:"¿Libro del medio?", o:["Azul","Rojo","Verde"], r:1}, {p:"¿Cuántos libros hay?", o:["2","3","4"], r:1}],
-        18:[{p:"¿Color de la regadera?", o:["Verde","Roja","Azul"], r:1}, {p:"¿Hay flores cerca?", o:["Sí","No","Solo pasto"], r:0}],
-        19:[{p:"¿Tipo de reloj?", o:["Digital","De pulsera","Campana"], r:2}, {p:"¿Es de metal?", o:["Sí","No, de plástico","Madera"], r:0}],
-        20:[{p:"¿Camiseta de la maleta?", o:["Lisa","A rayas","Cuadros"], r:1}, {p:"¿La maleta está abierta?", o:["Sí","No","Está rota"], r:0}],
-        21:[{p:"¿Qué dice el letrero?", o:["Oferta 2x1","Liquidación","Cerrado"], r:0}, {p:"¿El fondo es amarillo?", o:["Sí","No, blanco","Verde"], r:0}],
-        22:[{p:"¿Suelo del taller?", o:["Agua","Aceite","Tierra"], r:1}, {p:"¿Hay un coche?", o:["Sí, elevado","No","Está afuera"], r:0}],
-        23:[{p:"¿Cuántos niños con gorro?", o:["2","4","3"], r:1}, {p:"¿Hay un pastel?", o:["Sí","No","Es una pizza"], r:0}],
-        24:[{p:"¿Nombre panadería?", o:["El Sol","La Luna","Pan Rico"], r:0}, {p:"¿Hay pan afuera?", o:["Sí","No","Hay tortas"], r:0}],
-        25:[{p:"¿Qué dice la pizarra?", o:["Hola Juan","Bienvenidos","Tarea"], r:0}, {p:"¿El marco es de madera?", o:["Sí","No, de metal","No tiene"], r:0}],
-        26:[{p:"¿Cartel de la pared?", o:["Huesos","Músculos","Anatomía"], r:2}, {p:"¿Hay un escritorio?", o:["Sí","No","Solo sillas"], r:0}],
-        27:[{p:"¿Color de la carpa?", o:["Verde","Roja","Azul"], r:2}, {p:"¿Hay una fogata?", o:["Sí","No","Hay una estufa"], r:0}],
-        28:[{p:"¿Color del teclado?", o:["Gris","Blanco","Negro"], r:2}, {p:"¿Hay un ratón (mouse)?", o:["Sí","No","No se ve"], r:0}],
-        29:[{p:"¿Color del balde?", o:["Rojo","Azul","Amarillo"], r:1}, {p:"¿Hay arena dentro?", o:["Sí","No","Tiene agua"], r:0}],
-        30:[{p:"¿Color de la lámpara?", o:["Roja","Verde","Dorada"], r:1}, {p:"¿Está encendida?", o:["Sí","No","Está rota"], r:1}]
+        1: [{p:"¿El florero era de color azul?", o:["Sí","No"], r:0}, {p:"¿La manzana estaba en la esquina de la mesa?", o:["Sí","No"], r:1}, {p:"¿Qué tenía el vaso?", o:["Agua","Jugo","Vino"], r:0}, {p:"¿Habían flores moradas en el florero?", o:["Sí","No"], r:0}],
+        2: [{p:"¿El perro estaba dormido?", o:["Sí","No"], r:0}, {p:"¿De qué color era la alfombra?", o:["Roja","Verde","Azul"], r:1}, {p:"¿Había un libro sobre la mesa?", o:["Sí","No"], r:0}, {p:"¿La manta estaba sobre la ventana?", o:["Sí","No"], r:1}],
+        3: [{p:"¿En dónde estaba el niño?", o:["En la casa","En el parque"], r:1}, {p:"¿De qué color era la camiseta del niño?", o:["Roja","Amarilla","Verde"], r:1}, {p:"¿El globo era de feliz cumpleaños?", o:["Sí","No"], r:1}, {p:"¿Habían más niños en la foto?", o:["Sí","No"], r:0}],
+        4: [{p:"¿En la mesa había una taza?", o:["Sí","No"], r:0}, {p:"¿Cuántas materas habían?", o:["1","2","3"], r:2}, {p:"¿El gato estaba sobre la mesa?", o:["Sí","No"], r:1}, {p:"¿La mesa era de madera?", o:["Sí","No"], r:0}],
+        5: [{p:"¿El café estaba humeando?", o:["Sí","No"], r:0}, {p:"¿Qué había en el plato?", o:["Fruta","Pan con huevo","Tostadas"], r:1}, {p:"¿Había personas?", o:["Sí","No"], r:0}, {p:"¿En el plato había un tenedor?", o:["Sí","No"], r:1}],
+        6: [{p:"¿Cuántas flores había en la ventana?", o:["2","3","5"], r:1}, {p:"¿Qué había sobre la mesa?", o:["Platos","Un libro y una taza","Nada"], r:1}, {p:"¿Las cortinas estaban abiertas?", o:["Sí","No"], r:0}, {p:"¿Color de la manta en la silla?", o:["Azul","Beige","Verde"], r:1}],
+        7: [{p:"¿En dónde estaba el zapato?", o:["En el closet","En una cancha"], r:1}, {p:"¿Qué decía la pelota de tenis?", o:["HEAD","Wilson","Penn"], r:0}, {p:"¿El zapato estaba amarrado?", o:["Sí","No"], r:0}, {p:"¿Los cordones eran blancos?", o:["Sí","No"], r:1}],
+        8: [{p:"¿Nombre del libro cerrado?", o:["La montaña mágica","Don Quijote"], r:0}, {p:"¿Qué había sobre el libro abierto?", o:["Un lápiz","Unas gafas","Una lupa"], r:1}, {p:"¿Se veían las montañas por la ventana?", o:["Sí","No"], r:0}, {p:"¿El libro abierto tenía dibujos?", o:["Sí","No"], r:1}],
+        9: [{p:"¿Atrás del regalo qué había?", o:["Un florero","Una lámpara"], r:0}, {p:"¿De qué ciudad era el regalo?", o:["Bogotá","Medellín","Cali"], r:1}, {p:"¿De qué color era el moño?", o:["Rojo","Dorado","Plata"], r:1}, {p:"¿El regalo tenía flores?", o:["Sí","No"], r:1}],
+        10: [{p:"¿De qué color era la bicicleta?", o:["Azul","Roja","Negra"], r:1}, {p:"¿Había un pato en la foto?", o:["Sí","No"], r:1}, {p:"¿El árbol tenía alguna fruta?", o:["Sí","No"], r:1}, {p:"¿Qué había en el canasto?", o:["Pan","Botella de agua y bolso","Fruta"], r:1}],
+        11: [{p:"¿Cuántas ollas había en la estufa?", o:["1","2","3"], r:1}, {p:"¿Qué hora marcaba el reloj?", o:["8 am","10 am","12 pm"], r:1}, {p:"¿La jarra tenía jugo?", o:["Sí","No"], r:0}, {p:"¿Qué fruta había en la tabla?", o:["Manzana","Mango","Pera"], r:1}],
+        12: [{p:"¿Qué periódico leía el señor?", o:["El Tiempo","El Espectador"], r:0}, {p:"¿Color de la camisa del niño?", o:["Verde","Amarilla","Azul"], r:1}, {p:"¿El señor tenía sombrero?", o:["Sí","No"], r:0}, {p:"¿Qué había en la banca?", o:["Periódico","Taza y Tula","Comida"], r:1}],
+        13: [{p:"¿Cuántos lápices habían?", o:["1","3","5"], r:1}, {p:"¿El computador estaba encendido?", o:["Sí","No"], r:0}, {p:"¿Qué decía la taza?", o:["Papá","Juan","Café"], r:0}, {p:"¿Había un cuadro de una planta?", o:["Sí","No"], r:1}],
+        14: [{p:"¿De qué color era la toalla?", o:["Blanca","Roja","Azul"], r:1}, {p:"¿Cuántos cepillos de dientes había?", o:["1","2","3"], r:0}, {p:"¿El grifo estaba abierto?", o:["Sí","No"], r:1}, {p:"¿De qué forma era el espejo?", o:["Cuadrado","Redondo"], r:1}],
+        15: [{p:"¿Las montañas tenían nieve?", o:["Sí","No"], r:0}, {p:"¿Cuántos cojines habían?", o:["2","4","6"], r:1}, {p:"¿El gato estaba sobre la planta?", o:["Sí","No"], r:1}, {p:"¿Qué había en la mesa de centro?", o:["Taza y libro","Jarrón","Cenicero"], r:0}],
+        16: [{p:"¿De qué sabor era la mermelada?", o:["Mora","Fresa","Piña"], r:1}, {p:"¿La tetera estaba humeando?", o:["Sí","No"], r:0}, {p:"¿De qué color era la servilleta?", o:["Blanca","Azul","Roja"], r:1}, {p:"¿En el plato había alimento?", o:["Sí","No"], r:1}],
+        17: [{p:"¿Color del libro del medio?", o:["Verde","Rojo","Azul"], r:1}, {p:"¿Color de 'El alma de la montaña'?", o:["Rojo","Azul","Gris"], r:1}, {p:"¿La cámara tenía el flash encendido?", o:["Sí","No"], r:1}, {p:"¿Nombre del libro verde?", o:["El camino verde","Bosque"], r:0}],
+        18: [{p:"¿Color de la regadera?", o:["Verde","Roja","Amarilla"], r:1}, {p:"¿Las flores eran blancas/amarillas?", o:["Sí","No"], r:0}, {p:"¿Cuántos pares de guantes había?", o:["1","2"], r:0}, {p:"¿En la mesa había una pala?", o:["Sí","No"], r:1}],
+        19: [{p:"¿Cuántas almohadas habían?", o:["2","4","5"], r:1}, {p:"¿La ventana estaba cerrada?", o:["Sí","No"], r:1}, {p:"¿Libro de mesa de noche abierto?", o:["Sí","No"], r:0}, {p:"¿Color de las pantuflas?", o:["Azules","Gris","Café"], r:1}],
+        20: [{p:"¿Camisa blanca rayas verdes?", o:["Sí","No"], r:1}, {p:"¿La botella de agua estaba vacía?", o:["Sí","No"], r:1}, {p:"¿Color correa de la cámara?", o:["Negra","Café","Gris"], r:1}, {p:"¿Prenda bajo la camisa era roja?", o:["Sí","No"], r:1}],
+        21: [{p:"¿La señora compró lechuga?", o:["Sí","No"], r:0}, {p:"¿Las manzanas estaban 4x2?", o:["Sí","No"], r:1}, {p:"¿Color del delantal de la cajera?", o:["Verde","Azul","Blanco"], r:1}, {p:"¿La clienta tenía sombrero?", o:["Sí","No"], r:1}],
+        22: [{p:"¿Cuántas llantas apiladas habían?", o:["2","4","6"], r:1}, {p:"¿De qué año era el calendario?", o:["2023","2024","2025"], r:1}, {p:"¿Caja de herramientas cerrada?", o:["Sí","No"], r:1}, {p:"¿El extintor era amarillo?", o:["Sí","No"], r:1}],
+        23: [{p:"¿Figuras del 1er piso de torta?", o:["Círculos","Estrellas","Flores"], r:1}, {p:"¿Cuántos vasos habían?", o:["2","4","6"], r:1}, {p:"¿Color gorro niña camisa rosa?", o:["Rojo","Amarillo","Azul"], r:1}, {p:"¿Cuántos globos habían?", o:["3","5","8"], r:1}],
+        24: [{p:"¿Nombre de la panadería?", o:["Panadería El Sol","La Luna"], r:0}, {p:"¿Perro y señora misma dirección?", o:["Sí","No"], r:1}, {p:"¿El semáforo estaba en verde?", o:["Sí","No"], r:1}, {p:"¿El bus era del Metro?", o:["Sí","No"], r:1}],
+        25: [{p:"¿Cuántas manzanas habían?", o:["1","2","3"], r:1}, {p:"¿Color maleta en el suelo?", o:["Roja","Amarilla","Azul"], r:1}, {p:"¿Cuántas materas habían?", o:["2","3","4"], r:1}, {p:"¿Cuántos escritorios de alumnos?", o:["2","4","6"], r:1}],
+        26: [{p:"¿Imagen pared es sist. esquelético?", o:["Sí","No"], r:1}, {p:"¿Cuántas plantas habían?", o:["1","2","3"], r:1}, {p:"¿La báscula era digital?", o:["Sí","No"], r:1}, {p:"¿Cuántos frascos en escritorio?", o:["2","3","5"], r:1}],
+        27: [{p:"¿Había una lámpara de gas?", o:["Sí","No"], r:0}, {p:"¿Troncos alrededor de fogata?", o:["2","4","6"], r:0}, {p:"¿La carpa estaba cerrada?", o:["Sí","No"], r:1}, {p:"¿De qué color era la carpa?", o:["Verde","Azul","Roja"], r:1}],
+        28: [{p:"¿El archivador estaba cerrado?", o:["Sí","No"], r:1}, {p:"¿Había alguna chiva?", o:["Sí","No"], r:0}, {p:"¿Impresora con documentos?", o:["Sí","No"], r:0}, {p:"¿Planta en la estantería?", o:["Sí","No"], r:1}],
+        29: [{p:"¿De qué color eran las sandalias?", o:["Rojas","Amarillas","Azules"], r:1}, {p:"¿Sombrilla roja y blanca?", o:["Sí","No"], r:1}, {p:"¿Cuántos veleros habían?", o:["1","2","3"], r:0}, {p:"¿Color del balde de arena?", o:["Verde","Azul","Rojo"], r:1}],
+        30: [{p:"¿De qué color era la lámpara?", o:["Azul","Verde","Gris"], r:1}, {p:"¿Cuántas personas habían?", o:["1","3","5"], r:1}, {p:"¿Había una escalera?", o:["Sí","No"], r:0}, {p:"¿Biblioteca con computadores?", o:["Sí","No"], r:1}]
     };
 
     function hablar(t, cb) { 
@@ -222,6 +222,11 @@
         imagenesUsadasGlobal.push(idImg);
         escenaActual = idImg;
         
+        // Seleccionar 2 preguntas aleatorias del banco de 4
+        let todas = [...bancoPreguntas[idImg]];
+        preguntasRondaActual = todas.sort(() => 0.5 - Math.random()).slice(0, 2);
+        preguntaIndice = 0;
+
         const imgDisplay = document.getElementById('display-imagen');
         imgDisplay.src = `mem9/imagen${idImg}.jpeg`; 
         imgDisplay.style.display = 'block';
@@ -238,15 +243,13 @@
                 clearInterval(interval);
                 timerTxt.style.display = 'none';
                 imgDisplay.style.display = 'none';
-                iniciarQuiz();
+                lanzarPregunta();
             }
         }, 1000);
     }
 
-    function iniciarQuiz() {
-        const opciones = bancoPreguntas[escenaActual];
-        const data = opciones[Math.floor(Math.random() * opciones.length)];
-        
+    function lanzarPregunta() {
+        const data = preguntasRondaActual[preguntaIndice];
         document.getElementById('pregunta-texto').innerText = data.p;
         const box = document.getElementById('opciones-box');
         box.innerHTML = "";
@@ -264,19 +267,24 @@
     }
 
     function verificar(elegido, correcto) {
-        if(elegido === correcto) { aciertos++; hablar("¡Bien!"); } 
-        else { errores++; hablar("No."); }
+        if(elegido === correcto) { aciertos++; hablar("¡Muy bien!"); } 
+        else { errores++; hablar("No era así."); }
         
         setTimeout(() => {
             document.getElementById('quiz-box').style.display = 'none';
-            if(rondaEnNivel < 3) {
-                rondaEnNivel++;
-                iniciarObservacion();
-            } else if(nivel < 3) {
-                nivel++;
-                prepararNivel();
+            if(preguntaIndice < 1) { // Son 2 preguntas por imagen
+                preguntaIndice++;
+                lanzarPregunta();
             } else {
-                finalizarSesion();
+                if(rondaEnNivel < 3) {
+                    rondaEnNivel++;
+                    iniciarObservacion();
+                } else if(nivel < 3) {
+                    nivel++;
+                    prepararNivel();
+                } else {
+                    finalizarSesion();
+                }
             }
         }, 1500);
     }
@@ -291,7 +299,7 @@
             </div>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Muy bien Juan, hemos terminado.");
+        hablar("Sesión terminada, Juan. Buen trabajo.");
     }
 
     function irAlMenu() {
