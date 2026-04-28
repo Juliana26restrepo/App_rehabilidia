@@ -132,7 +132,7 @@
     let secuenciaUsuario = [], retoActual = null;
 
     const banco = {
-        1: [ // NIVEL BAJO - CAFÉ DE FILTRO (LINEAL)
+        1: [ // NIVEL BAJO - CAFÉ DE FILTRO
             { 
                 t: "Preparar Café de Filtro", 
                 pasos: [
@@ -151,23 +151,31 @@
                 pasos: [
                     {e:"📝", p:"Escribir nota"}, {e:"✉️", p:"Meter en sobre"}, 
                     {e:"✍️", p:"Escribir dirección"}, {e:"📮", p:"Pegar sello"}, 
-                    {e:"🚶", p:"Caminar al buzón"}, {e:"📬", p:"Depositar carta"},
-                    {e:"🏠", p:"Regresar a casa"}
+                    {e:"🚶", p:"Caminar al correo"}, {e:"📬", p:"Depositar buzón"}
                 ], 
-                dist: [{e:"🍕", p:"Pedir pizza"}, {e:"📺", p:"Ver tele"}] 
+                dist: [{e:"🍕", p:"Pedir pizza"}] 
             }
         ],
-        3: [ // NIVEL ALTO - SACAR AL PERRO (COMPLETO)
+        3: [ // NIVEL ALTO - SACAR AL PERRO (BASADO EN TUS BOTONES)
             { 
                 t: "Sacar al Perro", 
                 pasos: [
-                    {e:"📢", p:"Llamar al perro"}, {e:"🐕", p:"Poner collar"}, 
-                    {e:"🦮", p:"Poner correa"}, {e:"🛍️", p:"Coger bolsas"}, 
-                    {e:"🚪", p:"Abrir puerta"}, {e:"🚶", p:"Salir a calle"},
-                    {e:"🌳", p:"Ir al parque"}, {e:"💩", p:"Recoger desechos"},
-                    {e:"🚿", p:"Limpiar patas"}, {e:"🍖", p:"Dar premio"}
+                    {e:"📢", p:"Llamar al perro"}, 
+                    {e:"🐶", p:"Poner collar"}, 
+                    {e:"🐕", p:"Poner correa"}, 
+                    {e:"🛍️", p:"Coger bolsas"}, 
+                    {e:"🚪", p:"Abrir puerta"}, 
+                    {e:"🚶", p:"Salir a calle"},
+                    {e:"🌳", p:"Ir al parque"}, 
+                    {e:"💩", p:"Recoger desechos"},
+                    {e:"🚿", p:"Limpiar patas"}, 
+                    {e:"🍖", p:"Dar premio"}
                 ], 
-                dist: [{e:"🍳", p:"Hacer huevo"}, {e:"🛀", p:"Bañarse"}, {e:"🧹", p:"Barrer"}] 
+                dist: [
+                    {e:"🍳", p:"Hacer huevo"}, 
+                    {e:"🛀", p:"Bañarse"}, 
+                    {e:"🧹", p:"Barrer"}
+                ] 
             }
         ]
     };
@@ -189,7 +197,7 @@
         document.getElementById('desc-nivel').innerText = `Actividad: ${retoActual.t}`;
         document.getElementById('pantalla-transicion').style.display = 'flex';
 
-        hablar(`Juan, vamos a planificar paso a paso cómo ${retoActual.t}`);
+        hablar(`Juan, vamos a organizar los pasos para ${retoActual.t}`);
         setTimeout(() => { 
             document.getElementById('pantalla-transicion').style.display = 'none'; 
             dibujarTarjetas(); 
@@ -197,7 +205,7 @@
     }
 
     function dibujarTarjetas() {
-        document.getElementById('reto-texto').innerText = "Tarea: " + retoActual.t;
+        document.getElementById('reto-texto').innerText = "Organiza la tarea: " + retoActual.t;
         const area = document.getElementById('area-opciones');
         area.innerHTML = "";
         let todas = [...retoActual.pasos, ...retoActual.dist].sort(() => Math.random() - 0.5);
@@ -210,7 +218,7 @@
                 if(retoActual.dist.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Ese paso no es necesario.");
+                    hablar("Eso no es parte de esta tarea.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -230,7 +238,7 @@
         
         if(secuenciaUsuario.length === retoActual.pasos.length) {
             document.getElementById('btn-verificar').style.display = "block";
-            hablar("¿Están todos los pasos en orden? Pulsa el botón verde.");
+            hablar("Revisa el orden y pulsa comprobar.");
         }
     }
 
@@ -242,14 +250,14 @@
 
         if(esCorrecto) {
             totalAciertos++;
-            hablar("¡Muy bien hecho!");
+            hablar("¡Perfecto, Juan!");
             setTimeout(() => {
                 if(nivelActual < 3) { nivelActual++; iniciarEjercicio(); }
                 else { finalizarSesion(); }
             }, 1500);
         } else {
             totalErrores++;
-            hablar("El orden no es el adecuado. Intenta de nuevo.");
+            hablar("Ese no es el orden correcto. Inténtalo de nuevo.");
             setTimeout(() => {
                 secuenciaUsuario = [];
                 document.getElementById('area-secuencia').innerHTML = "";
@@ -263,11 +271,11 @@
         const ef = Math.round((totalAciertos / 3) * 100);
         document.getElementById('stats-visual').innerHTML = `
             <p><b>Actividades completadas:</b> ${totalAciertos}/3</p>
-            <p><b>Errores cometidos:</b> ${totalErrores}</p>
-            <h2 style="color:#2E7D32">Eficacia Final: ${ef}%</h2>
+            <p><b>Errores totales:</b> ${totalErrores}</p>
+            <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar("Juan, has terminado tu entrenamiento de planificación de hoy. Excelente trabajo.");
+        hablar("Muy bien, Juan. Has terminado la planificación de hoy.");
     }
 
     function irAlMenu() {
