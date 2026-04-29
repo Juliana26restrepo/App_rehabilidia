@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 9: Control de Impulsos - REHABILIDIA</title>
+    <title>Sesión 9: Control de Estabilidad - REHABILIDIA</title>
     <style>
         :root { 
             --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; 
-            --red: #D32F2F; --blue: #1976D2; --green: #388E3C; --yellow: #FBC02D;
+            --red: #D32F2F; --green: #388E3C;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -31,46 +31,40 @@
 
         .btn-salir {
             background: #D32F2F; color: white; border: none; padding: 5px 12px;
-            border-radius: 5px; cursor: pointer; font-size: 0.8rem;
+            border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
         }
 
         .stats-bar { 
-            display: flex; justify-content: center; gap: 20px; 
-            font-weight: bold; padding: 10px; border-bottom: 2px solid var(--navy); 
+            display: grid; grid-template-columns: 1fr 200px 1fr;
+            align-items: center; padding: 10px; border-bottom: 2px solid var(--navy);
+            text-align: center; font-weight: bold;
         }
+
+        .error-container { width: 100%; background: #eee; height: 20px; border-radius: 10px; overflow: hidden; border: 1px solid #ccc; }
+        #error-fill { width: 0%; height: 100%; background: var(--red); transition: width 0.3s; }
 
         #zona-juego { 
             flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 20px;
+            align-items: center; justify-content: center; position: relative;
         }
 
         #palabra-estimulo {
-            font-size: 5rem; font-weight: 900; margin-bottom: 40px;
-            text-transform: uppercase; letter-spacing: 5px;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            font-size: 4rem; font-weight: 900; margin-bottom: 40px;
+            text-transform: uppercase; text-align: center; padding: 0 20px;
         }
 
-        .opciones-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-            width: 100%; max-width: 500px;
+        .btn-accion {
+            width: 180px; height: 180px; border-radius: 50%;
+            border: 8px solid var(--navy); background: white;
+            font-size: 1.5rem; font-weight: bold; color: var(--navy);
+            cursor: pointer; box-shadow: 0 10px 0 #ccc;
         }
 
-        .btn-color {
-            height: 80px; border: none; border-radius: 15px;
-            cursor: pointer; transition: transform 0.1s;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
-        }
-
-        .btn-color:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
-
-        .rojo { background-color: var(--red); }
-        .azul { background-color: var(--blue); }
-        .verde { background-color: var(--green); }
-        .amarillo { background-color: var(--yellow); }
+        .btn-accion:active { transform: translateY(5px); box-shadow: 0 5px 0 #ccc; }
 
         .overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(16, 58, 87, 0.95); color: white; 
+            background: rgba(16, 58, 87, 0.98); color: white; 
             display: none; flex-direction: column; justify-content: center; 
             align-items: center; z-index: 100; text-align: center; padding: 30px; 
         }
@@ -86,53 +80,53 @@
 
 <div id="viewport-container">
     <header>
-        <span>SESIÓN 9: CONTROL DE IMPULSOS</span>
+        <span>SESIÓN 9: CONTROL EJECUTIVO</span>
         <button class="btn-salir" onclick="irAlMenu()">SALIR Y GUARDAR</button>
     </header>
 
     <div class="stats-bar">
-        <span id="txt-nivel">Nivel: 1</span>
-        <span id="txt-ronda">Ronda: 1 / 2</span>
-        <span id="txt-errores" style="color: var(--red);">Errores: 0</span>
+        <div>Nivel: <span id="txt-nivel">1</span></div>
+        <div class="error-container"><div id="error-fill"></div></div>
+        <div>Ronda: <span id="txt-ronda">1</span>/2</div>
     </div>
 
     <div id="zona-juego">
         <div id="palabra-estimulo">---</div>
-        
-        <div class="opciones-grid">
-            <button class="btn-color rojo" onclick="verificarRespuesta('ROJO')"></button>
-            <button class="btn-color azul" onclick="verificarRespuesta('AZUL')"></button>
-            <button class="btn-color verde" onclick="verificarRespuesta('VERDE')"></button>
-            <button class="btn-color amarillo" onclick="verificarRespuesta('AMARILLO')"></button>
-        </div>
+        <button class="btn-accion" onmousedown="registrarPulso()">PULSAR</button>
     </div>
 
     <div id="overlay-msg" class="overlay" style="display: flex;">
-        <h1 id="msg-titulo" style="color: var(--gold);">NIVEL 1</h1>
-        <p id="msg-cuerpo" style="font-size: 1.3rem;">Juan, presiona el botón del <strong>COLOR DE LA TINTA</strong>, ignorando lo que diga la palabra.</p>
+        <h1 style="color: var(--gold);">CONTROL DE IMPULSOS</h1>
+        <p style="font-size: 1.2rem; max-width: 85%;">
+            Juan, solo pulsa si la palabra es <strong>POSITIVA</strong> y está en color <strong>VERDE</strong>.<br><br>
+            Si pulsas muy rápido sin pensar, el sistema se bloqueará para respirar.
+        </p>
         <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
+    </div>
+
+    <div id="pausa-respiracion" class="overlay" style="background: #1976D2;">
+        <h1>PAUSA DE ESTABILIDAD</h1>
+        <p style="font-size: 1.5rem;">Tranquilo, Juan. Vamos a respirar...</p>
+        <div id="timer-respirar" style="font-size: 4rem; margin: 20px;">5</div>
+        <p>Espera un momento para recuperar el control.</p>
     </div>
 
     <div id="overlay-final" class="overlay">
         <div style="background: white; color: var(--navy); padding: 30px; border-radius: 20px; border: 5px solid var(--gold); width: 90%; max-width: 400px;">
-            <h2>¡SESIÓN COMPLETADA!</h2>
-            <p id="stats-resumen" style="font-size: 1.2rem; margin: 20px 0;"></p>
+            <h2>SESIÓN FINALIZADA</h2>
+            <div id="stats-resumen" style="margin: 20px 0; text-align: left; line-height: 1.6;"></div>
             <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
 
 <script>
-    const colores = [
-        { nombre: "ROJO", hex: "#D32F2F" },
-        { nombre: "AZUL", hex: "#1976D2" },
-        { nombre: "VERDE", hex: "#388E3C" },
-        { nombre: "AMARILLO", hex: "#FBC02D" }
-    ];
+    const pos = ["Amor","Alegría","Felicidad","Paz","Éxito","Logro","Avance","Progreso","Bienestar","Salud","Energía","Motivación","Confianza","Seguridad","Fortaleza","Resiliencia","Optimismo","Esperanza","Gratitud","Generosidad","Empatía","Respeto","Honestidad","Lealtad","Compromiso","Disciplina","Constancia","Perseverancia","Creatividad","Innovación","Claridad","Orden","Estabilidad","Equilibrio","Armonía","Cooperación","Solidaridad","Apoyo","Comprensión","Sabiduría","Inteligencia","Capacidad","Habilidad","Talento","Eficiencia","Productividad","Satisfacción","Plenitud","Libertad","Independencia","Autonomía","Superación","Crecimiento","Evolución","Transformación","Inspiración","Ilusión","Entusiasmo","Pasión","Dedicación","Esfuerzo","Valentía","Coraje","Determinación","Firmeza","Responsabilidad","Integridad","Coherencia","Clarividencia","Enfoque","Atención","Precisión","Calidad","Excelencia","Limpieza","Organización","Puntualidad","Amabilidad","Cordialidad","Simpatía","Amistad","Unión","Tranquilidad","Serenidad","Calma","Confianza","Cuidado","Protección","Estímulo","Reconocimiento","Validación","Seguridad","Aceptación","Inclusión","Justicia","Equidad","Bondad","Nobleza","Honestidad","Respaldado"];
+    const neg = ["Odio","Tristeza","Dolor","Sufrimiento","Angustia","Ansiedad","Miedo","Terror","Pánico","Estrés","Fracaso","Derrota","Pérdida","Ruina","Crisis","Problema","Conflicto","Caos","Desorden","Descontrol","Debilidad","Fragilidad","Inseguridad","Desconfianza","Duda","Incertidumbre","Frustración","Ira","Rabia","Enojo","Resentimiento","Culpa","Vergüenza","Desesperación","Desánimo","Apatía","Indiferencia","Soledad","Aislamiento","Abandono","Rechazo","Exclusión","Discriminación","Injusticia","Desigualdad","Violencia","Agresión","Abuso","Maltrato","Crueldad","Hostilidad","Envidia","Celos","Egoísmo","Mentira","Engaño","Traición","Corrupción","Deshonestidad","Irresponsabilidad","Negligencia","Error","Falla","Defecto","Imperfección","Ineficiencia","Improductividad","Estancamiento","Retroceso","Bloqueo","Limitación","Obstáculo","Dificultad","Cansancio","Agotamiento","Fatiga","Enfermedad","Dolencia","Debilitamiento","Ruptura","Separación","Desconexión","Desvinculación","Frialdad","Rigidez","Intolerancia","Desprecio","Humillación","Desvalorización","Crítica","Juicio","Castigo","Amenaza","Peligro","Riesgo","Caída","Colapso","Destrucción","Muerte","Perdición"];
+    const colores = ["#388E3C", "#D32F2F", "#103A57", "#FBC02D"]; // Verde, Rojo, Navy, Amarillo
 
     let nivel = 1, ronda = 1, aciertos = 0, errores = 0;
-    const RONDAS_POR_NIVEL = 2; // MODIFICADO A 2 RONDAS
-    let colorCorrecto = "";
+    let ultimoClick = 0, esTarget = false, timeoutRonda;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
@@ -142,22 +136,19 @@
     }
 
     function iniciarSesion() {
-        hablar("Juan, presiona el botón del color de la tinta.");
+        hablar("Juan, solo pulsa si la palabra es positiva y está en verde.");
     }
 
     function cerrarOverlay() {
         document.getElementById('overlay-msg').style.display = 'none';
-        nuevaRonda();
+        siguienteEstimulo();
     }
 
-    function nuevaRonda() {
-        if (ronda > RONDAS_POR_NIVEL) {
+    function siguienteEstimulo() {
+        if (ronda > 2) {
             if (nivel < 3) {
                 nivel++; ronda = 1;
-                document.getElementById('msg-titulo').innerText = `NIVEL ${nivel}`;
-                document.getElementById('msg-cuerpo').innerText = "¡Bien hecho! Continuamos con el siguiente nivel.";
                 document.getElementById('overlay-msg').style.display = 'flex';
-                actualizarUI();
                 return;
             } else {
                 finalizar();
@@ -165,57 +156,92 @@
             }
         }
 
-        let indicePalabra = Math.floor(Math.random() * colores.length);
-        let indiceColor = Math.floor(Math.random() * colores.length);
-        
-        // Reto Stroop: forzar que el color de la tinta NO coincida con la palabra
-        while(indiceColor === indicePalabra) {
-            indiceColor = Math.floor(Math.random() * colores.length);
-        }
-
         const el = document.getElementById('palabra-estimulo');
-        el.innerText = colores[indicePalabra].nombre;
-        el.style.color = colores[indiceColor].hex;
-        colorCorrecto = colores[indiceColor].nombre;
+        const esPositiva = Math.random() > 0.5;
+        const colorIdx = Math.floor(Math.random() * colores.length);
+        const palabra = esPositiva ? pos[Math.floor(Math.random()*pos.length)] : neg[Math.floor(Math.random()*neg.length)];
+
+        el.innerText = palabra;
+        el.style.color = colores[colorIdx];
+        esTarget = (esPositiva && colorIdx === 0);
 
         actualizarUI();
+
+        timeoutRonda = setTimeout(() => {
+            if (esTarget) { errores++; actualizarBarra(); }
+            ronda++;
+            siguienteEstimulo();
+        }, 3000 - (nivel * 500));
     }
 
-    function verificarRespuesta(colorPresionado) {
-        if (colorPresionado === colorCorrecto) {
+    function registrarPulso() {
+        let ahora = Date.now();
+        if (ahora - ultimoClick < 350) {
+            activarPausa();
+            return;
+        }
+        ultimoClick = ahora;
+        clearTimeout(timeoutRonda);
+
+        if (esTarget) {
             aciertos++;
+            document.getElementById('zona-juego').style.backgroundColor = "#e8f5e9";
         } else {
             errores++;
-            // Feedback visual simple
-            document.getElementById('palabra-estimulo').style.opacity = "0.5";
-            setTimeout(() => { document.getElementById('palabra-estimulo').style.opacity = "1"; }, 150);
+            actualizarBarra();
+            document.getElementById('zona-juego').style.backgroundColor = "#ffebee";
         }
-        ronda++;
-        nuevaRonda();
+
+        setTimeout(() => {
+            document.getElementById('zona-juego').style.backgroundColor = "white";
+            ronda++;
+            siguienteEstimulo();
+        }, 300);
+    }
+
+    function activarPausa() {
+        clearTimeout(timeoutRonda);
+        const pausa = document.getElementById('pausa-respiracion');
+        const timerTxt = document.getElementById('timer-respirar');
+        pausa.style.display = 'flex';
+        let count = 5;
+        timerTxt.innerText = count;
+        
+        let int = setInterval(() => {
+            count--;
+            timerTxt.innerText = count;
+            if (count <= 0) {
+                clearInterval(int);
+                pausa.style.display = 'none';
+                siguienteEstimulo();
+            }
+        }, 1000);
+    }
+
+    function actualizarBarra() {
+        const fill = document.getElementById('error-fill');
+        let p = (errores * 10);
+        fill.style.width = Math.min(p, 100) + "%";
     }
 
     function actualizarUI() {
-        document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
-        document.getElementById('txt-ronda').innerText = `Ronda: ${ronda} / ${RONDAS_POR_NIVEL}`;
-        document.getElementById('txt-errores').innerText = `Errores: ${errores}`;
+        document.getElementById('txt-nivel').innerText = nivel;
+        document.getElementById('txt-ronda').innerText = ronda;
     }
 
     function finalizar() {
-        const total = aciertos + errores;
-        const ef = Math.round((aciertos / total) * 100) || 0;
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
         document.getElementById('stats-resumen').innerHTML = `
             <strong>Aciertos:</strong> ${aciertos}<br>
             <strong>Errores:</strong> ${errores}<br>
             <strong>Eficacia:</strong> ${ef}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Sesión terminada. Muy buen trabajo guardando tus impulsos.");
+        hablar("Muy bien Juan, hemos terminado.");
     }
 
     function irAlMenu() {
-        const total = aciertos + errores;
-        const ef = Math.round((aciertos / (total === 0 ? 1 : total)) * 100) || 0;
-        
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
@@ -224,14 +250,11 @@
             errores: errores,
             eficacia: ef + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         historial.push(datosSesion);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-
         window.location.href = "funcion_sesiones.html";
     }
 </script>
 </body>
 </html>
-
