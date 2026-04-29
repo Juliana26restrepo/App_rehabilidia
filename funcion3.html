@@ -6,8 +6,8 @@
     <title>Sesión 3: Control Inhibitorio - REHABILIDIA</title>
     <style>
         :root { 
-            --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; --gold: #FFD700; 
-            --navy: #103A57; --white: #ffffff; --error: #D32F2F;
+            --p-purple: #4A148C; --bg: #CEE5D6; --gold: #FFD700; 
+            --navy: #103A57; --white: #ffffff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -28,21 +28,21 @@
         
         .panel-regla { 
             background: var(--p-purple); color: white; padding: 12px 30px; border-radius: 50px; 
-            font-size: 1.3rem; font-weight: bold; border: 4px solid var(--gold); 
+            font-size: 1.4rem; font-weight: bold; border: 4px solid var(--gold); 
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
-        #estimulo-central { font-size: clamp(3rem, 15vw, 5rem); font-weight: 900; min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #estimulo-central { font-size: clamp(3.5rem, 15vw, 5.5rem); font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; }
 
-        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 95%; max-width: 500px; }
+        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 95%; max-width: 500px; }
 
         .opcion { 
-            background: var(--white); border: 3px solid var(--navy); padding: 20px 10px; border-radius: 15px; 
-            font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0px var(--navy);
+            background: var(--white); border: 4px solid var(--navy); padding: 22px 10px; border-radius: 20px; 
+            font-size: 1.4rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
             transition: all 0.1s; display: flex; align-items: center; justify-content: center; color: var(--navy);
             text-transform: uppercase;
         }
-        .opcion:active { transform: translateY(3px); box-shadow: 0 2px 0px var(--navy); }
+        .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
         
         #pantalla-transicion, #overlay-final { 
             position: absolute; inset:0; display:none; flex-direction:column; 
@@ -53,7 +53,7 @@
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
         .cuadro-resultados { background: var(--white); color: var(--navy); padding: 30px; border-radius: 30px; width: 90%; max-width: 450px; border: 6px solid var(--gold); text-align: center; }
-        .avatar-guia { width: 80px; height: 80px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .avatar-guia { width: 90px; height: 90px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 
         .btn-inicio { background: var(--gold); color: var(--p-purple); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; display: none; }
     </style>
@@ -64,23 +64,23 @@
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
     <div id="contenedor-juego">
-        <div id="info-progreso" style="font-weight: bold; color: var(--navy); font-size: 0.9rem;">Cargando...</div>
-        <div id="panel-regla" class="panel-regla">PREPÁRATE</div>
+        <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Cargando...</div>
+        <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
         <div id="estimulo-central">---</div>
         <div id="zona-opciones"></div>
     </div>
 
     <div id="pantalla-transicion">
         <div class="avatar-guia">👨‍⚕️</div>
-        <h1 id="titulo-aviso" style="color: var(--gold); margin:0; font-size: 1.8rem;">NIVEL 1</h1>
-        <p id="texto-aviso" style="font-size: 1.2rem; text-align: center; max-width: 600px; line-height: 1.4;"></p>
+        <h1 id="titulo-aviso" style="color: var(--gold); margin:0;">NIVEL 1</h1>
+        <p id="texto-aviso" style="font-size: 1.3rem; text-align: center; max-width: 600px; line-height: 1.5;"></p>
         <button id="btn-empezar" class="btn-inicio" onclick="cerrarTransicion()">¡ENTENDIDO!</button>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="color: var(--p-purple); margin: 0; font-size: 1.5rem;">¡SESIÓN COMPLETADA!</h1>
-            <div id="visual-stats" style="margin: 20px 0; text-align: left; font-size: 1.1rem; color: var(--navy);"></div>
+            <h1 style="color: var(--p-purple); margin: 0; font-size: 1.8rem;">¡SESIÓN COMPLETADA!</h1>
+            <div id="visual-stats" style="margin: 25px 0; text-align: left; font-size: 1.2rem; color: var(--navy);"></div>
             <button class="opcion" style="width: 100%; background: #2E7D32; color: white; border: none; box-shadow: none;" onclick="guardarYSalir()">FINALIZAR Y GUARDAR</button>
         </div>
     </div>
@@ -118,15 +118,15 @@
         let texto = "";
         if(nivelActual === 1) {
             tit.innerText = "NIVEL 1: LECTURA";
-            texto = "Juan, vas a tocar el botón con el nombre de la palabra. Ignora el color de la tinta, solo lee lo que dice.";
+            texto = "Juan, lee la palabra que aparece en el centro. Ignora el color de la tinta.";
             regla = "palabra";
         } else if(nivelActual === 2) {
             tit.innerText = "NIVEL 2: COLORES";
-            texto = "¡Cambiamos la regla! Ahora toca el botón del color de la tinta. No leas la palabra, fíjate solo en el color.";
+            texto = "¡Cambio! Ahora toca el botón del color de la tinta. No leas la palabra.";
             regla = "color";
         } else {
             tit.innerText = "NIVEL 3: MIXTO";
-            texto = "¡Atención máxima! La regla cambiará en cada ejercicio. Si arriba dice LEE toca la palabra, si dice COLOR toca el color de la tinta.";
+            texto = "¡Mucho cuidado! Fíjate bien en la instrucción de arriba antes de responder.";
         }
 
         desc.innerText = texto;
@@ -143,7 +143,7 @@
         if (rondaActual > 4) {
             if (ejercicioActual < 3) {
                 ejercicioActual++; rondaActual = 1;
-                hablar(`Bien Juan. Ejercicio ${ejercicioActual}.`, proximaPregunta);
+                hablar(`Ejercicio ${ejercicioActual}`, proximaPregunta);
             } else {
                 if (nivelActual < 3) { nivelActual++; ejercicioActual = 1; rondaActual = 1; mostrarTransicion(); }
                 else { finalizar(); }
@@ -156,7 +156,7 @@
         if (nivelActual === 3) { regla = Math.random() > 0.5 ? "palabra" : "color"; }
         document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
-        // Seleccionar palabra y color de tinta (que sean diferentes para crear interferencia)
+        // Elegir palabra y color de tinta asegurando interferencia
         const pRandom = colores[Math.floor(Math.random() * colores.length)];
         let cRandom;
         do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
@@ -168,19 +168,19 @@
         const correcta = regla === "palabra" ? pRandom : cRandom;
         esperandoRespuesta = true;
 
-        // LÓGICA CORREGIDA: Asegurar que la correcta esté siempre
+        // --- LÓGICA DE OPCIONES (4 FIJAS Y CON LA CORRECTA) ---
         const contenedor = document.getElementById('zona-opciones');
         contenedor.innerHTML = "";
         
-        // 1. Filtrar los demás colores para que no se repita la correcta
-        let otrosColores = colores.filter(c => c.n !== correcta.n);
-        // 2. Mezclar los otros y tomar 3
-        otrosColores.sort(() => 0.5 - Math.random());
-        let opcionesFinales = [correcta, otrosColores[0], otrosColores[1], otrosColores[2]];
-        // 3. Mezclar las 4 opciones finales
-        opcionesFinales.sort(() => 0.5 - Math.random());
+        // 1. Tomamos todos los colores excepto la respuesta correcta
+        let distractores = colores.filter(c => c.n !== correcta.n);
+        // 2. Mezclamos los distractores y tomamos exactamente 3
+        distractores.sort(() => 0.5 - Math.random());
+        let opcionesDeRonda = [correcta, distractores[0], distractores[1], distractores[2]];
+        // 3. Mezclamos las 4 opciones finales para que la correcta cambie de lugar
+        opcionesDeRonda.sort(() => 0.5 - Math.random());
 
-        opcionesFinales.forEach(col => {
+        opcionesDeRonda.forEach(col => {
             const btn = document.createElement('div');
             btn.className = 'opcion';
             btn.innerText = col.n;
@@ -195,7 +195,7 @@
                 } else {
                     errores++;
                     container.style.backgroundColor = "#FFCDD2";
-                    hablar("Concéntrate Juan.");
+                    hablar("Fíjate bien.");
                 }
                 
                 setTimeout(() => {
@@ -218,7 +218,7 @@
             <h2 style="color:#2E7D32">Eficacia: ${eficacia}%</h2>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar(`Sesión completada Juan. Eficacia del ${eficacia} por ciento.`);
+        hablar(`Muy bien Juan. Has terminado con una eficacia del ${eficacia} por ciento.`);
     }
 
     function guardarYSalir() {
