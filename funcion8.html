@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 8: Planificación y Laberintos - REHABILIDIA</title>
+    <title>Sesión 8: Planificación Avanzada - REHABILIDIA</title>
     <style>
         :root { 
             --navy: #103A57; 
@@ -49,12 +49,12 @@
         }
 
         #canvas-contenedor { 
-            background: var(--wall); padding: 5px; border-radius: 8px; 
+            background: var(--wall); padding: 8px; border-radius: 12px; 
             display: flex; align-items: center; justify-content: center;
-            max-width: 65%;
+            max-width: 70%; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        canvas { background: var(--path); border-radius: 4px; }
+        canvas { background: var(--path); border-radius: 4px; image-rendering: crisp-edges; }
 
         .panel-derecho { 
             display: flex; flex-direction: column; align-items: center; 
@@ -69,7 +69,7 @@
             border: 3px solid var(--navy); border-radius: 50%; 
             font-size: 1.5rem; cursor: pointer; display: flex; 
             align-items: center; justify-content: center; 
-            box-shadow: 0 4px 0 var(--navy);
+            box-shadow: 0 4px 0 var(--navy); transition: 0.1s;
         }
 
         .btn-dir:active { background: var(--gold); transform: translateY(2px); box-shadow: 0 2px 0 var(--navy); }
@@ -89,12 +89,12 @@
 <body onload="iniciarApp()">
 
 <div id="viewport-container">
-    <header>SESIÓN 8: PLANIFICACIÓN Y ANTICIPACIÓN</header>
+    <header>SESIÓN 8: PLANIFICACIÓN ESTRATÉGICA</header>
 
     <div class="stats-bar">
         <span id="txt-nivel">Nivel: 1</span>
-        <span id="txt-intento">Laberinto: 1 / 3</span>
-        <span id="txt-errores" style="color: var(--red-alert);">Choques: 0</span>
+        <span id="txt-intento">Reto: 1 / 3</span>
+        <span id="txt-errores" style="color: var(--red-alert);">Errores: 0</span>
     </div>
 
     <div id="zona-de-trabajo">
@@ -103,20 +103,21 @@
         </div>
 
         <div class="panel-derecho">
-            <div style="margin-bottom:10px; font-weight:bold; color: var(--navy);">CONTROL</div>
+            <div style="margin-bottom:10px; font-weight:bold; color: var(--navy);">MOVIMIENTO</div>
             <div class="controles-grid">
                 <button class="btn-dir" style="grid-area: up" onpointerdown="iniciarMovimiento('up')" onpointerup="pararMovimiento()">↑</button>
                 <button class="btn-dir" style="grid-area: left" onpointerdown="iniciarMovimiento('left')" onpointerup="pararMovimiento()">←</button>
                 <button class="btn-dir" style="grid-area: down" onpointerdown="iniciarMovimiento('down')" onpointerup="pararMovimiento()">↓</button>
                 <button class="btn-dir" style="grid-area: right" onpointerdown="iniciarMovimiento('right')" onpointerup="pararMovimiento()">→</button>
             </div>
+            <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">O usa las flechas del teclado</p>
         </div>
     </div>
 
     <div id="overlay-msg" class="overlay">
         <h1 id="msg-titulo" style="color: var(--gold); margin: 0;"></h1>
         <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 80%;"></p>
-        <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
+        <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR RETO</button>
     </div>
 
     <div id="overlay-final" class="overlay">
@@ -134,7 +135,7 @@
     
     let nivel = 1, intento = 1, aciertos = 0, errores = 0;
     let jugador = { x: 1, y: 1 }, mapa = [];
-    let tamCelda = 25, filas, columnas, tieneLlave = false;
+    let tamCelda, filas, columnas, tieneLlave = false;
     let intervaloMovimiento = null;
 
     function hablar(t) {
@@ -145,7 +146,7 @@
     }
 
     function iniciarApp() {
-        mostrarOverlay("PLANIFICACIÓN", "Juan, recorre el camino sin tocar las paredes. En niveles avanzados, busca la llave dorada antes de salir.");
+        mostrarOverlay("ENTRENAMIENTO AVANZADO", "Juan, hoy el reto es mayor. Planifica tu ruta. En los niveles superiores deberás buscar la llave dorada antes de poder salir.");
     }
 
     function mostrarOverlay(tit, msj) {
@@ -161,9 +162,10 @@
     }
 
     function generarLaberinto() {
-        if(nivel === 1) { filas = 11; columnas = 11; tamCelda = 30; tieneLlave = true; }
-        else if(nivel === 2) { filas = 15; columnas = 15; tamCelda = 22; tieneLlave = true; }
-        else { filas = 19; columnas = 19; tamCelda = 18; tieneLlave = false; }
+        // Aumento de complejidad según nivel
+        if(nivel === 1) { filas = 13; columnas = 13; tamCelda = 28; tieneLlave = true; }
+        else if(nivel === 2) { filas = 19; columnas = 19; tamCelda = 20; tieneLlave = false; }
+        else { filas = 25; columnas = 25; tamCelda = 15; tieneLlave = false; }
 
         canvas.width = columnas * tamCelda;
         canvas.height = filas * tamCelda;
@@ -182,10 +184,11 @@
         }
         excavar(1, 1);
 
-        mapa[filas-2][columnas-2] = 2; // Meta
-        if(nivel === 3) {
-            mapa[1][columnas-2] = 3; // Llave obligatoria en nivel 3
-            tieneLlave = false;
+        mapa[filas-2][columnas-2] = 2; // Meta (Verde)
+        
+        // Colocación de llave en niveles 2 y 3 (Estrategia)
+        if(nivel > 1) {
+            mapa[1][columnas-2] = 3; // Llave (Dorada)
         }
 
         jugador = { x: 1, y: 1 };
@@ -198,29 +201,38 @@
         for(let r=0; r<filas; r++) {
             for(let c=0; c<columnas; c++) {
                 if(mapa[r][c] === 1) {
-                    ctx.fillStyle = "#1A262C";
+                    ctx.fillStyle = "#1A262C"; // Pared
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
                 } else if(mapa[r][c] === 2) {
-                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#999";
+                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#546E7A"; // Meta abierta/cerrada
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
+                    if(!tieneLlave) {
+                        ctx.fillStyle = "white";
+                        ctx.font = `${tamCelda/2}px Arial`;
+                        ctx.fillText("🔒", c*tamCelda + tamCelda/6, r*tamCelda + tamCelda/1.5);
+                    }
                 } else if(mapa[r][c] === 3) {
-                    ctx.fillStyle = "#FFD700";
+                    ctx.fillStyle = "#FFD700"; // Llave
                     ctx.beginPath();
                     ctx.arc(c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/2, tamCelda/3, 0, Math.PI*2);
                     ctx.fill();
                 }
             }
         }
+        // Dibujar Jugador
         ctx.fillStyle = "#D32F2F";
         ctx.beginPath();
         ctx.arc(jugador.x*tamCelda + tamCelda/2, jugador.y*tamCelda + tamCelda/2, tamCelda/2.5, 0, Math.PI*2);
         ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
     }
 
     function iniciarMovimiento(dir) {
         if(intervaloMovimiento) return;
         mover(dir);
-        intervaloMovimiento = setInterval(() => mover(dir), 120);
+        intervaloMovimiento = setInterval(() => mover(dir), 110);
     }
 
     function pararMovimiento() {
@@ -241,10 +253,10 @@
             if(mapa[ny][nx] === 3) {
                 tieneLlave = true;
                 mapa[ny][nx] = 0;
-                hablar("Llave obtenida");
+                hablar("¡Llave conseguida! Ve a la salida.");
             }
             if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { hablar("Busca la llave"); return; }
+                if(!tieneLlave) { hablar("Puerta cerrada, busca la llave."); return; }
                 gestionarVictoria();
                 return;
             }
@@ -258,10 +270,11 @@
         aciertos++;
         if(intento < 3) {
             intento++; 
+            hablar("Muy bien planificado.");
             generarLaberinto();
         } else if(nivel < 3) {
             nivel++; intento = 1;
-            mostrarOverlay("Nivel Completado", "Avanzamos a un laberinto más grande.");
+            mostrarOverlay(`Nivel ${nivel-1} Superado`, "El laberinto se vuelve más denso. No olvides buscar la llave.");
         } else {
             finalizar();
         }
@@ -269,23 +282,34 @@
 
     function actualizarUI() {
         document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
-        document.getElementById('txt-intento').innerText = `Laberinto: ${intento} / 3`;
-        document.getElementById('txt-errores').innerText = `Choques: ${errores}`;
+        document.getElementById('txt-intento').innerText = `Reto: ${intento} / 3`;
+        document.getElementById('txt-errores').innerText = `Errores: ${errores}`;
     }
 
+    // SOPORTE PARA TECLADO
+    window.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowUp") mover('up');
+        if(e.key === "ArrowDown") mover('down');
+        if(e.key === "ArrowLeft") mover('left');
+        if(e.key === "ArrowRight") mover('right');
+    });
+
     function finalizar() {
-        const ef = Math.round((aciertos / (aciertos + (errores*0.1))) * 100);
+        const totalIntentos = 9;
+        const ef = Math.round((aciertos / (aciertos + (errores * 0.2))) * 100);
         document.getElementById('stats-resumen').innerHTML = `
-            <strong>Laberintos logrados:</strong> ${aciertos}<br>
-            <strong>Choques con muros:</strong> ${errores}<br>
-            <strong>Eficacia:</strong> ${ef}%
+            <strong>Laberintos completados:</strong> ${aciertos}<br>
+            <strong>Choques registrados:</strong> ${errores}<br>
+            <strong>Eficacia ejecutiva:</strong> ${ef}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Muy bien Juan, has planificado cada paso correctamente.");
+        hablar("Sesión finalizada. Tu capacidad de anticipación espacial es excelente.");
     }
 
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + (errores*0.1))) * 100) || 0;
+        const totalIntentos = 9;
+        const ef = Math.round((aciertos / (aciertos + (errores * 0.2))) * 100) || 0;
+        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas", 
@@ -298,6 +322,7 @@
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+
         window.location.href = "funcion_sesiones.html";
     }
 </script>
