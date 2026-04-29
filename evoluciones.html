@@ -56,23 +56,24 @@
 
         <div class="grid-graficas">
             <div class="chart-container">
-                <h4 style="margin-top:0;"><i class="fas fa-brain"></i> Rendimiento por Sesión (%)</h4>
+                <h4 style="margin-top:0;"><i class="fas fa-brain"></i> Evolución de Sesiones (M, A, FE)</h4>
                 <canvas id="chartSesiones"></canvas>
             </div>
             <div class="chart-container">
-                <h4 style="margin-top:0;"><i class="fas fa-bolt"></i> Estado de Ánimo y Energía</h4>
+                <h4 style="margin-top:0;"><i class="fas fa-bolt"></i> Historial de Energía</h4>
                 <canvas id="chartDiario"></canvas>
             </div>
         </div>
 
         <div class="chart-container" style="margin-top:20px;">
-            <h4><i class="fas fa-history"></i> Historial de Síntomas y Notas</h4>
+            <h4><i class="fas fa-history"></i> Historial de Síntomas y Notas del Paciente</h4>
             <table class="tabla-sintomas">
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Síntomas</th>
-                        <th>Notas del Paciente</th>
+                        <th>Módulo</th>
+                        <th>Eficacia</th>
+                        <th>Síntomas/Notas Diario</th>
                     </tr>
                 </thead>
                 <tbody id="tablaCuerpo"></tbody>
@@ -99,63 +100,99 @@
         if(chartD) chartD.destroy();
     }
 
+    function identificarModulo(nombre) {
+        const n = nombre.toLowerCase();
+        if (n.includes("memoria")) return "M";
+        if (n.includes("atencion") || n.includes("atención")) return "A";
+        if (n.includes("ejecutiva")) return "FE";
+        return "S";
+    }
+
     function cargarDatosReales() {
-        // LEER AMBAS CAJAS DE MEMORIA
         const datosDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
         const datosSesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
 
-        // 1. Gráfica de Sesiones (Muestra el % de Eficacia de cada sesión)
+        // 1. Gráfica de Sesiones - BARRAS Y COLORES (Igual a datos.html)
         const ctxS = document.getElementById('chartSesiones').getContext('2d');
+        const etiquetas = datosSesiones.map(s => `${identificarModulo(s.modulo)}${s.id_sesion}`);
+        const colores = datosSesiones.map(s => {
+            const mod = identificarModulo(s.modulo);
+            if (mod === "M") return "#2563eb"; // Azul
+            if (mod === "A") return "#e11d48"; // Rojo
+            return "#16a34a"; // Verde
+        });
+
         chartS = new Chart(ctxS, {
+            type: 'bar',
+            data: {
+                labels: etiquetas,
+                datasets: [{
+                    label: '% Eficacia',
+                    data: datosSesiones.map(s => parseInt(s.eficacia)),
+                    backgroundColor: colores,
+                    borderRadius: 5
+                }]
+            },
+            options: { 
+                scales: { y: { min: 0, max: 100 } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 2. Gráfica de Diario (Línea de Energía)
+        const ctxD = document.getElementById('chartDiario').getContext('2d');
+        chartD = new Chart(ctxD, {
             type: 'line',
             data: {
-                labels: datosSesiones.length ? datosSesiones.map(s => `${s.modulo} S${s.id_sesion}`) : ['Sin datos'],
-                datasets: [{
-                    label: '% de Eficacia',
-                    data: datosSesiones.map(s => s.eficacia),
-                    borderColor: '#16a34a', // Verde para éxito
-                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                labels: datosDiario.map(d => d.fecha.split(',')[0]),
+                datasets: [{ 
+                    label: 'Energía', 
+                    data: datosDiario.map(d => d.energia), 
+                    borderColor: '#103A57', 
+                    backgroundColor: 'rgba(16, 58, 87, 0.1)',
                     fill: true,
                     tension: 0.3
                 }]
             },
-            options: { scales: { y: { min: 0, max: 100 } } }
-        });
-
-        // 2. Gráfica de Diario (Tu lógica original de ánimo y energía)
-        const ctxD = document.getElementById('chartDiario').getContext('2d');
-        chartD = new Chart(ctxD, {
-            type: 'bar',
-            data: {
-                labels: datosDiario.map(d => d.fecha.split(',')[0]),
-                datasets: [
-                    { label: 'Ánimo', data: datosDiario.map(d => d.emocionValor || 0), backgroundColor: '#FFC107' },
-                    { label: 'Energía', data: datosDiario.map(d => d.energia), backgroundColor: '#103A57' }
-                ]
-            },
             options: { scales: { y: { min: 0, max: 10 } } }
         });
 
-        // 3. Tabla de Síntomas
+        // 3. Tabla Combinada (Muestra sesiones y diario)
         const tabla = document.getElementById('tablaCuerpo');
         tabla.innerHTML = "";
-        [...datosDiario].reverse().forEach(reg => {
-            tabla.innerHTML += `<tr><td>${reg.fecha}</td><td>${Array.isArray(reg.sintomas) ? reg.sintomas.join(", ") : "Ninguno"}</td><td><i>"${reg.nota || ''}"</i></td></tr>`;
+        
+        // Unimos los datos más relevantes de las sesiones en la tabla
+        [...datosSesiones].reverse().forEach(s => {
+            tabla.innerHTML += `
+                <tr style="background: #fdfdfd">
+                    <td>${s.fecha}</td>
+                    <td><b>${s.modulo}</b></td>
+                    <td><span style="color:${identificarModulo(s.modulo)==='A'?'#e11d48':'#2563eb'}">${s.eficacia}</span></td>
+                    <td>Aciertos: ${s.aciertos} | Errores: ${s.errores}</td>
+                </tr>`;
         });
-
-        // 4. Análisis Automático Combinado
+        
+        // 4. Análisis Clínico Inteligente
         if(datosSesiones.length > 0) {
-            const ultimaEficacia = datosSesiones[datosSesiones.length-1].eficacia;
-            const msj = ultimaEficacia < 70 ? "Sugerencia: Revisar fatiga cognitiva, el desempeño bajó del 70%." : "Desempeño óptimo en la última sesión.";
-            document.getElementById('analisisTexto').innerText = msj;
+            const ultimaSesion = datosSesiones[datosSesiones.length-1];
+            const eficaciaNum = parseInt(ultimaSesion.eficacia);
+            let analisis = `Última sesión completada: ${ultimaSesion.modulo} (${ultimaSesion.eficacia}). `;
+            
+            if(eficaciaNum < 70) {
+                analisis += "Alerta: Se observa una disminución en la eficacia. Revisar posible fatiga o desmotivación.";
+            } else {
+                analisis += "El paciente mantiene una curva de aprendizaje estable y buen nivel de respuesta.";
+            }
+            document.getElementById('analisisTexto').innerText = analisis;
         }
     }
 
     window.onload = function() {
         const d = JSON.parse(localStorage.getItem('diario_juan')) || [];
         const s = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        if(d.length > 0) {
-            document.getElementById('sub-info-juan').innerText = "Última actividad: " + (s.length ? s[s.length-1].fecha : d[d.length-1].fecha);
+        if(d.length > 0 || s.length > 0) {
+            const fechaUltima = s.length ? s[s.length-1].fecha : d[d.length-1].fecha;
+            document.getElementById('sub-info-juan').innerText = "Última actividad: " + fechaUltima;
         }
     }
 </script>
