@@ -13,7 +13,6 @@
             --white: #ffffff;
         }
 
-        /* UNIVERSAL ZOOM & RESET */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
         body { 
@@ -31,13 +30,11 @@
             width: 100vw;
             height: 100vh;
             max-width: 1024px;
-            max-height: 768px;
             background: var(--bg);
             position: relative;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
         header { 
@@ -49,7 +46,7 @@
             justify-content: center; 
             font-weight: bold; 
             flex-shrink: 0;
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-size: 1rem;
         }
 
         #contenedor-juego { 
@@ -71,12 +68,13 @@
             border: 4px dashed var(--p-purple); 
             width: 90%; 
             max-width: 400px; 
+            text-align: center;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
             animation: fadeIn 0.5s;
         }
         
         .item-lista { 
-            font-size: clamp(1.2rem, 5vw, 1.8rem); 
+            font-size: 1.8rem; 
             font-weight: bold; 
             color: var(--p-purple); 
             margin: 8px 0; 
@@ -101,14 +99,13 @@
             border-radius: 15px; 
             font-weight: bold; 
             cursor: pointer; 
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem); 
+            font-size: 0.9rem; 
             text-transform: uppercase; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             min-height: 60px; 
             box-shadow: 0 4px 0 var(--navy);
-            transition: 0.1s;
         }
 
         .producto:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--navy); }
@@ -141,7 +138,6 @@
             color: var(--navy);
         }
 
-        /* OVERLAYS */
         #overlay-nivel, #overlay-final { 
             position: absolute; top:0; left:0; width:100%; height:100%; 
             display:none; flex-direction:column; justify-content:center; 
@@ -175,6 +171,8 @@
             font-size: 1.2rem; 
             color: var(--p-purple);
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-decoration: none;
+            display: inline-block;
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -183,7 +181,7 @@
 <body onload="iniciarSesion()">
 
 <div id="viewport-container">
-    <header>MÓDULO 3: MEMORIA DE TRABAJO (INVERSA)</header>
+    <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 4</header>
 
     <div id="contenedor-juego">
         <div class="progreso-txt" id="info-progreso">Cargando nivel...</div>
@@ -191,7 +189,7 @@
         
         <div id="pantalla-memorizar" class="panel-lista">
             <div id="lista-items"></div>
-            <button class="btn-accion" style="margin-top:20px;" onpointerdown="comenzarSeleccion()">¡LISTO!</button>
+            <button class="btn-accion" style="margin-top:20px;" onclick="comenzarSeleccion()">¡LISTO!</button>
         </div>
 
         <div id="zona-mercado"></div>
@@ -205,8 +203,8 @@
     </div>
 
     <div id="overlay-nivel">
-        <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3.5rem; margin:0;">¡NIVEL 2!</h1>
-        <p id="lvl-mensaje" style="font-size: 1.8rem;"></p>
+        <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3rem; margin:0;">¡NIVEL!</h1>
+        <p id="lvl-mensaje" style="font-size: 1.5rem;"></p>
     </div>
 
     <div id="overlay-final">
@@ -227,7 +225,7 @@
 
             <div id="resumen-global" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;"></div>
 
-            <button class="btn-accion" onpointerdown="guardarYSalir()">FINALIZAR</button>
+            <button class="btn-accion" onclick="guardarYSalir()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
@@ -238,7 +236,6 @@
     let nivel = 1, ronda = 1, listaActual = [], seleccionados = [];
     let aciertosTotales = 0, erroresTotales = 0;
     
-    // Métricas por nivel para el cuadro visual
     let statsNivel = {
         1: { aciertos: 0, errores: 0 },
         2: { aciertos: 0, errores: 0 },
@@ -255,7 +252,7 @@
     }
 
     function iniciarSesion() {
-        hablar("Juan, memoriza esta lista. Luego deberás seleccionarlos en orden inverso, del último al primero.");
+        hablar("Juan, memoriza esta lista. Luego deberás seleccionarlos en orden inverso.");
         generarRonda();
     }
 
@@ -289,10 +286,7 @@
             const div = document.createElement('div');
             div.className = 'producto';
             div.innerText = prod;
-            div.onpointerdown = (e) => {
-                e.preventDefault();
-                validar(prod, div);
-            };
+            div.onclick = () => validar(prod, div);
             mercado.appendChild(div);
         });
     }
@@ -302,7 +296,7 @@
         let indiceObjetivo = (listaActual.length - 1) - seleccionados.length;
         let objetivo = listaActual[indiceObjetivo];
 
-        if(prod.toLowerCase() === objetivo.toLowerCase()) {
+        if(prod === objetivo) {
             el.classList.add('selected');
             seleccionados.push(prod);
             aciertosTotales++;
@@ -311,12 +305,12 @@
             if(seleccionados.length === listaActual.length) {
                 manejarProgreso();
             } else {
-                hablar("Correcto. ¿Cuál iba antes?");
+                hablar("Muy bien. ¿Cuál iba antes?");
             }
         } else {
             erroresTotales++;
             statsNivel[nivel].errores++;
-            hablar("Ese no sigue el orden inverso, Juan. Intenta recordar el anterior.");
+            hablar("Fíjate bien, Juan. Ese no era el siguiente.");
             el.style.backgroundColor = "#FFCDD2";
             setTimeout(() => { if(!el.classList.contains('selected')) el.style.backgroundColor = "white"; }, 500);
         }
@@ -325,7 +319,7 @@
     function manejarProgreso() {
         if (ronda < 3) {
             ronda++;
-            hablar("¡Excelente memoria! Vamos con la siguiente lista.");
+            hablar("¡Logrado! Siguiente lista.");
             setTimeout(generarRonda, 1500);
         } else {
             if (nivel < 3) {
@@ -340,7 +334,7 @@
 
     function mostrarCambioNivel() {
         const overlay = document.getElementById('overlay-nivel');
-        const msj = nivel === 2 ? "Listas de 4 productos." : "¡Nivel Máximo! 5 productos para recordar.";
+        const msj = nivel === 2 ? "Ahora con 4 productos." : "Nivel máximo: 5 productos.";
         document.getElementById('lvl-titulo').innerText = "¡NIVEL " + nivel + "!";
         document.getElementById('lvl-mensaje').innerText = msj;
         overlay.style.display = 'flex';
@@ -348,7 +342,7 @@
         setTimeout(() => {
             overlay.style.display = 'none';
             generarRonda();
-        }, 3500);
+        }, 3000);
     }
 
     function finalizar() {
@@ -356,9 +350,7 @@
         const cuerpo = document.getElementById('cuerpo-tabla');
         cuerpo.innerHTML = "";
 
-        let totalRetos = 0;
         for (let i = 1; i <= 3; i++) {
-            totalRetos += (i === 1 ? 3*3 : i === 2 ? 4*3 : 5*3); // Total de items a recordar
             cuerpo.innerHTML += `<tr>
                 <td>Nivel ${i}</td>
                 <td>${statsNivel[i].aciertos}</td>
@@ -366,55 +358,30 @@
             </tr>`;
         }
 
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100);
+        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100) || 0;
         document.getElementById('resumen-global').innerText = `Eficacia Total: ${eficacia}%`;
-        
-        hablar("¡Muy bien Juan! Has terminado tu entrenamiento de memoria de trabajo.");
+        hablar("¡Excelente trabajo Juan! Sesión terminada.");
     }
 
     function guardarYSalir() {
-        const eficacia = Math.round((aciertosTotales / (aciertosTotales + erroresTotales)) * 100);
-        const dataLog = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Funciones Ejecutivas",
-            id_sesion: 4,
-            aciertos: aciertosTotales,
-            errores: erroresTotales,
-            eficacia: eficacia + "%"
-        };
-
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
-        window.location.href = 'funcion_sesiones.html';
-    }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertosTotales + erroresTotales;
+        const ef = Math.round((aciertosTotales / total) * 100) || 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva",
+            modulo: "Funciones Ejecutivas",
             id_sesion: 4,      
-            aciertos: aciertos,
-            errores: errores,
+            aciertos: aciertosTotales,
+            errores: erroresTotales,
             eficacia: ef + "%"
         };
 
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "funcion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
