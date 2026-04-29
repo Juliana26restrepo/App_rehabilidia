@@ -146,7 +146,7 @@
     }
 
     function iniciarApp() {
-        mostrarOverlay("ENTRENAMIENTO AVANZADO", "Juan, hoy el reto es mayor. Planifica tu ruta. En los niveles superiores deberás buscar la llave dorada antes de poder salir.");
+        mostrarOverlay("ENTRENAMIENTO AVANZADO", "Juan, planifica tu ruta. En niveles avanzados, busca la llave dorada para abrir la salida.");
     }
 
     function mostrarOverlay(tit, msj) {
@@ -162,10 +162,9 @@
     }
 
     function generarLaberinto() {
-        // Aumento de complejidad según nivel
         if(nivel === 1) { filas = 13; columnas = 13; tamCelda = 28; tieneLlave = true; }
-        else if(nivel === 2) { filas = 19; columnas = 19; tamCelda = 20; tieneLlave = false; }
-        else { filas = 25; columnas = 25; tamCelda = 15; tieneLlave = false; }
+        else if(nivel === 2) { filas = 17; columnas = 17; tamCelda = 22; tieneLlave = false; }
+        else { filas = 23; columnas = 23; tamCelda = 16; tieneLlave = false; }
 
         canvas.width = columnas * tamCelda;
         canvas.height = filas * tamCelda;
@@ -184,11 +183,17 @@
         }
         excavar(1, 1);
 
-        mapa[filas-2][columnas-2] = 2; // Meta (Verde)
-        
-        // Colocación de llave en niveles 2 y 3 (Estrategia)
+        // GARANTÍA DE CAMINOS: Forzamos la apertura de celdas adyacentes a puntos clave
+        // Meta
+        mapa[filas-2][columnas-2] = 2;
+        mapa[filas-2][columnas-3] = 0; 
+        mapa[filas-3][columnas-2] = 0;
+
         if(nivel > 1) {
-            mapa[1][columnas-2] = 3; // Llave (Dorada)
+            // Llave
+            mapa[1][columnas-2] = 3;
+            mapa[1][columnas-3] = 0; 
+            mapa[2][columnas-2] = 0;
         }
 
         jugador = { x: 1, y: 1 };
@@ -201,25 +206,28 @@
         for(let r=0; r<filas; r++) {
             for(let c=0; c<columnas; c++) {
                 if(mapa[r][c] === 1) {
-                    ctx.fillStyle = "#1A262C"; // Pared
+                    ctx.fillStyle = "#1A262C";
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
                 } else if(mapa[r][c] === 2) {
-                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#546E7A"; // Meta abierta/cerrada
+                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#546E7A";
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
                     if(!tieneLlave) {
                         ctx.fillStyle = "white";
-                        ctx.font = `${tamCelda/2}px Arial`;
-                        ctx.fillText("🔒", c*tamCelda + tamCelda/6, r*tamCelda + tamCelda/1.5);
+                        ctx.font = `bold ${tamCelda/1.8}px Arial`;
+                        ctx.textAlign = "center";
+                        ctx.fillText("L", c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/1.4);
                     }
                 } else if(mapa[r][c] === 3) {
-                    ctx.fillStyle = "#FFD700"; // Llave
+                    ctx.fillStyle = "#FFD700";
                     ctx.beginPath();
                     ctx.arc(c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/2, tamCelda/3, 0, Math.PI*2);
                     ctx.fill();
+                    ctx.strokeStyle = "#B8860B";
+                    ctx.stroke();
                 }
             }
         }
-        // Dibujar Jugador
+        // Jugador
         ctx.fillStyle = "#D32F2F";
         ctx.beginPath();
         ctx.arc(jugador.x*tamCelda + tamCelda/2, jugador.y*tamCelda + tamCelda/2, tamCelda/2.5, 0, Math.PI*2);
@@ -253,10 +261,10 @@
             if(mapa[ny][nx] === 3) {
                 tieneLlave = true;
                 mapa[ny][nx] = 0;
-                hablar("¡Llave conseguida! Ve a la salida.");
+                hablar("¡Llave conseguida! Ahora busca la salida.");
             }
             if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { hablar("Puerta cerrada, busca la llave."); return; }
+                if(!tieneLlave) { hablar("Puerta cerrada. Primero la llave."); return; }
                 gestionarVictoria();
                 return;
             }
@@ -270,11 +278,11 @@
         aciertos++;
         if(intento < 3) {
             intento++; 
-            hablar("Muy bien planificado.");
+            hablar("Excelente.");
             generarLaberinto();
         } else if(nivel < 3) {
             nivel++; intento = 1;
-            mostrarOverlay(`Nivel ${nivel-1} Superado`, "El laberinto se vuelve más denso. No olvides buscar la llave.");
+            mostrarOverlay(`Nivel ${nivel-1} Superado`, "Aumentamos la dificultad. El laberinto es más denso.");
         } else {
             finalizar();
         }
@@ -286,7 +294,6 @@
         document.getElementById('txt-errores').innerText = `Errores: ${errores}`;
     }
 
-    // SOPORTE PARA TECLADO
     window.addEventListener('keydown', (e) => {
         if(e.key === "ArrowUp") mover('up');
         if(e.key === "ArrowDown") mover('down');
@@ -295,21 +302,18 @@
     });
 
     function finalizar() {
-        const totalIntentos = 9;
         const ef = Math.round((aciertos / (aciertos + (errores * 0.2))) * 100);
         document.getElementById('stats-resumen').innerHTML = `
-            <strong>Laberintos completados:</strong> ${aciertos}<br>
-            <strong>Choques registrados:</strong> ${errores}<br>
-            <strong>Eficacia ejecutiva:</strong> ${ef}%
+            <strong>Completados:</strong> ${aciertos}<br>
+            <strong>Errores:</strong> ${errores}<br>
+            <strong>Eficacia:</strong> ${ef}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Sesión finalizada. Tu capacidad de anticipación espacial es excelente.");
+        hablar("Sesión completada, Juan. Tu planificación espacial ha mejorado notablemente.");
     }
 
     function irAlMenu() {
-        const totalIntentos = 9;
         const ef = Math.round((aciertos / (aciertos + (errores * 0.2))) * 100) || 0;
-        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas", 
@@ -318,13 +322,12 @@
             errores: errores,
             eficacia: ef + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
         window.location.href = "funcion_sesiones.html";
     }
 </script>
 </body>
 </html>
+
