@@ -22,7 +22,6 @@
         .tag-ejecutiva { background: #16a34a; }
         .hidden { display: none; }
         .fecha-historial { float: right; font-size: 0.75rem; color: #666; }
-        canvas { max-width: 100%; height: auto !important; }
     </style>
 </head>
 <body>
@@ -57,86 +56,52 @@
         document.getElementById('bt2').classList.toggle('active', t === 's');
     }
 
-    // Función para traducir módulos a M, A o FE
-    function identificarModulo(nombre) {
-        const n = nombre.toLowerCase();
-        if (n.includes("memoria")) return "M";
-        if (n.includes("atencion") || n.includes("atención")) return "A";
-        if (n.includes("ejecutiva")) return "FE";
-        return "S";
-    }
-
     window.onload = function() {
         try {
             const historialDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
             const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
 
-            // 1. GRÁFICA DIARIO (LINEAL)
+            // 1. GRÁFICA DIARIO
             if(historialDiario.length > 0) {
                 new Chart(document.getElementById('graf'), {
                     type: 'line',
                     data: {
                         labels: historialDiario.map(r => r.fecha.split(',')[0]),
-                        datasets: [{ 
-                            label: 'Energía', 
-                            data: historialDiario.map(r => r.energia), 
-                            borderColor: '#307B8E',
-                            tension: 0.3
-                        }]
-                    },
-                    options: { scales: { y: { beginAtZero: true, max: 10; } } }
+                        datasets: [{ label: 'Energía', data: historialDiario.map(r => r.energia), borderColor: '#307B8E' }]
+                    }
                 });
                 const ld = document.getElementById('listD');
-                ld.innerHTML = "";
                 [...historialDiario].reverse().forEach(r => {
                     ld.innerHTML += `<div class="item"><span class="fecha-historial">${r.fecha}</span><b>Estado: ${r.emocion}</b><br><small>Energía: ${r.energia}/10</small></div>`;
                 });
             }
 
-            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - MODIFICADA A BARRAS Y M/A/FE
+            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - SOLO CAMBIADO A "BAR"
             const ls = document.getElementById('listS');
             if(sesiones.length > 0) {
-                
-                const etiquetasNuevas = sesiones.map(s => `${identificarModulo(s.modulo)}${s.id_sesion}`);
-                const coloresBarras = sesiones.map(s => {
-                    const mod = identificarModulo(s.modulo);
-                    if (mod === "M") return "#2563eb"; // Azul
-                    if (mod === "A") return "#e11d48"; // Rojo
-                    return "#16a34a"; // Verde FE
-                });
-
                 new Chart(document.getElementById('grafSesiones'), {
-                    type: 'bar',
+                    type: 'bar', // <--- CAMBIADO DE LINE A BAR
                     data: {
-                        labels: etiquetasNuevas,
+                        labels: sesiones.map((s, i) => `S${i+1}`),
                         datasets: [{
                             label: '% Eficacia',
                             data: sesiones.map(s => parseInt(s.eficacia)),
-                            backgroundColor: coloresBarras,
-                            borderRadius: 5
+                            backgroundColor: '#e11d48', // Color sólido para las barras
+                            borderColor: '#e11d48',
+                            borderWidth: 1
                         }]
                     },
-                    options: { 
-                        responsive: true,
-                        scales: { 
-                            y: { beginAtZero: true, max: 100 },
-                            x: { ticks: { font: { size: 10, weight: 'bold' } } }
-                        },
-                        plugins: {
-                            legend: { display: false }
-                        }
-                    }
+                    options: { scales: { y: { beginAtZero: true, max: 100 } } }
                 });
 
-                // Lista de sesiones (Historial inferior)
                 ls.innerHTML = "";
                 [...sesiones].reverse().forEach(s => {
-                    let clase = s.modulo.includes("Memoria") ? "tag-memoria" : (s.modulo.includes("Ejecutiva") ? "tag-ejecutiva" : "tag-atencion");
+                    let clase = s.modulo === "Memoria" ? "tag-memoria" : (s.modulo === "Funciones Ejecutivas" ? "tag-ejecutiva" : "tag-atencion");
                     ls.innerHTML += `
                         <div class="item">
                             <span class="fecha-historial">${s.fecha}</span>
                             <span class="tag ${clase}">${s.modulo}</span><br>
-                            <b>${identificarModulo(s.modulo)}${s.id_sesion}</b> - <strong>${s.eficacia}</strong>
+                            <b>Sesión ${s.id_sesion}</b> - <strong>${s.eficacia}</strong>
                             <br><small>Aciertos: ${s.aciertos} | Errores: ${s.errores}</small>
                         </div>`;
                 });
@@ -148,4 +113,3 @@
 </script>
 </body>
 </html>
-
