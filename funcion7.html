@@ -14,110 +14,59 @@
             --red-alert: #D32F2F;
         }
 
-        /* UNIVERSAL ZOOM & RESET */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #1a1a1a; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            overflow: hidden; 
+            margin: 0; background: #1a1a1a; 
+            display: flex; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; 
         }
 
         #viewport-container {
-            width: 100vw;
-            height: 100vh;
-            max-width: 1024px;
-            max-height: 768px;
-            background: var(--bg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            width: 100vw; height: 100vh; max-width: 1024px;
+            background: var(--bg); position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
         header { 
-            background: var(--navy); 
-            color: white; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            flex-shrink: 0;
-            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            background: var(--navy); color: white; height: 50px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; flex-shrink: 0;
         }
 
         #contenedor-juego { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 10px; 
-            justify-content: space-between;
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; padding: 10px; justify-content: space-between;
         }
 
         .panel-superior { 
-            display: flex; 
-            width: 98%; 
-            max-width: 900px; 
-            gap: 10px; 
-            margin-bottom: 5px; 
-            flex-shrink: 0;
+            display: flex; width: 98%; max-width: 900px; gap: 10px; 
+            margin-bottom: 5px; flex-shrink: 0;
         }
 
         .panel-instruccion { 
-            background: var(--white); 
-            padding: 12px; 
-            border-radius: 15px; 
-            border: 4px solid var(--p-purple); 
-            flex-grow: 1; 
-            font-weight: bold; 
-            font-size: clamp(0.9rem, 3vw, 1.3rem); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 80px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            line-height: 1.2;
+            background: var(--white); padding: 12px; border-radius: 15px; 
+            border: 4px solid var(--p-purple); flex-grow: 1; 
+            font-weight: bold; font-size: clamp(0.9rem, 3vw, 1.3rem); 
+            display: flex; align-items: center; justify-content: center; 
+            min-height: 80px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
         }
 
         #reloj-contenedor { 
-            background: var(--white); 
-            border: 4px solid var(--navy); 
-            border-radius: 15px; 
-            width: 70px; 
-            height: 80px;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 2rem; 
-            color: var(--red-alert); 
-            font-weight: 900; 
+            background: var(--white); border: 4px solid var(--navy); 
+            border-radius: 15px; width: 70px; height: 80px;
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2rem; color: var(--red-alert); font-weight: 900; 
         }
 
         .zona-tokens { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            align-content: center; 
-            gap: clamp(8px, 2vw, 15px); 
-            width: 100%; 
-            flex-grow: 1;
-            margin: 5px auto; 
-            padding: 15px; 
-            background: var(--white); 
-            border-radius: 20px; 
-            border: 2px solid #B0BEC5; 
-            overflow: hidden; /* Evita scroll, los elementos deben caber */
+            display: flex; flex-wrap: wrap; justify-content: center; 
+            align-content: center; gap: 10px; width: 100%; flex-grow: 1;
+            padding: 15px; background: var(--white); border-radius: 20px; 
+            border: 2px solid #B0BEC5; overflow: hidden;
         }
 
-        /* FIGURAS */
         .token { cursor: pointer; transition: transform 0.1s; position: relative; }
         .circulo { border-radius: 50%; }
         .cuadrado { border-radius: 6px; }
@@ -126,21 +75,19 @@
             border-left: solid transparent; border-right: solid transparent; border-bottom: solid; 
         }
         
-        /* Escalado responsivo de figuras */
-        .grande { width: clamp(55px, 10vw, 75px); height: clamp(55px, 10vw, 75px); }
-        .pequeno { width: clamp(35px, 7vw, 45px); height: clamp(35px, 7vw, 45px); }
+        .grande { width: 70px; height: 70px; }
+        .pequeno { width: 40px; height: 40px; }
         
-        .triangulo.grande { border-left-width: clamp(27px, 5vw, 37px); border-right-width: clamp(27px, 5vw, 37px); border-bottom-width: clamp(55px, 10vw, 75px); }
-        .triangulo.pequeno { border-left-width: clamp(17px, 3.5vw, 22px); border-right-width: clamp(17px, 3.5vw, 22px); border-bottom-width: clamp(35px, 7vw, 45px); }
+        .triangulo.grande { border-left-width: 35px; border-right-width: 35px; border-bottom-width: 70px; }
+        .triangulo.pequeno { border-left-width: 20px; border-right-width: 20px; border-bottom-width: 40px; }
 
         .marcado { filter: grayscale(1) opacity(0.3); pointer-events: none; transform: scale(0.8); }
 
-        /* OVERLAYS */
         .overlay { position: absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 5000; text-align: center; padding: 20px; }
         #overlay-nivel { background: rgba(74, 20, 140, 0.95); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
 
-        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.3rem; color: var(--navy); margin-top: 20px; border-bottom: 4px solid #b7950b; }
+        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.3rem; color: var(--navy); margin-top: 20px; }
         
         .cuadro-stats { background: white; color: var(--navy); padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 90%; max-width: 400px; }
     </style>
@@ -162,7 +109,7 @@
     <div id="overlay-nivel" class="overlay">
         <h1 id="lvl-titulo" style="font-size: 3.5rem; color: var(--gold); margin: 0;"></h1>
         <p id="lvl-mensaje" style="font-size: 1.5rem; max-width: 80%;"></p>
-        <button class="btn-ready" onpointerdown="cerrarOverlay()">¡ENTENDIDO!</button>
+        <button class="btn-ready" onclick="cerrarOverlay()">¡ENTENDIDO!</button>
     </div>
 
     <div id="overlay-final" class="overlay">
@@ -171,7 +118,7 @@
             <div id="resumen-stats" style="font-size: 1.2rem; margin: 15px 0;"></div>
             <div id="porcentaje-caja" style="font-size: 3.5rem; font-weight: 900; color: var(--p-purple);">0%</div>
             <p style="font-size: 1rem; color: #666;">Eficacia Total</p>
-            <button class="btn-ready" onpointerdown="guardarYSalir()">FINALIZAR</button>
+            <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
@@ -190,7 +137,6 @@
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
-        m.rate = 0.9;
         if (callback) m.onend = callback;
         window.speechSynthesis.speak(m);
     }
@@ -217,8 +163,8 @@
             segundos--;
             document.getElementById('reloj-contenedor').innerText = segundos;
             if(segundos <= 0) {
-                if(inhibicionActiva) aciertosTotales++; // Éxito si no tocó nada en inhibición
-                else erroresTotales += objetivosIds.length; // Errores por no tocar los objetivos
+                if(inhibicionActiva) aciertosTotales++;
+                else erroresTotales += objetivosIds.length;
                 avanzar();
             }
         }, 1000);
@@ -234,15 +180,12 @@
         let textoRegla = "";
         inhibicionActiva = false;
 
-        // Lógica de Niveles (Manteniendo integridad clínica)
         if(nivel === 1) {
             let fLabel = Math.random() > 0.5 ? "cuadrados" : "círculos";
             let fKey = fLabel === "cuadrados" ? "cuadrado" : "circulo";
             let c1 = colores[Math.floor(Math.random()*4)];
-            let c2 = colores[4 + Math.floor(Math.random()*4)];
-            textoRegla = `Toca los ${fLabel} ${c1.n}s y los ${fLabel} ${c2.n}s.`;
-            for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: fKey, color: c1, tamano: 'grande', target: true});
-            for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: fKey, color: c2, tamano: 'pequeno', target: true});
+            textoRegla = `Toca todos los ${fLabel} de color ${c1.n}.`;
+            for(let i=0; i<4; i++) pool.push({id: Math.random(), forma: fKey, color: c1, tamano: 'grande', target: true});
         } 
         else if(nivel === 2) {
             if(ronda === 2) {
@@ -251,31 +194,16 @@
                 inhibicionActiva = true;
             } else {
                 let cAccion = colores[Math.floor(Math.random()*colores.length)];
-                textoRegla = `Si hay un triángulo café, toca todos los círculos ${cAccion.n}s.`;
-                pool.push({id: 98, forma: 'triangulo', color: colores.find(c=>c.n==='Café'), tamano: 'grande', target: false});
+                textoRegla = `Toca los círculos ${cAccion.n}s.`;
                 for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'circulo', color: cAccion, tamano: 'grande', target: true});
             }
         } 
         else {
-            let rIdx = ronda % 3;
-            if(rIdx === 1) {
-                textoRegla = "Toca cuadrados verdes grandes, círculos naranjas pequeños y triángulos amarillos.";
-                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Verde'), tamano: 'grande', target: true});
-                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'circulo', color: colores.find(c=>c.n==='Naranja'), tamano: 'pequeno', target: true});
-                pool.push({id: Math.random(), forma: 'triangulo', color: colores.find(c=>c.n==='Amarillo'), tamano: 'grande', target: true});
-            } else if(rIdx === 2) {
-                textoRegla = "Si hay triángulos azules, NO TOQUES los círculos verdes.";
-                pool.push({id: 97, forma: 'triangulo', color: colores.find(c=>c.n==='Azul'), tamano: 'grande', target: false});
-                for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'circulo', color: colores.find(c=>c.n==='Verde'), tamano: 'grande', target: false});
-                inhibicionActiva = true;
-            } else {
-                textoRegla = "Toca solo triángulos pequeños rosados y cuadrados grandes negros.";
-                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'triangulo', color: colores.find(c=>c.n==='Rosado'), tamano: 'pequeno', target: true});
-                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Negro'), tamano: 'grande', target: true});
-            }
+            textoRegla = "Toca cuadrados verdes grandes y círculos amarillos pequeños.";
+            for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Verde'), tamano: 'grande', target: true});
+            for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'circulo', color: colores.find(c=>c.n==='Amarillo'), tamano: 'pequeno', target: true});
         }
 
-        // Llenar resto con distractores
         while(pool.length < numTotal) {
             pool.push({id: Math.random(), forma: ['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)], color: colores[Math.floor(Math.random()*colores.length)], tamano: Math.random() > 0.5 ? 'grande' : 'pequeno', target: false});
         }
@@ -292,8 +220,7 @@
             if(f.forma === 'triangulo') div.style.borderBottomColor = f.color.c;
             else div.style.backgroundColor = f.color.c;
             
-            div.onpointerdown = (e) => {
-                e.preventDefault();
+            div.onclick = (e) => {
                 if(inhibicionActiva) {
                     erroresTotales++; hablar("¡No debías tocar!"); avanzar();
                 } else if(f.target && objetivosIds.includes(f.id)) {
@@ -303,8 +230,6 @@
                     if(objetivosIds.length === 0) avanzar();
                 } else { 
                     erroresTotales++; 
-                    div.style.transform = "scale(0.8)";
-                    setTimeout(()=> div.style.transform = "scale(1)", 200);
                 }
             };
             pantalla.appendChild(div);
@@ -320,8 +245,7 @@
             ronda++; 
             setTimeout(cargarRonda, 800); 
         } else if(nivel < 3) { 
-            nivel++; 
-            ronda = 1; 
+            nivel++; ronda = 1; 
             mostrarOverlay("NIVEL " + nivel, "Muy bien Juan. Ahora las reglas serán más complejas."); 
         } else { 
             finalizar(); 
@@ -331,60 +255,31 @@
     function finalizar() {
         const total = aciertosTotales + erroresTotales;
         const porc = total > 0 ? Math.round((aciertosTotales/total)*100) : 0;
-        
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-stats').innerHTML = `
-            Aciertos: ${aciertosTotales}<br>
-            Errores: ${erroresTotales}
-        `;
+        document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertosTotales}<br>Errores: ${erroresTotales}`;
         document.getElementById('porcentaje-caja').innerText = porc + "%";
         hablar("Sesión terminada Juan. Has hecho un gran trabajo de control hoy.");
     }
 
-    function guardarYSalir() {
+    function irAlMenu() {
         const total = aciertosTotales + erroresTotales;
         const porc = total > 0 ? Math.round((aciertosTotales/total)*100) : 0;
-
-        const dataLog = {
+        
+        const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "Funciones Ejecutivas",
-            id_sesion: 7,
+            modulo: "Funciones Ejecutivas", 
+            id_sesion: 7,      
             aciertos: aciertosTotales,
             errores: erroresTotales,
             eficacia: porc + "%"
         };
 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
-        window.location.href = 'funcion_sesiones.html';
-    }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
-        const datosSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
-            id_sesion: 7,      
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef + "%"
-        };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "funcion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
