@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 9: Monitoreo y Control - REHABILIDIA</title>
     <style>
-        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --red: #D32F2F; --green: #388E3C; }
+        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --red: #D32F2F; --green: #388E3C; --blue-game: #103A57; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
 
@@ -20,7 +20,7 @@
         
         #zona-juego { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         
-        #palabra-display { font-size: 6rem; font-weight: 900; margin-bottom: 40px; cursor: pointer; user-select: none; transition: transform 0.1s; }
+        #palabra-display { font-size: 6rem; font-weight: 900; margin-bottom: 40px; cursor: pointer; user-select: none; transition: transform 0.1s; min-height: 1.2em; }
         #palabra-display:active { transform: scale(0.9); }
 
         .sidebar { display: flex; flex-direction: column; align-items: center; padding: 20px 0; background: #f9f9f9; border-left: 1px solid #ddd; }
@@ -32,12 +32,14 @@
         }
 
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
-        .btn-ready { background: var(--navy); color: white; border: none; padding: 15px 50px; border-radius: 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; width: 100%; max-width: 300px; }
+        .btn-ready { background: var(--navy); color: white; border: none; padding: 15px 50px; border-radius: 30px; font-size: 1.4rem; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; margin-top: 20px; }
         
-        /* Estilos Slider Monitoreo */
         .slider-container { width: 100%; max-width: 500px; margin: 40px 0; position: relative; }
         .labels-emocion { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; }
         .slider-emocion { width: 100%; height: 15px; border-radius: 10px; accent-color: var(--navy); cursor: pointer; }
+
+        .fase-info { color: var(--navy); font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
+        .instruccion-detallada { font-size: 1.5rem; color: #444; margin-bottom: 30px; max-width: 600px; }
     </style>
 </head>
 <body onload="abrirMonitoreo('pre')">
@@ -56,9 +58,9 @@
 
     <div class="main-content">
         <div id="zona-juego">
-            <h2 id="instruccion-visual" style="color: var(--navy); margin-bottom: 20px; font-weight: 800;"></h2>
+            <h2 id="instruccion-visual" style="color: var(--navy); margin-bottom: 20px; font-weight: 800; height: 1.2em;"></h2>
             <div id="palabra-display" onclick="procesarIntento()">---</div>
-            <p style="color: #666; font-size: 1.2rem;">Toca la palabra <b>solo</b> si cumple la instrucción de arriba</p>
+            <p style="color: #666; font-size: 1.2rem;">Toca la palabra <b>solo</b> si cumple la instrucción</p>
         </div>
 
         <div class="sidebar">
@@ -68,22 +70,21 @@
         </div>
     </div>
 
+    <div id="overlay-fase" class="overlay" style="display: none;">
+        <div class="fase-info" id="fase-titulo">NIVEL 1</div>
+        <div class="instruccion-detallada" id="fase-texto">Busca palabras POSITIVAS de color VERDE.</div>
+        <button class="btn-ready" onclick="iniciarActividad()">EMPEZAR</button>
+    </div>
+
     <div id="overlay-emocion" class="overlay">
         <h1 id="emo-titulo" style="color: var(--navy);">Juan, monitorea tu estado actual</h1>
-        <p id="emo-subtitulo" style="font-size: 1.2rem; color: #555;">¿Cómo te sientes en este momento?</p>
-        
         <div class="slider-container">
             <div class="labels-emocion">
                 <span style="color: var(--green);">😊 TRANQUILO</span>
                 <span style="color: var(--red);">😠 IRRITABLE</span>
             </div>
             <input type="range" id="slider-emocion" class="slider-emocion" min="0" max="100" value="50">
-            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; margin-top: 10px;">
-                <span>(Mueve a la izquierda)</span>
-                <span>(Mueve a la derecha)</span>
-            </div>
         </div>
-
         <button class="btn-ready" onclick="cerrarMonitoreo()">CONTINUAR</button>
     </div>
 
@@ -91,7 +92,6 @@
         <h1>CONTROL DE IMPULSIVIDAD</h1>
         <p style="font-size: 1.8rem;">Juan, vamos a respirar profundamente...</p>
         <div id="timer-pausa" style="font-size: 6rem; font-weight: 900; margin: 20px;">10</div>
-        <p>Mantén la calma para continuar.</p>
     </div>
 </div>
 
@@ -107,48 +107,57 @@
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
-        m.rate = 0.9;
+        m.rate = 0.85;
         window.speechSynthesis.speak(m);
     }
 
     function abrirMonitoreo(m) {
         modo = m;
         document.getElementById('overlay-emocion').style.display = 'flex';
-        let txt = "";
-        if(m === 'pre') {
-            txt = "Juan, por favor, monitorea tu estado actual. Desliza el marcador hacia la izquierda si te sientes tranquilo, o hacia la derecha si te sientes irritable.";
-        } else {
-            document.getElementById('emo-titulo').innerText = "Juan, sesión terminada";
-            txt = "Muy bien Juan. Para terminar, cuéntame cómo te sientes ahora. Desliza hacia la izquierda si estás tranquilo o hacia la derecha si estás irritable.";
-        }
-        setTimeout(() => hablar(txt), 500);
+        let t = m === 'pre' ? "Juan, monitorea tu estado actual. Desliza a la izquierda si estás tranquilo o a la derecha si estás irritable." : "Muy bien Juan. ¿Cómo te sientes al terminar?";
+        if(m === 'post') document.getElementById('emo-titulo').innerText = "Juan, sesión terminada";
+        setTimeout(() => hablar(t), 500);
     }
 
     function cerrarMonitoreo() {
         if(modo === 'pre') {
             preEmo = document.getElementById('slider-emocion').value;
             document.getElementById('overlay-emocion').style.display = 'none';
-            iniciarRonda();
+            prepararFase();
         } else {
             postEmo = document.getElementById('slider-emocion').value;
             finalizarYGuardar();
         }
     }
 
-    function iniciarRonda() {
+    function prepararFase() {
+        document.getElementById('overlay-fase').style.display = 'flex';
+        const tit = document.getElementById('fase-titulo');
+        const txt = document.getElementById('fase-texto');
+        
+        tit.innerText = `NIVEL ${nivel} - RONDA ${ronda}`;
+        let instruccion = "";
+        if(nivel === 1) instruccion = "Busca palabras POSITIVAS de color VERDE.";
+        else if(nivel === 2) instruccion = "Busca palabras NEGATIVAS de color ROJO.";
+        else instruccion = "Busca palabras POSITIVAS de color AZUL.";
+        
+        txt.innerText = instruccion;
+        hablar(`Juan, ${tit.innerText}. ${instruccion}. Presiona empezar cuando estés listo.`);
+    }
+
+    function iniciarActividad() {
+        document.getElementById('overlay-fase').style.display = 'none';
         puntos = 0;
         document.getElementById('txt-puntos').innerText = puntos;
         document.getElementById('txt-nivel').innerText = nivel;
         document.getElementById('txt-ronda').innerText = ronda;
         
         const ins = document.getElementById('instruccion-visual');
-        let vozIns = "";
-        if(nivel === 1) { ins.innerText = "BUSCA: POSITIVA Y VERDE"; vozIns = "Nivel 1. Busca palabras positivas de color verde."; }
-        else if(nivel === 2) { ins.innerText = "BUSCA: NEGATIVA Y ROJA"; vozIns = "Nivel 2. Busca palabras negativas de color rojo."; }
-        else { ins.innerText = "BUSCA: POSITIVA Y AZUL"; vozIns = "Nivel 3. Busca palabras positivas de color azul."; }
+        if(nivel === 1) ins.innerText = "BUSCA: POSITIVA Y VERDE";
+        else if(nivel === 2) ins.innerText = "BUSCA: NEGATIVA Y ROJA";
+        else ins.innerText = "BUSCA: POSITIVA Y AZUL";
         
-        hablar(vozIns);
-        setTimeout(mostrarPalabra, 2000);
+        mostrarPalabra();
     }
 
     function mostrarPalabra() {
@@ -157,16 +166,16 @@
         const chance = Math.random();
         
         if(chance <= 0.6) {
-            if(nivel === 1) { setPalabra(palabrasPos, "#388E3C", true); }
-            else if(nivel === 2) { setPalabra(palabrasNeg, "#D32F2F", true); }
-            else { setPalabra(palabrasPos, "#103A57", true); }
+            if(nivel === 1) setPalabra(palabrasPos, "#388E3C", true);
+            else if(nivel === 2) setPalabra(palabrasNeg, "#D32F2F", true);
+            else setPalabra(palabrasPos, "#103A57", true);
         } else {
             const randomCol = ["#388E3C", "#D32F2F", "#103A57", "#FFD700"][Math.floor(Math.random()*4)];
             const randomPool = Math.random() > 0.5 ? palabrasPos : palabrasNeg;
             setPalabra(randomPool, randomCol, false);
-            verificarSiEsFalsoTarget(display.innerText, display.style.color);
+            verificarFalsoTarget(display.innerText, display.style.color);
         }
-        timerGame = setTimeout(mostrarPalabra, 2500 - (nivel * 300));
+        timerGame = setTimeout(mostrarPalabra, 2500 - (nivel * 350));
     }
 
     function setPalabra(pool, color, esCorrecto) {
@@ -176,17 +185,18 @@
         esTargetValido = esCorrecto;
     }
 
-    function verificarSiEsFalsoTarget(txt, col) {
-        if(nivel === 1 && palabrasPos.includes(txt) && col === "rgb(56, 142, 60)") esTargetValido = true;
-        else if(nivel === 2 && palabrasNeg.includes(txt) && col === "rgb(211, 47, 47)") esTargetValido = true;
-        else if(nivel === 3 && palabrasPos.includes(txt) && col === "rgb(16, 58, 87)") esTargetValido = true;
+    function verificarFalsoTarget(txt, col) {
+        // Corrección de color para navegadores que devuelven RGB
+        if(nivel === 1 && palabrasPos.includes(txt) && (col === "#388e3c" || col.includes("56, 142, 60"))) esTargetValido = true;
+        else if(nivel === 2 && palabrasNeg.includes(txt) && (col === "#d32f2f" || col.includes("211, 47, 47"))) esTargetValido = true;
+        else if(nivel === 3 && palabrasPos.includes(txt) && (col === "#103a57" || col.includes("16, 58, 87"))) esTargetValido = true;
         else esTargetValido = false;
     }
 
     function procesarIntento() {
         if(esTargetValido) {
             puntos++; aciertos++;
-            impulsividad = Math.max(0, impulsividad - 10);
+            impulsividad = Math.max(0, impulsividad - 12);
         } else {
             errores++; impulsividad += 25;
             if(puntos > 0) puntos--;
@@ -195,7 +205,7 @@
         document.getElementById('bar-fill').style.height = impulsividad + "%";
 
         if(impulsividad >= 100) activaPausa();
-        else if(puntos >= 10) proximaFase();
+        else if(puntos >= 10) finalizarTramo();
         else mostrarPalabra();
     }
 
@@ -203,7 +213,7 @@
         clearTimeout(timerGame);
         impulsividad = 0; document.getElementById('bar-fill').style.height = "0%";
         document.getElementById('overlay-pausa').style.display = 'flex';
-        hablar("Juan, vamos a respirar. Pausa de 10 segundos.");
+        hablar("Juan, pausa para respirar. Mantén la calma.");
         let s = 10;
         let t = setInterval(() => {
             s--; document.getElementById('timer-pausa').innerText = s;
@@ -211,10 +221,10 @@
         }, 1000);
     }
 
-    function proximaFase() {
+    function finalizarTramo() {
         clearTimeout(timerGame);
-        if(ronda < 2) { ronda++; iniciarRonda(); }
-        else if(nivel < 3) { nivel++; ronda = 1; iniciarRonda(); }
+        if(ronda < 2) { ronda++; prepararFase(); }
+        else if(nivel < 3) { nivel++; ronda = 1; prepararFase(); }
         else { abrirMonitoreo('post'); }
     }
 
@@ -229,9 +239,17 @@
             errores: errores,
             fecha: new Date().toLocaleDateString()
         };
+        
+        // Guardar en 'datos' (LocalStorage)
+        let datos = JSON.parse(localStorage.getItem('datos')) || [];
+        datos.push(res);
+        localStorage.setItem('datos', JSON.stringify(datos));
+        
+        // También guardar en sesiones para compatibilidad
         let h = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         h.push(res);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(h));
+        
         window.location.href = "funcion_sesiones.html";
     }
 </script>
