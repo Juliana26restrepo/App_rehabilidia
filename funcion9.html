@@ -3,130 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 9: Control de Estabilidad - REHABILIDIA</title>
+    <title>Sesión 9: Monitoreo y Control - REHABILIDIA</title>
     <style>
-        :root { 
-            --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; 
-            --red: #D32F2F; --green: #388E3C;
-        }
-
+        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --red: #D32F2F; --green: #388E3C; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+
+        #viewport-container { width: 100vw; height: 100vh; max-width: 1024px; background: white; position: relative; display: flex; flex-direction: column; }
         
-        body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); 
-            display: flex; align-items: center; justify-content: center; 
-            height: 100vh; overflow: hidden; 
-        }
+        header { background: var(--navy); color: white; height: 45px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; font-weight: bold; }
+        .btn-salir { background: var(--red); color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; }
 
-        #viewport-container {
-            width: 100vw; height: 100vh; max-width: 1024px;
-            background: white; position: relative; display: flex; flex-direction: column;
-        }
+        .game-layout { flex: 1; display: grid; grid-template-columns: 1fr 80px; overflow: hidden; }
+        
+        #zona-central { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        
+        /* Barra de Irritabilidad Lateral */
+        .sidebar-right { background: #eee; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 10px 0; border-left: 2px solid #ccc; }
+        .bar-bg { width: 30px; height: 80%; background: #ddd; border-radius: 15px; position: relative; overflow: hidden; border: 2px solid #bbb; }
+        #bar-fill { width: 100%; height: 0%; position: absolute; bottom: 0; transition: height 0.3s, background 0.3s; background: var(--green); }
 
-        header { 
-            background: var(--navy); color: white; height: 45px; 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 15px; font-weight: bold; flex-shrink: 0;
-        }
+        #palabra-display { font-size: 5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; text-align: center; cursor: pointer; user-select: none; }
+        
+        .stats-top { width: 100%; display: flex; justify-content: space-around; padding: 10px; background: #f9f9f9; font-weight: bold; border-bottom: 1px solid #ddd; }
 
-        .btn-salir {
-            background: #D32F2F; color: white; border: none; padding: 5px 12px;
-            border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
-        }
-
-        .stats-bar { 
-            display: grid; grid-template-columns: 1fr 200px 1fr;
-            align-items: center; padding: 10px; border-bottom: 2px solid var(--navy);
-            text-align: center; font-weight: bold;
-        }
-
-        .error-container { width: 100%; background: #eee; height: 20px; border-radius: 10px; overflow: hidden; border: 1px solid #ccc; }
-        #error-fill { width: 0%; height: 100%; background: var(--red); transition: width 0.3s; }
-
-        #zona-juego { 
-            flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; position: relative;
-        }
-
-        #palabra-estimulo {
-            font-size: 4rem; font-weight: 900; margin-bottom: 40px;
-            text-transform: uppercase; text-align: center; padding: 0 20px;
-        }
-
-        .btn-accion {
-            width: 180px; height: 180px; border-radius: 50%;
-            border: 8px solid var(--navy); background: white;
-            font-size: 1.5rem; font-weight: bold; color: var(--navy);
-            cursor: pointer; box-shadow: 0 10px 0 #ccc;
-        }
-
-        .btn-accion:active { transform: translateY(5px); box-shadow: 0 5px 0 #ccc; }
-
-        .overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(16, 58, 87, 0.98); color: white; 
-            display: none; flex-direction: column; justify-content: center; 
-            align-items: center; z-index: 100; text-align: center; padding: 30px; 
-        }
-
-        .btn-ready { 
-            background: var(--gold); border: none; padding: 15px 40px; 
-            border-radius: 30px; font-weight: bold; cursor: pointer; 
-            font-size: 1.2rem; color: var(--navy); margin-top: 20px; 
-        }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px; }
+        
+        .emocion-slider { width: 80%; margin: 30px 0; accent-color: var(--gold); }
+        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: var(--navy); }
     </style>
 </head>
-<body onload="iniciarSesion()">
+<body onload="mostrarPreMonitoreo()">
 
 <div id="viewport-container">
     <header>
         <span>SESIÓN 9: CONTROL EJECUTIVO</span>
-        <button class="btn-salir" onclick="irAlMenu()">SALIR Y GUARDAR</button>
+        <button class="btn-salir" onclick="irAlMenu()">SALIR</button>
     </header>
 
-    <div class="stats-bar">
-        <div>Nivel: <span id="txt-nivel">1</span></div>
-        <div class="error-container"><div id="error-fill"></div></div>
-        <div>Ronda: <span id="txt-ronda">1</span>/2</div>
+    <div class="stats-top">
+        <span>NIVEL: <span id="txt-nivel">1</span></span>
+        <span>PUNTOS: <span id="txt-puntos">0</span>/10</span>
+        <span>RONDA: <span id="txt-ronda">1</span>/2</span>
     </div>
 
-    <div id="zona-juego">
-        <div id="palabra-estimulo">---</div>
-        <button class="btn-accion" onmousedown="registrarPulso()">PULSAR</button>
-    </div>
-
-    <div id="overlay-msg" class="overlay" style="display: flex;">
-        <h1 style="color: var(--gold);">CONTROL DE IMPULSOS</h1>
-        <p style="font-size: 1.2rem; max-width: 85%;">
-            Juan, solo pulsa si la palabra es <strong>POSITIVA</strong> y está en color <strong>VERDE</strong>.<br><br>
-            Si pulsas muy rápido sin pensar, el sistema se bloqueará para respirar.
-        </p>
-        <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
-    </div>
-
-    <div id="pausa-respiracion" class="overlay" style="background: #1976D2;">
-        <h1>PAUSA DE ESTABILIDAD</h1>
-        <p style="font-size: 1.5rem;">Tranquilo, Juan. Vamos a respirar...</p>
-        <div id="timer-respirar" style="font-size: 4rem; margin: 20px;">5</div>
-        <p>Espera un momento para recuperar el control.</p>
-    </div>
-
-    <div id="overlay-final" class="overlay">
-        <div style="background: white; color: var(--navy); padding: 30px; border-radius: 20px; border: 5px solid var(--gold); width: 90%; max-width: 400px;">
-            <h2>SESIÓN FINALIZADA</h2>
-            <div id="stats-resumen" style="margin: 20px 0; text-align: left; line-height: 1.6;"></div>
-            <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
+    <div class="game-layout">
+        <div id="zona-central">
+            <div id="instruccion-actual" style="font-weight: bold; color: var(--navy); margin-bottom: 20px;"></div>
+            <div id="palabra-display" onclick="validarClick()">---</div>
+            <p>Toca la palabra si cumple la instrucción</p>
         </div>
+
+        <div class="sidebar-right">
+            <span style="font-size: 0.7rem; font-weight: bold;">ESTADO</span>
+            <div class="bar-bg">
+                <div id="bar-fill"></div>
+            </div>
+            <span style="font-size: 0.7rem;">CALMA</span>
+        </div>
+    </div>
+
+    <div id="overlay-pre" class="overlay">
+        <h1>Juan, monitorea tu estado actual</h1>
+        <p>¿Cómo te sientes en este momento?</p>
+        <div style="display:flex; justify-content:space-between; width:80%;"><span>Tranquilo</span><span>Irritado</span></div>
+        <input type="range" id="slider-pre" class="emocion-slider" min="0" max="100" value="10">
+        <button class="btn-ready" onclick="comenzarJuego()">EMPEZAR</button>
+    </div>
+
+    <div id="overlay-pausa" class="overlay" style="background: #1976D2;">
+        <h1>CONTROL DE IMPULSIVIDAD</h1>
+        <p style="font-size: 1.5rem;">Juan, vamos a respirar...</p>
+        <div id="timer-pausa" style="font-size: 4rem; margin: 20px;">10</div>
+        <p>Inhala profundamente y exhala lentamente.</p>
+    </div>
+
+    <div id="overlay-post" class="overlay">
+        <h1>SESIÓN COMPLETADA</h1>
+        <p>Juan, ¿cómo te sientes al finalizar?</p>
+        <div style="display:flex; justify-content:space-between; width:80%;"><span>Tranquilo</span><span>Irritado</span></div>
+        <input type="range" id="slider-post" class="emocion-slider" min="0" max="100" value="50">
+        <div id="resumen-datos" style="margin-bottom: 20px;"></div>
+        <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
     </div>
 </div>
 
 <script>
-    const pos = ["Amor","Alegría","Felicidad","Paz","Éxito","Logro","Avance","Progreso","Bienestar","Salud","Energía","Motivación","Confianza","Seguridad","Fortaleza","Resiliencia","Optimismo","Esperanza","Gratitud","Generosidad","Empatía","Respeto","Honestidad","Lealtad","Compromiso","Disciplina","Constancia","Perseverancia","Creatividad","Innovación","Claridad","Orden","Estabilidad","Equilibrio","Armonía","Cooperación","Solidaridad","Apoyo","Comprensión","Sabiduría","Inteligencia","Capacidad","Habilidad","Talento","Eficiencia","Productividad","Satisfacción","Plenitud","Libertad","Independencia","Autonomía","Superación","Crecimiento","Evolución","Transformación","Inspiración","Ilusión","Entusiasmo","Pasión","Dedicación","Esfuerzo","Valentía","Coraje","Determinación","Firmeza","Responsabilidad","Integridad","Coherencia","Clarividencia","Enfoque","Atención","Precisión","Calidad","Excelencia","Limpieza","Organización","Puntualidad","Amabilidad","Cordialidad","Simpatía","Amistad","Unión","Tranquilidad","Serenidad","Calma","Confianza","Cuidado","Protección","Estímulo","Reconocimiento","Validación","Seguridad","Aceptación","Inclusión","Justicia","Equidad","Bondad","Nobleza","Honestidad","Respaldado"];
-    const neg = ["Odio","Tristeza","Dolor","Sufrimiento","Angustia","Ansiedad","Miedo","Terror","Pánico","Estrés","Fracaso","Derrota","Pérdida","Ruina","Crisis","Problema","Conflicto","Caos","Desorden","Descontrol","Debilidad","Fragilidad","Inseguridad","Desconfianza","Duda","Incertidumbre","Frustración","Ira","Rabia","Enojo","Resentimiento","Culpa","Vergüenza","Desesperación","Desánimo","Apatía","Indiferencia","Soledad","Aislamiento","Abandono","Rechazo","Exclusión","Discriminación","Injusticia","Desigualdad","Violencia","Agresión","Abuso","Maltrato","Crueldad","Hostilidad","Envidia","Celos","Egoísmo","Mentira","Engaño","Traición","Corrupción","Deshonestidad","Irresponsabilidad","Negligencia","Error","Falla","Defecto","Imperfección","Ineficiencia","Improductividad","Estancamiento","Retroceso","Bloqueo","Limitación","Obstáculo","Dificultad","Cansancio","Agotamiento","Fatiga","Enfermedad","Dolencia","Debilitamiento","Ruptura","Separación","Desconexión","Desvinculación","Frialdad","Rigidez","Intolerancia","Desprecio","Humillación","Desvalorización","Crítica","Juicio","Castigo","Amenaza","Peligro","Riesgo","Caída","Colapso","Destrucción","Muerte","Perdición"];
-    const colores = ["#388E3C", "#D32F2F", "#103A57", "#FBC02D"]; // Verde, Rojo, Navy, Amarillo
+    const palabrasPositivas = ["FELIZ", "LOGRO", "ÉXITO", "CALMA", "SÍ", "AMOR", "BIEN", "PAZ"];
+    const palabrasNegativas = ["MALO", "ERROR", "TRISTE", "ENOJO", "NO", "FALLO", "CAOS", "ODIO"];
+    const colores = { verde: "#388E3C", rojo: "#D32F2F", azul: "#103A57" };
 
-    let nivel = 1, ronda = 1, aciertos = 0, errores = 0;
-    let ultimoClick = 0, esTarget = false, timeoutRonda;
+    let nivel = 1, ronda = 1, aciertos = 0, puntos = 0, errores = 0, impulsividad = 0;
+    let preEmocion = 0, postEmocion = 0;
+    let esCorrecto = false;
+    let wordTimer;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
@@ -135,124 +105,154 @@
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() {
-        hablar("Juan, solo pulsa si la palabra es positiva y está en verde.");
+    function mostrarPreMonitoreo() {
+        document.getElementById('overlay-pre').style.display = 'flex';
+        hablar("Juan, monitorea tu estado actual. ¿Cómo te sientes?");
     }
 
-    function cerrarOverlay() {
-        document.getElementById('overlay-msg').style.display = 'none';
-        siguienteEstimulo();
+    function comenzarJuego() {
+        preEmocion = document.getElementById('slider-pre').value;
+        document.getElementById('overlay-pre').style.display = 'none';
+        iniciarRonda();
     }
 
-    function siguienteEstimulo() {
-        if (ronda > 2) {
-            if (nivel < 3) {
-                nivel++; ronda = 1;
-                document.getElementById('overlay-msg').style.display = 'flex';
-                return;
-            } else {
-                finalizar();
-                return;
-            }
-        }
-
-        const el = document.getElementById('palabra-estimulo');
-        const esPositiva = Math.random() > 0.5;
-        const colorIdx = Math.floor(Math.random() * colores.length);
-        const palabra = esPositiva ? pos[Math.floor(Math.random()*pos.length)] : neg[Math.floor(Math.random()*neg.length)];
-
-        el.innerText = palabra;
-        el.style.color = colores[colorIdx];
-        esTarget = (esPositiva && colorIdx === 0);
-
-        actualizarUI();
-
-        timeoutRonda = setTimeout(() => {
-            if (esTarget) { errores++; actualizarBarra(); }
-            ronda++;
-            siguienteEstimulo();
-        }, 3000 - (nivel * 500));
+    function iniciarRonda() {
+        puntos = 0;
+        document.getElementById('txt-puntos').innerText = puntos;
+        document.getElementById('txt-nivel').innerText = nivel;
+        document.getElementById('txt-ronda').innerText = ronda;
+        
+        let textoIns = "";
+        if(nivel === 1) textoIns = "Busca: POSITIVA y color VERDE";
+        else if(nivel === 2) textoIns = "Busca: NEGATIVA y color ROJO";
+        else textoIns = "Busca: POSITIVA y color AZUL";
+        
+        document.getElementById('instruccion-actual').innerText = textoIns;
+        hablar(textoIns);
+        lanzarPalabra();
     }
 
-    function registrarPulso() {
-        let ahora = Date.now();
-        if (ahora - ultimoClick < 350) {
-            activarPausa();
-            return;
-        }
-        ultimoClick = ahora;
-        clearTimeout(timeoutRonda);
+    function lanzarPalabra() {
+        clearTimeout(wordTimer);
+        const el = document.getElementById('palabra-display');
+        
+        // Decidir si mostramos una correcta o incorrecta
+        const tipoPalabra = Math.random() > 0.5 ? 'POS' : 'NEG';
+        const keysColores = Object.keys(colores);
+        const colorKey = keysColores[Math.floor(Math.random() * keysColores.length)];
+        
+        el.innerText = tipoPalabra === 'POS' ? 
+            palabrasPositivas[Math.floor(Math.random()*palabrasPositivas.length)] : 
+            palabrasNegativas[Math.floor(Math.random()*palabrasNegativas.length)];
+        
+        el.style.color = colores[colorKey];
 
-        if (esTarget) {
+        // Lógica de validación según nivel
+        if(nivel === 1) esCorrecto = (tipoPalabra === 'POS' && colorKey === 'verde');
+        else if(nivel === 2) esCorrecto = (tipoPalabra === 'NEG' && colorKey === 'rojo');
+        else esCorrecto = (tipoPalabra === 'POS' && colorKey === 'azul');
+
+        wordTimer = setTimeout(lanzarPalabra, 2500 - (nivel * 300));
+    }
+
+    function validarClick() {
+        if(esCorrecto) {
+            puntos++;
             aciertos++;
-            document.getElementById('zona-juego').style.backgroundColor = "#e8f5e9";
+            impulsividad = Math.max(0, impulsividad - 10);
         } else {
             errores++;
-            actualizarBarra();
-            document.getElementById('zona-juego').style.backgroundColor = "#ffebee";
+            impulsividad += 25;
+            if(puntos > 0) puntos--; // Quitar punto si se equivoca
         }
 
-        setTimeout(() => {
-            document.getElementById('zona-juego').style.backgroundColor = "white";
-            ronda++;
-            siguienteEstimulo();
-        }, 300);
+        actualizarBarras();
+
+        if(impulsividad >= 100) {
+            pausaRespiracion();
+        } else if(puntos >= 10) {
+            avanzar();
+        } else {
+            lanzarPalabra();
+        }
     }
 
-    function activarPausa() {
-        clearTimeout(timeoutRonda);
-        const pausa = document.getElementById('pausa-respiracion');
-        const timerTxt = document.getElementById('timer-respirar');
-        pausa.style.display = 'flex';
-        let count = 5;
-        timerTxt.innerText = count;
+    function actualizarBarras() {
+        document.getElementById('txt-puntos').innerText = puntos;
+        const fill = document.getElementById('bar-fill');
+        fill.style.height = impulsividad + "%";
         
-        let int = setInterval(() => {
+        if(impulsividad < 40) fill.style.background = colores.verde;
+        else if(impulsividad < 75) fill.style.background = var(--gold);
+        else fill.style.background = colores.rojo;
+    }
+
+    function pausaRespiracion() {
+        clearTimeout(wordTimer);
+        impulsividad = 0;
+        actualizarBarras();
+        const overlay = document.getElementById('overlay-pausa');
+        overlay.style.display = 'flex';
+        let count = 10;
+        document.getElementById('timer-pausa').innerText = count;
+        
+        hablar("Juan, vamos a respirar.");
+
+        const int = setInterval(() => {
             count--;
-            timerTxt.innerText = count;
-            if (count <= 0) {
+            document.getElementById('timer-pausa').innerText = count;
+            if(count <= 0) {
                 clearInterval(int);
-                pausa.style.display = 'none';
-                siguienteEstimulo();
+                overlay.style.display = 'none';
+                lanzarPalabra();
             }
         }, 1000);
     }
 
-    function actualizarBarra() {
-        const fill = document.getElementById('error-fill');
-        let p = (errores * 10);
-        fill.style.width = Math.min(p, 100) + "%";
+    function avanzar() {
+        clearTimeout(wordTimer);
+        if(ronda < 2) {
+            ronda++;
+            iniciarRonda();
+        } else if(nivel < 3) {
+            nivel++;
+            ronda = 1;
+            iniciarRonda();
+        } else {
+            mostrarPostMonitoreo();
+        }
     }
 
-    function actualizarUI() {
-        document.getElementById('txt-nivel').innerText = nivel;
-        document.getElementById('txt-ronda').innerText = ronda;
-    }
-
-    function finalizar() {
+    function mostrarPostMonitoreo() {
+        document.getElementById('overlay-post').style.display = 'flex';
         const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        document.getElementById('stats-resumen').innerHTML = `
-            <strong>Aciertos:</strong> ${aciertos}<br>
-            <strong>Errores:</strong> ${errores}<br>
-            <strong>Eficacia:</strong> ${ef}%
+        document.getElementById('resumen-datos').innerHTML = `
+            Aciertos totales: ${aciertos}<br>
+            Errores cometidos: ${errores}<br>
+            Eficacia: ${ef}%
         `;
-        document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Muy bien Juan, hemos terminado.");
+        hablar("Muy bien Juan, hemos terminado. ¿Cómo te sientes ahora?");
     }
 
     function irAlMenu() {
+        postEmocion = document.getElementById('slider-post').value;
         const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
             id_sesion: 9,
             aciertos: aciertos,
             errores: errores,
-            eficacia: ef + "%"
+            eficacia: ef + "%",
+            monitoreo_inicio: preEmocion + "%",
+            monitoreo_final: postEmocion + "%"
         };
+
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         historial.push(datosSesion);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
         window.location.href = "funcion_sesiones.html";
     }
 </script>
