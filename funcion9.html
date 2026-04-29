@@ -232,22 +232,25 @@
         else { abrirMonitoreo('post'); }
     }
 
+    // FUNCIÓN CORREGIDA USANDO LA CLAVE DE LA SESIÓN 8
     function finalizarYGuardar() {
-        // Estructura de los datos
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        
         const resultado = { 
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas",
             id_sesion: 9, 
-            eficacia: Math.round((aciertos/(aciertos+errores))*100) + "%", 
-            emo_ini: preEmo + "%", 
-            emo_fin: postEmo + "%", 
             aciertos: aciertos, 
             errores: errores, 
-            fecha: new Date().toLocaleString() 
+            eficacia: ef + "%",
+            emo_ini: preEmo + "%", // Datos extra de esta sesión
+            emo_fin: postEmo + "%"
         };
 
-        // Guardar en la clave 'datos' del localStorage
-        let historial = JSON.parse(localStorage.getItem('datos')) || [];
+        // USAMOS LA MISMA CLAVE QUE EN LA SESIÓN 8: 'sesiones_rehabilitidia'
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         historial.push(resultado);
-        localStorage.setItem('datos', JSON.stringify(historial));
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
 
         // Feedback visual y salida segura
         document.getElementById('btn-emo-accion').innerText = "GUARDADO...";
