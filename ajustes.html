@@ -29,7 +29,9 @@
         .btn-restore { border: 2px solid var(--error-red); color: var(--error-red); background: #fff5f5; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .btn-restore:active { background: var(--error-red); color: white; }
 
-        .item-gestion { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .item-gestion { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: inherit; cursor: pointer; }
+        .item-gestion:last-child { border-bottom: none; }
+        
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider-sw { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -100,15 +102,17 @@
             <div><i class="fas fa-bell"></i> Notificaciones</div>
             <label class="switch"><input type="checkbox" checked><span class="slider-sw"></span></label>
         </div>
-        <div class="item-gestion" onclick="alert('Datos protegidos')">
-            <div><i class="fas fa-lock"></i> Privacidad</div>
+        
+        <a href="privacidad.html" class="item-gestion">
+            <div><i class="fas fa-lock"></i> Privacidad y Legal</div>
             <i class="fas fa-chevron-right" style="font-size:0.8rem; color:#ccc;"></i>
-        </div>
+        </a>
     </div>
 
 </div>
 
 <script>
+    // Se mantienen todas las funciones de lógica visual intactas para no dañar nada
     function setLetra(valor) {
         localStorage.setItem('config_tamaño', valor);
         actualizarUI();
@@ -138,7 +142,6 @@
 
     function restaurarTodo() {
         if(confirm("¿Restablecer todos los ajustes visuales y de voz? (Tus avances no se borrarán)")) {
-            // CAMBIO: Borramos solo lo que empieza por 'config_' para proteger el historial
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('config_')) {
                     localStorage.removeItem(key);
@@ -179,3 +182,4 @@
 
 </body>
 </html>
+
