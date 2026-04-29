@@ -169,7 +169,6 @@
     }
 
     function generarLaberinto() {
-        // Complejidad original recuperada
         if(nivel === 1) { filas = 15; columnas = 15; tamañoCelda = 22; tieneLlave = true; }
         else if(nivel === 2) { filas = 21; columnas = 21; tamañoCelda = 16; tieneLlave = false; }
         else { filas = 27; columnas = 27; tamañoCelda = 13; tieneLlave = false; }
@@ -178,7 +177,6 @@
         canvas.height = filas * tamañoCelda;
         mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
 
-        // Algoritmo garantizado de camino
         function excavar(x, y) {
             mapa[y][x] = 0;
             const vecinos = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
@@ -193,10 +191,21 @@
         excavar(1, 1);
 
         mapa[filas-2][columnas-2] = 2; // Meta
+
+        // LÓGICA COHERENTE PARA LA LLAVE
         if(nivel > 1) {
-            // Asegurar que la llave esté en un camino libre
-            mapa[1][columnas-2] = 3; 
             tieneLlave = false;
+            // Buscamos la celda transitable (0) más cercana a la esquina superior derecha
+            let llaveColocada = false;
+            for(let c = columnas - 2; c > 0 && !llaveColocada; c--) {
+                for(let r = 1; r < filas - 1; r++) {
+                    if(mapa[r][c] === 0 && (r !== 1 || c !== 1)) {
+                        mapa[r][c] = 3;
+                        llaveColocada = true;
+                        break;
+                    }
+                }
+            }
         }
 
         jugador = { x: 1, y: 1 };
@@ -295,11 +304,9 @@
             errores: errores,
             eficacia: ef + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
         window.location.href = "funcion_sesiones.html";
     }
 
