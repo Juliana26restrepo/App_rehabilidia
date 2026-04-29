@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 8: Planificación Estratégica - REHABILIDIA</title>
+    <title>Sesión 8: Planificación Extrema - REHABILIDIA</title>
     <style>
         :root { 
             --navy: #103A57; 
@@ -11,84 +11,89 @@
             --bg: #F0F4F8; 
             --wall: #1A262C; 
             --path: #FFFFFF; 
-            --red-alert: #D32F2F;
+            --p-purple: #4A148C;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            margin: 0; background: var(--bg); 
-            display: flex; flex-direction: column;
+            margin: 0; background: #1a1a1a; 
+            display: flex; align-items: center; justify-content: center; 
             height: 100vh; overflow: hidden; 
         }
 
-        header { 
-            background: var(--navy); color: white; padding: 10px;
-            text-align: center; font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        #viewport-container {
+            width: 100vw; height: 100vh; max-width: 1024px;
+            background: var(--bg); position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        .stats-bar { 
-            display: flex; justify-content: space-around; 
-            background: white; padding: 10px; border-bottom: 2px solid #ddd;
+        header { 
+            background: var(--navy); color: white; height: 45px; 
+            display: flex; align-items: center; justify-content: center; 
             font-weight: bold; font-size: 1rem; flex-shrink: 0;
         }
 
+        .stats-bar { 
+            display: flex; justify-content: center; gap: 20px; 
+            font-weight: bold; background: white; padding: 8px; 
+            border-bottom: 2px solid var(--navy); font-size: 0.9rem; 
+        }
+
         #zona-de-trabajo { 
-            flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; 
-            padding: 10px; gap: 15px; overflow: hidden;
+            flex: 1; display: flex; flex-direction: row; 
+            align-items: center; justify-content: center; gap: 20px; 
+            padding: 10px; overflow: hidden;
         }
 
         #canvas-contenedor { 
-            background: var(--wall); padding: 8px; border-radius: 10px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            max-width: 95%; max-height: 55vh; 
+            background: var(--wall); padding: 5px; border-radius: 8px; 
             display: flex; align-items: center; justify-content: center;
+            max-width: 70%; max-height: 90%;
         }
 
-        canvas { max-width: 100%; max-height: 100%; display: block; image-rendering: pixelated; }
+        canvas { background: var(--path); image-rendering: pixelated; }
 
-        .panel-controles { 
-            background: white; padding: 12px; border-radius: 15px; 
-            border: 2px solid var(--navy); display: flex; 
-            flex-direction: column; align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        .panel-derecho { 
+            display: flex; flex-direction: column; align-items: center; 
+            background: white; padding: 15px; border-radius: 20px; 
+            border: 3px solid var(--navy); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .controles-grid { display: grid; grid-template-areas: ". up ." "left down right"; gap: 8px; }
+        .controles-grid { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; }
         
         .btn-dir { 
-            width: 50px; height: 50px; background: white; 
+            width: 60px; height: 60px; background: white; 
             border: 3px solid var(--navy); border-radius: 50%; 
-            font-size: 1.2rem; cursor: pointer; display: flex; 
+            font-size: 1.5rem; cursor: pointer; display: flex; 
             align-items: center; justify-content: center; 
             box-shadow: 0 4px 0 var(--navy);
         }
 
-        .btn-dir:active { background: var(--gold); transform: translateY(2px); box-shadow: 0 2px 0 var(--navy); }
+        .btn-dir:active { background: var(--gold); transform: translateY(2px); box-shadow: 0 1px 0 var(--navy); }
 
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; padding: 25px; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px; }
         
-        .cuadro-final { background: white; color: var(--navy); padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 90%; max-width: 400px; }
+        .cuadro-final { background: white; color: var(--navy); padding: 25px; border-radius: 25px; border: 5px solid var(--gold); width: 90%; max-width: 400px; }
 
-        .btn-ready { background: var(--gold); border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.1rem; color: var(--navy); margin-top: 15px; }
+        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: var(--navy); margin-top: 15px; }
 
-        @media (min-width: 768px) {
-            #zona-de-trabajo { flex-direction: row; gap: 40px; }
-            #canvas-contenedor { max-width: 60%; max-height: 70vh; }
+        @media (max-width: 600px) {
+            #zona-de-trabajo { flex-direction: column; }
+            #canvas-contenedor { max-width: 95%; }
         }
     </style>
 </head>
 <body onload="iniciarApp()">
 
 <div id="viewport-container">
-    <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 8</header>
+    <header>SESIÓN 8: PLANIFICACIÓN Y CONTROL</header>
 
     <div class="stats-bar">
         <span id="txt-nivel">Nivel: 1</span>
-        <span id="txt-intento">Reto: 1 / 3</span>
-        <span id="txt-errores" style="color: var(--red-alert);">Errores: 0</span>
+        <span id="txt-intento">Laberinto: 1 / 3</span>
+        <span id="txt-errores" style="color: #D32F2F;">Errores: 0</span>
     </div>
 
     <div id="zona-de-trabajo">
@@ -96,8 +101,8 @@
             <canvas id="laberintoCanvas"></canvas>
         </div>
 
-        <div class="panel-controles">
-            <div style="margin-bottom:8px; font-weight:bold; color: var(--navy);">MOVIMIENTO</div>
+        <div class="panel-derecho">
+            <div style="margin-bottom:8px; font-size:0.8rem; font-weight:bold; color: var(--navy);">MOVIMIENTO</div>
             <div class="controles-grid">
                 <button class="btn-dir" style="grid-area: up" onpointerdown="iniciarMovimiento('up')" onpointerup="pararMovimiento()">↑</button>
                 <button class="btn-dir" style="grid-area: left" onpointerdown="iniciarMovimiento('left')" onpointerup="pararMovimiento()">←</button>
@@ -108,16 +113,16 @@
     </div>
 
     <div id="overlay-msg" class="overlay">
-        <h1 id="msg-titulo" style="color: var(--gold);"></h1>
-        <p id="msg-cuerpo" style="font-size: 1.2rem;"></p>
+        <h1 id="msg-titulo" style="color: var(--gold); margin: 0;"></h1>
+        <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 80%;"></p>
         <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
     </div>
 
     <div id="overlay-final" class="overlay">
         <div class="cuadro-final">
-            <h2 style="color: var(--navy);">¡SESIÓN COMPLETADA!</h2>
-            <div id="stats-resumen" style="font-size: 1.1rem; margin: 15px 0;"></div>
-            <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
+            <h2 style="color: var(--p-purple); margin-top: 0;">¡SESIÓN COMPLETADA!</h2>
+            <div id="stats-resumen" style="font-size: 1.1rem; margin: 15px 0; line-height: 1.6;"></div>
+            <button class="btn-ready" onclick="irAlMenu()">FINALIZAR</button>
         </div>
     </div>
 </div>
@@ -128,7 +133,7 @@
     
     let nivel = 1, intento = 1, aciertos = 0, errores = 0;
     let jugador = { x: 1, y: 1 }, mapa = [];
-    let tamCelda, filas, columnas, tieneLlave = false;
+    let tamañoCelda = 20, filas, columnas, tieneLlave = false;
     let intervaloMovimiento = null;
 
     function hablar(t) {
@@ -139,22 +144,16 @@
     }
 
     function iniciarApp() {
-        mostrarInstrucciones();
+        gestionarInstrucciones();
     }
 
-    function mostrarInstrucciones() {
-        let titulo = "SESIÓN 8";
-        let mensaje = "";
+    function gestionarInstrucciones() {
+        let tit = `NIVEL ${nivel}`;
+        let msg = "";
+        if(nivel === 1) msg = "Juan vamos a realizar unos laberintos, la idea es que planifiques la ruta necesaria para llegar a la meta.";
+        else msg = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
         
-        if (nivel === 1) {
-            mensaje = "Juan vamos a realizar unos laberintos, la idea es que planifiques la ruta necesaria para llegar a la meta.";
-        } else if (nivel === 2) {
-            mensaje = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
-        } else {
-            mensaje = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
-        }
-
-        mostrarOverlay(titulo, mensaje);
+        mostrarOverlay(tit, msg);
     }
 
     function mostrarOverlay(tit, msj) {
@@ -170,32 +169,34 @@
     }
 
     function generarLaberinto() {
-        if(nivel === 1) { filas = 11; columnas = 11; tamCelda = 30; tieneLlave = true; }
-        else if(nivel === 2) { filas = 15; columnas = 15; tamCelda = 22; tieneLlave = false; }
-        else { filas = 19; columnas = 19; tamCelda = 18; tieneLlave = false; }
+        // Complejidad original recuperada
+        if(nivel === 1) { filas = 15; columnas = 15; tamañoCelda = 22; tieneLlave = true; }
+        else if(nivel === 2) { filas = 21; columnas = 21; tamañoCelda = 16; tieneLlave = false; }
+        else { filas = 27; columnas = 27; tamañoCelda = 13; tieneLlave = false; }
 
-        canvas.width = columnas * tamCelda;
-        canvas.height = filas * tamCelda;
+        canvas.width = columnas * tamañoCelda;
+        canvas.height = filas * tamañoCelda;
         mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
 
-        // Algoritmo de excavación garantizado
+        // Algoritmo garantizado de camino
         function excavar(x, y) {
             mapa[y][x] = 0;
             const vecinos = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
-            for(let [dx, dy] of vecinos) {
+            vecinos.forEach(([dx, dy]) => {
                 let nx = x + dx, ny = y + dy;
                 if(nx > 0 && nx < columnas-1 && ny > 0 && ny < filas-1 && mapa[ny][nx] === 1) {
                     mapa[y + dy/2][x + dx/2] = 0;
                     excavar(nx, ny);
                 }
-            }
+            });
         }
         excavar(1, 1);
 
         mapa[filas-2][columnas-2] = 2; // Meta
         if(nivel > 1) {
-            // Buscamos un punto aleatorio que sea camino (0) para la llave, lejos de la salida
+            // Asegurar que la llave esté en un camino libre
             mapa[1][columnas-2] = 3; 
+            tieneLlave = false;
         }
 
         jugador = { x: 1, y: 1 };
@@ -204,28 +205,26 @@
     }
 
     function dibujar() {
-        ctx.fillStyle = "#1A262C";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         for(let r=0; r<filas; r++) {
             for(let c=0; c<columnas; c++) {
-                if(mapa[r][c] === 0) {
-                    ctx.fillStyle = "#FFFFFF";
-                    ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
+                if(mapa[r][c] === 1) {
+                    ctx.fillStyle = "#1A262C";
+                    ctx.fillRect(c*tamañoCelda, r*tamañoCelda, tamañoCelda, tamañoCelda);
                 } else if(mapa[r][c] === 2) {
-                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#78909C";
-                    ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
+                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#999";
+                    ctx.fillRect(c*tamañoCelda, r*tamañoCelda, tamañoCelda, tamañoCelda);
                 } else if(mapa[r][c] === 3) {
                     ctx.fillStyle = "#FFD700";
                     ctx.beginPath();
-                    ctx.arc(c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/2, tamCelda/3, 0, Math.PI*2);
+                    ctx.arc(c*tamañoCelda+tamañoCelda/2, r*tamañoCelda+tamañoCelda/2, tamañoCelda/3, 0, Math.PI*2);
                     ctx.fill();
                 }
             }
         }
         ctx.fillStyle = "#D32F2F";
         ctx.beginPath();
-        ctx.arc(jugador.x*tamCelda + tamCelda/2, jugador.y*tamCelda + tamCelda/2, tamCelda/2.5, 0, Math.PI*2);
+        ctx.arc(jugador.x*tamañoCelda+tamañoCelda/2, jugador.y*tamañoCelda+tamañoCelda/2, tamañoCelda/2.5, 0, Math.PI*2);
         ctx.fill();
     }
 
@@ -245,16 +244,8 @@
         if(dir === 'up') ny--; if(dir === 'down') ny++; if(dir === 'left') nx--; if(dir === 'right') nx++;
 
         if(ny >= 0 && ny < filas && nx >= 0 && nx < columnas) {
-            if(mapa[ny][nx] === 1) {
-                errores++;
-                actualizarUI();
-                return;
-            }
-            if(mapa[ny][nx] === 3) {
-                tieneLlave = true;
-                mapa[ny][nx] = 0;
-                hablar("Llave obtenida");
-            }
+            if(mapa[ny][nx] === 1) { errores++; actualizarUI(); return; }
+            if(mapa[ny][nx] === 3) { tieneLlave = true; mapa[ny][nx] = 0; hablar("Llave obtenida"); }
             if(mapa[ny][nx] === 2) {
                 if(!tieneLlave) { hablar("Busca la llave dorada"); return; }
                 gestionarVictoria();
@@ -269,11 +260,9 @@
         pararMovimiento();
         aciertos++;
         if(intento < 3) {
-            intento++; 
-            generarLaberinto();
+            intento++; generarLaberinto();
         } else if(nivel < 3) {
-            nivel++; intento = 1;
-            mostrarInstrucciones();
+            nivel++; intento = 1; gestionarInstrucciones();
         } else {
             finalizar();
         }
@@ -281,8 +270,37 @@
 
     function actualizarUI() {
         document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
-        document.getElementById('txt-intento').innerText = `Reto: ${intento} / 3`;
+        document.getElementById('txt-intento').innerText = `Laberinto: ${intento} / 3`;
         document.getElementById('txt-errores').innerText = `Errores: ${errores}`;
+    }
+
+    function finalizar() {
+        const ef = Math.round((aciertos / (aciertos + (errores*0.1))) * 100);
+        document.getElementById('stats-resumen').innerHTML = `
+            <strong>Laberintos logrados:</strong> ${aciertos}<br>
+            <strong>Choques con muros:</strong> ${errores}<br>
+            <strong>Eficacia:</strong> ${ef}%
+        `;
+        document.getElementById('overlay-final').style.display = 'flex';
+        hablar("Muy bien Juan, has terminado la sesión.");
+    }
+
+    function irAlMenu() {
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const datosSesion = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas", 
+            id_sesion: 8,      
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: ef + "%"
+        };
+
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
+        historial.push(datosSesion); 
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+
+        window.location.href = "funcion_sesiones.html";
     }
 
     window.addEventListener('keydown', (e) => {
@@ -291,30 +309,7 @@
         if(e.key === "ArrowLeft") mover('left');
         if(e.key === "ArrowRight") mover('right');
     });
-
-    function finalizar() {
-        const ef = Math.round((aciertos / (aciertos + (errores * 0.1))) * 100);
-        document.getElementById('stats-resumen').innerHTML = `<b>Aciertos:</b> ${aciertos}<br><b>Errores:</b> ${errores}<br><b>Eficacia:</b> ${ef}%`;
-        document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Muy bien Juan, has terminado.");
-    }
-
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + (errores * 0.1))) * 100) || 0;
-        const datosSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Funciones Ejecutivas", 
-            id_sesion: 8,
-            nombre_sesion: "Sesión 8", // Agregado para evitar undefined
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef + "%"
-        };
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        historial.push(datosSesion); 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-        window.location.href = "funcion_sesiones.html";
-    }
 </script>
 </body>
 </html>
+
