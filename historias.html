@@ -15,75 +15,58 @@
         .container { padding: 20px; max-width: 900px; margin: auto; }
         h1 { color: var(--p-blue); }
 
-        /* LISTA DE PACIENTES */
         .paciente-item {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            border-left: 6px solid var(--t-blue);
+            background: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; cursor: pointer; transition: 0.3s; border-left: 6px solid var(--t-blue);
         }
         .paciente-item:hover { transform: scale(1.02); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
         .paciente-info-basica h3 { margin: 0; color: var(--p-blue); }
-        .paciente-info-basica p { margin: 5px 0 0; color: #666; font-size: 0.9rem; }
 
-        /* MODAL / DOCUMENTO DE HISTORIA CLÍNICA */
         .modal-historia {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px 0;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto; padding: 20px 0;
         }
         .documento {
-            background: white;
-            width: 90%;
-            max-width: 750px;
-            margin: auto;
-            padding: 40px;
-            border-radius: 5px;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            line-height: 1.6;
+            background: white; width: 90%; max-width: 850px; margin: auto; padding: 40px;
+            border-radius: 5px; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); line-height: 1.5;
         }
         .btn-cerrar { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #999; }
         
-        .seccion-hc { border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px; }
-        .seccion-hc h2 { font-size: 1.1rem; color: var(--t-blue); text-transform: uppercase; margin-bottom: 10px; }
-        .grid-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; }
+        .seccion-hc { border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
+        .seccion-hc h2 { font-size: 1rem; color: var(--t-blue); text-transform: uppercase; margin-bottom: 8px; border-left: 4px solid var(--p-blue); padding-left: 10px; }
+        
+        .grid-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9rem; }
         .label { font-weight: bold; color: var(--p-blue); }
         
-        .alerta-medica { background: #fff3e0; border: 1px solid #ffe0b2; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem; color: #e65100; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f4f4f4; color: var(--p-blue); }
+
+        .interpretacion-box { background: #f0f7f9; padding: 10px; border-radius: 5px; font-style: italic; font-size: 0.85rem; margin: 5px 0; border-left: 3px solid var(--t-blue); }
+        .alerta-medica { background: #fff3e0; border: 1px solid #ffe0b2; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.85rem; color: #e65100; }
         
-        /* Estilos para la lista del protocolo */
-        .lista-protocolo { margin: 10px 0; padding-left: 20px; }
-        .lista-protocolo li { margin-bottom: 8px; font-size: 0.95rem; }
+        @media print {
+            .btn-print, .btn-cerrar, header { display: none; }
+            .modal-historia { position: relative; background: white; }
+            .documento { box-shadow: none; width: 100%; padding: 0; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div><strong>REHABILIDIA</strong> | Historias Clínicas</div>
+    <div><strong>REHABILIDIA</strong> | Gestión Clínica</div>
     <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
 </header>
 
 <div class="container">
-    <h1>Pacientes Registrados</h1>
-    
+    <h1>Pacientes en Seguimiento</h1>
     <div class="paciente-item" onclick="abrirHistoria()">
         <div class="paciente-info-basica">
             <h3>Juan Pérez</h3>
-            <p>ID: 10293847 | DX: TEC Moderado | Edad: 26 años</p>
+            <p>ID: 10293847 | DX: TEC Moderado | 26 años</p>
         </div>
-        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
+        <i class="fas fa-file-medical" style="color: var(--t-blue); font-size: 1.2rem;"></i>
     </div>
 </div>
 
@@ -92,62 +75,76 @@
         <span class="btn-cerrar" onclick="cerrarHistoria()">&times;</span>
         
         <center>
-            <img src="COTERAPEUTA.JPG" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--t-blue);">
-            <h1 style="margin: 10px 0; color: var(--p-blue);">Historia Clínica Neuropsicológica</h1>
-            <p style="font-size: 0.8rem; color: #888;">REHABILIDIA - Protocolo de Atención Post-Trauma</p>
+            <h1 style="margin: 0; color: var(--p-blue); font-size: 1.4rem;">INFORME DE EVALUACIÓN NEUROPSICOLÓGICA</h1>
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Protocolo de Rehabilitación Post-TEC | REHABILIDIA</p>
         </center>
 
         <div class="seccion-hc">
-            <h2>Datos de Identificación</h2>
+            <h2>1. Datos de Identificación</h2>
             <div class="grid-datos">
                 <div><span class="label">Nombre:</span> Juan Pérez</div>
                 <div><span class="label">Edad:</span> 26 años</div>
-                <div><span class="label">Fecha de Nacimiento:</span> 12/05/1999</div>
-                <div><span class="label">Escolaridad:</span> Universitaria (En curso)</div>
+                <div><span class="label">Escolaridad:</span> Universitaria en curso</div>
                 <div><span class="label">Ocupación:</span> Estudiante de Ingeniería</div>
                 <div><span class="label">Lateralidad:</span> Diestro</div>
+                <div><span class="label">Glasgow Inicial:</span> 11/15</div>
             </div>
         </div>
 
         <div class="seccion-hc">
-            <h2>Motivo de Consulta e Historia del Trauma</h2>
-            <p>Paciente masculino de 26 años remitido tras presentar <strong>Traumatismo Encéfalo Craneano (TEC) Moderado</strong> secundario a accidente de tránsito (motocicleta). Presentó pérdida de conciencia de 45 minutos y amnesia postraumática de 2 horas. El ingreso a rehabilitación busca fortalecer procesos de atención selectiva y sostenida para reintegro académico.</p>
+            <h2>2. Antecedentes y Observación</h2>
+            <p style="font-size: 0.9rem;"><strong>Motivo:</strong> Valoración en fase intrahospitalaria tras TEC moderado por accidente en motocicleta (Hemorragia subdural).<br>
+            <strong>Conducta:</strong> Alerta con fatigabilidad evidente, orientación parcialmente conservada y disminución en velocidad de respuesta.</p>
         </div>
 
         <div class="seccion-hc">
-            <h2>Diagnóstico Clínico (DX)</h2>
+            <h2>3. Resultados por Dominios</h2>
+            
+            <strong>Atención y Memoria de Trabajo</strong>
+            <table>
+                <tr><th>Prueba</th><th>Puntaje/Escalar</th><th>Percentil</th><th>Interpretación</th></tr>
+                <tr><td>Caras (Wechsler)</td><td>6</td><td>P9</td><td>Atención sostenida baja</td></tr>
+                <tr><td>Dígitos Inversos</td><td>5</td><td>P5</td><td>Déficit memoria de trabajo</td></tr>
+                <tr><td>MOCA Global</td><td>22/30</td><td>P10-16</td><td>Compromiso global leve-moderado</td></tr>
+            </table>
+
+            <strong>Memoria Verbal y Visoespacial</strong>
+            <table>
+                <tr><th>Medida</th><th>Resultado</th><th>Interpretación</th></tr>
+                <tr><td>Recuerdo Diferido</td><td>Bajo (P5-P9)</td><td>Déficit en codificación</td></tr>
+                <tr><td>Corsi (Visoespacial)</td><td>Span 4 (P5)</td><td>Compromiso memoria inmediata</td></tr>
+            </table>
+
+            <strong>Funciones Ejecutivas (Wisconsin)</strong>
+            <div class="interpretacion-box">
+                Categorías: 2 (< P10) | Errores Perseverativos: Elevados (> P90).<br>
+                <strong>Interpretación:</strong> Alteración en flexibilidad cognitiva y tendencia a la perseveración.
+            </div>
+        </div>
+
+        <div class="seccion-hc">
+            <h2>4. Perfil Cognitivo Integrado</h2>
             <div class="grid-datos">
-                <div><span class="label">CIE-10:</span> S06.5 (Hemorragia subdural traumática)</div>
-                <div><span class="label">Severidad:</span> Moderado (Escala de Glasgow inicial: 11/15)</div>
+                <div>• Atención Sostenida: <b>Bajo</b></div>
+                <div>• Memoria de Trabajo: <b>Deficitaria</b></div>
+                <div>• Funciones Ejecutivas: <b>Alteradas</b></div>
+                <div>• Velocidad Proc.: <b>Disminuida</b></div>
             </div>
+        </div>
+
+        <div class="seccion-hc">
+            <h2>5. Impresión Diagnóstica y Plan</h2>
+            <p style="font-size: 0.9rem;">
+                <strong>Diagnóstico:</strong> Trastorno neurocognitivo leve debido a TCE | Síndrome disejecutivo postraumático.<br>
+                <strong>Plan REHABILIDIA:</strong> 30 sesiones automatizadas (10 Atención, 10 Memoria, 10 Funciones Ejecutivas). Frecuencia: 3 veces/semana. Sesiones cortas por fatigabilidad cognitiva.
+            </p>
             <div class="alerta-medica">
-                <i class="fas fa-exclamation-triangle"></i> <strong>Nota:</strong> Presencia de fatiga cognitiva rápida y cefaleas tensionales post-esfuerzo.
+                <i class="fas fa-info-circle"></i> <strong>Recomendación:</strong> Supervisión en actividades complejas y evitar sobrecarga cognitiva académica inicial.
             </div>
         </div>
 
-        <div class="seccion-hc">
-            <h2>Perfil Neuropsicológico Inicial</h2>
-            <ul>
-                <li><strong>Atención:</strong> Alteración en la velocidad de procesamiento y atención selectiva ante distractores.</li>
-                <li><strong>Memoria:</strong> Preservada para hechos remotos, fallas leves en la codificación de información nueva.</li>
-                <li><strong>Funciones Ejecutivas:</strong> Dificultad moderada en la planeación y flexibilidad mental.</li>
-            </ul>
-        </div>
-
-        <div class="seccion-hc">
-            <h2>Plan de Intervención (Protocolo REHABILIDIA)</h2>
-            <p>Se implementa el esquema general de intervención neuropsicológica estructurado bajo las especificaciones del protocolo:</p>
-            <ul class="lista-protocolo">
-                <li><strong>Módulos:</strong> Tres (3) módulos principales de entrenamiento enfocados en Atención, Memoria y Funciones Ejecutivas.</li>
-                <li><strong>Estructura:</strong> 10 niveles de entrenamiento por módulo, con 3 rangos de dificultad (Bajo, Medio, Alto).</li>
-                <li><strong>Intensidad:</strong> Tres (3) sesiones semanales con una duración aproximada de 30 minutos cada una.</li>
-                <li><strong>Seguimiento:</strong> Ajuste de objetivos y revisión de avances cada 15 días mediante sesión presencial de 90 minutos.</li>
-            </ul>
-            <p><em>* El paciente cumple con criterios de estabilidad clínica y habilidades de lecto-escritura requeridas para el uso de la plataforma digital.</em></p>
-        </div>
-
-        <button onclick="window.print()" style="background: var(--p-blue); color: white; border: none; padding: 15px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px;">
-            <i class="fas fa-print"></i> Descargar / Imprimir Historia Clínica
+        <button class="btn-print" onclick="window.print()" style="background: var(--p-blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px;">
+            <i class="fas fa-print"></i> Generar Reporte Clínico PDF
         </button>
     </div>
 </div>
@@ -157,7 +154,6 @@
         document.getElementById('modalHC').style.display = 'block';
         document.body.style.overflow = 'hidden'; 
     }
-
     function cerrarHistoria() {
         document.getElementById('modalHC').style.display = 'none';
         document.body.style.overflow = 'auto';
@@ -166,4 +162,3 @@
 
 </body>
 </html>
-
