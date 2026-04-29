@@ -6,148 +6,55 @@
     <title>Sesión 3: Control Inhibitorio - REHABILIDIA</title>
     <style>
         :root { 
-            --p-purple: #4A148C; 
-            --bg: #F3E5F5; 
-            --gold: #FFD700; 
-            --navy: #103A57; 
-            --white: #ffffff;
+            --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; --gold: #FFD700; 
+            --navy: #103A57; --white: #ffffff; --error: #D32F2F;
         }
 
-        /* UNIVERSAL ZOOM & RESET */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #121212; /* Fondo externo */
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            overflow: hidden; 
+            font-family: 'Segoe UI', sans-serif; margin: 0; background: #121212; 
+            display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; 
         }
 
-        /* Contenedor Proporcional Adaptable */
         #viewport-container {
-            width: 100vw;
-            height: 100vh;
-            max-width: 1024px;
-            max-height: 768px;
-            background: var(--bg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transition: background-color 0.3s;
+            width: 100vw; height: 100vh; max-width: 1024px; background: var(--bg);
+            position: relative; display: flex; flex-direction: column;
         }
 
-        header { 
-            background: var(--navy); 
-            color: white; 
-            height: 60px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            flex-shrink: 0;
-            font-size: clamp(1rem, 3vw, 1.3rem);
-        }
+        header { background: var(--navy); color: white; height: 8%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        #contenedor-juego { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: space-evenly; 
-            padding: 15px; 
-        }
-        
-        .indicador-nivel { color: var(--p-purple); font-weight: bold; font-size: clamp(1rem, 2.5vw, 1.2rem); }
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 15px; }
         
         .panel-regla { 
-            background: var(--p-purple); 
-            color: white; 
-            padding: clamp(10px, 2vh, 15px) 30px; 
-            border-radius: 20px; 
-            font-size: clamp(1.2rem, 4vw, 1.6rem); 
-            font-weight: bold; 
-            border: 4px solid var(--gold); 
-            min-width: 280px;
+            background: var(--p-purple); color: white; padding: 15px 40px; border-radius: 50px; 
+            font-size: 1.5rem; font-weight: bold; border: 4px solid var(--gold); 
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
-        #estimulo-central { 
-            font-size: clamp(3.5rem, 12vw, 5.5rem); 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            min-height: 120px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
+        #estimulo-central { font-size: 5rem; font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; }
 
-        #zona-opciones { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; 
-            width: 100%; 
-            max-width: 500px; 
-        }
+        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 500px; }
 
         .opcion { 
-            background: var(--white); 
-            border: 4px solid var(--navy); 
-            padding: clamp(15px, 3vh, 25px); 
-            border-radius: 20px; 
-            font-size: clamp(1.2rem, 3.5vw, 1.6rem); 
-            font-weight: bold; 
-            cursor: pointer; 
-            box-shadow: 0 5px 0px var(--navy);
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--white); border: 4px solid var(--navy); padding: 25px; border-radius: 20px; 
+            font-size: 1.6rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
+            transition: all 0.1s; display: flex; align-items: center; justify-content: center; color: var(--navy);
         }
-
-        .opcion:active { 
-            transform: translateY(4px); 
-            box-shadow: 0 1px 0px var(--navy);
-            background: #f0f0f0;
+        .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
+        
+        #pantalla-transicion, #overlay-final { 
+            position: absolute; inset:0; display:none; flex-direction:column; 
+            justify-content:center; align-items:center; z-index: 2000; padding: 20px; 
         }
         
-        /* Capas de Feedback */
-        #overlay-aviso, #overlay-final { 
-            position: absolute; top:0; left:0; width:100%; height:100%; 
-            display:none; flex-direction:column; justify-content:center; 
-            align-items:center; z-index: 1000; padding: 30px; text-align: center; 
-        }
-        
-        #overlay-aviso { background: rgba(74, 20, 140, 0.96); color: white; }
+        #pantalla-transicion { background: var(--p-purple); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
-        .cuadro-resultados {
-            background: var(--white);
-            color: var(--navy);
-            padding: clamp(20px, 5vh, 40px);
-            border-radius: 30px;
-            width: 90%;
-            max-width: 450px;
-            border: 6px solid var(--gold);
-        }
+        .cuadro-resultados { background: var(--white); color: var(--navy); padding: 30px; border-radius: 30px; width: 90%; max-width: 450px; border: 6px solid var(--gold); }
+        .avatar-guia { width: 90px; height: 90px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 
-        .btn-grande { 
-            background: var(--gold); 
-            border: none; 
-            padding: 18px 45px; 
-            border-radius: 50px; 
-            font-size: 1.4rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            color: var(--p-purple);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        .btn-inicio { background: var(--gold); color: var(--p-purple); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; display: none; }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -156,90 +63,98 @@
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
     <div id="contenedor-juego">
-        <div class="indicador-nivel" id="num-nivel">Nivel 1 de 3</div>
-        <div id="panel-regla" class="panel-regla">¡PREPÁRATE!</div>
+        <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Nivel 1 - Ejercicio 1/3</div>
+        <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
         <div id="estimulo-central">---</div>
         <div id="zona-opciones"></div>
     </div>
 
-    <div id="overlay-aviso">
-        <h1 id="titulo-aviso" style="color: var(--gold); font-size: 3.5rem; margin:0;">¡NIVEL 2!</h1>
-        <p id="texto-aviso" style="font-size: 1.8rem; margin-top: 20px;"></p>
+    <div id="pantalla-transicion">
+        <div class="avatar-guia">👨‍⚕️</div>
+        <h1 id="titulo-aviso" style="color: var(--gold); margin:0;">NIVEL 1</h1>
+        <p id="texto-aviso" style="font-size: 1.4rem; text-align: center; max-width: 600px; line-height: 1.5;"></p>
+        <button id="btn-empezar" class="btn-inicio" onclick="cerrarTransicion()">¡ENTENDIDO!</button>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="color: var(--p-purple); font-size: 2rem; margin: 0;">¡SESIÓN COMPLETADA!</h1>
-            <div id="visual-stats" style="margin: 25px 0; text-align: left; font-size: 1.2rem;"></div>
-            <p style="font-style: italic; color: #666; margin-bottom: 20px;">"Controlar tus impulsos fortalece tu mente, Juan."</p>
-            <button class="btn-grande" onpointerdown="guardarYSalir()">FINALIZAR</button>
+            <h1 style="color: var(--p-purple); margin: 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="visual-stats" style="margin: 25px 0; text-align: left; font-size: 1.2rem; color: var(--navy);"></div>
+            <button class="opcion" style="width: 100%; background: #2E7D32; color: white; border: none;" onclick="guardarYSalir()">FINALIZAR Y GUARDAR</button>
         </div>
     </div>
 </div>
 
 <script>
     const colores = [
-        { n: "ROJO", h: "#FF0000" }, { n: "AZUL", h: "#0000FF" },
-        { n: "VERDE", h: "#008000" }, { n: "AMARILLO", h: "#B8860B" },
-        { n: "NEGRO", h: "#000000" }
+        { n: "ROJO", h: "#D32F2F" }, { n: "AZUL", h: "#1976D2" },
+        { n: "VERDE", h: "#388E3C" }, { n: "AMARILLO", h: "#FBC02D" },
+        { n: "NEGRO", h: "#212121" }
     ];
 
-    // MÉTRICAS DINÁMICAS
-    let intentosTotales = 0;
-    let aciertos = 0;
-    let errores = 0;
-    let nivelActual = 1;
-    let regla = "palabra";
-    const TOTAL_EJERCICIOS = 15;
+    let nivelActual = 1, ejercicioActual = 1, rondaActual = 1;
+    let aciertos = 0, errores = 0, regla = "palabra";
+    let esperandoRespuesta = false;
 
-    function hablar(t) {
+    function hablar(t, callback) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'es-ES'; 
-        m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES'; m.rate = 0.85;
+        m.onend = () => { if(callback) callback(); };
         window.speechSynthesis.speak(m);
     }
 
     function iniciarSesion() {
-        hablar("Juan, en este nivel, lee la palabra ignorando el color de la tinta.");
+        mostrarTransicion();
+    }
+
+    function mostrarTransicion() {
+        const tit = document.getElementById('titulo-aviso');
+        const desc = document.getElementById('texto-aviso');
+        const btn = document.getElementById('btn-empezar');
+        btn.style.display = "none";
+        
+        let texto = "";
+        if(nivelActual === 1) {
+            tit.innerText = "NIVEL 1: LECTURA";
+            texto = "Juan, vas a tocar el botón con el nombre de la palabra. Ignora el color de la tinta, solo lee lo que dice.";
+            regla = "palabra";
+        } else if(nivelActual === 2) {
+            tit.innerText = "NIVEL 2: COLORES";
+            texto = "¡Cambiamos la regla! Ahora toca el botón del color de la tinta. No leas la palabra, fíjate solo en el color.";
+            regla = "color";
+        } else {
+            tit.innerText = "NIVEL 3: MIXTO";
+            texto = "¡Atención máxima! La regla cambiará en cada ejercicio. Si arriba dice LEE toca la palabra, si dice COLOR toca el color de la tinta.";
+        }
+
+        desc.innerText = texto;
+        document.getElementById('pantalla-transicion').style.display = 'flex';
+        hablar(texto, () => { btn.style.display = "block"; });
+    }
+
+    function cerrarTransicion() {
+        document.getElementById('pantalla-transicion').style.display = 'none';
         proximaPregunta();
     }
 
-    function mostrarCambioNivel(nuevoNivel, mensaje) {
-        const overlay = document.getElementById('overlay-aviso');
-        document.getElementById('titulo-aviso').innerText = "¡NIVEL " + nuevoNivel + "!";
-        document.getElementById('texto-aviso').innerText = mensaje;
-        overlay.style.display = 'flex';
-        hablar(mensaje);
-        setTimeout(() => { 
-            overlay.style.display = 'none';
-            proximaPregunta();
-        }, 3500);
-    }
-
     function proximaPregunta() {
-        if (intentosTotales >= TOTAL_EJERCICIOS) { finalizar(); return; }
-
-        // LÓGICA DE NIVELES (Inhibición de respuesta)
-        if (intentosTotales === 5 && nivelActual === 1) {
-            nivelActual = 2; regla = "color";
-            mostrarCambioNivel(2, "¡Cambio de regla Juan! Ahora elige el color de la tinta, no leas la palabra.");
-            return;
-        }
-        if (intentosTotales === 10 && nivelActual === 2) {
-            nivelActual = 3;
-            mostrarCambioNivel(3, "¡Atención! Ahora la regla cambiará por sorpresa en cada palabra.");
+        if (rondaActual > 4) {
+            if (ejercicioActual < 3) {
+                ejercicioActual++; rondaActual = 1;
+                hablar(`Bien Juan. Ejercicio ${ejercicioActual}.`, proximaPregunta);
+            } else {
+                if (nivelActual < 3) { nivelActual++; ejercicioActual = 1; rondaActual = 1; mostrarTransicion(); }
+                else { finalizar(); }
+            }
             return;
         }
 
-        if (nivelActual === 3) {
-            regla = Math.random() > 0.5 ? "palabra" : "color";
-        }
-
-        document.getElementById('num-nivel').innerText = `Reto ${intentosTotales + 1} de ${TOTAL_EJERCICIOS}`;
+        document.getElementById('info-progreso').innerText = `Nivel ${nivelActual} - Ejercicio ${ejercicioActual}/3 (Ronda ${rondaActual}/4)`;
+        
+        if (nivelActual === 3) { regla = Math.random() > 0.5 ? "palabra" : "color"; }
         document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
-        // Crear Interferencia Stroop
         const pRandom = colores[Math.floor(Math.random() * colores.length)];
         let cRandom;
         do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
@@ -249,8 +164,8 @@
         display.style.color = cRandom.h;
 
         const correcta = regla === "palabra" ? pRandom : cRandom;
+        esperandoRespuesta = true;
 
-        // Generar Opciones
         const contenedor = document.getElementById('zona-opciones');
         contenedor.innerHTML = "";
         let opciones = [...colores].sort(() => 0.5 - Math.random()).slice(0, 4);
@@ -261,11 +176,9 @@
             const btn = document.createElement('div');
             btn.className = 'opcion';
             btn.innerText = col.n;
-            
-            // Soporte Pointer (Touch/Mouse)
             btn.onpointerdown = (e) => {
-                e.preventDefault();
-                intentosTotales++;
+                if(!esperandoRespuesta) return;
+                esperandoRespuesta = false;
                 const container = document.getElementById('viewport-container');
                 
                 if (col.n === correcta.n) {
@@ -274,57 +187,39 @@
                 } else {
                     errores++;
                     container.style.backgroundColor = "#FFCDD2";
-                    hablar("Cuidado, fíjate en la regla.");
+                    hablar("Concéntrate Juan.");
                 }
                 
                 setTimeout(() => {
-                    container.style.backgroundColor = "#F3E5F5";
+                    container.style.backgroundColor = "#CEE5D6";
+                    rondaActual++;
                     proximaPregunta();
-                }, 300);
+                }, 600);
             };
             contenedor.appendChild(btn);
         });
     }
 
     function finalizar() {
-        const eficacia = Math.round((aciertos / TOTAL_EJERCICIOS) * 100);
-        
+        const total = aciertos + errores;
+        const eficacia = Math.round((aciertos / total) * 100);
         document.getElementById('visual-stats').innerHTML = `
-            <p><b>Total ejercicios:</b> ${TOTAL_EJERCICIOS}</p>
-            <p><b>Aciertos:</b> <span style="color:green">${aciertos}</span></p>
-            <p><b>Errores:</b> <span style="color:red">${errores}</span></p>
-            <p><b>Eficacia:</b> ${eficacia}%</p>
+            <p><b>Aciertos:</b> ${aciertos}</p>
+            <p><b>Errores:</b> ${errores}</p>
+            <hr>
+            <h2 style="color:#2E7D32">Eficacia: ${eficacia}%</h2>
         `;
-
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar(`Sesión completada Juan. Tu eficacia ha sido del ${eficacia} por ciento.`);
+        hablar(`Sesión completada Juan. Eficacia del ${eficacia} por ciento.`);
     }
 
     function guardarYSalir() {
-        const eficacia = Math.round((aciertos / TOTAL_EJERCICIOS) * 100);
-        
-        const dataLog = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Funciones Ejecutivas",
-            id_sesion: 3,
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: eficacia + "%"
-        };
-
-        // Almacenamiento Centralizado
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
-        
-        // Regreso al menú (Simulado según el entorno)
-        window.location.href = 'funcion_sesiones.html';
-    }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertos + errores;
+        const ef = Math.round((aciertos / total) * 100) || 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
+            modulo: "Función Ejecutiva", 
             id_sesion: 3,       
             aciertos: aciertos,
             errores: errores,
@@ -336,18 +231,8 @@
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "funcion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
-
