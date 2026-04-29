@@ -50,7 +50,7 @@
             border: 4px solid var(--p-purple); flex-grow: 1; 
             font-weight: bold; font-size: clamp(0.9rem, 3vw, 1.3rem); 
             display: flex; align-items: center; justify-content: center; 
-            min-height: 80px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            min-height: 80px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;
         }
 
         #reloj-contenedor { 
@@ -62,7 +62,7 @@
 
         .zona-tokens { 
             display: flex; flex-wrap: wrap; justify-content: center; 
-            align-content: center; gap: 10px; width: 100%; flex-grow: 1;
+            align-content: center; gap: 12px; width: 100%; flex-grow: 1;
             padding: 15px; background: var(--white); border-radius: 20px; 
             border: 2px solid #B0BEC5; overflow: hidden;
         }
@@ -75,11 +75,11 @@
             border-left: solid transparent; border-right: solid transparent; border-bottom: solid; 
         }
         
-        .grande { width: 70px; height: 70px; }
-        .pequeno { width: 40px; height: 40px; }
+        .grande { width: 65px; height: 65px; }
+        .pequeno { width: 38px; height: 38px; }
         
-        .triangulo.grande { border-left-width: 35px; border-right-width: 35px; border-bottom-width: 70px; }
-        .triangulo.pequeno { border-left-width: 20px; border-right-width: 20px; border-bottom-width: 40px; }
+        .triangulo.grande { border-left-width: 32px; border-right-width: 32px; border-bottom-width: 65px; }
+        .triangulo.pequeno { border-left-width: 19px; border-right-width: 19px; border-bottom-width: 38px; }
 
         .marcado { filter: grayscale(1) opacity(0.3); pointer-events: none; transform: scale(0.8); }
 
@@ -87,7 +87,7 @@
         #overlay-nivel { background: rgba(74, 20, 140, 0.95); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
 
-        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.3rem; color: var(--navy); margin-top: 20px; }
+        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.3rem; color: var(--navy); margin-top: 20px; box-shadow: 0 4px 0 #b7950b; }
         
         .cuadro-stats { background: white; color: var(--navy); padding: 25px; border-radius: 20px; border: 5px solid var(--gold); width: 90%; max-width: 400px; }
     </style>
@@ -131,7 +131,7 @@
     ];
 
     let nivel = 1, ronda = 1, aciertosTotales = 0, erroresTotales = 0;
-    let objetivosIds = [], timer = null, segundos = 10, inhibicionActiva = false;
+    let objetivosIds = [], timer = null, segundos = 12, inhibicionActiva = false;
 
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
@@ -141,7 +141,7 @@
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() { mostrarOverlay("NIVEL 1", "Juan, toca las figuras que te pida lo más rápido posible."); }
+    function iniciarSesion() { mostrarOverlay("NIVEL 1", "Juan, toca las figuras que te pida. Empezaremos con dos tipos de objetos."); }
 
     function mostrarOverlay(tit, msj) {
         document.getElementById('lvl-titulo').innerText = tit;
@@ -157,14 +157,14 @@
 
     function iniciarTiempo() {
         clearInterval(timer);
-        segundos = 10;
+        segundos = (nivel === 3) ? 15 : 12;
         document.getElementById('reloj-contenedor').innerText = segundos;
         timer = setInterval(() => {
             segundos--;
             document.getElementById('reloj-contenedor').innerText = segundos;
             if(segundos <= 0) {
-                if(inhibicionActiva) aciertosTotales++;
-                else erroresTotales += objetivosIds.length;
+                if(inhibicionActiva) { aciertosTotales++; } // Éxito por no tocar
+                else { erroresTotales += objetivosIds.length; } 
                 avanzar();
             }
         }, 1000);
@@ -175,35 +175,49 @@
         const pantalla = document.getElementById('pantalla-juego');
         pantalla.innerHTML = "";
         let pool = [];
-        let numTotal = (nivel === 1) ? 12 : (nivel === 2) ? 18 : 24;
+        let numTotal = (nivel === 1) ? 12 : (nivel === 2) ? 16 : 20;
         let maxRondas = (nivel === 3) ? 6 : 3;
         let textoRegla = "";
         inhibicionActiva = false;
 
+        // LÓGICA DE NIVELES RESTAURADA
         if(nivel === 1) {
-            let fLabel = Math.random() > 0.5 ? "cuadrados" : "círculos";
-            let fKey = fLabel === "cuadrados" ? "cuadrado" : "circulo";
-            let c1 = colores[Math.floor(Math.random()*4)];
-            textoRegla = `Toca todos los ${fLabel} de color ${c1.n}.`;
-            for(let i=0; i<4; i++) pool.push({id: Math.random(), forma: fKey, color: c1, tamano: 'grande', target: true});
+            let c1 = colores[Math.floor(Math.random()*3)];
+            let c2 = colores[4 + Math.floor(Math.random()*4)];
+            textoRegla = `Toca los círculos ${c1.n}s y los cuadrados ${c2.n}s.`;
+            for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'circulo', color: c1, tamano: 'grande', target: true});
+            for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: c2, tamano: 'grande', target: true});
         } 
         else if(nivel === 2) {
             if(ronda === 2) {
-                textoRegla = "¡ATENCIÓN! Si ves un triángulo NEGRO, NO TOQUES NADA.";
+                textoRegla = "¡ATENCIÓN! Si hay un triángulo NEGRO en pantalla, NO TOQUES NADA.";
                 pool.push({id: 99, forma: 'triangulo', color: colores.find(c=>c.n==='Negro'), tamano: 'grande', target: false});
                 inhibicionActiva = true;
             } else {
-                let cAccion = colores[Math.floor(Math.random()*colores.length)];
-                textoRegla = `Toca los círculos ${cAccion.n}s.`;
-                for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'circulo', color: cAccion, tamano: 'grande', target: true});
+                let cCondicion = colores.find(c=>c.n==='Café');
+                let cAccion = colores.find(c=>c.n==='Azul');
+                textoRegla = "Si ves un triángulo café, toca solo los círculos azules.";
+                pool.push({id: 98, forma: 'triangulo', color: cCondicion, tamano: 'grande', target: false});
+                for(let i=0; i<4; i++) pool.push({id: Math.random(), forma: 'circulo', color: cAccion, tamano: 'grande', target: true});
             }
         } 
-        else {
-            textoRegla = "Toca cuadrados verdes grandes y círculos amarillos pequeños.";
-            for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Verde'), tamano: 'grande', target: true});
-            for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'circulo', color: colores.find(c=>c.n==='Amarillo'), tamano: 'pequeno', target: true});
+        else { // NIVEL 3: REVOLVER CONDICIONES CON 3 OBJETOS
+            let rIdx = ronda % 2;
+            if(rIdx === 1) {
+                textoRegla = "Toca cuadrados verdes grandes, círculos rojos pequeños y triángulos amarillos.";
+                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Verde'), tamano: 'grande', target: true});
+                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'circulo', color: colores.find(c=>c.n==='Rojo'), tamano: 'pequeno', target: true});
+                for(let i=0; i<2; i++) pool.push({id: Math.random(), forma: 'triangulo', color: colores.find(c=>c.n==='Amarillo'), tamano: 'grande', target: true});
+            } else {
+                textoRegla = "Si hay círculos negros, NO TOQUES los triángulos rosados ni cuadrados azules.";
+                pool.push({id: 97, forma: 'circulo', color: colores.find(c=>c.n==='Negro'), tamano: 'grande', target: false});
+                for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'triangulo', color: colores.find(c=>c.n==='Rosado'), tamano: 'pequeno', target: false});
+                for(let i=0; i<3; i++) pool.push({id: Math.random(), forma: 'cuadrado', color: colores.find(c=>c.n==='Azul'), tamano: 'grande', target: false});
+                inhibicionActiva = true;
+            }
         }
 
+        // Rellenar con distractores
         while(pool.length < numTotal) {
             pool.push({id: Math.random(), forma: ['circulo','cuadrado','triangulo'][Math.floor(Math.random()*3)], color: colores[Math.floor(Math.random()*colores.length)], tamano: Math.random() > 0.5 ? 'grande' : 'pequeno', target: false});
         }
@@ -230,6 +244,8 @@
                     if(objetivosIds.length === 0) avanzar();
                 } else { 
                     erroresTotales++; 
+                    div.style.transform = "scale(0.8)";
+                    setTimeout(()=> div.style.transform = "scale(1)", 150);
                 }
             };
             pantalla.appendChild(div);
@@ -246,7 +262,7 @@
             setTimeout(cargarRonda, 800); 
         } else if(nivel < 3) { 
             nivel++; ronda = 1; 
-            mostrarOverlay("NIVEL " + nivel, "Muy bien Juan. Ahora las reglas serán más complejas."); 
+            mostrarOverlay("NIVEL " + nivel, "Muy bien Juan. Ahora vienen las condiciones de atención."); 
         } else { 
             finalizar(); 
         }
@@ -258,7 +274,7 @@
         document.getElementById('overlay-final').style.display = 'flex';
         document.getElementById('resumen-stats').innerHTML = `Aciertos: ${aciertosTotales}<br>Errores: ${erroresTotales}`;
         document.getElementById('porcentaje-caja').innerText = porc + "%";
-        hablar("Sesión terminada Juan. Has hecho un gran trabajo de control hoy.");
+        hablar("Sesión terminada Juan. Has hecho un gran trabajo controlando tus impulsos.");
     }
 
     function irAlMenu() {
@@ -283,3 +299,4 @@
 </script>
 </body>
 </html>
+
