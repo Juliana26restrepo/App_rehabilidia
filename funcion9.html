@@ -20,6 +20,7 @@
         #bar-fill { width: 100%; height: 0%; position: absolute; bottom: 0; background: linear-gradient(to top, #388E3C, #FFD700, #D32F2F); transition: height 0.4s ease; }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .btn-ready { background: var(--navy); color: white; border: none; padding: 18px 50px; border-radius: 35px; font-size: 1.4rem; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; }
+        .btn-finalizar { background: var(--green); color: white; border: none; padding: 18px 50px; border-radius: 35px; font-size: 1.4rem; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; margin-top: 20px; }
     </style>
 </head>
 <body onload="abrirMonitoreo('pre')">
@@ -64,7 +65,7 @@
             </div>
             <input type="range" id="slider-emocion" style="width:100%; accent-color: var(--navy);" min="0" max="100" value="50">
         </div>
-        <button class="btn-ready" onclick="cerrarMonitoreo()">CONTINUAR</button>
+        <button id="btn-emo-accion" class="btn-ready" onclick="cerrarMonitoreo()">CONTINUAR</button>
     </div>
 
     <div id="overlay-pausa" class="overlay" style="background: var(--navy); color: white;">
@@ -80,8 +81,8 @@
 
     let nivel = 1, ronda = 1, puntos = 0, impulsividad = 0, aciertos = 0, errores = 0, preEmo, postEmo, modo = 'pre', esTargetValido = false;
     let timerGame, timerNivel3;
-    let subFaseNivel3 = 0; // 0: Positiva Roja, 1: Negativa Verde
-    let clicksRecientes = []; // Para detectar toque rápido
+    let subFaseNivel3 = 0; 
+    let clicksRecientes = []; 
 
     function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9; window.speechSynthesis.speak(m); }
 
@@ -96,10 +97,22 @@
     }
 
     function abrirMonitoreo(m) {
-        modo = m; document.getElementById('overlay-emocion').style.display = 'flex';
-        let t = m === 'pre' ? "Juan, monitorea tu estado actual. Desliza a la izquierda si estás tranquilo o a la derecha si estás irritable." : "Muy bien Juan. ¿Cómo te sientes al terminar?";
-        if(m === 'post') document.getElementById('emo-titulo').innerText = "Juan, sesión terminada";
-        setTimeout(() => hablar(t), 500);
+        modo = m; 
+        document.getElementById('overlay-emocion').style.display = 'flex';
+        const btn = document.getElementById('btn-emo-accion');
+        
+        if(m === 'pre') {
+            let t = "Juan, monitorea tu estado actual. Desliza a la izquierda si estás tranquilo o a la derecha si estás irritable.";
+            btn.innerText = "CONTINUAR";
+            btn.className = "btn-ready";
+            setTimeout(() => hablar(t), 500);
+        } else {
+            let t = "Muy bien Juan. ¿Cómo te sientes al terminar? Pulsa el botón verde para guardar tus resultados.";
+            document.getElementById('emo-titulo').innerText = "Juan, sesión terminada";
+            btn.innerText = "GUARDAR Y FINALIZAR";
+            btn.className = "btn-finalizar";
+            setTimeout(() => hablar(t), 500);
+        }
     }
 
     function cerrarMonitoreo() {
@@ -119,10 +132,7 @@
         const txt = document.getElementById('fase-texto');
         tit.innerText = `NIVEL ${nivel} - RONDA ${ronda}`;
         
-        let ins = "";
-        if(nivel === 1) ins = "Busca palabras POSITIVAS de color VERDE.";
-        else if(nivel === 2) ins = "Busca palabras NEGATIVAS de color ROJO.";
-        else ins = "Nivel 3. La regla cambiará cada 20 segundos. ¡Atento!";
+        let ins = (nivel === 1) ? "Busca palabras POSITIVAS de color VERDE." : (nivel === 2) ? "Busca palabras NEGATIVAS de color ROJO." : "Nivel 3. La regla cambiará cada 20 segundos. ¡Atento!";
         
         txt.innerText = ins;
         hablar(`Juan, ${tit.innerText}. ${ins}. Presiona empezar.`);
@@ -134,11 +144,7 @@
         document.getElementById('txt-nivel').innerText = nivel;
         document.getElementById('txt-ronda').innerText = ronda;
         actualizarInstruccionVisual();
-        
-        if (nivel === 3) {
-            iniciarCicloNivel3();
-        }
-        
+        if (nivel === 3) iniciarCicloNivel3();
         mostrarPalabra();
     }
 
@@ -147,7 +153,6 @@
         subFaseNivel3 = 0;
         actualizarInstruccionVisual();
         hablar("Busca palabras POSITIVAS de color ROJO.");
-        
         timerNivel3 = setInterval(() => {
             subFaseNivel3 = subFaseNivel3 === 0 ? 1 : 0;
             actualizarInstruccionVisual();
@@ -160,24 +165,18 @@
         const ins = document.getElementById('instruccion-visual');
         if(nivel === 1) ins.innerText = "POSITIVA + VERDE";
         else if(nivel === 2) ins.innerText = "NEGATIVA + ROJO";
-        else {
-            ins.innerText = subFaseNivel3 === 0 ? "POSITIVA + ROJA" : "NEGATIVA + VERDE";
-        }
+        else ins.innerText = subFaseNivel3 === 0 ? "POSITIVA + ROJA" : "NEGATIVA + VERDE";
     }
 
     function mostrarPalabra() {
         clearTimeout(timerGame);
         const colors = ["#388E3C", "#D32F2F", "#FFD700"];
         const chance = Math.random();
-        
-        if(chance <= 0.5) { // Target
+        if(chance <= 0.5) {
             if(nivel === 1) setPalabra(palabrasPos, colors[0], true);
             else if(nivel === 2) setPalabra(palabrasNeg, colors[1], true);
-            else {
-                if(subFaseNivel3 === 0) setPalabra(palabrasPos, colors[1], true);
-                else setPalabra(palabrasNeg, colors[0], true);
-            }
-        } else { // Distractor
+            else (subFaseNivel3 === 0) ? setPalabra(palabrasPos, colors[1], true) : setPalabra(palabrasNeg, colors[0], true);
+        } else {
             const rCol = colors[Math.floor(Math.random()*colors.length)];
             const rPool = Math.random() > 0.5 ? palabrasPos : palabrasNeg;
             setPalabra(rPool, rCol, false);
@@ -203,7 +202,7 @@
     }
 
     function procesarIntento(e) {
-        e.stopPropagation(); // Evitar doble disparo con el detector de frenesí
+        e.stopPropagation();
         if(esTargetValido) { 
             puntos++; aciertos++; 
             impulsividad = Math.max(0, impulsividad - 15); 
@@ -220,8 +219,7 @@
     }
 
     function activaPausa() {
-        clearTimeout(timerGame);
-        clearInterval(timerNivel3);
+        clearTimeout(timerGame); clearInterval(timerNivel3);
         impulsividad = 0; document.getElementById('bar-fill').style.height = "0%";
         document.getElementById('overlay-pausa').style.display = 'flex';
         hablar("Juan, vamos a respirar. Pausa de control de impulsos.");
@@ -229,8 +227,7 @@
         let t = setInterval(() => {
             s--; document.getElementById('timer-pausa').innerText = s;
             if(s <= 0) { 
-                clearInterval(t); 
-                document.getElementById('overlay-pausa').style.display = 'none'; 
+                clearInterval(t); document.getElementById('overlay-pausa').style.display = 'none'; 
                 if(nivel === 3) iniciarCicloNivel3();
                 mostrarPalabra(); 
             }
@@ -238,8 +235,7 @@
     }
 
     function proximoTramo() {
-        clearTimeout(timerGame);
-        clearInterval(timerNivel3);
+        clearTimeout(timerGame); clearInterval(timerNivel3);
         if(ronda < 2) { ronda++; prepararFase(); }
         else if(nivel < 3) { nivel++; ronda = 1; prepararFase(); }
         else { abrirMonitoreo('post'); }
