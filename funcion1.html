@@ -6,7 +6,7 @@
     <title>Planificación Progresiva - REHABILIDIA</title>
     <style>
         :root { 
-            --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; --gold: #FFD700;
+            --p-purple: #4A148C; --s-purple: #AB47BC; --bg: #CEE5D6; --gold: #FFD700; --error: #D32F2F;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -26,19 +26,21 @@
         .tarjeta .emoji { font-size: 1.6rem; }
         .tarjeta .texto { font-size: 0.7rem; font-weight: bold; margin-top: 5px; }
         .tarjeta.seleccionada { opacity: 0.3; pointer-events: none; }
-        .tarjeta.error-distractor { animation: shake 0.4s; border-color: #f44336; }
-        .tarjeta.pista-ayuda { border-color: #f44336; box-shadow: 0 0 15px #f44336; } /* Resaltado de pista */
+        .tarjeta.error-distractor { animation: shake 0.4s; border-color: var(--error); }
+        .tarjeta.pista-activa { border-color: var(--error); box-shadow: 0 0 15px var(--error); animation: pulse 1s infinite; }
         
         #area-secuencia { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px; background: rgba(255,255,255,0.8); border: 3px dashed var(--s-purple); border-radius: 20px; width: 95%; min-height: 100px; }
         .item-ordenado { width: 100%; display: flex; align-items: center; background: white; padding: 8px; border-radius: 10px; border: 2px solid var(--p-purple); animation: slideIn 0.3s; }
-        .item-error { border-color: #f44336; background: #ffebee; } /* Clase para el ítem mal posicionado */
+        .item-ordenado.falla-visual { border-color: var(--error); background: #ffebee; }
         
         .num-orden { background: var(--p-purple); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 0.8rem; }
         #btn-verificar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 400px; padding: 18px; font-size: 1.3rem; background: #2E7D32; color: white; border: none; border-radius: 50px; cursor: pointer; display: none; font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 999; }
         #pantalla-transicion, #overlay-final { position: absolute; inset: 0; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; padding: 20px; background: var(--p-purple); color: white; }
         .cuadro-final { background: white; color: var(--p-purple); padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; }
+        
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body onload="iniciarEjercicio()">
@@ -65,37 +67,26 @@
 </div>
 
 <script>
-    let totalAciertos = 0, totalErrores = 0, nivelActual = 1, fallosConsecutivos = 0;
+    let totalAciertos = 0, totalErrores = 0, nivelActual = 1, fallosIntentos = 0;
     let secuenciaUsuario = [], retoActual = null;
 
     const distractoresGlobales = [
-        {e:"📱", p:"Revisar el celular"}, {e:"📺", p:"Encender el televisor"}, {e:"🚪", p:"Salir del lugar sin razón"},
+        {e:"📱", p:"Revisar el celular"}, {e:"📺", p:"Encender el televisor"}, {e:"🚪", p:"Salir del lugar"},
         {e:"💬", p:"Hablar con alguien"}, {e:"🪞", p:"Mirarse en el espejo"}, {e:"🧼", p:"Lavarse las manos"},
-        {e:"❓", p:"Preguntar algo irrelevante"}, {e:"🧍‍♂️", p:"Quedarse quieto"}, {e:"🗑️", p:"Botar un objeto necesario"},
-        {e:"🔍", p:"Buscar algo que ya tiene"}, {e:"📦", p:"Guardar algo que se usa"}, {e:"🪑", p:"Sentarse"},
-        {e:"🚿", p:"Ir al baño"}, {e:"🧴", p:"Limpiar algo limpio"}, {e:"🎧", p:"Escuchar música"}, {e:"⏰", p:"Mirar la hora"}
+        {e:"❓", p:"Preguntar algo"}, {e:"🧍‍♂️", p:"Quedarse quieto"}, {e:"🗑️", p:"Botar algo"},
+        {e:"🔍", p:"Buscar algo"}, {e:"📦", p:"Guardar algo"}, {e:"🪑", p:"Sentarse"},
+        {e:"🚿", p:"Ir al baño"}, {e:"🎧", p:"Escuchar música"}, {e:"⏰", p:"Mirar la hora"}
     ];
 
     const banco = {
-        1: [ // NIVEL BAJO
-            { t: "Lavarse los dientes", pasos: [{e:"🧴", p:"Tomar el cepillo"}, {e:"🚿", p:"Abrir la llave"}, {e:"💧", p:"Mojar el cepillo"}, {e:"🪥", p:"Aplicar crema dental"}, {e:"😬", p:"Cepillar superiores"}, {e:"😁", p:"Cepillar inferiores"}, {e:"💦", p:"Enjuagar la boca"}, {e:"🧼", p:"Lavar y guardar"}]},
-            { t: "Preparar huevo frito", pasos: [{e:"🥚", p:"Tomar un huevo"}, {e:"🍳", p:"Poner sartén"}, {e:"🔥", p:"Encender estufa"}, {e:"🧈", p:"Agregar aceite"}, {e:"🥄", p:"Romper el huevo"}, {e:"🍳", p:"Esperar cocción"}, {e:"🧂", p:"Agregar sal"}, {e:"🍽️", p:"Servir"}]},
-            { t: "Vestirse", pasos: [{e:"🩲", p:"Ponerse ropa interior"}, {e:"👖", p:"Ponerse pantalón"}, {e:"👕", p:"Ponerse camiseta"}, {e:"🧦", p:"Ponerse medias"}, {e:"👟", p:"Ponerse zapatos"}, {e:"🪞", p:"Revisarse espejo"}, {e:"🎽", p:"Ajustar ropa"}, {e:"🎒", p:"Prepararse salir"}]},
-            { t: "Bañarse", pasos: [{e:"🚿", p:"Abrir la ducha"}, {e:"🌡️", p:"Ajustar temperatura"}, {e:"💦", p:"Mojar el cuerpo"}, {e:"🧼", p:"Aplicar jabón"}, {e:"🧽", p:"Frotar el cuerpo"}, {e:"🚿", p:"Enjuagar jabón"}, {e:"🧴", p:"Aplicar shampoo"}, {e:"🧖‍♀️", p:"Enjuagar y salir"}]},
-            { t: "Preparar mochila", pasos: [{e:"🎒", p:"Tomar mochila"}, {e:"📚", p:"Revisar necesidad"}, {e:"📖", p:"Guardar cuadernos"}, {e:"🖊️", p:"Agregar útiles"}, {e:"💧", p:"Incluir agua"}, {e:"🍎", p:"Agregar snack"}, {e:"🔒", p:"Cerrar mochila"}, {e:"🧍‍♂️", p:"Dejarla lista"}]}
+        1: [ // NIVEL BAJO (8 pasos)
+            { t: "Lavarse los dientes", pasos: [{e:"🧴", p:"Tomar el cepillo"}, {e:"🚿", p:"Abrir la llave"}, {e:"💧", p:"Mojar el cepillo"}, {e:"🪥", p:"Aplicar crema"}, {e:"😬", p:"Cepillar superiores"}, {e:"😁", p:"Cepillar inferiores"}, {e:"💦", p:"Enjuagar la boca"}, {e:"🧼", p:"Lavar y guardar"}]},
+            { t: "Preparar huevo frito", pasos: [{e:"🥚", p:"Tomar un huevo"}, {e:"🍳", p:"Poner sartén"}, {e:"🔥", p:"Encender estufa"}, {e:"🧈", p:"Agregar aceite"}, {e:"🥄", p:"Romper el huevo"}, {e:"🍳", p:"Esperar cocción"}, {e:"🧂", p:"Agregar sal"}, {e:"🍽️", p:"Servir"}]}
         ],
-        2: [ // NIVEL MEDIO
-            { t: "Preparar café", pasos: [{e:"🫙", p:"Tomar frasco café"}, {e:"💧", p:"Llenar hervidor"}, {e:"🔥", p:"Calentar agua"}, {e:"☕", p:"Tomar una taza"}, {e:"🥄", p:"Agregar café"}, {e:"🍬", p:"Añadir azúcar"}, {e:"⏳", p:"Esperar hervor"}, {e:"💦", p:"Verter agua"}, {e:"🥄", p:"Mezclar"}, {e:"👃", p:"Dejar reposar"}, {e:"🧴", p:"Agregar leche"}, {e:"☕", p:"Beber café"}]},
-            { t: "Lavar ropa a mano", pasos: [{e:"🧺", p:"Reunir ropa sucia"}, {e:"🚿", p:"Llenar recipiente"}, {e:"🧼", p:"Agregar detergente"}, {e:"👕", p:"Introducir ropa"}, {e:"🖐️", p:"Frotar prendas"}, {e:"⏳", p:"Dejar en remojo"}, {e:"🖐️", p:"Volver a frotar"}, {e:"💦", p:"Enjuagar"}, {e:"🔁", p:"Repetir enjuague"}, {e:"🤲", p:"Escurrir"}, {e:"🌞", p:"Tender ropa"}, {e:"⏳", p:"Dejar secar"}]},
-            { t: "Preparar pasta", pasos: [{e:"🍲", p:"Tomar olla"}, {e:"💧", p:"Llenar agua"}, {e:"🔥", p:"Poner a hervir"}, {e:"🧂", p:"Agregar sal"}, {e:"🍝", p:"Añadir pasta"}, {e:"🥄", p:"Revolver"}, {e:"⏳", p:"Tiempo cocción"}, {e:"🔌", p:"Apagar estufa"}, {e:"🚿", p:"Escurrir pasta"}, {e:"🍅", p:"Agregar salsa"}, {e:"🥄", p:"Mezclar todo"}, {e:"🍽️", p:"Servir"}]},
-            { t: "Organizar habitación", pasos: [{e:"🚪", p:"Entrar habitación"}, {e:"🧺", p:"Recoger ropa"}, {e:"👕", p:"Separar ropa"}, {e:"🛏️", p:"Tender cama"}, {e:"📚", p:"Ordenar libros"}, {e:"🧴", p:"Guardar objetos"}, {e:"🗑️", p:"Recoger basura"}, {e:"🧹", p:"Barrer piso"}, {e:"🧼", p:"Limpiar superficies"}, {e:"🪟", p:"Abrir ventana"}, {e:"👀", p:"Revisar orden"}, {e:"🚪", p:"Salir"}]},
-            { t: "Hacer compra pequeña", pasos: [{e:"📝", p:"Revisar necesidad"}, {e:"💰", p:"Tomar dinero"}, {e:"🛍️", p:"Llevar bolsa"}, {e:"🚶‍♂️", p:"Salir casa"}, {e:"🏪", p:"Llegar tienda"}, {e:"👀", p:"Buscar productos"}, {e:"🧴", p:"Tomar productos"}, {e:"🔄", p:"Verificar precios"}, {e:"🧾", p:"Ir a caja"}, {e:"💳", p:"Pagar"}, {e:"🛍️", p:"Guardar productos"}, {e:"🚶‍♀️", p:"Regresar casa"}]}
+        2: [ // NIVEL MEDIO (12 pasos)
+            { t: "Preparar café", pasos: [{e:"🫙", p:"Tomar café"}, {e:"💧", p:"Llenar hervidor"}, {e:"🔥", p:"Calentar agua"}, {e:"☕", p:"Tomar una taza"}, {e:"🥄", p:"Agregar café"}, {e:"🍬", p:"Añadir azúcar"}, {e:"⏳", p:"Esperar hervor"}, {e:"💦", p:"Verter agua"}, {e:"🥄", p:"Mezclar"}, {e:"👃", p:"Dejar reposar"}, {e:"🧴", p:"Agregar leche"}, {e:"☕", p:"Beber café"}]}
         ],
-        3: [ // NIVEL ALTO
-            { t: "Preparar arroz", pasos: [{e:"🍚", p:"Tomar arroz"}, {e:"🥄", p:"Medir cantidad"}, {e:"🥣", p:"Poner en recipiente"}, {e:"💧", p:"Agregar agua"}, {e:"🖐️", p:"Lavar arroz"}, {e:"💦", p:"Escurrir agua"}, {e:"🔁", p:"Repetir lavado"}, {e:"🍲", p:"Tomar olla"}, {e:"💧", p:"Agregar agua"}, {e:"🔥", p:"Poner en estufa"}, {e:"🧂", p:"Añadir sal"}, {e:"🛢️", p:"Agregar aceite"}, {e:"🍚", p:"Incorporar arroz"}, {e:"🥄", p:"Revolver"}, {e:"⏳", p:"Esperar hervor"}, {e:"🔥", p:"Bajar fuego"}, {e:"⏳", p:"Dejar secar"}, {e:"🍽️", p:"Apagar y servir"}]},
-            { t: "Bañarse completo", pasos: [{e:"🚪", p:"Entrar baño"}, {e:"👕", p:"Quitarse ropa"}, {e:"🚿", p:"Abrir ducha"}, {e:"🌡️", p:"Ajustar temp"}, {e:"💦", p:"Mojar cuerpo"}, {e:"🧴", p:"Aplicar shampoo"}, {e:"💆‍♂️", p:"Frotar cabello"}, {e:"🚿", p:"Enjuagar cabello"}, {e:"🧼", p:"Aplicar jabón"}, {e:"🧽", p:"Frotar brazos"}, {e:"🧽", p:"Frotar piernas"}, {e:"🧽", p:"Frotar torso"}, {e:"🚿", p:"Enjuagar cuerpo"}, {e:"🪒", p:"Afeitarse"}, {e:"🚿", p:"Enjuagar final"}, {e:"❌", p:"Cerrar ducha"}, {e:"🧻", p:"Secarse"}, {e:"👕", p:"Vestirse"}]},
-            { t: "Preparar desayuno", pasos: [{e:"🚶‍♂️", p:"Ir a cocina"}, {e:"🍳", p:"Sacar sartén"}, {e:"🔥", p:"Encender estufa"}, {e:"🧈", p:"Agregar mantequilla"}, {e:"🥚", p:"Tomar huevos"}, {e:"🥄", p:"Romper huevos"}, {e:"🍳", p:"Cocinar huevos"}, {e:"🍞", p:"Tomar pan"}, {e:"🔥", p:"Tostar pan"}, {e:"🧴", p:"Servir bebida"}, {e:"🥛", p:"Servir en vaso"}, {e:"🧂", p:"Sal a huevos"}, {e:"🍽️", p:"Servir huevos"}, {e:"🍞", p:"Pan en plato"}, {e:"🍴", p:"Llevar mesa"}, {e:"🪑", p:"Sentarse"}, {e:"🍽️", p:"Comer"}, {e:"🧼", p:"Recoger utensilios"}]},
-            { t: "Limpiar la casa", pasos: [{e:"🚪", p:"Abrir ventanas"}, {e:"🧺", p:"Recoger objetos"}, {e:"🗑️", p:"Recolectar basura"}, {e:"🪣", p:"Preparar limpieza"}, {e:"🧴", p:"Aplicar limpiador"}, {e:"🧽", p:"Limpiar mesas"}, {e:"🧽", p:"Limpiar cocina"}, {e:"🧽", p:"Limpiar baño"}, {e:"🧹", p:"Barrer cuartos"}, {e:"🧹", p:"Barrer sala"}, {e:"🧹", p:"Barrer cocina"}, {e:"🪣", p:"Trapear piso"}, {e:"🪟", p:"Limpiar ventanas"}, {e:"🛋️", p:"Organizar muebles"}, {e:"🧴", p:"Guardar productos"}, {e:"🗑️", p:"Sacar basura"}, {e:"👀", p:"Revisar limpieza"}, {e:"🚪", p:"Cerrar ventanas"}]},
+        3: [ // NIVEL ALTO (18 pasos)
             { t: "Salir al trabajo", pasos: [{e:"⏰", p:"Despertarse"}, {e:"🛏️", p:"Levantarse"}, {e:"🚿", p:"Bañarse"}, {e:"👕", p:"Vestirse"}, {e:"🪥", p:"Lavar dientes"}, {e:"🍽️", p:"Desayunar"}, {e:"📱", p:"Revisar celular"}, {e:"📝", p:"Verificar pendientes"}, {e:"🎒", p:"Preparar mochila"}, {e:"💻", p:"Guardar materiales"}, {e:"💰", p:"Tomar dinero"}, {e:"🔑", p:"Tomar llaves"}, {e:"👟", p:"Ponerse zapatos"}, {e:"🪞", p:"Revisarse espejo"}, {e:"🚪", p:"Salir casa"}, {e:"🔒", p:"Cerrar puerta"}, {e:"🚶‍♂️", p:"Ir al transporte"}, {e:"🚌", p:"Iniciar trayecto"}]}
         ]
     };
@@ -108,7 +99,7 @@
 
     function iniciarEjercicio() {
         secuenciaUsuario = [];
-        fallosConsecutivos = 0; // Resetear fallos al cambiar de nivel
+        fallosIntentos = 0;
         document.getElementById('area-secuencia').innerHTML = "";
         document.getElementById('btn-verificar').style.display = "none";
         
@@ -138,13 +129,13 @@
         todas.forEach(obj => {
             const div = document.createElement('div');
             div.className = 'tarjeta';
-            div.dataset.paso = obj.p; // Guardamos el nombre del paso
+            div.dataset.paso = obj.p;
             div.innerHTML = `<span class="emoji">${obj.e}</span><span class="texto">${obj.p}</span>`;
             div.onpointerdown = () => {
                 if(distElegidos.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Eso es un distractor, Juan. No es necesario.");
+                    hablar("Eso es un distractor, Juan. No es parte de esta tarea.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -178,7 +169,7 @@
 
         if(indiceError === -1) {
             totalAciertos++;
-            fallosConsecutivos = 0;
+            fallosIntentos = 0;
             hablar("¡Excelente planificación!");
             setTimeout(() => {
                 if(nivelActual < 3) { nivelActual++; iniciarEjercicio(); }
@@ -186,31 +177,26 @@
             }, 1500);
         } else {
             totalErrores++;
-            fallosConsecutivos++;
+            fallosIntentos++;
             
-            if(fallosConsecutivos >= 2) {
-                // AYUDA VISUAL Y AUDITIVA
-                marcarErroresVisibles(indiceError);
-                let pasoCorrecto = retoActual.pasos[indiceError];
-                hablar(`Juan, prueba con esto: el paso número ${indiceError + 1} debe ser ${pasoCorrecto.p}`);
+            if(fallosIntentos >= 2) {
+                // AYUDA GRADUADA
+                const items = document.querySelectorAll('.item-ordenado');
+                for(let j = indiceError; j < items.length; j++) items[j].classList.add('falla-visual');
                 
-                // Resaltar la tarjeta correcta en el área de opciones
+                const pasoCorrecto = retoActual.pasos[indiceError];
+                hablar(`Juan, prueba con esto: el paso número ${indiceError + 1} es ${pasoCorrecto.p}`);
+                
+                // Resaltar la tarjeta correcta en las opciones
                 document.querySelectorAll('.tarjeta').forEach(t => {
-                    if(t.dataset.paso === pasoCorrecto.p) t.classList.add('pista-ayuda');
+                    if(t.dataset.paso === pasoCorrecto.p) t.classList.add('pista-activa');
                 });
-
-                setTimeout(() => resetearIntento(), 4000); // Darle tiempo de ver la pista
+                
+                setTimeout(() => resetearIntento(), 4500);
             } else {
-                hablar("El orden no es el correcto. Intenta de nuevo.");
+                hablar("El orden no es el correcto. Revisa los pasos e intenta de nuevo.");
                 setTimeout(() => resetearIntento(), 1500);
             }
-        }
-    }
-
-    function marcarErroresVisibles(primerError) {
-        const items = document.querySelectorAll('.item-ordenado');
-        for(let i = primerError; i < items.length; i++) {
-            items[i].classList.add('item-error');
         }
     }
 
@@ -220,15 +206,15 @@
         document.getElementById('btn-verificar').style.display = "none";
         document.querySelectorAll('.tarjeta').forEach(t => {
             t.classList.remove('seleccionada');
-            t.classList.remove('pista-ayuda');
+            t.classList.remove('pista-activa');
         });
     }
 
     function finalizarSesion() {
         const ef = Math.round((totalAciertos / 3) * 100);
         document.getElementById('stats-visual').innerHTML = `
-            <p><b>Actividades completadas:</b> ${totalAciertos}/3</p>
-            <p><b>Errores totales:</b> ${totalErrores}</p>
+            <p><b>Actividades:</b> ${totalAciertos}/3</p>
+            <p><b>Errores:</b> ${totalErrores}</p>
             <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = "flex";
@@ -239,7 +225,7 @@
         const ef = Math.round((totalAciertos / 3) * 100);
         const datos = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "Función Ejecutiva", id_sesion: 1,      
+            modulo: "Planificación", id_sesion: 1,      
             aciertos: totalAciertos, errores: totalErrores, eficacia: ef + "%"
         };
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
@@ -250,3 +236,4 @@
 </script>
 </body>
 </html>
+
