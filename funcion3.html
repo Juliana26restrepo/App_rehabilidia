@@ -22,26 +22,27 @@
             position: relative; display: flex; flex-direction: column;
         }
 
-        header { background: var(--navy); color: white; height: 8%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        header { background: var(--navy); color: white; height: 8%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 15px; }
+        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px; }
         
         .panel-regla { 
-            background: var(--p-purple); color: white; padding: 15px 40px; border-radius: 50px; 
-            font-size: 1.5rem; font-weight: bold; border: 4px solid var(--gold); 
+            background: var(--p-purple); color: white; padding: 12px 30px; border-radius: 50px; 
+            font-size: 1.3rem; font-weight: bold; border: 4px solid var(--gold); 
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
-        #estimulo-central { font-size: 5rem; font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+        #estimulo-central { font-size: clamp(3rem, 15vw, 5rem); font-weight: 900; min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; }
 
-        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 500px; }
+        #zona-opciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 95%; max-width: 500px; }
 
         .opcion { 
-            background: var(--white); border: 4px solid var(--navy); padding: 25px; border-radius: 20px; 
-            font-size: 1.6rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
+            background: var(--white); border: 3px solid var(--navy); padding: 20px 10px; border-radius: 15px; 
+            font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0px var(--navy);
             transition: all 0.1s; display: flex; align-items: center; justify-content: center; color: var(--navy);
+            text-transform: uppercase;
         }
-        .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
+        .opcion:active { transform: translateY(3px); box-shadow: 0 2px 0px var(--navy); }
         
         #pantalla-transicion, #overlay-final { 
             position: absolute; inset:0; display:none; flex-direction:column; 
@@ -51,8 +52,8 @@
         #pantalla-transicion { background: var(--p-purple); color: white; }
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
-        .cuadro-resultados { background: var(--white); color: var(--navy); padding: 30px; border-radius: 30px; width: 90%; max-width: 450px; border: 6px solid var(--gold); }
-        .avatar-guia { width: 90px; height: 90px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .cuadro-resultados { background: var(--white); color: var(--navy); padding: 30px; border-radius: 30px; width: 90%; max-width: 450px; border: 6px solid var(--gold); text-align: center; }
+        .avatar-guia { width: 80px; height: 80px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
 
         .btn-inicio { background: var(--gold); color: var(--p-purple); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; display: none; }
     </style>
@@ -63,24 +64,24 @@
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
     <div id="contenedor-juego">
-        <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Nivel 1 - Ejercicio 1/3</div>
-        <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
+        <div id="info-progreso" style="font-weight: bold; color: var(--navy); font-size: 0.9rem;">Cargando...</div>
+        <div id="panel-regla" class="panel-regla">PREPÁRATE</div>
         <div id="estimulo-central">---</div>
         <div id="zona-opciones"></div>
     </div>
 
     <div id="pantalla-transicion">
         <div class="avatar-guia">👨‍⚕️</div>
-        <h1 id="titulo-aviso" style="color: var(--gold); margin:0;">NIVEL 1</h1>
-        <p id="texto-aviso" style="font-size: 1.4rem; text-align: center; max-width: 600px; line-height: 1.5;"></p>
+        <h1 id="titulo-aviso" style="color: var(--gold); margin:0; font-size: 1.8rem;">NIVEL 1</h1>
+        <p id="texto-aviso" style="font-size: 1.2rem; text-align: center; max-width: 600px; line-height: 1.4;"></p>
         <button id="btn-empezar" class="btn-inicio" onclick="cerrarTransicion()">¡ENTENDIDO!</button>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="color: var(--p-purple); margin: 0;">¡SESIÓN COMPLETADA!</h1>
-            <div id="visual-stats" style="margin: 25px 0; text-align: left; font-size: 1.2rem; color: var(--navy);"></div>
-            <button class="opcion" style="width: 100%; background: #2E7D32; color: white; border: none;" onclick="guardarYSalir()">FINALIZAR Y GUARDAR</button>
+            <h1 style="color: var(--p-purple); margin: 0; font-size: 1.5rem;">¡SESIÓN COMPLETADA!</h1>
+            <div id="visual-stats" style="margin: 20px 0; text-align: left; font-size: 1.1rem; color: var(--navy);"></div>
+            <button class="opcion" style="width: 100%; background: #2E7D32; color: white; border: none; box-shadow: none;" onclick="guardarYSalir()">FINALIZAR Y GUARDAR</button>
         </div>
     </div>
 </div>
@@ -99,7 +100,7 @@
     function hablar(t, callback) {
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
-        m.lang = 'es-ES'; m.rate = 0.85;
+        m.lang = 'es-ES'; m.rate = 0.9;
         m.onend = () => { if(callback) callback(); };
         window.speechSynthesis.speak(m);
     }
@@ -155,6 +156,7 @@
         if (nivelActual === 3) { regla = Math.random() > 0.5 ? "palabra" : "color"; }
         document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
+        // Seleccionar palabra y color de tinta (que sean diferentes para crear interferencia)
         const pRandom = colores[Math.floor(Math.random() * colores.length)];
         let cRandom;
         do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
@@ -166,13 +168,19 @@
         const correcta = regla === "palabra" ? pRandom : cRandom;
         esperandoRespuesta = true;
 
+        // LÓGICA CORREGIDA: Asegurar que la correcta esté siempre
         const contenedor = document.getElementById('zona-opciones');
         contenedor.innerHTML = "";
-        let opciones = [...colores].sort(() => 0.5 - Math.random()).slice(0, 4);
-        if (!opciones.find(o => o.n === correcta.n)) { opciones[0] = correcta; }
-        opciones.sort(() => 0.5 - Math.random());
+        
+        // 1. Filtrar los demás colores para que no se repita la correcta
+        let otrosColores = colores.filter(c => c.n !== correcta.n);
+        // 2. Mezclar los otros y tomar 3
+        otrosColores.sort(() => 0.5 - Math.random());
+        let opcionesFinales = [correcta, otrosColores[0], otrosColores[1], otrosColores[2]];
+        // 3. Mezclar las 4 opciones finales
+        opcionesFinales.sort(() => 0.5 - Math.random());
 
-        opciones.forEach(col => {
+        opcionesFinales.forEach(col => {
             const btn = document.createElement('div');
             btn.className = 'opcion';
             btn.innerText = col.n;
@@ -202,7 +210,7 @@
 
     function finalizar() {
         const total = aciertos + errores;
-        const eficacia = Math.round((aciertos / total) * 100);
+        const eficacia = Math.round((aciertos / total) * 100) || 0;
         document.getElementById('visual-stats').innerHTML = `
             <p><b>Aciertos:</b> ${aciertos}</p>
             <p><b>Errores:</b> ${errores}</p>
