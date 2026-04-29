@@ -7,15 +7,14 @@
     <style>
         :root { 
             --p-purple: #4A148C; 
-            --bg: #E3F2FD; 
+            --bg: #FFF3E0; 
             --gold: #FFD700; 
             --navy: #103A57; 
-            --red: #ff4d4d; 
-            --green: #4CAF50; 
             --white: #ffffff;
+            --success: #4CAF50;
+            --error: #F44336;
         }
 
-        /* UNIVERSAL ZOOM & RESET */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
         body { 
@@ -30,309 +29,231 @@
         }
 
         #viewport-container {
-            width: 100vw;
-            height: 100vh;
-            max-width: 1024px;
-            max-height: 768px;
+            width: 100vw; height: 100vh; max-width: 1024px;
             background: var(--bg);
             position: relative;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
         header { 
-            background: var(--navy); 
-            color: white; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            flex-shrink: 0;
-            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            background: var(--navy); color: white; height: 50px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; flex-shrink: 0; font-size: 1rem;
         }
 
         #contenedor-juego { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-start; 
-            padding: 15px; 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: flex-start; padding: 20px;
         }
 
-        .panel-instruccion { 
-            background: var(--white); 
-            padding: 15px; 
-            border-radius: 15px; 
-            border: 3px solid var(--p-purple); 
-            width: 95%; 
-            max-width: 700px; 
-            margin-bottom: 10px; 
-            font-weight: bold; 
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem); 
-            min-height: 60px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        .tarjeta-situacion {
+            background: white; padding: 20px; border-radius: 20px;
+            border: 4px solid var(--p-purple); width: 95%; max-width: 600px;
+            text-align: center; box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px; animation: slideIn 0.5s;
         }
 
-        .rejilla-numeros { 
-            display: grid; 
-            gap: 10px; 
-            width: 100%; 
-            max-width: 900px; 
-            margin: auto; 
-            padding: 10px; 
-            overflow-y: auto; 
-            max-height: 60vh; 
+        .texto-situacion { font-size: 1.3rem; font-weight: bold; color: var(--navy); margin: 0; }
+
+        .zona-opciones { 
+            display: flex; flex-direction: column; gap: 12px; width: 95%; max-width: 600px;
         }
 
-        .num-card { 
-            background: var(--white); 
-            border: 3px solid var(--navy); 
-            border-radius: 12px; 
-            font-size: clamp(1.2rem, 4vw, 1.8rem); 
-            font-weight: bold; 
-            padding: 15px; 
-            cursor: pointer; 
-            transition: opacity 0.3s, transform 0.1s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 65px;
-            box-shadow: 0 4px 0px var(--navy);
+        .btn-opcion {
+            background: white; border: 3px solid var(--navy); padding: 18px;
+            border-radius: 15px; font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; color: var(--navy); transition: 0.2s;
+            text-align: left; box-shadow: 0 4px 0 var(--navy);
         }
 
-        .num-card:active { transform: translateY(4px); box-shadow: 0 0 0px var(--navy); }
-        
-        @keyframes parpadeoLento {
-            0% { background-color: white; color: var(--navy); }
-            45% { background-color: var(--red); color: white; }
-            55% { background-color: var(--green); color: white; }
-            100% { background-color: white; color: var(--navy); }
-        }
-        .resaltado { animation: parpadeoLento 8s infinite; }
-        .seleccionado { visibility: hidden; pointer-events: none; }
-        
-        /* OVERLAYS */
-        #overlay-nivel, #overlay-final { position: absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 3000; padding: 20px; text-align: center; }
-        #overlay-nivel { background: rgba(74, 20, 140, 0.98); color: white; }
-        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
+        .btn-opcion:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--navy); }
+        .btn-opcion.correcta { background: var(--success); color: white; border-color: #2E7D32; }
+        .btn-opcion.incorrecta { background: var(--error); color: white; border-color: #C62828; }
 
-        .cuadro-resultados { background: white; color: var(--navy); padding: 30px; border-radius: 25px; width: 90%; max-width: 450px; border: 5px solid var(--gold); }
-        
-        .btn-finalizar { background: var(--gold); border: none; padding: 18px 40px; border-radius: 35px; font-weight: bold; cursor: pointer; margin-top: 20px; color: var(--navy); font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .area-asistente { 
+            width: 100%; background: white; padding: 10px 20px; 
+            display: flex; align-items: center; gap: 15px; 
+            border-top: 4px solid var(--p-purple); height: 110px; flex-shrink: 0;
+        }
+
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; }
+        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; height: 75px; overflow-y: auto; color: var(--navy); }
+
+        #overlay-final { 
+            position: absolute; inset: 0; display: none; flex-direction: column; 
+            justify-content: center; align-items: center; background: rgba(16, 58, 87, 0.98); 
+            z-index: 3000; color: white; padding: 20px;
+        }
+
+        .cuadro-resultados { 
+            background: white; color: var(--navy); padding: 30px; 
+            border-radius: 25px; width: 90%; max-width: 450px; text-align: center; 
+        }
+
+        .btn-finalizar { 
+            background: var(--gold); border: none; padding: 18px 40px; 
+            border-radius: 35px; font-weight: bold; cursor: pointer; 
+            margin-top: 20px; color: var(--p-purple); font-size: 1.3rem; 
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body onload="iniciarSesion()">
 
 <div id="viewport-container">
-    <header>SESIÓN 6: DECISIONES E INHIBICIÓN</header>
+    <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 6</header>
 
     <div id="contenedor-juego">
-        <div id="panel-instruccion" class="panel-instruccion">Cargando...</div>
-        <div id="status-ronda" style="font-weight: bold; margin: 10px; color: var(--p-purple); font-size: 1.1rem;"></div>
-        <div id="pantalla-juego" class="rejilla-numeros"></div>
+        <div id="info-progreso" style="margin-bottom: 10px; font-weight: bold; color: var(--p-purple);">Situación 1 de 6</div>
+        <div class="tarjeta-situacion">
+            <p id="pregunta-texto" class="texto-situacion">Cargando situación...</p>
+        </div>
+        <div id="zona-opciones" class="zona-opciones"></div>
     </div>
 
-    <div id="overlay-nivel">
-        <h1 id="lvl-titulo" style="color: var(--gold); font-size: 3.5rem; margin:0;">NIVEL 1</h1>
-        <p id="lvl-mensaje" style="font-size: 1.8rem;"></p>
+    <div class="area-asistente">
+        <div class="avatar-img"><img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" style="width:100%"></div>
+        <div class="burbuja" id="texto-asistente">Juan, ante un problema, siempre hay una opción más segura.</div>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-resultados">
-            <h1 style="color: var(--p-purple); margin: 0;">¡SESIÓN COMPLETADA!</h1>
-            <div id="resumen-stats" style="font-size: 1.2rem; margin: 20px 0; line-height: 1.6;"></div>
-            <p style="font-style: italic; color: #555;">"Tu mente se adapta cada vez mejor a los cambios, Juan."</p>
-            <button class="btn-finalizar" onpointerdown="guardarYSalir()">FINALIZAR</button>
+            <h1 style="color: var(--p-purple); margin:0;">¡EXCELENTE TRABAJO!</h1>
+            <p>Has practicado cómo tomar mejores decisiones hoy.</p>
+            <div id="stats-final" style="font-size: 1.2rem; margin: 20px 0; font-weight: bold;"></div>
+            <button class="btn-finalizar" onclick="guardarYSalir()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
 
 <script>
-    const baseDatos = [17, 482, 93, 205, 16, 378, 44, 129, 301, 78, 56, 410, 223, 19, 67, 288, 145, 399, 2, 350, 174, 82, 461, 37, 290, 115, 64, 418, 251, 9, 333, 147, 72, 396, 28, 184, 512, 6, 270, 134, 89, 455, 213, 48, 362, 101, 420, 76, 5, 398, 167, 244, 53, 309, 91, 402, 186, 73, 258, 14, 371, 120, 499, 32, 260, 87, 411, 155, 68, 305, 11, 472, 139, 57, 289, 200, 413, 96, 24, 361, 75, 182, 449, 30, 277, 108, 421, 66, 3, 354, 141, 88, 467, 21, 312, 50, 239, 104, 480, 265, 92, 336, 7, 390, 153, 47, 422, 81, 214, 59, 375, 26, 300, 98, 431, 63, 176, 285, 10, 460, 137, 70, 348, 29, 407, 122, 55, 492, 34, 218, 83, 369, 18, 445, 140, 71, 326, 94, 62, 380, 27, 415, 109, 52, 468, 35, 240, 84, 397, 13, 444, 162, 58, 320, 95, 276, 74, 408, 23, 356, 131, 69, 41, 219, 86, 364, 15, 430, 166, 60, 311, 99, 287, 45, 401, 22, 370, 135, 80, 459, 33, 206, 90, 338, 8, 419, 158, 61, 294, 102, 274, 49, 386, 25, 343, 126, 79, 473, 40, 212, 85, 355, 4, 438, 150, 65, 317, 103, 263, 54, 392];
+    const situaciones = [
+        {
+            s: "Vas a cocinar y notas que el mango del sartén está muy caliente.",
+            o: ["Lo agarro rápido", "Uso un guante o trapo seco", "Le echo agua fría"],
+            c: 1,
+            v: "Juan, usa siempre protección para no quemarte."
+        },
+        {
+            s: "Terminas de usar la plancha. ¿Qué es lo más importante?",
+            o: ["Dejarla sobre la ropa", "Desconectarla y guardarla en lugar seguro", "Dejarla prendida para luego"],
+            c: 1,
+            v: "Muy bien, desconectar los aparatos evita incendios."
+        },
+        {
+            s: "Alguien que no conoces golpea la puerta y dice que viene a revisar el gas, pero no avisaron.",
+            o: ["Lo dejo entrar", "Le pido que vuelva después", "No abro y llamo a un familiar o a la empresa"],
+            c: 2,
+            v: "Correcto Juan, la seguridad es lo primero, no abras a desconocidos."
+        },
+        {
+            s: "Sientes un olor fuerte a gas en la cocina.",
+            o: ["Prendo la luz para ver", "Abro las ventanas y cierro la llave del gas", "Me voy a dormir"],
+            c: 1,
+            v: "Exacto, ventilar y cerrar la llave es la decisión más segura."
+        },
+        {
+            s: "Ves un charco de agua en el piso del pasillo.",
+            o: ["Paso por encima", "Limpio el agua para no resbalar", "Espero a que se seque solo"],
+            c: 1,
+            v: "Bien pensado, evitar una caída es clave para tu salud."
+        },
+        {
+            s: "Te ofrecen un medicamento nuevo que no te recetó tu médico.",
+            o: ["Lo pruebo a ver si me sirve", "No lo tomo y consulto con mi médico", "Me tomo la mitad"],
+            c: 1,
+            v: "Nunca tomes remedios sin orden médica, Juan."
+        }
+    ];
 
-    let nivel = 1, ronda = 1;
-    let aciertos = 0, errores = 0;
-    let objetivosRestantes = 0;
-    let siguienteCorrecto = 0;
-    let listaActual = [];
-    const TOTAL_RONDAS = 3;
+    let indiceActual = 0;
+    let aciertos = 0;
+    let errores = 0;
+    let bloqueado = false;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); 
-        m.lang = 'es-ES'; 
-        m.rate = 0.95;
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES';
         window.speechSynthesis.speak(m);
+        document.getElementById('texto-asistente').innerText = t;
     }
 
     function iniciarSesion() {
-        hablar("Juan, selecciona los números más pequeños en orden. Ignora los colores que intentan confundirte.");
-        cargarRonda();
+        hablar("Hola Juan. Vamos a elegir la mejor solución para cada situación.");
+        mostrarSituacion();
     }
 
-    function cargarRonda() {
-        const pantalla = document.getElementById('pantalla-juego');
-        const instruccion = document.getElementById('panel-instruccion');
-        pantalla.innerHTML = "";
+    function mostrarSituacion() {
+        bloqueado = false;
+        const sit = situaciones[indiceActual];
+        document.getElementById('info-progreso').innerText = `Situación ${indiceActual + 1} de ${situaciones.length}`;
+        document.getElementById('pregunta-texto').innerText = sit.s;
         
-        let cantTotal = (nivel === 1) ? 6 : (nivel === 2) ? 12 : 24;
-        let cantObj = Math.floor(cantTotal / 2);
+        const zona = document.getElementById('zona-opciones');
+        zona.innerHTML = "";
         
-        let gridCols = "repeat(3, 1fr)";
-        if(nivel === 2) gridCols = "repeat(4, 1fr)";
-        if(nivel === 3) gridCols = "repeat(4, 1fr)";
-        pantalla.style.gridTemplateColumns = gridCols;
-
-        let pool = [...baseDatos].sort(() => Math.random() - 0.5).slice(0, cantTotal);
-        listaActual = [...pool].sort((a,b) => a - b).slice(0, cantObj);
-        siguienteCorrecto = listaActual[0];
-        objetivosRestantes = cantObj;
-
-        if (nivel === 1) {
-            instruccion.innerHTML = `Busca los ${cantObj} números más pequeños de la rejilla.`;
-        } else if (nivel === 2) {
-            instruccion.innerHTML = `<span style="color:var(--red)">¡ATENCIÓN!</span> Ignora el color rojo y sigue buscando el más pequeño.`;
-            hablar("Cuidado Juan, ahora los colores pueden intentar distraerte. Sigue buscando el menor.");
-        } else {
-            instruccion.innerHTML = `Nivel de Interferencia Alto: Encuentra los ${cantObj} menores.`;
-        }
-
-        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Ronda ${ronda}/${TOTAL_RONDAS} | Faltan: ${objetivosRestantes}`;
-
-        pool.forEach(num => {
-            const card = document.createElement('div');
-            card.className = 'num-card';
-            card.innerText = num;
-            
-            if (nivel >= 2) {
-                card.classList.add('resaltado');
-                if (nivel === 2 && listaActual.includes(num)) {
-                    card.style.animationDelay = "-2s"; 
-                } else {
-                    card.style.animationDelay = (Math.random() * 8) + "s";
-                }
-            } else if (Math.random() > 0.6) {
-                card.classList.add('resaltado');
-            }
-
-            card.onpointerdown = (e) => {
-                e.preventDefault();
-                if (num === siguienteCorrecto) {
-                    card.classList.add('seleccionado');
-                    aciertos++;
-                    listaActual.shift();
-                    objetivosRestantes--;
-                    if (listaActual.length > 0) {
-                        siguienteCorrecto = listaActual[0];
-                        document.getElementById('status-ronda').innerText = `Nivel ${nivel} - Ronda ${ronda}/${TOTAL_RONDAS} | Faltan: ${objetivosRestantes}`;
-                    } else {
-                        avanzar();
-                    }
-                } else {
-                    if(!card.classList.contains('seleccionado')) {
-                        errores++;
-                        hablar("Ese no es el más pequeño, Juan.");
-                        card.style.borderColor = "var(--red)";
-                        card.style.transform = "translateX(5px)";
-                        setTimeout(() => {
-                            card.style.borderColor = "var(--navy)";
-                            card.style.transform = "none";
-                        }, 400);
-                    }
-                }
-            };
-            pantalla.appendChild(card);
+        sit.o.forEach((opc, i) => {
+            const btn = document.createElement('button');
+            btn.className = "btn-opcion";
+            btn.innerText = opc;
+            btn.onclick = () => validar(i, btn);
+            zona.appendChild(btn);
         });
+        hablar(sit.s);
     }
 
-    function avanzar() {
-        if (ronda < TOTAL_RONDAS) {
-            ronda++;
-            hablar("¡Excelente decisión!");
-            setTimeout(cargarRonda, 1200);
-        } else if (nivel < 3) {
-            nivel++; ronda = 1;
-            mostrarCambioNivel();
+    function validar(idx, btn) {
+        if(bloqueado) return;
+        bloqueado = true;
+        const sit = situaciones[indiceActual];
+
+        if(idx === sit.c) {
+            aciertos++;
+            btn.classList.add('correcta');
+            hablar(sit.v);
         } else {
-            finalizar();
+            errores++;
+            btn.classList.add('incorrecta');
+            hablar("Esa no es la mejor opción. " + sit.v);
         }
-    }
 
-    function mostrarCambioNivel() {
-        const overlay = document.getElementById('overlay-nivel');
-        let msj = nivel === 2 ? "Ahora los números parpadearán para distraerte. ¡No les hagas caso!" : "Máxima concentración. Los números son más y cambian rápido.";
-        document.getElementById('lvl-titulo').innerText = "NIVEL " + nivel;
-        document.getElementById('lvl-mensaje').innerText = msj;
-        overlay.style.display = 'flex';
-        hablar(msj);
-        setTimeout(() => { overlay.style.display = 'none'; cargarRonda(); }, 4000);
+        setTimeout(() => {
+            indiceActual++;
+            if(indiceActual < situaciones.length) {
+                mostrarSituacion();
+            } else {
+                finalizar();
+            }
+        }, 3500);
     }
 
     function finalizar() {
-        const totalIntentos = aciertos + errores;
-        const eficacia = totalIntentos > 0 ? Math.round((aciertos / totalIntentos) * 100) : 0;
-        
         document.getElementById('overlay-final').style.display = 'flex';
-        document.getElementById('resumen-stats').innerHTML = `
-            <b>Aciertos:</b> ${aciertos}<br>
-            <b>Errores:</b> ${errores}<br>
-            <b>Eficacia:</b> ${eficacia}%
-        `;
-        hablar("Juan, has terminado con éxito. Tu mente se adapta cada vez mejor a los cambios.");
+        const ef = Math.round((aciertos / situaciones.length) * 100);
+        document.getElementById('stats-final').innerHTML = `Aciertos: ${aciertos}<br>Eficacia: ${ef}%`;
+        hablar("Muy bien Juan. Has terminado la sesión de hoy. Recuerda siempre pensar antes de actuar.");
     }
 
     function guardarYSalir() {
-        const totalIntentos = aciertos + errores;
-        const eficacia = totalIntentos > 0 ? Math.round((aciertos / totalIntentos) * 100) : 0;
-
-        const dataLog = {
+        const ef = Math.round((aciertos / situaciones.length) * 100);
+        const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
             id_sesion: 6,
             aciertos: aciertos,
             errores: errores,
-            eficacia: eficacia + "%"
-        };
-
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
-        window.location.href = 'funcion_sesiones.html';
-    }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
-        const datosSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
-            id_sesion: 6,      
-            aciertos: aciertos,
-            errores: errores,
             eficacia: ef + "%"
         };
 
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
-        historial.push(datosSesion); 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
-        window.location.href = "atencion_sesiones.html";
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(datos);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+        
+        window.location.href = "funcion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
-
