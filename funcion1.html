@@ -90,24 +90,12 @@
             { 
                 t: "Salir al trabajo o estudio", 
                 pasos: [
-                    {e:"⏰", p:"Despertarse"}, 
-                    {e:"🛏️", p:"Levantarse"}, 
-                    {e:"🍽️", p:"Desayunar"}, 
-                    {e:"🚿", p:"Bañarse"}, 
-                    {e:"🪥", p:"Lavar dientes"}, 
-                    {e:"👕", p:"Vestirse"}, 
-                    {e:"👟", p:"Ponerse zapatos"}, 
-                    {e:"📱", p:"Revisar celular"}, 
-                    {e:"📝", p:"Verificar pendientes"}, 
-                    {e:"🎒", p:"Preparar mochila"}, 
-                    {e:"💻", p:"Guardar materiales"}, 
-                    {e:"💰", p:"Tomar dinero"}, 
-                    {e:"🔑", p:"Tomar llaves"}, 
-                    {e:"🪞", p:"Revisarse espejo"}, 
-                    {e:"🚪", p:"Salir casa"}, 
-                    {e:"🔒", p:"Cerrar puerta"}, 
-                    {e:"🚶‍♂️", p:"Ir al transporte"}, 
-                    {e:"🚌", p:"Iniciar trayecto"}
+                    {e:"⏰", p:"Despertarse"}, {e:"🛏️", p:"Levantarse"}, {e:"🍽️", p:"Desayunar"}, 
+                    {e:"🚿", p:"Bañarse"}, {e:"🪥", p:"Lavar dientes"}, {e:"👕", p:"Vestirse"}, 
+                    {e:"👟", p:"Ponerse zapatos"}, {e:"📱", p:"Revisar celular"}, {e:"📝", p:"Verificar pendientes"}, 
+                    {e:"🎒", p:"Preparar mochila"}, {e:"💻", p:"Guardar materiales"}, {e:"💰", p:"Tomar dinero"}, 
+                    {e:"🔑", p:"Tomar llaves"}, {e:"🪞", p:"Revisarse espejo"}, {e:"🚪", p:"Salir casa"}, 
+                    {e:"🔒", p:"Cerrar puerta"}, {e:"🚶‍♂️", p:"Ir al transporte"}, {e:"🚌", p:"Iniciar trayecto"}
                 ] 
             }
         ]
@@ -157,7 +145,7 @@
                 if(distElegidos.some(d => d.p === obj.p)) {
                     totalErrores++;
                     div.classList.add('error-distractor');
-                    hablar("Eso es un distractor, Juan. No es parte de esta tarea.");
+                    hablar("Eso es un distractor, Juan.");
                     setTimeout(() => div.classList.remove('error-distractor'), 500);
                     return;
                 }
@@ -214,7 +202,7 @@
                 
                 setTimeout(() => resetearIntento(), 4500);
             } else {
-                hablar("El orden no es el correcto. Revisa los pasos e intenta de nuevo.");
+                hablar("El orden no es el correcto. Intenta de nuevo.");
                 setTimeout(() => resetearIntento(), 1500);
             }
         }
@@ -225,24 +213,26 @@
         document.getElementById('area-secuencia').innerHTML = "";
         document.getElementById('btn-verificar').style.display = "none";
         document.querySelectorAll('.tarjeta').forEach(t => {
-            t.classList.remove('seleccionada');
-            t.classList.remove('pista-activa');
+            t.classList.remove('seleccionada', 'pista-activa');
         });
     }
 
     function finalizarSesion() {
-        const ef = Math.round((totalAciertos / 3) * 100);
+        // OPCIÓN A: Eficacia basada en precisión (Aciertos vs Errores totales)
+        const ef = Math.round((totalAciertos / (totalAciertos + totalErrores)) * 100) || 0;
+        
         document.getElementById('stats-visual').innerHTML = `
             <p><b>Actividades:</b> ${totalAciertos}/3</p>
-            <p><b>Errores:</b> ${totalErrores}</p>
-            <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
+            <p><b>Errores cometidos:</b> ${totalErrores}</p>
+            <h2 style="color:#2E7D32">Eficacia Real: ${ef}%</h2>
+            <p style="font-size:0.8rem; color:#666;">(Cálculo basado en precisión vs. intentos)</p>
         `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar("Muy bien Juan. Has terminado tu sesión de hoy.");
+        hablar("Muy bien Juan. Hemos terminado por hoy.");
     }
 
     function irAlMenu() {
-        const ef = Math.round((totalAciertos / 3) * 100);
+        const ef = Math.round((totalAciertos / (totalAciertos + totalErrores)) * 100) || 0;
         const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Planificación", id_sesion: 1,      
