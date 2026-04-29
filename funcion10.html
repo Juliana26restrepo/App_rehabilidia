@@ -255,7 +255,6 @@
         const c = DB[lvl], e = c.exs[ex-1];
         const g = document.getElementById('grid');
         
-        // Cálculo de tamaño responsivo manteniendo el grid visible
         const winH = window.innerHeight;
         const headerH = 150;
         const availableH = winH - headerH - 100;
@@ -362,50 +361,31 @@
         speak("Sesión completada. Mira tus resultados.");
     }
 
+    // --- FUNCIÓN DE GUARDADO CORREGIDA ---
     function guardarYSalir() {
-        const eficacia = ((totalSuccess / TOTAL_EJERCICIOS) * 100).toFixed(0);
-        const data = {
+        const eficaciaFinal = Math.round((totalSuccess / (totalSuccess + (fails * 0.1))) * 100) || 0;
+        
+        const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
             id_sesion: 10,
             aciertos: totalSuccess,
             errores: fails,
-            eficacia: eficacia + "%"
+            eficacia: eficaciaFinal + "%"
         };
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(data));
-        window.location.href = 'menu.html'; // O la ruta correspondiente
+
+        // Guardar en la clave 'sesiones_rehabilitidia' (la que te funciona)
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        if (!Array.isArray(historial)) historial = [];
+        historial.push(datosSesion);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
+
+        // Redirigir a la pantalla de sesiones
+        window.location.href = "funcion_sesiones.html";
     }
 
     window.addEventListener('resize', renderM);
     window.onload = build;
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
-    function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
-        const datosSesion = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
-            id_sesion: 10,       
-            aciertos: aciertos,
-            errores: errores,
-            eficacia: ef + "%"
-        };
-
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
-        historial.push(datosSesion); 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
-        window.location.href = "atencion_sesiones.html";
-    }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
