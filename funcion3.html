@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sesión 3: Control Inhibitorio - REHABILIDIA</title>
     <style>
         :root { 
@@ -10,10 +10,10 @@
             --navy: #103A57; --white: #ffffff;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        * { box-sizing: border-box; touch-action: manipulation; }
         
         body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; background: #121212; 
+            font-family: 'Segoe UI', sans-serif; margin: 0; background: #1a1a1a; 
             display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; 
         }
 
@@ -22,232 +22,222 @@
             position: relative; display: flex; flex-direction: column;
         }
 
-        header { background: var(--navy); color: white; height: 8%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; }
+        header { background: var(--navy); color: white; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        #contenedor-juego { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px; }
+        #contenedor-juego { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 20px; }
         
         .panel-regla { 
-            background: var(--p-purple); color: white; padding: 12px 30px; border-radius: 50px; 
-            font-size: 1.4rem; font-weight: bold; border: 4px solid var(--gold); 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            background: var(--p-purple); color: white; padding: 15px 40px; border-radius: 50px; 
+            font-size: 1.5rem; font-weight: bold; border: 4px solid var(--gold);
         }
 
-        #estimulo-central { font-size: 4.5rem; font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #estimulo-central { font-size: 5rem; font-weight: 900; text-align: center; }
 
+        /* Cuadrícula de 4 botones SIEMPRE fija */
         #zona-opciones { 
             display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; 
-            width: 95%; 
-            max-width: 500px; 
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: 1fr 1fr;
+            gap: 20px; 
+            width: 100%; 
+            max-width: 600px;
+            height: 250px;
         }
 
         .opcion { 
-            background: var(--white); border: 4px solid var(--navy); padding: 25px 10px; border-radius: 20px; 
-            font-size: 1.5rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
-            transition: all 0.1s; display: flex; align-items: center; justify-content: center; color: var(--navy);
-            text-transform: uppercase;
+            background: var(--white); border: 5px solid var(--navy); border-radius: 20px; 
+            font-size: 1.8rem; font-weight: bold; cursor: pointer; color: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 0px var(--navy); text-transform: uppercase;
         }
         .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
-        
-        #pantalla-transicion, #overlay-final { 
-            position: absolute; inset:0; display:none; flex-direction:column; 
-            justify-content:center; align-items:center; z-index: 2000; padding: 20px; 
-        }
-        
-        #pantalla-transicion { background: var(--p-purple); color: white; }
-        #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
-        
-        .cuadro-resultados { background: var(--white); color: var(--navy); padding: 30px; border-radius: 30px; width: 90%; max-width: 450px; border: 6px solid var(--gold); text-align: center; }
-        .avatar-guia { width: 90px; height: 90px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 
-        .btn-inicio { background: var(--gold); color: var(--p-purple); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; display: none; }
+        /* Pantallas de mensaje */
+        #pantalla-mensaje, #overlay-final { 
+            position: absolute; inset: 0; background: var(--p-purple); color: white;
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 30px;
+        }
+        .btn-grande { background: var(--gold); color: var(--p-purple); border: none; padding: 20px 50px; border-radius: 50px; font-size: 1.5rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
     </style>
 </head>
-<body onload="iniciarSesion()">
+<body>
 
 <div id="viewport-container">
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
     <div id="contenedor-juego">
-        <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Preparando...</div>
+        <div id="info-progreso" style="font-weight: bold; color: var(--navy); font-size: 1.2rem;"></div>
         <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
+        
         <div id="estimulo-central">---</div>
-        <div id="zona-opciones"></div>
+
+        <div id="zona-opciones">
+            <div class="opcion" id="opt0" onclick="procesarRespuesta(0)"></div>
+            <div class="opcion" id="opt1" onclick="procesarRespuesta(1)"></div>
+            <div class="opcion" id="opt2" onclick="procesarRespuesta(2)"></div>
+            <div class="opcion" id="opt3" onclick="procesarRespuesta(3)"></div>
+        </div>
     </div>
 
-    <div id="pantalla-transicion">
-        <div class="avatar-guia">👨‍⚕️</div>
-        <h1 id="titulo-aviso" style="color: var(--gold); margin:0;">NIVEL 1</h1>
-        <p id="texto-aviso" style="font-size: 1.3rem; text-align: center; max-width: 600px; line-height: 1.5;"></p>
-        <button id="btn-empezar" class="btn-inicio" onclick="cerrarTransicion()">¡ENTENDIDO!</button>
+    <div id="pantalla-mensaje">
+        <h1 id="msg-titulo" style="color: var(--gold);"></h1>
+        <p id="msg-texto" style="font-size: 1.4rem; max-width: 80%"></p>
+        <button class="btn-grande" onclick="cerrarMensaje()">EMPEZAR</button>
     </div>
 
     <div id="overlay-final">
-        <div class="cuadro-resultados">
-            <h1 style="color: var(--p-purple); margin: 0; font-size: 1.8rem;">¡SESIÓN COMPLETADA!</h1>
-            <div id="visual-stats" style="margin: 25px 0; text-align: left; font-size: 1.2rem; color: var(--navy);"></div>
-            <button class="opcion" style="width: 100%; background: #2E7D32; color: white; border: none; box-shadow: none;" onclick="guardarYSalir()">FINALIZAR Y GUARDAR</button>
-        </div>
+        <h1>¡SESIÓN FINALIZADA!</h1>
+        <div id="stats" style="font-size: 1.5rem; margin: 20px 0;"></div>
+        <button class="btn-grande" onclick="guardarYSalir()">GUARDAR Y VOLVER</button>
     </div>
 </div>
 
 <script>
-    const listaColores = [
-        { n: "ROJO", h: "#D32F2F" },
-        { n: "AZUL", h: "#1976D2" },
-        { n: "VERDE", h: "#388E3C" },
-        { n: "AMARILLO", h: "#FBC02D" },
-        { n: "NEGRO", h: "#212121" }
+    const COLORES = [
+        { nombre: "ROJO", hex: "#D32F2F" },
+        { nombre: "AZUL", hex: "#1976D2" },
+        { nombre: "VERDE", hex: "#388E3C" },
+        { nombre: "AMARILLO", hex: "#FBC02D" },
+        { nombre: "NEGRO", hex: "#212121" }
     ];
 
-    let nivelActual = 1, ejercicioActual = 1, rondaActual = 1;
-    let aciertos = 0, errores = 0, regla = "palabra";
-    let esperandoRespuesta = false;
+    let nivel = 1, ejercicio = 1, ronda = 1;
+    let aciertos = 0, errores = 0, respuestaCorrecta = "";
+    let reglaActual = "palabra";
 
-    function hablar(t, callback) {
+    function hablar(texto) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t);
-        m.lang = 'es-ES'; m.rate = 0.9;
-        m.onend = () => { if(callback) callback(); };
+        const m = new SpeechSynthesisUtterance(texto);
+        m.lang = 'es-ES';
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() { mostrarNivel(); }
+    function iniciar() {
+        prepararNivel();
+    }
 
-    function mostrarNivel() {
-        const pantalla = document.getElementById('pantalla-transicion');
-        const tit = document.getElementById('titulo-aviso');
-        const desc = document.getElementById('texto-aviso');
-        const btn = document.getElementById('btn-empezar');
-        btn.style.display = "none";
+    function prepararNivel() {
+        const p = document.getElementById('pantalla-mensaje');
+        const t = document.getElementById('msg-titulo');
+        const txt = document.getElementById('msg-texto');
         
-        let msg = "";
-        if(nivelActual === 1) {
-            tit.innerText = "NIVEL 1: LECTURA";
-            msg = "Juan, toca la palabra que lees. No importa el color de la letra.";
-            regla = "palabra";
-        } else if(nivelActual === 2) {
-            tit.innerText = "NIVEL 2: COLORES";
-            msg = "¡Atención! Ahora toca el color de la letra. No leas la palabra.";
-            regla = "color";
+        if(nivel === 1) {
+            t.innerText = "NIVEL 1: LECTURA";
+            txt.innerText = "Juan, debes tocar el botón de la PALABRA que leas, sin importar el color de la letra.";
+            reglaActual = "palabra";
+        } else if(nivel === 2) {
+            t.innerText = "NIVEL 2: COLORES";
+            txt.innerText = "¡Cambio! Ahora toca el botón del COLOR de la letra, no leas la palabra.";
+            reglaActual = "color";
         } else {
-            tit.innerText = "NIVEL 3: MIXTO";
-            msg = "¡Cuidado! Mira bien arriba: si dice LEE toca la palabra, si dice COLOR toca el color.";
+            t.innerText = "NIVEL 3: MIXTO";
+            txt.innerText = "¡Mucha atención! Lee el recuadro de arriba para saber si debes tocar la palabra o el color.";
         }
-
-        desc.innerText = msg;
-        pantalla.style.display = 'flex';
-        hablar(msg, () => { btn.style.display = "block"; });
+        
+        p.style.display = 'flex';
+        hablar(txt.innerText);
     }
 
-    function cerrarTransicion() {
-        document.getElementById('pantalla-transicion').style.display = 'none';
-        jugarTurno();
+    function cerrarMensaje() {
+        document.getElementById('pantalla-mensaje').style.display = 'none';
+        siguienteTurno();
     }
 
-    function jugarTurno() {
-        if (rondaActual > 4) {
-            if (ejercicioActual < 3) {
-                ejercicioActual++; rondaActual = 1;
-                hablar(`Ejercicio ${ejercicioActual}`, jugarTurno);
+    function siguienteTurno() {
+        if (ronda > 4) {
+            if (ejercicio < 3) {
+                ejercicio++; ronda = 1;
+                hablar("Siguiente ejercicio");
+                siguienteTurno();
             } else {
-                if (nivelActual < 3) { nivelActual++; ejercicioActual = 1; rondaActual = 1; mostrarNivel(); }
+                if (nivel < 3) { nivel++; ejercicio = 1; ronda = 1; prepararNivel(); }
                 else { finalizar(); }
             }
             return;
         }
 
-        document.getElementById('info-progreso').innerText = `Nivel ${nivelActual} - Ejercicio ${ejercicioActual}/3 (Turno ${rondaActual}/4)`;
-        
-        // Determinar regla
-        if (nivelActual === 3) { regla = Math.random() > 0.5 ? "palabra" : "color"; }
-        document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
+        document.getElementById('info-progreso').innerText = `Nivel ${nivel} - Ejercicio ${ejercicio}/3 - Turno ${ronda}/4`;
 
-        // Estímulo central
-        const palObj = listaColores[Math.floor(Math.random() * listaColores.length)];
-        let colObj;
-        do { colObj = listaColores[Math.floor(Math.random() * listaColores.length)]; } while (colObj.h === palObj.h);
+        // Definir regla en nivel mixto
+        if (nivel === 3) {
+            reglaActual = Math.random() > 0.5 ? "palabra" : "color";
+        }
+        document.getElementById('panel-regla').innerText = reglaActual === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
+
+        // Crear estímulo con trampa (Color de tinta != Palabra)
+        let indicePalabra = Math.floor(Math.random() * COLORES.length);
+        let indiceTinta;
+        do { indiceTinta = Math.floor(Math.random() * COLORES.length); } while (indiceTinta === indicePalabra);
 
         const central = document.getElementById('estimulo-central');
-        central.innerText = palObj.n;
-        central.style.color = colObj.h;
+        central.innerText = COLORES[indicePalabra].nombre;
+        central.style.color = COLORES[indiceTinta].hex;
 
-        const correcta = regla === "palabra" ? palObj : colObj;
-        esperandoRespuesta = true;
+        // Definir cuál es la respuesta que debe buscar el usuario
+        const objetoCorrecto = reglaActual === "palabra" ? COLORES[indicePalabra] : COLORES[indiceTinta];
+        respuestaCorrecta = objetoCorrecto.nombre;
 
-        // --- GENERAR EXACTAMENTE 4 BOTONES ---
-        const zona = document.getElementById('zona-opciones');
-        zona.innerHTML = ""; 
+        // --- ASIGNACIÓN DE LOS 4 BOTONES ---
+        // 1. Elegir un botón al azar para la respuesta correcta
+        let botones = [0, 1, 2, 3];
+        let idCorrecto = botones.splice(Math.floor(Math.random() * botones.length), 1)[0];
+        document.getElementById(`opt${idCorrecto}`).innerText = respuestaCorrecta;
 
-        // 1. Empezamos con la correcta
-        let seleccion = [correcta];
-        // 2. Buscamos 3 más que no sean la correcta
-        let otros = listaColores.filter(c => c.n !== correcta.n);
-        otros.sort(() => Math.random() - 0.5);
-        
-        // 3. Añadimos los primeros 3 distractores
-        seleccion.push(otros[0], otros[1], otros[2]);
-        
-        // 4. Mezclamos los 4 finales
-        seleccion.sort(() => Math.random() - 0.5);
+        // 2. Rellenar los otros 3 botones con colores diferentes a la correcta
+        let distractores = COLORES.filter(c => c.nombre !== respuestaCorrecta);
+        distractores.sort(() => Math.random() - 0.5);
 
-        seleccion.forEach(item => {
-            const btn = document.createElement('div');
-            btn.className = 'opcion';
-            btn.innerText = item.n;
-            btn.onclick = () => {
-                if(!esperandoRespuesta) return;
-                esperandoRespuesta = false;
-                
-                if (item.n === correcta.n) {
-                    aciertos++;
-                    document.getElementById('viewport-container').style.backgroundColor = "#C8E6C9";
-                } else {
-                    errores++;
-                    document.getElementById('viewport-container').style.backgroundColor = "#FFCDD2";
-                    hablar("Fíjate bien.");
-                }
-                
-                setTimeout(() => {
-                    document.getElementById('viewport-container').style.backgroundColor = "#CEE5D6";
-                    rondaActual++;
-                    jugarTurno();
-                }, 600);
-            };
-            zona.appendChild(btn);
+        botones.forEach((idBoton, i) => {
+            document.getElementById(`opt${idBoton}`).innerText = distractores[i].nombre;
         });
+    }
+
+    function procesarRespuesta(id) {
+        const textoSeleccionado = document.getElementById(`opt${id}`).innerText;
+        const container = document.getElementById('viewport-container');
+
+        if (textoSeleccionado === respuestaCorrecta) {
+            aciertos++;
+            container.style.backgroundColor = "#C8E6C9";
+        } else {
+            errores++;
+            container.style.backgroundColor = "#FFCDD2";
+            hablar("Fíjate bien");
+        }
+
+        setTimeout(() => {
+            container.style.backgroundColor = "var(--bg)";
+            ronda++;
+            siguienteTurno();
+        }, 600);
     }
 
     function finalizar() {
         const total = aciertos + errores;
         const ef = Math.round((aciertos / total) * 100) || 0;
-        document.getElementById('visual-stats').innerHTML = `
-            <p>Aciertos: ${aciertos}</p>
-            <p>Errores: ${errores}</p>
-            <hr>
-            <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
-        `;
+        document.getElementById('stats').innerHTML = `Aciertos: ${aciertos}<br>Errores: ${errores}<br>Eficacia: ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar(`Sesión terminada. Eficacia del ${ef} por ciento.`);
+        hablar(`Sesión completada. Eficacia del ${ef} por ciento.`);
     }
 
     function guardarYSalir() {
-        const total = aciertos + errores;
-        const ef = Math.round((aciertos / total) * 100) || 0;
+        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
         const datos = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "Función Ejecutiva", 
-            id_sesion: 3,       
+            modulo: "Funciones Ejecutivas",
+            sesion: "Control Inhibitorio",
             aciertos: aciertos,
             errores: errores,
             eficacia: ef + "%"
         };
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        historial.push(datos); 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(datos);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
         window.location.href = "funcion_sesiones.html";
     }
+
+    window.onload = iniciar;
 </script>
 </body>
 </html>
+
