@@ -29,12 +29,12 @@
         .panel-regla { 
             background: var(--p-purple); color: white; padding: 12px 30px; border-radius: 50px; 
             font-size: 1.4rem; font-weight: bold; border: 4px solid var(--gold); 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2); margin-bottom: 10px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
         #estimulo-central { font-size: clamp(3.5rem, 15vw, 5.5rem); font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; }
 
-        /* Aseguramos que el grid siempre muestre los 4 elementos */
+        /* Forzamos que el grid siempre tenga 4 espacios visibles */
         #zona-opciones { 
             display: grid !important; 
             grid-template-columns: 1fr 1fr !important; 
@@ -42,14 +42,14 @@
             gap: 15px; 
             width: 95%; 
             max-width: 500px; 
-            margin-bottom: 20px;
+            padding-bottom: 20px;
         }
 
         .opcion { 
             background: var(--white); border: 4px solid var(--navy); padding: 20px 5px; border-radius: 20px; 
             font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
             transition: all 0.1s; display: flex; align-items: center; justify-content: center; color: var(--navy);
-            text-transform: uppercase; min-height: 70px;
+            text-transform: uppercase; min-height: 80px;
         }
         .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
         
@@ -76,8 +76,7 @@
         <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Nivel 1 - Ejercicio 1/3</div>
         <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
         <div id="estimulo-central">---</div>
-        <div id="zona-opciones">
-            </div>
+        <div id="zona-opciones"></div>
     </div>
 
     <div id="pantalla-transicion">
@@ -125,21 +124,23 @@
         const btn = document.getElementById('btn-empezar');
         btn.style.display = "none";
         
+        let texto = "";
         if(nivelActual === 1) {
             tit.innerText = "NIVEL 1: LECTURA";
-            desc.innerText = "Juan, lee la palabra que aparece en el centro. No te fijes en el color de la tinta.";
+            texto = "Juan, lee la palabra que aparece en el centro. Ignora el color de la tinta.";
             regla = "palabra";
         } else if(nivelActual === 2) {
             tit.innerText = "NIVEL 2: COLORES";
-            desc.innerText = "¡Cambio! Ahora toca el botón del color de la tinta. No leas la palabra.";
+            texto = "¡Cambio! Ahora toca el botón del color de la tinta. No leas la palabra.";
             regla = "color";
         } else {
             tit.innerText = "NIVEL 3: MIXTO";
-            desc.innerText = "¡Atención! La regla cambiará en cada turno. Lee arriba para saber qué hacer.";
+            texto = "¡Atención! La regla cambiará en cada turno. Lee arriba para saber qué hacer.";
         }
 
+        desc.innerText = texto;
         document.getElementById('pantalla-transicion').style.display = 'flex';
-        hablar(desc.innerText, () => { btn.style.display = "block"; });
+        hablar(texto, () => { btn.style.display = "block"; });
     }
 
     function cerrarTransicion() {
@@ -164,7 +165,7 @@
         if (nivelActual === 3) { regla = Math.random() > 0.5 ? "palabra" : "color"; }
         document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
-        // Elegir estímulo con interferencia (palabra diferente al color)
+        // 1. Seleccionar palabra y color de tinta (deben ser diferentes)
         const pRandom = colores[Math.floor(Math.random() * colores.length)];
         let cRandom;
         do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
@@ -176,26 +177,26 @@
         const correcta = regla === "palabra" ? pRandom : cRandom;
         esperandoRespuesta = true;
 
-        // --- GENERACIÓN DE 4 BOTONES GARANTIZADA ---
+        // 2. GENERAR EXACTAMENTE 4 BOTONES INCLUYENDO LA CORRECTA
         const contenedor = document.getElementById('zona-opciones');
-        contenedor.innerHTML = ""; // Limpiar siempre
-        
-        // Creamos la lista de 4 opciones
+        contenedor.innerHTML = ""; 
+
+        // Filtrar para no repetir la correcta en los distractores
         let distractores = colores.filter(c => c.n !== correcta.n);
-        distractores.sort(() => Math.random() - 0.5);
+        // Mezclar y tomar 3
+        distractores.sort(() => 0.5 - Math.random());
         
-        // Tomamos la correcta + 3 distractores
+        // Unir la correcta con los 3 distractores (Total 4)
         let opcionesFinales = [correcta, distractores[0], distractores[1], distractores[2]];
-        opcionesFinales.sort(() => Math.random() - 0.5);
+        // Mezclar las 4 para que la correcta no siempre esté en el mismo lugar
+        opcionesFinales.sort(() => 0.5 - Math.random());
 
         opcionesFinales.forEach(col => {
             const btn = document.createElement('div');
             btn.className = 'opcion';
             btn.innerText = col.n;
             
-            // Evento para Táctil y Clic
             btn.onpointerdown = (e) => {
-                e.preventDefault();
                 if(!esperandoRespuesta) return;
                 esperandoRespuesta = false;
                 
@@ -206,7 +207,7 @@
                 } else {
                     errores++;
                     container.style.backgroundColor = "#FFCDD2";
-                    hablar("Fíjate en la regla Juan.");
+                    hablar("Concéntrate Juan.");
                 }
                 
                 setTimeout(() => {
@@ -229,13 +230,12 @@
             <h2 style="color:#2E7D32">Eficacia: ${eficacia}%</h2>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar(`Sesión completada. Tu eficacia fue del ${eficacia} por ciento.`);
+        hablar(`Sesión completada Juan. Eficacia del ${eficacia} por ciento.`);
     }
 
     function guardarYSalir() {
         const total = aciertos + errores;
         const ef = Math.round((aciertos / total) * 100) || 0;
-        
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Función Ejecutiva", 
@@ -244,13 +244,12 @@
             errores: errores,
             eficacia: ef + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
-
         window.location.href = "funcion_sesiones.html";
     }
 </script>
 </body>
 </html>
+
