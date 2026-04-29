@@ -3,191 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historia Clínica Completa - REHABILIDIA</title>
+    <title>Protocolo Clínico - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; --text: #1a1a1a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
         
-        header { background: var(--p-blue); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; }
+        header { background: var(--p-blue); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3); padding: 5px 12px; border-radius: 5px; }
 
-        .container { padding: 20px; max-width: 900px; margin: auto; }
+        .container { padding: 40px 20px; max-width: 900px; margin: auto; }
         
-        .paciente-item {
-            background: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border-left: 6px solid var(--t-blue);
+        .paciente-selector {
+            background: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; border-left: 8px solid var(--t-blue); transition: 0.3s;
         }
+        .paciente-selector:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
 
-        /* MODAL Y DOCUMENTO EXTENSO */
-        .modal-historia {
+        /* MODAL Y ESTILO DE DOCUMENTO PROFESIONAL */
+        .modal-full {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; padding: 40px 0;
+            background: rgba(15, 23, 42, 0.9); z-index: 2000; overflow-y: auto; padding: 20px 0;
         }
-        .documento {
-            background: white; width: 90%; max-width: 850px; margin: auto; padding: 60px;
-            border-radius: 2px; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            line-height: 1.6; color: #1a1a1a;
-        }
-        
-        .seccion-hc { margin-bottom: 30px; page-break-inside: avoid; }
-        .seccion-hc h2 { 
-            font-size: 1.2rem; color: var(--p-blue); text-transform: uppercase; 
-            border-bottom: 2px solid var(--p-blue); padding-bottom: 5px; margin-bottom: 15px; 
+        .documento-pro {
+            background: white; width: 95%; max-width: 850px; margin: auto; padding: 50px 70px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3); position: relative; min-height: 100vh;
         }
         
-        .sub-titulo { font-weight: bold; color: var(--t-blue); display: block; margin-top: 15px; border-bottom: 1px solid #eee; }
+        /* TIPOGRAFÍA Y SECCIONES */
+        .header-doc { text-align: center; border-bottom: 3px double var(--p-blue); margin-bottom: 30px; padding-bottom: 20px; }
+        .header-doc h1 { margin: 0; color: var(--p-blue); font-size: 1.8rem; letter-spacing: 1px; }
+        
+        .section { margin-bottom: 25px; page-break-inside: avoid; }
+        .section h2 { 
+            font-size: 1.1rem; color: white; background: var(--p-blue); padding: 8px 15px;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; border-radius: 3px;
+        }
+        
+        .sub-header { font-weight: bold; color: var(--t-blue); border-bottom: 1px solid #eee; display: block; margin: 15px 0 10px; font-size: 1rem; }
 
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background: #f8f9fa; font-weight: bold; }
+        th, td { border: 1px solid #d1d5db; padding: 12px; text-align: left; }
+        th { background: #f8fafc; color: var(--p-blue); font-weight: bold; }
 
-        .interpretacion-clinica { background: #f1f8ff; border-left: 5px solid var(--t-blue); padding: 15px; margin: 10px 0; font-size: 0.9rem; }
-        .grid-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .label { font-weight: bold; color: var(--p-blue); }
+        .clinico-note { background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 15px; margin: 10px 0; font-size: 0.9rem; line-height: 1.5; font-style: italic; }
+        .sintesis-highlight { background: #fffcf0; border: 1px solid #fef3c7; padding: 20px; border-radius: 8px; font-weight: 500; color: #92400e; margin: 20px 0; }
+        
+        .validez-alerta { border: 2px dashed #e2e8f0; padding: 15px; font-size: 0.85rem; color: #64748b; text-align: justify; margin: 20px 0; }
 
-        .tag-alerta { color: #d32f2f; font-weight: bold; }
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        .grid-info div { font-size: 0.95rem; }
+        .bold { font-weight: 700; color: var(--p-blue); }
+
+        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; cursor: pointer; color: #cbd5e1; transition: 0.2s; }
+        .btn-cerrar:hover { color: #ef4444; }
+
+        .btn-print-pro { 
+            background: var(--p-blue); color: white; border: none; padding: 15px 30px; 
+            border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; 
+            font-size: 1rem; margin-top: 40px; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
 
         @media print {
-            header, .btn-print, .btn-cerrar { display: none !important; }
-            .modal-historia { position: absolute; top:0; background: white; padding: 0; }
-            .documento { box-shadow: none; width: 100%; padding: 20px; }
-            .seccion-hc { page-break-inside: avoid; }
+            header, .btn-print-pro, .btn-cerrar { display: none !important; }
+            body { background: white; }
+            .modal-full { position: absolute; top: 0; background: white; padding: 0; }
+            .documento-pro { box-shadow: none; width: 100%; padding: 0; margin: 0; }
+            .section { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div><strong>REHABILIDIA</strong> | Historias Clínicas</div>
-    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
+    <div><strong>REHABILIDIA</strong> | Gestión de Historias Clínicas</div>
+    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-chevron-left"></i> Regresar</a>
 </header>
 
 <div class="container">
-    <div class="paciente-item" onclick="abrirHistoria()">
+    <div class="paciente-selector" onclick="abrirHC()">
         <div>
-            <h3 style="margin:0">Juan Pérez</h3>
-            <p style="margin:5px 0 0; color:#666">TEC Moderado - Informe Neuropsicológico Evolutivo</p>
+            <h2 style="margin:0; font-size: 1.4rem;">Juan Pérez</h2>
+            <p style="margin:5px 0 0; color:#64748b;"><i class="fas fa-id-card"></i> ID: 10293847 | <i class="fas fa-calendar-alt"></i> Última Evaluación: 29/04/2026</p>
         </div>
-        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #d32f2f;"></i>
+        <div style="text-align: right;">
+            <span style="background: #fee2e2; color: #b91c1c; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">TEC MODERADO</span>
+            <br><small style="color: var(--t-blue); font-weight: bold;">Ver Informe Completo <i class="fas fa-eye"></i></small>
+        </div>
     </div>
 </div>
 
-<div id="modalHC" class="modal-historia">
-    <div class="documento">
-        <span onclick="cerrarHistoria()" style="position:absolute; top:20px; right:30px; cursor:pointer; font-size:2rem; color:#ccc;">&times;</span>
+<div id="modalHC" class="modal-full">
+    <div class="documento-pro">
+        <span class="btn-cerrar" onclick="cerrarHC()">&times;</span>
 
-        <center>
-            <h1 style="color: var(--p-blue); margin-bottom: 5px;">INFORME NEUROPSICOLÓGICO CLÍNICO</h1>
-            <p style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; color: #666;">Unidad de Rehabilitación Cognitiva - REHABILIDIA</p>
-            <hr style="border: 1px solid var(--p-blue); width: 100px;">
-        </center>
+        <div class="header-doc">
+            <h1>INFORME NEUROPSICOLÓGICO CLÍNICO</h1>
+            <p>REHABILIDIA - Protocolo de Rehabilitación Neurocognitiva Avanzada</p>
+        </div>
 
-        <div class="seccion-hc">
+        <div class="section">
             <h2>1. Datos de Identificación</h2>
-            <div class="grid-datos">
-                <div><span class="label">Nombre:</span> Juan Pérez</div>
-                <div><span class="label">Edad:</span> 26 años</div>
-                <div><span class="label">Escolaridad:</span> Universitaria (Ingeniería en curso)</div>
-                <div><span class="label">Lateralidad:</span> Diestro</div>
-                <div><span class="label">Fecha de Evaluación:</span> 29 de abril de 2026</div>
-                <div><span class="label">Evaluador:</span> Neuropsicólogo REHABILIDIA</div>
+            <div class="grid-info">
+                <div><span class="bold">Nombre:</span> Juan Pérez</div>
+                <div><span class="bold">Edad:</span> 26 años</div>
+                <div><span class="bold">Escolaridad:</span> Universitaria (Ingeniería en curso)</div>
+                <div><span class="bold">Lateralidad:</span> Diestro</div>
+                <div><span class="bold">Fecha de Evaluación:</span> 29 de abril de 2026</div>
+                <div><span class="bold">Evaluador:</span> Neuropsicólogo REHABILIDIA</div>
             </div>
         </div>
 
-        <div class="seccion-hc">
+        <div class="section">
             <h2>2. Motivo de Evaluación y Antecedentes</h2>
-            <p><strong>Motivo:</strong> Valoración neuropsicológica en fase intrahospitalaria posterior a traumatismo encéfalo craneano (TEC) moderado.</p>
-            <p><strong>Antecedentes Neurológicos:</strong> Accidente en motocicleta. Glasgow inicial: 11/15. Pérdida de conciencia aproximada de 45 minutos. Diagnóstico médico: <span class="tag-alerta">Hemorragia subdural traumática</span>.</p>
-            <p><strong>Síntomas Actuales:</strong> Fatiga cognitiva marcada, cefalea postraumática constante y fluctuaciones atencionales severas.</p>
+            <p><span class="bold">Motivo:</span> Valoración neuropsicológica en fase intrahospitalaria posterior a traumatismo encéfalo craneano (TEC) moderado para caracterización de estado cognitivo e inicio de rehabilitación.</p>
+            <p><span class="bold">Antecedentes:</span> Accidente de tránsito (motocicleta). Glasgow inicial: 11/15. Pérdida de conciencia (45 min). Diagnóstico: <strong>Hemorragia subdural traumática</strong>.</p>
+            <p><span class="bold">Síntomas actuales:</span> Fatiga cognitiva marcada, cefalea postraumática persistente y fluctuaciones atencionales.</p>
         </div>
 
-        <div class="seccion-hc">
+        <div class="section">
             <h2>3. Observación Conductual</h2>
-            <p>El paciente se presenta alerta, aunque con episodios de somnolencia leve. Se evidencia una desorientación leve en tiempo (fecha). Se muestra colaborador pero presenta una **fatigabilidad evidente**, requiriendo repetición constante de instrucciones y mostrando una velocidad de respuesta disminuida (bradiquipsia).</p>
+            <p>Paciente alerta, episodios de somnolencia leve. Desorientación temporal leve (fecha). Se muestra colaborador, aunque con fatigabilidad cognitiva significativa, requiriendo repetición frecuente de instrucciones. Se observa <strong>bradipsiquia</strong> (disminución en velocidad de respuesta) y reducción en la tolerancia a tareas prolongadas.</p>
         </div>
 
-        <div class="seccion-hc">
+        <div class="section">
             <h2>4. Resultados de Pruebas Administradas</h2>
             
-            <span class="sub-titulo">Funcionamiento Cognitivo Global</span>
+            <span class="sub-header">4.1 Funcionamiento Cognitivo Global</span>
             <table>
                 <tr><th>Prueba</th><th>Puntaje</th><th>Percentil</th><th>Interpretación</th></tr>
                 <tr><td>MOCA (Montreal Cognitive Assessment)</td><td>22/30</td><td>P10 – P16</td><td>Compromiso global leve-moderado</td></tr>
             </table>
-            <div class="interpretacion-clinica">🔎 Falla principal en atención, memoria diferida y funciones ejecutivas.</div>
+            <div class="clinico-note">🔎 Fallas principales en atención, memoria diferida y funciones ejecutivas.</div>
 
-            <span class="sub-titulo">Atención y Memoria de Trabajo</span>
+            <span class="sub-header">4.2 Atención y Memoria de Trabajo</span>
             <table>
                 <tr><th>Subprueba</th><th>Escalar</th><th>Percentil</th><th>Interpretación</th></tr>
-                <tr><td>Caras (Wechsler)</td><td>6</td><td>P9</td><td>Atención sostenida baja / Omisiones elevadas</td></tr>
+                <tr><td>Caras (Wechsler)</td><td>6</td><td>P9</td><td>Atención sostenida baja / omisiones elevadas</td></tr>
                 <tr><td>Dígitos Directos</td><td>7</td><td>P16</td><td>Atención inmediata bajo-promedio</td></tr>
                 <tr><td>Dígitos Inversos</td><td>5</td><td>P5</td><td>Memoria de trabajo deficitaria</td></tr>
                 <tr><td>Control Mental</td><td>6</td><td>P9</td><td>Lentitud en velocidad de procesamiento</td></tr>
             </table>
+            <div class="clinico-note">
+                <strong>Comentario clínico:</strong> Rendimiento consistentemente bajo en tareas atencionales, con mayor compromiso en memoria de trabajo y capacidad de sostener la atención. Patrón compatible con alteración de redes fronto-subcorticales. La fatigabilidad pudo intensificar las dificultades.
+            </div>
 
-            <span class="sub-titulo">Memoria y Aprendizaje</span>
+            <span class="sub-header">4.3 Memoria y Aprendizaje</span>
             <table>
-                <tr><th>Medida (Lista de Palabras)</th><th>Resultado</th><th>Interpretación</th></tr>
-                <tr><td>Curva de Aprendizaje</td><td>Baja</td><td>Aprendizaje lento y fatigable</td></tr>
-                <tr><td>Recuerdo Diferido</td><td>Bajo (P5-P9)</td><td>Déficit en evocación</td></tr>
-                <tr><td>Reconocimiento</td><td>Bajo-Promedio</td><td>Almacenamiento relativamente conservado</td></tr>
-                <tr><td>Cubos de Corsi (Visoespacial)</td><td>Span 4 (P5)</td><td>Compromiso visoespacial inmediato</td></tr>
+                <tr><th>Medida</th><th>Resultado</th><th>Interpretación</th></tr>
+                <tr><td>Curva de aprendizaje</td><td>Baja</td><td>Aprendizaje lento y fatigable</td></tr>
+                <tr><td>Recuerdo diferido</td><td>Bajo (P5–P9)</td><td>Déficit en evocación</td></tr>
+                <tr><td>Reconocimiento</td><td>Bajo-promedio</td><td>Almacenamiento relativamente conservado</td></tr>
+                <tr><td>Cubos de Corsi</td><td>Span 4 (P5)</td><td>Compromiso visoespacial inmediato</td></tr>
             </table>
+            <div class="clinico-note">
+                <strong>Comentario clínico:</strong> Dificultades en codificación y evocación con reconocimiento conservado, sugiriendo compromiso atencional/ejecutivo más que un déficit primario de almacenamiento.
+            </div>
 
-            <span class="sub-titulo">Funciones Ejecutivas</span>
+            <span class="sub-header">4.4 Funciones Ejecutivas</span>
             <table>
-                <tr><th>Wisconsin (WCST)</th><th>Resultado</th><th>Interpretación</th></tr>
-                <tr><td>Categorías Completadas</td><td>2</td><td>Rendimiento < P10</td></tr>
-                <tr><td>Errores Perseverativos</td><td>Elevados</td><td>Patológico (> P90)</td></tr>
+                <tr><th>Indicador (Wisconsin WCST)</th><th>Resultado</th><th>Percentil</th><th>Interpretación</th></tr>
+                <tr><td>Categorías completadas</td><td>2</td><td>< P10</td><td>Bajo rendimiento</td></tr>
+                <tr><td>Errores perseverativos</td><td>Elevados</td><td>> P90</td><td>Alta perseveración</td></tr>
             </table>
-            <div class="interpretacion-clinica">🔎 Evidencia clara de alteración en flexibilidad cognitiva y dificultad severa para cambiar de estrategia.</div>
+            <div class="clinico-note">
+                <strong>Comentario clínico:</strong> Patrón de perseveración y dificultad para el cambio de criterio (flexibilidad cognitiva alterada). Consistente con disfunción ejecutiva de origen frontal.
+            </div>
         </div>
 
-        <div class="seccion-hc" style="page-break-before: always;">
-            <h2>5. Funcionamiento Adaptativo (Mayo-Portland MPAI-4)</h2>
+        <div class="section">
+            <h2>5. Funcionamiento Adaptativo (MPAI-4)</h2>
             <table>
-                <tr><th>Área Evaluada</th><th>Puntaje T</th><th>Interpretación</th></tr>
-                <tr><td>Habilidades (Físicas/Cognitivas)</td><td>60</td><td>Limitación moderada</td></tr>
+                <tr><th>Área</th><th>Puntaje T</th><th>Interpretación</th></tr>
+                <tr><td>Habilidades</td><td>60</td><td>Limitación moderada</td></tr>
                 <tr><td>Ajuste Emocional</td><td>55</td><td>Leve alteración</td></tr>
-                <tr><td>Participación Social</td><td>62</td><td>Restricción moderada</td></tr>
+                <tr><td>Participación</td><td>62</td><td>Restricción moderada</td></tr>
             </table>
-            <p><strong>Interpretación Global:</strong> El paciente presenta una dependencia moderada para actividades de la vida diaria complejas y una disminución marcada en la iniciativa personal.</p>
+            <div class="clinico-note">
+                <strong>Comentario clínico:</strong> Impacto funcional moderado en autonomía para actividades complejas e iniciativa conductual.
+            </div>
         </div>
 
-        <div class="seccion-hc">
-            <h2>6. Perfil Cognitivo Integrado</h2>
-            <ul>
-                <li><strong>Atención:</strong> Alterada (Sostenida y Selectiva).</li>
-                <li><strong>Memoria:</strong> Déficit en codificación y memoria visoespacial.</li>
-                <li><strong>Funciones Ejecutivas:</strong> Moderadamente alteradas (Síndrome Disejecutivo).</li>
-                <li><strong>Velocidad de Procesamiento:</strong> Significativamente disminuida.</li>
+        <div class="section">
+            <h2>6. Síntesis Sindrómica</h2>
+            <div class="sintesis-highlight">
+                El perfil neuropsicológico evidencia un patrón caracterizado por alteraciones predominantes en atención, memoria de trabajo y funciones ejecutivas, asociado a una disminución en la velocidad de procesamiento. Este patrón es consistente con compromiso de circuitos fronto-subcorticales secundario a traumatismo craneoencefálico moderado.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>7. Impresión Diagnóstica</h2>
+            <ul style="line-height: 1.8;">
+                <li><span class="bold">Alteración cognitiva postraumática</span> en fase subaguda secundaria a TEC moderado.</li>
+                <li><span class="bold">Síndrome disejecutivo</span> de probable origen fronto-subcortical.</li>
             </ul>
         </div>
 
-        <div class="seccion-hc">
-            <h2>7. Impresión Diagnóstica</h2>
-            <p>1. Trastorno neurocognitivo leve debido a Traumatismo Craneoencefálico.<br>
-            2. Síndrome disejecutivo postraumático en fase subaguda.</p>
+        <div class="section">
+            <h2>8. Nota de Validez Clínica</h2>
+            <div class="validez-alerta">
+                Los resultados deben interpretarse con cautela debido a la condición intrahospitalaria del paciente, la presencia de fatiga cognitiva, fluctuaciones atencionales y sintomatología postraumática, factores que pueden influir en el rendimiento observado.
+            </div>
         </div>
 
-        <div class="seccion-hc">
-            <h2>8. Recomendaciones y Plan REHABILIDIA</h2>
-            <p>Se establece plan de 30 sesiones automatizadas enfocadas en restauración de la atención y compensación ejecutiva. <strong>Restricción:</strong> Sesiones de máximo 20-30 minutos para evitar fatiga cognitiva extrema. Se recomienda supervisión familiar en rutinas y evitar sobrecarga académica inmediata.</p>
+        <div class="section">
+            <h2>9. Recomendaciones y Plan de Intervención</h2>
+            
+            <div class="grid-info">
+                <div>
+                    <span class="bold">Intervención Neuropsicológica:</span>
+                    <ul style="font-size: 0.85rem; padding-left: 20px;">
+                        <li>Atención sostenida (vigilancia progresiva).</li>
+                        <li>Memoria de trabajo (manipulación activa).</li>
+                        <li>Flexibilidad cognitiva y cambio de criterio.</li>
+                        <li>Estrategias metacognitivas (autoverbalización).</li>
+                    </ul>
+                </div>
+                <div>
+                    <span class="bold">Manejo Clínico y Apoyo:</span>
+                    <ul style="font-size: 0.85rem; padding-left: 20px;">
+                        <li>Sesiones de 20–30 min por fatigabilidad.</li>
+                        <li>Estructuración externa (apoyos visuales).</li>
+                        <li>Psicoeducación familiar sobre secuelas.</li>
+                        <li>Evitar sobrecarga académica inmediata.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sintesis-highlight" style="color: var(--p-blue); border: 1px solid var(--t-blue);">
+                <i class="fas fa-check-circle"></i> <strong>Plan REHABILIDIA:</strong> Se establece plan de 30 sesiones automatizadas enfocadas en restauración de la atención y compensación ejecutiva. Restricción: Sesiones breves para control de fatiga.
+            </div>
         </div>
 
-        <button class="btn-print" onclick="window.print()" style="background: var(--p-blue); color: white; border: none; padding: 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem;">
-            <i class="fas fa-print"></i> IMPRIMIR REPORTE CLÍNICO COMPLETO
+        <button class="btn-print-pro" onclick="window.print()">
+            <i class="fas fa-file-pdf"></i> GENERAR REPORTE CLÍNICO COMPLETO (PDF)
         </button>
     </div>
 </div>
 
 <script>
-    function abrirHistoria() {
+    function abrirHC() {
         document.getElementById('modalHC').style.display = 'block';
         document.body.style.overflow = 'hidden'; 
     }
-    function cerrarHistoria() {
+    function cerrarHC() {
         document.getElementById('modalHC').style.display = 'none';
         document.body.style.overflow = 'auto';
     }
