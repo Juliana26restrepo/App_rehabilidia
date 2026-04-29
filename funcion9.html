@@ -5,41 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sesión 9: Monitoreo y Control - REHABILIDIA</title>
     <style>
-        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --red: #D32F2F; --green: #388E3C; --blue-game: #103A57; }
+        :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --red: #D32F2F; --green: #388E3C; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
-
         #viewport-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; background: white; }
-        
         header { background: var(--navy); color: white; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-weight: bold; }
         .btn-salir { background: var(--red); color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
         .stats-top { display: flex; justify-content: space-around; padding: 12px; background: white; border-bottom: 2px solid #ddd; font-weight: bold; font-size: 1.1rem; }
-
         .main-content { flex: 1; display: grid; grid-template-columns: 1fr 100px; position: relative; }
-        
         #zona-juego { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        
-        #palabra-display { font-size: 6rem; font-weight: 900; margin-bottom: 40px; cursor: pointer; user-select: none; transition: transform 0.1s; min-height: 1.2em; }
-        #palabra-display:active { transform: scale(0.9); }
-
+        #palabra-display { font-size: 5rem; font-weight: 900; margin-bottom: 40px; cursor: pointer; user-select: none; transition: transform 0.1s; min-height: 1.2em; text-transform: uppercase; }
         .sidebar { display: flex; flex-direction: column; align-items: center; padding: 20px 0; background: #f9f9f9; border-left: 1px solid #ddd; }
-        .bar-container { width: 35px; height: 80%; background: #eee; border-radius: 20px; position: relative; border: 1px solid #ccc; overflow: hidden; }
-        #bar-fill { 
-            width: 100%; height: 0%; position: absolute; bottom: 0; 
-            background: linear-gradient(to top, #388E3C, #FFD700, #D32F2F); 
-            transition: height 0.4s ease; 
-        }
-
+        .bar-container { width: 35px; height: 85%; background: #eee; border-radius: 20px; position: relative; border: 1px solid #ccc; overflow: hidden; }
+        #bar-fill { width: 100%; height: 0%; position: absolute; bottom: 0; background: linear-gradient(to top, #388E3C, #FFD700, #D32F2F); transition: height 0.4s ease; }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
-        .btn-ready { background: var(--navy); color: white; border: none; padding: 15px 50px; border-radius: 30px; font-size: 1.4rem; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; margin-top: 20px; }
-        
-        .slider-container { width: 100%; max-width: 500px; margin: 40px 0; position: relative; }
-        .labels-emocion { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; }
-        .slider-emocion { width: 100%; height: 15px; border-radius: 10px; accent-color: var(--navy); cursor: pointer; }
-
-        .fase-info { color: var(--navy); font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
-        .instruccion-detallada { font-size: 1.5rem; color: #444; margin-bottom: 30px; max-width: 600px; }
+        .btn-ready { background: var(--navy); color: white; border: none; padding: 18px 50px; border-radius: 35px; font-size: 1.4rem; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; }
     </style>
 </head>
 <body onload="abrirMonitoreo('pre')">
@@ -58,62 +38,52 @@
 
     <div class="main-content">
         <div id="zona-juego">
-            <h2 id="instruccion-visual" style="color: var(--navy); margin-bottom: 20px; font-weight: 800; height: 1.2em;"></h2>
+            <h2 id="instruccion-visual" style="color: var(--navy); margin-bottom: 20px; font-weight: 800;"></h2>
             <div id="palabra-display" onclick="procesarIntento()">---</div>
-            <p style="color: #666; font-size: 1.2rem;">Toca la palabra <b>solo</b> si cumple la instrucción</p>
+            <p style="color: #666; font-size: 1.1rem;">Toca <b>solo</b> si cumple la instrucción</p>
         </div>
-
         <div class="sidebar">
-            <span style="font-weight: bold; font-size: 0.75rem; color: #444;">ESTADO</span>
+            <span style="font-weight: bold; font-size: 0.7rem;">ESTADO</span>
             <div class="bar-container"><div id="bar-fill"></div></div>
-            <span style="font-size: 0.7rem; margin-top: 5px; color: #666;">CALMA</span>
+            <span style="font-size: 0.7rem; margin-top: 5px;">CALMA</span>
         </div>
     </div>
 
-    <div id="overlay-fase" class="overlay" style="display: none;">
-        <div class="fase-info" id="fase-titulo">NIVEL 1</div>
-        <div class="instruccion-detallada" id="fase-texto">Busca palabras POSITIVAS de color VERDE.</div>
+    <div id="overlay-fase" class="overlay">
+        <h1 id="fase-titulo" style="color: var(--navy); font-size: 2.5rem;">NIVEL 1</h1>
+        <p id="fase-texto" style="font-size: 1.5rem; margin-bottom: 30px;"></p>
         <button class="btn-ready" onclick="iniciarActividad()">EMPEZAR</button>
     </div>
 
     <div id="overlay-emocion" class="overlay">
-        <h1 id="emo-titulo" style="color: var(--navy);">Juan, monitorea tu estado actual</h1>
-        <div class="slider-container">
-            <div class="labels-emocion">
+        <h1 id="emo-titulo">Juan, monitorea tu estado</h1>
+        <div style="width: 100%; max-width: 500px; margin: 40px 0;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px;">
                 <span style="color: var(--green);">😊 TRANQUILO</span>
                 <span style="color: var(--red);">😠 IRRITABLE</span>
             </div>
-            <input type="range" id="slider-emocion" class="slider-emocion" min="0" max="100" value="50">
+            <input type="range" id="slider-emocion" style="width:100%; accent-color: var(--navy);" min="0" max="100" value="50">
         </div>
         <button class="btn-ready" onclick="cerrarMonitoreo()">CONTINUAR</button>
     </div>
 
     <div id="overlay-pausa" class="overlay" style="background: var(--navy); color: white;">
         <h1>CONTROL DE IMPULSIVIDAD</h1>
-        <p style="font-size: 1.8rem;">Juan, vamos a respirar profundamente...</p>
-        <div id="timer-pausa" style="font-size: 6rem; font-weight: 900; margin: 20px;">10</div>
+        <p style="font-size: 1.8rem;">Juan, respira profundo...</p>
+        <div id="timer-pausa" style="font-size: 6rem; font-weight: 900;">10</div>
     </div>
 </div>
 
 <script>
-    const palabrasPos = ["FELIZ", "LOGRO", "ÉXITO", "SÍ", "BIEN", "PAZ", "GANAR", "LUZ"];
-    const palabrasNeg = ["MALO", "ERROR", "FALLO", "NO", "TRISTE", "ENOJO", "CAOS", "ODIO"];
-    
-    let nivel = 1, ronda = 1, puntos = 0, impulsividad = 0;
-    let aciertos = 0, errores = 0, preEmo, postEmo, modo = 'pre';
-    let esTargetValido = false, timerGame;
+    const palabrasPos = ["AMOR", "ALEGRÍA", "AFECTO", "AMISTAD", "ALIVIO", "ABRAZO", "APOYO", "ACIERTO", "ÁNIMO", "AMABILIDAD", "BIEN", "BONDAD", "BENDICIÓN", "BELLEZA", "BESO", "BRILLO", "CALMA", "CARIÑO", "CONFIANZA", "CONSUELO", "COMPASIÓN", "CURACIÓN", "CRECIMIENTO", "CELEBRACIÓN", "DULZURA", "DICHA", "DIVERSIÓN", "DESCANSO", "DIGNIDAD", "DIÁLOGO", "ÉXITO", "ESPERANZA", "ENTUSIASMO", "EQUILIBRIO", "EMPATÍA", "ESTIMAR", "ELEGANCIA", "FELICIDAD", "FORTALEZA", "FE", "FLORECER", "FAMILIA", "GRACIAS", "GRATITUD", "GENEROSIDAD", "GOZO", "GANAR", "GENIAL", "HONESTIDAD", "HUMILDAD", "HUMOR", "ILUSIÓN", "INSPIRACIÓN", "INTELIGENCIA", "IDEAL", "ÍMPETU", "JÚBILO", "JUSTICIA", "JUEGO", "JOVIALIDAD", "LIBERTAD", "LOGRO", "LUZ", "LEALTAD", "LIMPIEZA", "MAGIA", "MOTIVACIÓN", "MÉRITO", "MEJORAR", "META", "MILAGRO", "NOBLEZA", "NATURALEZA", "OPTIMISMO", "ORGULLO", "ORDEN", "PAZ", "PLACER", "PERDÓN", "PACIENCIA", "PASIÓN", "PROGRESO", "PROPERIDAD", "QUERER", "RESPETO", "RISA", "RECOMPENSA", "REGALO", "RELAX", "SÍ", "SALUD", "SONRISA", "SUERTE", "SEGURIDAD", "SABIDURÍA", "TRIUNFO", "TRANQUILIDAD", "TERNURA", "VALOR", "VICTORIA", "VITALIDAD"];
+    const palabrasNeg = ["ABURRIDO", "AGRESIÓN", "ANGUSTIA", "ASCO", "AMARGURA", "AMENAZA", "ANSIEDAD", "ATRACO", "AVERÍA", "ABANDONO", "BASURA", "BAJEZA", "BRUTAL", "BURLA", "BLOQUEO", "BARBARIE", "CRISIS", "CULPA", "CAOS", "CRUELDAD", "CARENCIA", "CORRUPCIÓN", "CASTIGO", "CELOS", "DAÑO", "DOLOR", "DERROTA", "DESPRECIO", "DUELO", "DESESPERACIÓN", "DESASTRE", "DECEPCIÓN", "ERROR", "ENOJO", "ENVIDIA", "ENFERMO", "EGOÍSMO", "ESTRÉS", "ENGAÑO", "EXCLUSIÓN", "FRACASO", "FALLO", "FEALDAD", "FATIGA", "FALTA", "FRUSTRACIÓN", "FURIA", "GUERRA", "GOLPE", "GROSERO", "GRITO", "GRAVE", "HAMBRE", "HORROR", "HOSTIL", "HUMILLACIÓN", "HUIDA", "INCULPAR", "INJUSTO", "INFELIZ", "INSULTO", "INÚTIL", "IGNORANCIA", "IRA", "JUZGAR", "JAMÁS", "LATROCINIO", "LÁGRIMA", "LAMENTAR", "LIMITACIÓN", "MALO", "MIEDO", "MUERTE", "MALTRATO", "MISERIA", "MENTIRA", "MOLESTIA", "NO", "NADA", "NEGATIVO", "NAUSEA", "NEGLIGENCIA", "ODIO", "OFENSA", "OLVIDO", "OPRESIÓN", "OBSTÁCULO", "PELIGRO", "PENA", "POBREZA", "PELEA", "PÁNICO", "PÉRDIDA", "QUEJA", "QUEMAR", "RECHAZO", "RABIA", "ROBO", "RENCOR", "RUINA", "SUCIO", "SOLEDAD", "SUFRIR", "TRISTE", "TERROR", "TRAICIÓN", "TORMENTO", "VENENO", "VENGANZA", "VACÍO"];
 
-    function hablar(t) {
-        window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t);
-        m.lang = 'es-ES';
-        m.rate = 0.85;
-        window.speechSynthesis.speak(m);
-    }
+    let nivel = 1, ronda = 1, puntos = 0, impulsividad = 0, aciertos = 0, errores = 0, preEmo, postEmo, modo = 'pre', esTargetValido = false, timerGame;
+
+    function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85; window.speechSynthesis.speak(m); }
 
     function abrirMonitoreo(m) {
-        modo = m;
-        document.getElementById('overlay-emocion').style.display = 'flex';
+        modo = m; document.getElementById('overlay-emocion').style.display = 'flex';
         let t = m === 'pre' ? "Juan, monitorea tu estado actual. Desliza a la izquierda si estás tranquilo o a la derecha si estás irritable." : "Muy bien Juan. ¿Cómo te sientes al terminar?";
         if(m === 'post') document.getElementById('emo-titulo').innerText = "Juan, sesión terminada";
         setTimeout(() => hablar(t), 500);
@@ -134,29 +104,18 @@
         document.getElementById('overlay-fase').style.display = 'flex';
         const tit = document.getElementById('fase-titulo');
         const txt = document.getElementById('fase-texto');
-        
         tit.innerText = `NIVEL ${nivel} - RONDA ${ronda}`;
-        let instruccion = "";
-        if(nivel === 1) instruccion = "Busca palabras POSITIVAS de color VERDE.";
-        else if(nivel === 2) instruccion = "Busca palabras NEGATIVAS de color ROJO.";
-        else instruccion = "Busca palabras POSITIVAS de color AZUL.";
-        
-        txt.innerText = instruccion;
-        hablar(`Juan, ${tit.innerText}. ${instruccion}. Presiona empezar cuando estés listo.`);
+        let ins = nivel === 1 ? "Busca palabras POSITIVAS de color VERDE." : nivel === 2 ? "Busca palabras NEGATIVAS de color ROJO." : "Busca palabras POSITIVAS de color AZUL.";
+        txt.innerText = ins;
+        hablar(`Juan, ${tit.innerText}. ${ins}. Presiona empezar.`);
     }
 
     function iniciarActividad() {
         document.getElementById('overlay-fase').style.display = 'none';
-        puntos = 0;
-        document.getElementById('txt-puntos').innerText = puntos;
+        puntos = 0; document.getElementById('txt-puntos').innerText = puntos;
         document.getElementById('txt-nivel').innerText = nivel;
         document.getElementById('txt-ronda').innerText = ronda;
-        
-        const ins = document.getElementById('instruccion-visual');
-        if(nivel === 1) ins.innerText = "BUSCA: POSITIVA Y VERDE";
-        else if(nivel === 2) ins.innerText = "BUSCA: NEGATIVA Y ROJA";
-        else ins.innerText = "BUSCA: POSITIVA Y AZUL";
-        
+        document.getElementById('instruccion-visual').innerText = nivel === 1 ? "POSITIVA + VERDE" : nivel === 2 ? "NEGATIVA + ROJO" : "POSITIVA + AZUL";
         mostrarPalabra();
     }
 
@@ -164,56 +123,47 @@
         clearTimeout(timerGame);
         const display = document.getElementById('palabra-display');
         const chance = Math.random();
+        const colors = ["#388E3C", "#D32F2F", "#103A57", "#FFD700"];
         
-        if(chance <= 0.6) {
-            if(nivel === 1) setPalabra(palabrasPos, "#388E3C", true);
-            else if(nivel === 2) setPalabra(palabrasNeg, "#D32F2F", true);
-            else setPalabra(palabrasPos, "#103A57", true);
-        } else {
-            const randomCol = ["#388E3C", "#D32F2F", "#103A57", "#FFD700"][Math.floor(Math.random()*4)];
-            const randomPool = Math.random() > 0.5 ? palabrasPos : palabrasNeg;
-            setPalabra(randomPool, randomCol, false);
-            verificarFalsoTarget(display.innerText, display.style.color);
+        if(chance <= 0.6) { // Target
+            if(nivel === 1) setPalabra(palabrasPos, colors[0], true);
+            else if(nivel === 2) setPalabra(palabrasNeg, colors[1], true);
+            else setPalabra(palabrasPos, colors[2], true);
+        } else { // Distractor
+            const rCol = colors[Math.floor(Math.random()*colors.length)];
+            const rPool = Math.random() > 0.5 ? palabrasPos : palabrasNeg;
+            setPalabra(rPool, rCol, false);
+            verificarManual(display.innerText, display.style.color);
         }
-        timerGame = setTimeout(mostrarPalabra, 2500 - (nivel * 350));
+        timerGame = setTimeout(mostrarPalabra, 2800 - (nivel * 400));
     }
 
-    function setPalabra(pool, color, esCorrecto) {
+    function setPalabra(pool, col, esT) {
         const d = document.getElementById('palabra-display');
         d.innerText = pool[Math.floor(Math.random()*pool.length)];
-        d.style.color = color;
-        esTargetValido = esCorrecto;
+        d.style.color = col; esTargetValido = esT;
     }
 
-    function verificarFalsoTarget(txt, col) {
-        // Corrección de color para navegadores que devuelven RGB
-        if(nivel === 1 && palabrasPos.includes(txt) && (col === "#388e3c" || col.includes("56, 142, 60"))) esTargetValido = true;
-        else if(nivel === 2 && palabrasNeg.includes(txt) && (col === "#d32f2f" || col.includes("211, 47, 47"))) esTargetValido = true;
-        else if(nivel === 3 && palabrasPos.includes(txt) && (col === "#103a57" || col.includes("16, 58, 87"))) esTargetValido = true;
-        else esTargetValido = false;
+    function verificarManual(txt, col) {
+        if(nivel === 1 && palabrasPos.includes(txt) && col.includes("56, 142, 60")) esTargetValido = true;
+        else if(nivel === 2 && palabrasNeg.includes(txt) && col.includes("211, 47, 47")) esTargetValido = true;
+        else if(nivel === 3 && palabrasPos.includes(txt) && col.includes("16, 58, 87")) esTargetValido = true;
     }
 
     function procesarIntento() {
-        if(esTargetValido) {
-            puntos++; aciertos++;
-            impulsividad = Math.max(0, impulsividad - 12);
-        } else {
-            errores++; impulsividad += 25;
-            if(puntos > 0) puntos--;
-        }
+        if(esTargetValido) { puntos++; aciertos++; impulsividad = Math.max(0, impulsividad - 10); }
+        else { errores++; impulsividad += 25; if(puntos > 0) puntos--; }
         document.getElementById('txt-puntos').innerText = puntos;
         document.getElementById('bar-fill').style.height = impulsividad + "%";
-
         if(impulsividad >= 100) activaPausa();
-        else if(puntos >= 10) finalizarTramo();
+        else if(puntos >= 10) proximoTramo();
         else mostrarPalabra();
     }
 
     function activaPausa() {
-        clearTimeout(timerGame);
-        impulsividad = 0; document.getElementById('bar-fill').style.height = "0%";
+        clearTimeout(timerGame); impulsividad = 0; document.getElementById('bar-fill').style.height = "0%";
         document.getElementById('overlay-pausa').style.display = 'flex';
-        hablar("Juan, pausa para respirar. Mantén la calma.");
+        hablar("Juan, respira profundo. 10 segundos de calma.");
         let s = 10;
         let t = setInterval(() => {
             s--; document.getElementById('timer-pausa').innerText = s;
@@ -221,7 +171,7 @@
         }, 1000);
     }
 
-    function finalizarTramo() {
+    function proximoTramo() {
         clearTimeout(timerGame);
         if(ronda < 2) { ronda++; prepararFase(); }
         else if(nivel < 3) { nivel++; ronda = 1; prepararFase(); }
@@ -229,27 +179,10 @@
     }
 
     function finalizarYGuardar() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        const res = { 
-            id_sesion: 9, 
-            eficacia: ef + "%", 
-            emo_ini: preEmo, 
-            emo_fin: postEmo,
-            aciertos: aciertos,
-            errores: errores,
-            fecha: new Date().toLocaleDateString()
-        };
-        
-        // Guardar en 'datos' (LocalStorage)
-        let datos = JSON.parse(localStorage.getItem('datos')) || [];
-        datos.push(res);
-        localStorage.setItem('datos', JSON.stringify(datos));
-        
-        // También guardar en sesiones para compatibilidad
-        let h = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
-        h.push(res);
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(h));
-        
+        const res = { id_sesion: 9, eficacia: Math.round((aciertos/(aciertos+errores))*100)+"%", emo_ini: preEmo+"%", emo_fin: postEmo+"%", aciertos, errores, fecha: new Date().toLocaleString() };
+        let d = JSON.parse(localStorage.getItem('datos')) || [];
+        d.push(res);
+        localStorage.setItem('datos', JSON.stringify(d));
         window.location.href = "funcion_sesiones.html";
     }
 </script>
