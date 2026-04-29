@@ -3,78 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 6: Toma de Decisiones - REHABILIDIA</title>
+    <title>Sesión 6: Secuenciación e Interferencia - REHABILIDIA</title>
     <style>
         :root { 
             --p-purple: #4A148C; 
-            --bg: #FFF3E0; 
+            --bg: #F3E5F5; 
             --gold: #FFD700; 
             --navy: #103A57; 
             --white: #ffffff;
-            --success: #4CAF50;
-            --error: #F44336;
+            --distractor-red: #FF1744;
+            --distractor-yellow: #FFEA00;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #1a1a1a; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            overflow: hidden; 
+            margin: 0; background: #1a1a1a; 
+            display: flex; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; 
         }
 
         #viewport-container {
             width: 100vw; height: 100vh; max-width: 1024px;
-            background: var(--bg);
-            position: relative;
-            display: flex; flex-direction: column;
-            overflow: hidden;
+            background: var(--bg); position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
         header { 
             background: var(--navy); color: white; height: 50px; 
             display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; flex-shrink: 0; font-size: 1rem;
+            font-weight: bold; flex-shrink: 0;
         }
 
         #contenedor-juego { 
             flex-grow: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: flex-start; padding: 20px;
+            align-items: center; justify-content: center; padding: 10px;
         }
 
-        .tarjeta-situacion {
-            background: white; padding: 20px; border-radius: 20px;
-            border: 4px solid var(--p-purple); width: 95%; max-width: 600px;
-            text-align: center; box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px; animation: slideIn 0.5s;
+        .panel-instruccion { 
+            background: var(--white); padding: 15px; border-radius: 20px; 
+            border: 3px solid var(--p-purple); width: 90%; max-width: 600px; 
+            margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; 
+            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         }
 
-        .texto-situacion { font-size: 1.3rem; font-weight: bold; color: var(--navy); margin: 0; }
-
-        .zona-opciones { 
-            display: flex; flex-direction: column; gap: 12px; width: 95%; max-width: 600px;
+        .zona-numeros {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 12px; width: 95%; max-width: 850px; padding: 10px;
         }
 
-        .btn-opcion {
-            background: white; border: 3px solid var(--navy); padding: 18px;
-            border-radius: 15px; font-size: 1.1rem; font-weight: 600;
-            cursor: pointer; color: var(--navy); transition: 0.2s;
-            text-align: left; box-shadow: 0 4px 0 var(--navy);
+        .numero-btn {
+            background: var(--white); border: 3px solid var(--navy);
+            border-radius: 12px; height: 75px; font-size: 1.8rem;
+            font-weight: 800; color: var(--navy); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; box-shadow: 0 4px 0 var(--navy);
         }
 
-        .btn-opcion:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--navy); }
-        .btn-opcion.correcta { background: var(--success); color: white; border-color: #2E7D32; }
-        .btn-opcion.incorrecta { background: var(--error); color: white; border-color: #C62828; }
+        .numero-btn.seleccionado { visibility: hidden; pointer-events: none; }
+
+        @keyframes flash-red { 0%, 100% { background: white; } 50% { background: var(--distractor-red); color: white; } }
+        @keyframes flash-yellow { 0%, 100% { background: white; } 50% { background: var(--distractor-yellow); color: var(--navy); } }
+
+        .interferencia-roja { animation: flash-red 0.8s infinite; }
+        .interferencia-amarilla { animation: flash-yellow 1s infinite; }
 
         .area-asistente { 
             width: 100%; background: white; padding: 10px 20px; 
             display: flex; align-items: center; gap: 15px; 
-            border-top: 4px solid var(--p-purple); height: 110px; flex-shrink: 0;
+            border-top: 4px solid var(--p-purple); height: 110px;
         }
 
         .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; }
@@ -83,21 +82,11 @@
         #overlay-final { 
             position: absolute; inset: 0; display: none; flex-direction: column; 
             justify-content: center; align-items: center; background: rgba(16, 58, 87, 0.98); 
-            z-index: 3000; color: white; padding: 20px;
+            z-index: 3000; color: white; text-align: center;
         }
 
-        .cuadro-resultados { 
-            background: white; color: var(--navy); padding: 30px; 
-            border-radius: 25px; width: 90%; max-width: 450px; text-align: center; 
-        }
-
-        .btn-finalizar { 
-            background: var(--gold); border: none; padding: 18px 40px; 
-            border-radius: 35px; font-weight: bold; cursor: pointer; 
-            margin-top: 20px; color: var(--p-purple); font-size: 1.3rem; 
-        }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        .cuadro-final { background: white; color: var(--navy); padding: 30px; border-radius: 25px; width: 90%; max-width: 450px; }
+        .btn-finalizar { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: var(--p-purple); margin-top: 20px; }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -106,72 +95,49 @@
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 6</header>
 
     <div id="contenedor-juego">
-        <div id="info-progreso" style="margin-bottom: 10px; font-weight: bold; color: var(--p-purple);">Situación 1 de 6</div>
-        <div class="tarjeta-situacion">
-            <p id="pregunta-texto" class="texto-situacion">Cargando situación...</p>
-        </div>
-        <div id="zona-opciones" class="zona-opciones"></div>
+        <div id="info-progreso" style="font-weight: bold; color: var(--p-purple); margin-bottom: 5px;">Nivel 1 - Ronda 1/3</div>
+        <div id="panel-instruccion" class="panel-instruccion">Cargando...</div>
+        <div id="zona-numeros" class="zona-numeros"></div>
     </div>
 
     <div class="area-asistente">
         <div class="avatar-img"><img src="https://raw.githubusercontent.com/Anmameche/Rehabilidia/main/coterapeuta.png" style="width:100%"></div>
-        <div class="burbuja" id="texto-asistente">Juan, ante un problema, siempre hay una opción más segura.</div>
+        <div class="burbuja" id="texto-asistente">Juan, concéntrate solo en el orden de los números. Ignora los colores.</div>
     </div>
 
     <div id="overlay-final">
-        <div class="cuadro-resultados">
-            <h1 style="color: var(--p-purple); margin:0;">¡EXCELENTE TRABAJO!</h1>
-            <p>Has practicado cómo tomar mejores decisiones hoy.</p>
-            <div id="stats-final" style="font-size: 1.2rem; margin: 20px 0; font-weight: bold;"></div>
+        <div class="cuadro-final">
+            <h2 style="color: var(--p-purple); margin:0;">SESIÓN COMPLETADA</h2>
+            <div id="resumen-stats" style="font-size: 1.2rem; margin: 20px 0;"></div>
+            <p style="font-weight: bold;">"Tu mente se adapta cada vez mejor a los cambios."</p>
             <button class="btn-finalizar" onclick="guardarYSalir()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
 
 <script>
-    const situaciones = [
-        {
-            s: "Vas a cocinar y notas que el mango del sartén está muy caliente.",
-            o: ["Lo agarro rápido", "Uso un guante o trapo seco", "Le echo agua fría"],
-            c: 1,
-            v: "Juan, usa siempre protección para no quemarte."
-        },
-        {
-            s: "Terminas de usar la plancha. ¿Qué es lo más importante?",
-            o: ["Dejarla sobre la ropa", "Desconectarla y guardarla en lugar seguro", "Dejarla prendida para luego"],
-            c: 1,
-            v: "Muy bien, desconectar los aparatos evita incendios."
-        },
-        {
-            s: "Alguien que no conoces golpea la puerta y dice que viene a revisar el gas, pero no avisaron.",
-            o: ["Lo dejo entrar", "Le pido que vuelva después", "No abro y llamo a un familiar o a la empresa"],
-            c: 2,
-            v: "Correcto Juan, la seguridad es lo primero, no abras a desconocidos."
-        },
-        {
-            s: "Sientes un olor fuerte a gas en la cocina.",
-            o: ["Prendo la luz para ver", "Abro las ventanas y cierro la llave del gas", "Me voy a dormir"],
-            c: 1,
-            v: "Exacto, ventilar y cerrar la llave es la decisión más segura."
-        },
-        {
-            s: "Ves un charco de agua en el piso del pasillo.",
-            o: ["Paso por encima", "Limpio el agua para no resbalar", "Espero a que se seque solo"],
-            c: 1,
-            v: "Bien pensado, evitar una caída es clave para tu salud."
-        },
-        {
-            s: "Te ofrecen un medicamento nuevo que no te recetó tu médico.",
-            o: ["Lo pruebo a ver si me sirve", "No lo tomo y consulto con mi médico", "Me tomo la mitad"],
-            c: 1,
-            v: "Nunca tomes remedios sin orden médica, Juan."
-        }
+    // BANCO DE NÚMEROS PROPORCIONADO
+    const bancoNumeros = [
+        3, 5, 7, 8, 9, 12, 14, 15, 18, 19, 21, 22, 24, 26, 27, 29, 31, 33, 34, 36,
+        38, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54, 55, 57, 59, 60, 62, 63, 65, 67, 68,
+        70, 71, 73, 74, 76, 78, 79, 81, 82, 84, 86, 87, 89, 90, 92, 94, 95, 97, 98, 100,
+        102, 103, 105, 106, 108, 110, 111, 113, 114, 116, 118, 119, 121, 122, 124, 126, 
+        127, 129, 130, 132, 134, 135, 137, 138, 140, 142, 143, 145, 146, 148, 150, 151, 
+        153, 154, 156, 158, 159, 161, 162, 164, 166, 167, 169, 170, 172, 174, 175, 177, 
+        178, 180, 182, 183, 185, 186, 188, 190, 191, 193, 194, 196, 198, 199, 201, 202, 
+        204, 206, 207, 209, 210, 212, 214, 215, 217, 218, 220, 222, 223, 225, 226, 228, 
+        230, 231, 233, 234, 236, 238, 239, 241, 242, 244, 246, 247, 249, 250, 252, 254, 
+        255, 257, 258, 260, 262, 263, 265, 266, 268, 270, 271, 273, 274, 276, 278, 279, 
+        281, 282, 284, 286, 287, 289, 290, 292, 294, 295, 297, 298, 300, 302, 303, 305, 306, 308
     ];
 
-    let indiceActual = 0;
+    let nivel = 1;
+    let ronda = 1;
     let aciertos = 0;
     let errores = 0;
-    let bloqueado = false;
+    let secuenciaCorrecta = [];
+    let indiceIntento = 0;
+    let timerInterferencia;
 
     function hablar(t) {
         window.speechSynthesis.cancel();
@@ -182,76 +148,120 @@
     }
 
     function iniciarSesion() {
-        hablar("Hola Juan. Vamos a elegir la mejor solución para cada situación.");
-        mostrarSituacion();
+        hablar("Juan, vamos a organizar los números. Ignora los colores que cambian.");
+        cargarRonda();
     }
 
-    function mostrarSituacion() {
-        bloqueado = false;
-        const sit = situaciones[indiceActual];
-        document.getElementById('info-progreso').innerText = `Situación ${indiceActual + 1} de ${situaciones.length}`;
-        document.getElementById('pregunta-texto').innerText = sit.s;
-        
-        const zona = document.getElementById('zona-opciones');
+    function cargarRonda() {
+        const zona = document.getElementById('zona-numeros');
+        const instruccion = document.getElementById('panel-instruccion');
+        const progreso = document.getElementById('info-progreso');
         zona.innerHTML = "";
+        indiceIntento = 0;
+
+        progreso.innerText = `Nivel ${nivel} - Ronda ${ronda}/3`;
+
+        // Cantidad de números según nivel
+        let cantidad = nivel === 1 ? 5 : (nivel === 2 ? 8 : 10);
         
-        sit.o.forEach((opc, i) => {
-            const btn = document.createElement('button');
-            btn.className = "btn-opcion";
-            btn.innerText = opc;
-            btn.onclick = () => validar(i, btn);
-            zona.appendChild(btn);
-        });
-        hablar(sit.s);
-    }
-
-    function validar(idx, btn) {
-        if(bloqueado) return;
-        bloqueado = true;
-        const sit = situaciones[indiceActual];
-
-        if(idx === sit.c) {
-            aciertos++;
-            btn.classList.add('correcta');
-            hablar(sit.v);
-        } else {
-            errores++;
-            btn.classList.add('incorrecta');
-            hablar("Esa no es la mejor opción. " + sit.v);
+        // Obtener números aleatorios del BANCO sin repetir
+        let numerosRonda = [];
+        let copiaBanco = [...bancoNumeros];
+        for(let i=0; i<cantidad; i++) {
+            let index = Math.floor(Math.random() * copiaBanco.length);
+            numerosRonda.push(copiaBanco.splice(index, 1)[0]);
         }
 
-        setTimeout(() => {
-            indiceActual++;
-            if(indiceActual < situaciones.length) {
-                mostrarSituacion();
-            } else {
-                finalizar();
+        // Determinar lógica
+        let tipoOrden = "MENOR A MAYOR";
+        if (nivel === 2) tipoOrden = "MAYOR A MENOR";
+        if (nivel === 3) tipoOrden = Math.random() > 0.5 ? "MENOR A MAYOR" : "MAYOR A MENOR";
+
+        instruccion.innerText = `ORDENA DE ${tipoOrden}`;
+        hablar(instruccion.innerText);
+
+        if (tipoOrden === "MENOR A MAYOR") {
+            secuenciaCorrecta = [...numerosRonda].sort((a,b) => a - b);
+        } else {
+            secuenciaCorrecta = [...numerosRonda].sort((a,b) => b - a);
+        }
+
+        // Crear botones (mezclados para que no aparezcan ordenados)
+        numerosRonda.sort(() => Math.random() - 0.5).forEach(num => {
+            const btn = document.createElement('div');
+            btn.className = "numero-btn";
+            btn.innerText = num;
+            btn.onclick = () => validar(num, btn);
+            zona.appendChild(btn);
+        });
+
+        iniciarInterferencia();
+    }
+
+    function iniciarInterferencia() {
+        if(timerInterferencia) clearInterval(timerInterferencia);
+        timerInterferencia = setInterval(() => {
+            const botones = document.querySelectorAll('.numero-btn:not(.seleccionado)');
+            botones.forEach(b => {
+                b.classList.remove('interferencia-roja', 'interferencia-amarilla');
+                let r = Math.random();
+                if(r < 0.25) b.classList.add('interferencia-roja');
+                else if(r < 0.50) b.classList.add('interferencia-amarilla');
+            });
+        }, 1100);
+    }
+
+    function validar(valor, btn) {
+        if (valor === secuenciaCorrecta[indiceIntento]) {
+            btn.classList.add('seleccionado');
+            indiceIntento++;
+            aciertos++;
+            
+            if (indiceIntento === secuenciaCorrecta.length) {
+                ronda++;
+                if (ronda > 3) {
+                    if (nivel < 3) {
+                        nivel++; ronda = 1;
+                        hablar("¡Muy bien! Subimos de nivel.");
+                        setTimeout(cargarRonda, 1500);
+                    } else {
+                        finalizar();
+                    }
+                } else {
+                    setTimeout(cargarRonda, 800);
+                }
             }
-        }, 3500);
+        } else {
+            errores++;
+            btn.style.background = "#FFCDD2";
+            hablar("Ese no es el siguiente.");
+            setTimeout(() => { if(!btn.classList.contains('seleccionado')) btn.style.background = "white"; }, 400);
+        }
     }
 
     function finalizar() {
+        clearInterval(timerInterferencia);
         document.getElementById('overlay-final').style.display = 'flex';
-        const ef = Math.round((aciertos / situaciones.length) * 100);
-        document.getElementById('stats-final').innerHTML = `Aciertos: ${aciertos}<br>Eficacia: ${ef}%`;
-        hablar("Muy bien Juan. Has terminado la sesión de hoy. Recuerda siempre pensar antes de actuar.");
+        const total = aciertos + errores;
+        const efic = Math.round((aciertos / total) * 100) || 0;
+        document.getElementById('resumen-stats').innerHTML = `Eficacia: ${efic}%<br>Aciertos: ${aciertos}`;
+        hablar("Sesión completada Juan. Tu mente se adapta cada vez mejor a los cambios.");
     }
 
     function guardarYSalir() {
-        const ef = Math.round((aciertos / situaciones.length) * 100);
+        const total = aciertos + errores;
+        const efic = Math.round((aciertos / total) * 100) || 0;
         const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
             id_sesion: 6,
             aciertos: aciertos,
             errores: errores,
-            eficacia: ef + "%"
+            eficacia: efic + "%"
         };
-
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
         historial.push(datos);
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
-        
         window.location.href = "funcion_sesiones.html";
     }
 </script>
