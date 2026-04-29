@@ -149,10 +149,9 @@
 
     function gestionarInstrucciones() {
         let tit = `NIVEL ${nivel}`;
-        let msg = "";
-        if(nivel === 1) msg = "Juan vamos a realizar unos laberintos, la idea es que planifiques la ruta necesaria para llegar a la meta.";
-        else msg = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
-        
+        let msg = (nivel === 1) ? 
+            "Juan vamos a realizar unos laberintos, planifica la ruta para llegar a la meta." : 
+            "Juan ahora antes de llegar a la meta debes recoger la llave dorada.";
         mostrarOverlay(tit, msg);
     }
 
@@ -169,6 +168,7 @@
     }
 
     function generarLaberinto() {
+        // MANTENEMOS LA COMPLEJIDAD ALTA
         if(nivel === 1) { filas = 15; columnas = 15; tamañoCelda = 22; tieneLlave = true; }
         else if(nivel === 2) { filas = 21; columnas = 21; tamañoCelda = 16; tieneLlave = false; }
         else { filas = 27; columnas = 27; tamañoCelda = 13; tieneLlave = false; }
@@ -192,20 +192,16 @@
 
         mapa[filas-2][columnas-2] = 2; // Meta
 
-        // LÓGICA COHERENTE PARA LA LLAVE
         if(nivel > 1) {
             tieneLlave = false;
-            // Buscamos la celda transitable (0) más cercana a la esquina superior derecha
-            let llaveColocada = false;
-            for(let c = columnas - 2; c > 0 && !llaveColocada; c--) {
-                for(let r = 1; r < filas - 1; r++) {
-                    if(mapa[r][c] === 0 && (r !== 1 || c !== 1)) {
-                        mapa[r][c] = 3;
-                        llaveColocada = true;
-                        break;
-                    }
-                }
-            }
+            let lx = columnas - 2;
+            let ly = 1;
+            
+            // CORRECCIÓN ESPECÍFICA PARA EL CAMINO DE LA LLAVE
+            // Forzamos que la celda de la llave y al menos una vecina sean camino (0)
+            mapa[ly][lx] = 3;
+            mapa[ly+1][lx] = 0; 
+            mapa[ly][lx-1] = 0;
         }
 
         jugador = { x: 1, y: 1 };
@@ -319,4 +315,3 @@
 </script>
 </body>
 </html>
-
