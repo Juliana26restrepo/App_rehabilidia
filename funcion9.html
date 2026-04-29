@@ -3,389 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 9: Control Prefrontal Extremo - REHABILIDIA</title>
+    <title>Sesión 9: Control de Impulsos - REHABILIDIA</title>
     <style>
         :root { 
-            --navy: #103A57; 
-            --gold: #FFD700; 
-            --bg: #0B1A27; 
-            --green: #2ECC71; 
-            --red: #E74C3C; 
-            --white: #ffffff;
+            --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; 
+            --red: #D32F2F; --blue: #1976D2; --green: #388E3C; --yellow: #FBC02D;
         }
 
-        /* UNIVERSAL ZOOM & RESET */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            overflow: hidden; 
+            font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); 
+            display: flex; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; 
         }
 
         #viewport-container {
-            width: 100vw;
-            height: 100vh;
-            max-width: 1024px;
-            max-height: 768px;
-            background: var(--bg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            width: 100vw; height: 100vh; max-width: 1024px;
+            background: white; position: relative; display: flex; flex-direction: column;
         }
 
         header { 
-            background: var(--navy); 
-            color: white; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            flex-shrink: 0;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            border-bottom: 2px solid var(--gold);
+            background: var(--navy); color: white; height: 45px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; font-weight: bold; flex-shrink: 0;
         }
 
-        .pantalla { display: none; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 20px; }
-        .activa { display: flex; }
-
-        .escala-container { 
-            width: 95%; 
-            max-width: 600px; 
-            background: rgba(255,255,255,0.05); 
-            padding: 30px; 
-            border-radius: 20px; 
-            border: 2px solid var(--gold); 
-            color: white;
+        .btn-salir {
+            background: #D32F2F; color: white; border: none; padding: 5px 12px;
+            border-radius: 5px; cursor: pointer; font-size: 0.8rem;
         }
 
-        /* ELEMENTO CENTRAL DEL JUEGO */
-        #tarjeta { 
-            width: 90%; 
-            max-width: 500px; 
-            height: clamp(180px, 30vh, 250px); 
-            background: var(--white); 
-            border-radius: 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: clamp(2rem, 8vw, 3.5rem); 
-            font-weight: 900; 
-            color: #000; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); 
-            cursor: pointer; 
-            user-select: none; 
-            padding: 20px;
-            transition: transform 0.1s;
+        .stats-bar { 
+            display: flex; justify-content: center; gap: 20px; 
+            font-weight: bold; padding: 10px; border-bottom: 2px solid var(--navy); 
         }
-        #tarjeta:active { transform: scale(0.95); }
 
-        .stats-top { 
-            width: 100%; 
-            display: flex; 
-            justify-content: space-around; 
-            padding: 10px;
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem); 
-            font-weight: bold; 
-            color: var(--gold); 
-            background: rgba(0,0,0,0.3);
+        #zona-juego { 
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 20px;
+        }
+
+        #palabra-estimulo {
+            font-size: 5rem; font-weight: 900; margin-bottom: 40px;
+            text-transform: uppercase; letter-spacing: 5px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .opciones-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            width: 100%; max-width: 500px;
+        }
+
+        .btn-color {
+            height: 80px; border: none; border-radius: 15px;
+            cursor: pointer; transition: transform 0.1s;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-color:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+
+        .rojo { background-color: var(--red); }
+        .azul { background-color: var(--blue); }
+        .verde { background-color: var(--green); }
+        .amarillo { background-color: var(--yellow); }
+
+        .overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(16, 58, 87, 0.95); color: white; 
+            display: none; flex-direction: column; justify-content: center; 
+            align-items: center; z-index: 100; text-align: center; padding: 30px; 
         }
 
         .btn-ready { 
-            background: var(--gold); 
-            color: var(--navy); 
-            border: none; 
-            padding: 18px 45px; 
-            border-radius: 40px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 1.4rem; 
-            margin-top: 25px;
-            box-shadow: 0 4px 0 #b7950b;
-        }
-        .btn-ready:active { transform: translateY(3px); box-shadow: 0 1px 0 #b7950b; }
-
-        /* MONITOR DE IMPULSIÓN RESPONSIVO */
-        #monitor-frustracion { 
-            position: absolute; 
-            right: 2%; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            height: 50%; 
-            width: 25px; 
-            background: #1a2a3a; 
-            border: 2px solid white; 
-            border-radius: 15px; 
-            overflow: hidden; 
-        }
-        #barra-impulso { width: 100%; height: 0%; background: linear-gradient(to top, #2ecc71, #f1c40f, #e74c3c); position: absolute; bottom: 0; transition: 0.3s; }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
-
-        #feedback-v { margin-top: 25px; height: 35px; font-weight: bold; font-size: 1.8rem; }
-
-        .cuadro-resultados {
-            background: white; color: var(--navy); padding: 30px; border-radius: 25px; width: 90%; max-width: 450px; border: 5px solid var(--gold);
+            background: var(--gold); border: none; padding: 15px 40px; 
+            border-radius: 30px; font-weight: bold; cursor: pointer; 
+            font-size: 1.2rem; color: var(--navy); margin-top: 20px; 
         }
     </style>
 </head>
-<body>
+<body onload="iniciarSesion()">
 
 <div id="viewport-container">
-    <header>SESIÓN 9: CONTROL DE IMPULSOS</header>
+    <header>
+        <span>SESIÓN 9: CONTROL DE IMPULSOS</span>
+        <button class="btn-salir" onclick="irAlMenu()">SALIR Y GUARDAR</button>
+    </header>
 
-    <div id="pantalla-inicio" class="pantalla activa">
-        <h1 style="color: var(--gold); margin-bottom: 10px;">CONTROL PREFRONTAL</h1>
-        <div class="escala-container">
-            <p style="font-size: 1.2rem;"><b>REGLA DE ORO:</b><br>Toca la tarjeta <span style="color:var(--gold)">ÚNICAMENTE</span> si la palabra es <b>POSITIVA</b> y el texto es <b>VERDE</b>.</p>
-            <p>Juan, ¿cómo está tu calma hoy?</p>
-            <input type="range" id="eval-inicial" min="1" max="10" value="5" style="width: 80%;" oninput="document.getElementById('num-i').innerText=this.value">
-            <h2 id="num-i" style="color: var(--gold);">5</h2>
-            <button class="btn-ready" onpointerdown="iniciarSecuencia()">INICIAR PROTOCOLO</button>
+    <div class="stats-bar">
+        <span id="txt-nivel">Nivel: 1</span>
+        <span id="txt-ronda">Ronda: 1 / 2</span>
+        <span id="txt-errores" style="color: var(--red);">Errores: 0</span>
+    </div>
+
+    <div id="zona-juego">
+        <div id="palabra-estimulo">---</div>
+        
+        <div class="opciones-grid">
+            <button class="btn-color rojo" onclick="verificarRespuesta('ROJO')"></button>
+            <button class="btn-color azul" onclick="verificarRespuesta('AZUL')"></button>
+            <button class="btn-color verde" onclick="verificarRespuesta('VERDE')"></button>
+            <button class="btn-color amarillo" onclick="verificarRespuesta('AMARILLO')"></button>
         </div>
     </div>
 
-    <div id="overlay-instruccion" class="overlay">
-        <h1 style="color: var(--gold)">¡ATENCIÓN JUAN!</h1>
-        <p id="texto-instruccion" style="font-size: 1.5rem; max-width: 80%;">Escucha la instrucción...</p>
-        <div id="pre-count" style="font-size: 6rem; color: var(--gold); font-weight: 900;"></div>
-    </div>
-
-    <div id="pantalla-juego" class="pantalla">
-        <div class="stats-top">
-            <span>NIVEL: <span id="txt-nivel">1</span>/3</span>
-            <span>RONDA: <span id="txt-ronda">1</span>/3</span>
-            <span>LOGRO: <span id="txt-aciertos">0</span>/10</span>
-        </div>
-        <div id="monitor-frustracion"><div id="barra-impulso"></div></div>
-        <div id="tarjeta" onpointerdown="registrarRespuesta()">ESPERA</div>
-        <div id="feedback-v"></div>
-    </div>
-
-    <div id="overlay-calma" class="overlay">
-        <h1 style="color: var(--red); font-size: clamp(2rem, 8vw, 4rem);">¡PAUSA DE CALMA!</h1>
-        <p style="font-size: 1.5rem;">Respira hondo mientras el monitor baja.</p>
-        <div id="cuenta-atras" style="font-size: 6rem; color: var(--gold); font-weight: 900;">10</div>
+    <div id="overlay-msg" class="overlay" style="display: flex;">
+        <h1 id="msg-titulo" style="color: var(--gold);">NIVEL 1</h1>
+        <p id="msg-cuerpo" style="font-size: 1.3rem;">Juan, presiona el botón del <strong>COLOR DE LA TINTA</strong>, ignorando lo que diga la palabra.</p>
+        <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
     </div>
 
     <div id="overlay-final" class="overlay">
-        <div class="cuadro-resultados">
-            <h1 style="color: var(--navy); margin-top: 0;">¡SESIÓN FINALIZADA!</h1>
-            <div id="resumen-stats" style="font-size: 1.2rem; margin: 20px 0; line-height: 1.6;"></div>
-            <button class="btn-ready" onpointerdown="guardarYSalir()">FINALIZAR</button>
+        <div style="background: white; color: var(--navy); padding: 30px; border-radius: 20px; border: 5px solid var(--gold); width: 90%; max-width: 400px;">
+            <h2>¡SESIÓN COMPLETADA!</h2>
+            <p id="stats-resumen" style="font-size: 1.2rem; margin: 20px 0;"></p>
+            <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
 
 <script>
-    const pos = ["Amor", "Alegría", "Felicidad", "Paz", "Éxito", "Salud", "Valentía", "Calma", "Amistad", "Fé", "Luz", "Bondad", "Respeto", "Orden", "Justicia", "Sabiduría", "Vida"];
-    const neg = ["Odio", "Miedo", "Ira", "Dolor", "Fracaso", "Guerra", "Envidia", "Culpa", "Ruido", "Error", "Muerte", "Caos", "Mentira", "Veneno", "Peligro", "Tristeza", "Rencor"];
+    const colores = [
+        { nombre: "ROJO", hex: "#D32F2F" },
+        { nombre: "AZUL", hex: "#1976D2" },
+        { nombre: "VERDE", hex: "#388E3C" },
+        { nombre: "AMARILLO", hex: "#FBC02D" }
+    ];
 
-    let nivel = 1, ronda = 1, aciertosRonda = 0, impulso = 0, esTarget = false, bloqueado = false, timerJuego;
-    let aciertosTotales = 0, erroresTotales = 0;
-    const RETOS_POR_RONDA = 10;
+    let nivel = 1, ronda = 1, aciertos = 0, errores = 0;
+    const RONDAS_POR_NIVEL = 2; // MODIFICADO A 2 RONDAS
+    let colorCorrecto = "";
 
-    function hablar(t, callback) {
+    function hablar(t) {
         window.speechSynthesis.cancel();
         const m = new SpeechSynthesisUtterance(t);
         m.lang = 'es-ES';
-        m.rate = 0.95;
-        m.onend = () => { if(callback) callback(); };
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSecuencia() {
-        document.getElementById('pantalla-inicio').classList.remove('activa');
-        document.getElementById('overlay-instruccion').style.display = 'flex';
-        const msg = "Juan, concéntrate. Solo presiona si la palabra es buena y el color es verde. Si te equivocas, tu impulsividad subirá.";
-        hablar(msg, () => {
-            let count = 3;
-            const preDiv = document.getElementById('pre-count');
-            preDiv.innerText = count;
-            const interval = setInterval(() => {
-                count--;
-                if(count > 0) preDiv.innerText = count;
-                else {
-                    clearInterval(interval);
-                    document.getElementById('overlay-instruccion').style.display = 'none';
-                    document.getElementById('pantalla-juego').classList.add('activa');
-                    siguienteEstimulo();
-                }
-            }, 1000);
-        });
+    function iniciarSesion() {
+        hablar("Juan, presiona el botón del color de la tinta.");
     }
 
-    function siguienteEstimulo() {
-        if(bloqueado) return;
-        const tarjeta = document.getElementById('tarjeta');
-        tarjeta.innerText = "---"; tarjeta.style.color = "#000";
-        document.getElementById('feedback-v').innerText = "";
-
-        setTimeout(() => {
-            if(bloqueado) return;
-            const r = Math.random();
-            let tipo, verde;
-            
-            // Distribución de estímulos
-            if(r < 0.40) { tipo = true; verde = true; } // Target
-            else if(r < 0.60) { tipo = true; verde = false; }
-            else if(r < 0.80) { tipo = false; verde = true; }
-            else { tipo = false; verde = false; }
-
-            const lista = tipo ? pos : neg;
-            const palabra = lista[Math.floor(Math.random()*lista.length)];
-            tarjeta.innerText = palabra.toUpperCase();
-            tarjeta.style.color = verde ? "var(--green)" : "var(--red)";
-            esTarget = (tipo && verde);
-
-            let tiempoBase = nivel === 1 ? 2300 : (nivel === 2 ? 1800 : 1300);
-            
-            timerJuego = setTimeout(() => {
-                if(esTarget) {
-                    procesarError("¡Muy lento!");
-                } else {
-                    siguienteEstimulo();
-                }
-            }, tiempoBase);
-        }, 1200);
+    function cerrarOverlay() {
+        document.getElementById('overlay-msg').style.display = 'none';
+        nuevaRonda();
     }
 
-    function registrarRespuesta() {
-        if(bloqueado || document.getElementById('tarjeta').innerText === "---") return;
-        clearTimeout(timerJuego);
-        
-        if(esTarget) {
-            aciertosRonda++;
-            aciertosTotales++;
-            impulso = Math.max(0, impulso - 10);
-            document.getElementById('feedback-v').innerText = "¡BIEN!";
-            document.getElementById('feedback-v').style.color = "var(--green)";
-            actualizarMonitor();
-            if(aciertosRonda >= RETOS_POR_RONDA) gestionarProgreso();
-            else setTimeout(siguienteEstimulo, 800);
-        } else {
-            procesarError("¡Impulsividad!");
-        }
-    }
-
-    function procesarError(msj) {
-        erroresTotales++;
-        impulso += 20;
-        document.getElementById('feedback-v').innerText = "ERROR";
-        document.getElementById('feedback-v').style.color = "var(--red)";
-        actualizarMonitor();
-        if(impulso >= 100) pausaCalma();
-        else setTimeout(siguienteEstimulo, 1500);
-    }
-
-    function actualizarMonitor() {
-        document.getElementById('barra-impulso').style.height = impulso + "%";
-        document.getElementById('txt-aciertos').innerText = aciertosRonda;
-    }
-
-    function pausaCalma() {
-        bloqueado = true;
-        document.getElementById('overlay-calma').style.display = 'flex';
-        hablar("Juan, detente y respira profundo.");
-        let seg = 10;
-        const c = setInterval(() => {
-            seg--;
-            document.getElementById('cuenta-atras').innerText = seg;
-            if(seg <= 0) {
-                clearInterval(c);
-                document.getElementById('overlay-calma').style.display = 'none';
-                impulso = 0; bloqueado = false; 
-                actualizarMonitor(); 
-                siguienteEstimulo();
+    function nuevaRonda() {
+        if (ronda > RONDAS_POR_NIVEL) {
+            if (nivel < 3) {
+                nivel++; ronda = 1;
+                document.getElementById('msg-titulo').innerText = `NIVEL ${nivel}`;
+                document.getElementById('msg-cuerpo').innerText = "¡Bien hecho! Continuamos con el siguiente nivel.";
+                document.getElementById('overlay-msg').style.display = 'flex';
+                actualizarUI();
+                return;
+            } else {
+                finalizar();
+                return;
             }
-        }, 1000);
-    }
-
-    function gestionarProgreso() {
-        aciertosRonda = 0;
-        if(ronda < 3) { 
-            ronda++; 
-            document.getElementById('txt-ronda').innerText = ronda; 
-            hablar("Ronda completada");
-            setTimeout(siguienteEstimulo, 1500);
-        } else if(nivel < 3) { 
-            nivel++; 
-            ronda = 1; 
-            document.getElementById('txt-nivel').innerText = nivel; 
-            document.getElementById('txt-ronda').innerText = "1"; 
-            hablar("Subiendo a nivel " + nivel); 
-            setTimeout(siguienteEstimulo, 1500);
-        } else { 
-            finalizarSesion(); 
         }
+
+        let indicePalabra = Math.floor(Math.random() * colores.length);
+        let indiceColor = Math.floor(Math.random() * colores.length);
+        
+        // Reto Stroop: forzar que el color de la tinta NO coincida con la palabra
+        while(indiceColor === indicePalabra) {
+            indiceColor = Math.floor(Math.random() * colores.length);
+        }
+
+        const el = document.getElementById('palabra-estimulo');
+        el.innerText = colores[indicePalabra].nombre;
+        el.style.color = colores[indiceColor].hex;
+        colorCorrecto = colores[indiceColor].nombre;
+
+        actualizarUI();
     }
 
-    function finalizarSesion() {
-        bloqueado = true;
-        const totalInt = aciertosTotales + erroresTotales;
-        const eficacia = totalInt > 0 ? Math.round((aciertosTotales / totalInt) * 100) : 0;
-        
-        document.getElementById('resumen-stats').innerHTML = `
-            <strong>Aciertos:</strong> ${aciertosTotales}<br>
-            <strong>Errores:</strong> ${erroresTotales}<br>
-            <strong>Eficacia:</strong> ${eficacia}%
+    function verificarRespuesta(colorPresionado) {
+        if (colorPresionado === colorCorrecto) {
+            aciertos++;
+        } else {
+            errores++;
+            // Feedback visual simple
+            document.getElementById('palabra-estimulo').style.opacity = "0.5";
+            setTimeout(() => { document.getElementById('palabra-estimulo').style.opacity = "1"; }, 150);
+        }
+        ronda++;
+        nuevaRonda();
+    }
+
+    function actualizarUI() {
+        document.getElementById('txt-nivel').innerText = `Nivel: ${nivel}`;
+        document.getElementById('txt-ronda').innerText = `Ronda: ${ronda} / ${RONDAS_POR_NIVEL}`;
+        document.getElementById('txt-errores').innerText = `Errores: ${errores}`;
+    }
+
+    function finalizar() {
+        const total = aciertos + errores;
+        const ef = Math.round((aciertos / total) * 100) || 0;
+        document.getElementById('stats-resumen').innerHTML = `
+            <strong>Aciertos:</strong> ${aciertos}<br>
+            <strong>Errores:</strong> ${errores}<br>
+            <strong>Eficacia:</strong> ${ef}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Felicidades Juan, has dominado tus impulsos.");
+        hablar("Sesión terminada. Muy buen trabajo guardando tus impulsos.");
     }
 
-    function guardarYSalir() {
-        const totalInt = aciertosTotales + erroresTotales;
-        const eficacia = totalInt > 0 ? Math.round((aciertosTotales / totalInt) * 100) : 0;
-
-        const dataLog = {
-            fecha: new Date().toLocaleDateString(),
-            modulo: "Funciones Ejecutivas",
-            id_sesion: 9,
-            aciertos: aciertosTotales,
-            errores: erroresTotales,
-            eficacia: eficacia + "%"
-        };
-
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(dataLog));
-        window.location.href = 'funcion_sesiones.html';
-    }
-    // --- ESTA FUNCIÓN GUARDA SIN BORRAR LO ANTERIOR ---
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertos + errores;
+        const ef = Math.round((aciertos / (total === 0 ? 1 : total)) * 100) || 0;
         
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
-            modulo: "funcion ejecutiva", 
-            id_sesion: 9,       
+            modulo: "Funciones Ejecutivas",
+            id_sesion: 9,
             aciertos: aciertos,
             errores: errores,
             eficacia: ef + "%"
         };
 
-        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        if (!Array.isArray(historial)) historial = []; 
-        historial.push(datosSesion); 
-        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
+        historial.push(datosSesion);
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial));
 
-        window.location.href = "atencion_sesiones.html";
+        window.location.href = "funcion_sesiones.html";
     }
-
-    // --- TRUCO FINAL: ESTO CONECTA EL BOTÓN AUTOMÁTICAMENTE ---
-    // Busca cualquier botón que diga "FINALIZAR" y le pone la función
-    document.querySelectorAll('button').forEach(boton => {
-        if(boton.innerText.includes("FINALIZAR")) {
-            boton.onclick = irAlMenu;
-        }
-    });
 </script>
 </body>
 </html>
