@@ -39,24 +39,25 @@
         #contenedor-juego { 
             flex-grow: 1; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; padding: 10px;
+            overflow-y: auto;
         }
 
         .panel-instruccion { 
-            background: var(--white); padding: 15px; border-radius: 20px; 
+            background: var(--white); padding: 12px; border-radius: 20px; 
             border: 3px solid var(--p-purple); width: 90%; max-width: 600px; 
-            margin-bottom: 20px; font-weight: bold; font-size: 1.2rem; 
-            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; 
+            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0;
         }
 
         .zona-numeros {
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 12px; width: 95%; max-width: 850px; padding: 10px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px; width: 95%; max-width: 900px; padding: 10px;
         }
 
         .numero-btn {
-            background: var(--white); border: 3px solid var(--navy);
-            border-radius: 12px; height: 75px; font-size: 1.8rem;
+            background: var(--white); border: 2px solid var(--navy);
+            border-radius: 12px; height: 65px; font-size: 1.5rem;
             font-weight: 800; color: var(--navy); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; box-shadow: 0 4px 0 var(--navy);
@@ -67,17 +68,17 @@
         @keyframes flash-red { 0%, 100% { background: white; } 50% { background: var(--distractor-red); color: white; } }
         @keyframes flash-yellow { 0%, 100% { background: white; } 50% { background: var(--distractor-yellow); color: var(--navy); } }
 
-        .interferencia-roja { animation: flash-red 0.8s infinite; }
-        .interferencia-amarilla { animation: flash-yellow 1s infinite; }
+        .interferencia-roja { animation: flash-red 0.7s infinite; }
+        .interferencia-amarilla { animation: flash-yellow 0.9s infinite; }
 
         .area-asistente { 
             width: 100%; background: white; padding: 10px 20px; 
             display: flex; align-items: center; gap: 15px; 
-            border-top: 4px solid var(--p-purple); height: 110px;
+            border-top: 4px solid var(--p-purple); height: 100px; flex-shrink: 0;
         }
 
-        .avatar-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; }
-        .burbuja { background: #F5F5F5; padding: 10px; border-radius: 12px; font-size: 0.9rem; flex: 1; height: 75px; overflow-y: auto; color: var(--navy); }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--p-purple); overflow: hidden; }
+        .burbuja { background: #F5F5F5; padding: 8px; border-radius: 12px; font-size: 0.85rem; flex: 1; height: 65px; overflow-y: auto; color: var(--navy); }
 
         #overlay-final { 
             position: absolute; inset: 0; display: none; flex-direction: column; 
@@ -116,7 +117,6 @@
 </div>
 
 <script>
-    // BANCO DE NÚMEROS PROPORCIONADO
     const bancoNumeros = [
         3, 5, 7, 8, 9, 12, 14, 15, 18, 19, 21, 22, 24, 26, 27, 29, 31, 33, 34, 36,
         38, 39, 41, 42, 44, 46, 47, 49, 51, 52, 54, 55, 57, 59, 60, 62, 63, 65, 67, 68,
@@ -148,7 +148,7 @@
     }
 
     function iniciarSesion() {
-        hablar("Juan, vamos a organizar los números. Ignora los colores que cambian.");
+        hablar("Juan, ordena los números. Ignora los colores que parpadean.");
         cargarRonda();
     }
 
@@ -161,10 +161,11 @@
 
         progreso.innerText = `Nivel ${nivel} - Ronda ${ronda}/3`;
 
-        // Cantidad de números según nivel
-        let cantidad = nivel === 1 ? 5 : (nivel === 2 ? 8 : 10);
+        // AJUSTE DE CANTIDADES POR NIVEL
+        let cantidad = 8; // Nivel 1 por defecto
+        if (nivel === 2) cantidad = 10;
+        if (nivel === 3) cantidad = 15;
         
-        // Obtener números aleatorios del BANCO sin repetir
         let numerosRonda = [];
         let copiaBanco = [...bancoNumeros];
         for(let i=0; i<cantidad; i++) {
@@ -172,7 +173,6 @@
             numerosRonda.push(copiaBanco.splice(index, 1)[0]);
         }
 
-        // Determinar lógica
         let tipoOrden = "MENOR A MAYOR";
         if (nivel === 2) tipoOrden = "MAYOR A MENOR";
         if (nivel === 3) tipoOrden = Math.random() > 0.5 ? "MENOR A MAYOR" : "MAYOR A MENOR";
@@ -186,7 +186,6 @@
             secuenciaCorrecta = [...numerosRonda].sort((a,b) => b - a);
         }
 
-        // Crear botones (mezclados para que no aparezcan ordenados)
         numerosRonda.sort(() => Math.random() - 0.5).forEach(num => {
             const btn = document.createElement('div');
             btn.className = "numero-btn";
@@ -205,10 +204,10 @@
             botones.forEach(b => {
                 b.classList.remove('interferencia-roja', 'interferencia-amarilla');
                 let r = Math.random();
-                if(r < 0.25) b.classList.add('interferencia-roja');
-                else if(r < 0.50) b.classList.add('interferencia-amarilla');
+                if(r < 0.3) b.classList.add('interferencia-roja');
+                else if(r < 0.6) b.classList.add('interferencia-amarilla');
             });
-        }, 1100);
+        }, 1000);
     }
 
     function validar(valor, btn) {
@@ -222,7 +221,7 @@
                 if (ronda > 3) {
                     if (nivel < 3) {
                         nivel++; ronda = 1;
-                        hablar("¡Muy bien! Subimos de nivel.");
+                        hablar("¡Excelente! Vamos al siguiente nivel.");
                         setTimeout(cargarRonda, 1500);
                     } else {
                         finalizar();
@@ -234,7 +233,7 @@
         } else {
             errores++;
             btn.style.background = "#FFCDD2";
-            hablar("Ese no es el siguiente.");
+            hablar("Ese no sigue el orden.");
             setTimeout(() => { if(!btn.classList.contains('seleccionado')) btn.style.background = "white"; }, 400);
         }
     }
@@ -267,3 +266,4 @@
 </script>
 </body>
 </html>
+
