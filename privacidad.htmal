@@ -1,1 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Legal - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #F4F7F9; --white: #ffffff; }
+        
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #333; line-height: 1.6; }
+        
+        header { background: var(--p-blue); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .btn-volver { color: white; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        
+        .legal-card { background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 30px; margin-bottom: 20px; }
+        
+        .header-legal { text-align: center; margin-bottom: 40px; }
+        .header-legal h1 { color: var(--p-blue); margin-bottom: 10px; }
+        .header-legal p { color: #666; font-size: 0.9rem; }
+
+        /* Estilo de Acordeón para las secciones legales */
+        .acordeon-item { border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+        
+        .acordeon-header { 
+            background: #f8fafc; padding: 18px 25px; cursor: pointer; display: flex; 
+            justify-content: space-between; align-items: center; transition: 0.3s;
+            font-weight: bold; color: var(--p-blue);
+        }
+        .acordeon-header:hover { background: #f1f5f9; }
+        .acordeon-header i { transition: 0.3s; }
+
+        .acordeon-content { padding: 0 25px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: white; }
+        .acordeon-content.active { padding: 25px; max-height: 2000px; border-top: 1px solid #eee; }
+
+        h2 { color: var(--t-blue); font-size: 1.1rem; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        h3 { font-size: 1rem; color: var(--p-blue); margin-top: 15px; }
+        
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .importante-box { 
+            background: #fff5f5; border-left: 4px solid #f56565; padding: 15px; 
+            margin: 15px 0; font-size: 0.9rem; color: #c53030; font-weight: bold;
+        }
+
+        .highlight-blue { background: #ebf8ff; border-left: 4px solid var(--t-blue); padding: 15px; margin: 15px 0; }
+
+        .footer-legal { text-align: center; margin-top: 50px; color: #94a3b8; font-size: 0.8rem; padding-bottom: 40px; }
+
+        @media (max-width: 600px) { .documento { padding: 20px; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight: bold;">REHABILIDIA | Legal</div>
+    <a href="perfil_neuropsicologo.html" class="btn-volver"><i class="fas fa-times"></i> Cerrar</a>
+</header>
+
+<div class="container">
+    <div class="header-legal">
+        <i class="fas fa-balance-scale" style="font-size: 3rem; color: var(--t-blue); margin-bottom: 15px;"></i>
+        <h1>Centro de Privacidad y Legal</h1>
+        <p>REHABILIDIA S.A.S - Transparencia y Seguridad en Salud Digital</p>
+    </div>
+
+    <div class="acordeon-item">
+        <div class="acordeon-header" onclick="toggleAcordeon(this)">
+            <span><i class="fas fa-file-contract"></i> 1. Términos y Condiciones de Uso</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="acordeon-content">
+            <h2>1. ACEPTACIÓN</h2>
+            <p>El acceso y uso de la aplicación REHABILIDIA implica la aceptación plena y sin reservas de los presentes Términos y Condiciones.</p>
+
+            <h2>2. NATURALEZA DEL SERVICIO</h2>
+            <p>REHABILIDIA es una plataforma digital orientada a la rehabilitación neuropsicológica, que ofrece herramientas de evaluación, seguimiento e intervención cognitiva.</p>
+            <div class="importante-box">
+                <i class="fas fa-exclamation-triangle"></i> IMPORTANTE: La aplicación no constituye un servicio de urgencias médicas ni sustituye la atención médica, psiquiátrica o psicológica presencial cuando esta sea requerida.
+            </div>
+
+            <h2>3. USO DE LA PLATAFORMA</h2>
+            <ul>
+                <li>Proporcionar información veraz</li>
+                <li>Utilizar la aplicación de manera responsable</li>
+                <li>No suplantar identidad</li>
+                <li>No hacer uso indebido de los contenidos</li>
+            </ul>
+
+            <h2>4. ROLES</h2>
+            <p><strong>Usuario:</strong> Ejecuta actividades y registra información.</p>
+            <p><strong>Profesional:</strong> Interpreta y realiza seguimiento clínico.</p>
+            <p><strong>REHABILIDIA:</strong> Herramienta de apoyo tecnológico.</p>
+
+            <h2>5. LIMITACIÓN DE RESPONSABILIDAD</h2>
+            <p>REHABILIDIA no se hace responsable por decisiones tomadas sin acompañamiento profesional, fallas técnicas externas o situaciones de urgencia no atendidas oportunamente.</p>
+        </div>
+    </div>
+
+    <div class="acordeon-item">
+        <div class="acordeon-header" onclick="toggleAcordeon(this)">
+            <span><i class="fas fa-user-shield"></i> 2. Política de Tratamiento de Datos</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="acordeon-content">
+            <h2>1. RESPONSABLE</h2>
+            <p><strong>REHABILIDIA S.A.S</strong><br>NIT: [●] | Correo: [●]<br>Domicilio: [●], Colombia</p>
+
+            <h2>2. MARCO LEGAL</h2>
+            <p>Se rige por la Ley 1581 de 2012, Decreto 1377 de 2013 y normativa aplicable en salud.</p>
+
+            <h2>3. DATOS SENSIBLES</h2>
+            <div class="highlight-blue">
+                Se tratarán datos sensibles relacionados con la salud: Información psicológica, evaluaciones cognitivas e historial clínico. El titular decide libremente si autoriza su tratamiento.
+            </div>
+
+            <h2>4. DERECHOS DEL TITULAR</h2>
+            <ul>
+                <li>Acceder y corregir sus datos.</li>
+                <li>Revocar autorización o solicitar eliminación.</li>
+                <li>Presentar quejas ante la SIC.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="acordeon-item">
+        <div class="acordeon-header" onclick="toggleAcordeon(this)">
+            <span><i class="fas fa-notes-medical"></i> 3. Consentimiento e Historia Clínica</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="acordeon-content">
+            <h2>CONSENTIMIENTO INFORMADO</h2>
+            <p>El usuario declara haber sido informado sobre la naturaleza del servicio y autoriza el tratamiento de sus datos personales y clínicos dentro del proceso de rehabilitación.</p>
+
+            <h2>POLÍTICA DE HISTORIA CLÍNICA DIGITAL</h2>
+            <p>La información registrada constituye una historia clínica digital de carácter <strong>confidencial</strong>.</p>
+            <ul>
+                <li>Solo podrá ser consultada por el profesional tratante, el usuario y autoridades legales.</li>
+                <li>Se garantiza acceso restringido y almacenamiento seguro.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="acordeon-item">
+        <div class="acordeon-header" onclick="toggleAcordeon(this)">
+            <span><i class="fas fa-hand-holding-heart"></i> 4. Protocolo de Manejo de Crisis</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="acordeon-content">
+            <h2>ACTUACIÓN EN CASO DE RIESGO</h2>
+            <p>Si se identifica ideación suicida, autolesiones o crisis emocionales severas:</p>
+            <ol>
+                <li>Se recomendará acudir inmediatamente a servicios de urgencias.</li>
+                <li>Se activará la red de apoyo registrada.</li>
+                <li>Se suspenderá el uso autónomo de la aplicación hasta nueva valoración.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="footer-legal">
+        &copy; 2026 REHABILIDIA S.A.S. Todos los derechos reservados.<br>
+        Última actualización: Abril 2026
+    </div>
+</div>
+
+<script>
+    function toggleAcordeon(header) {
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('.fa-chevron-down');
+        
+        // Cerrar otros si se desea (opcional)
+        // document.querySelectorAll('.acordeon-content').forEach(c => c.classList.remove('active'));
+
+        content.classList.toggle('active');
+        
+        if(content.classList.contains('active')) {
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+</script>
+
+</body>
+</html>
 
