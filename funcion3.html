@@ -32,24 +32,21 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
-        #estimulo-central { font-size: clamp(3.5rem, 15vw, 5.5rem); font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #estimulo-central { font-size: 4.5rem; font-weight: 900; min-height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; }
 
-        /* Forzamos que el grid siempre tenga 4 espacios visibles */
         #zona-opciones { 
-            display: grid !important; 
-            grid-template-columns: 1fr 1fr !important; 
-            grid-template-rows: auto auto !important;
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
             gap: 15px; 
             width: 95%; 
             max-width: 500px; 
-            padding-bottom: 20px;
         }
 
         .opcion { 
-            background: var(--white); border: 4px solid var(--navy); padding: 20px 5px; border-radius: 20px; 
-            font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
+            background: var(--white); border: 4px solid var(--navy); padding: 25px 10px; border-radius: 20px; 
+            font-size: 1.5rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0px var(--navy);
             transition: all 0.1s; display: flex; align-items: center; justify-content: center; color: var(--navy);
-            text-transform: uppercase; min-height: 80px;
+            text-transform: uppercase;
         }
         .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
         
@@ -62,7 +59,7 @@
         #overlay-final { background: rgba(16, 58, 87, 0.98); color: white; }
         
         .cuadro-resultados { background: var(--white); color: var(--navy); padding: 30px; border-radius: 30px; width: 90%; max-width: 450px; border: 6px solid var(--gold); text-align: center; }
-        .avatar-guia { width: 80px; height: 80px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .avatar-guia { width: 90px; height: 90px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 
         .btn-inicio { background: var(--gold); color: var(--p-purple); border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 20px; display: none; }
     </style>
@@ -73,7 +70,7 @@
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
     <div id="contenedor-juego">
-        <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Nivel 1 - Ejercicio 1/3</div>
+        <div id="info-progreso" style="font-weight: bold; color: var(--navy);">Preparando...</div>
         <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
         <div id="estimulo-central">---</div>
         <div id="zona-opciones"></div>
@@ -96,9 +93,11 @@
 </div>
 
 <script>
-    const colores = [
-        { n: "ROJO", h: "#D32F2F" }, { n: "AZUL", h: "#1976D2" },
-        { n: "VERDE", h: "#388E3C" }, { n: "AMARILLO", h: "#FBC02D" },
+    const listaColores = [
+        { n: "ROJO", h: "#D32F2F" },
+        { n: "AZUL", h: "#1976D2" },
+        { n: "VERDE", h: "#388E3C" },
+        { n: "AMARILLO", h: "#FBC02D" },
         { n: "NEGRO", h: "#212121" }
     ];
 
@@ -114,129 +113,129 @@
         window.speechSynthesis.speak(m);
     }
 
-    function iniciarSesion() {
-        mostrarTransicion();
-    }
+    function iniciarSesion() { mostrarNivel(); }
 
-    function mostrarTransicion() {
+    function mostrarNivel() {
+        const pantalla = document.getElementById('pantalla-transicion');
         const tit = document.getElementById('titulo-aviso');
         const desc = document.getElementById('texto-aviso');
         const btn = document.getElementById('btn-empezar');
         btn.style.display = "none";
         
-        let texto = "";
+        let msg = "";
         if(nivelActual === 1) {
             tit.innerText = "NIVEL 1: LECTURA";
-            texto = "Juan, lee la palabra que aparece en el centro. Ignora el color de la tinta.";
+            msg = "Juan, toca la palabra que lees. No importa el color de la letra.";
             regla = "palabra";
         } else if(nivelActual === 2) {
             tit.innerText = "NIVEL 2: COLORES";
-            texto = "¡Cambio! Ahora toca el botón del color de la tinta. No leas la palabra.";
+            msg = "¡Atención! Ahora toca el color de la letra. No leas la palabra.";
             regla = "color";
         } else {
             tit.innerText = "NIVEL 3: MIXTO";
-            texto = "¡Atención! La regla cambiará en cada turno. Lee arriba para saber qué hacer.";
+            msg = "¡Cuidado! Mira bien arriba: si dice LEE toca la palabra, si dice COLOR toca el color.";
         }
 
-        desc.innerText = texto;
-        document.getElementById('pantalla-transicion').style.display = 'flex';
-        hablar(texto, () => { btn.style.display = "block"; });
+        desc.innerText = msg;
+        pantalla.style.display = 'flex';
+        hablar(msg, () => { btn.style.display = "block"; });
     }
 
     function cerrarTransicion() {
         document.getElementById('pantalla-transicion').style.display = 'none';
-        proximaPregunta();
+        jugarTurno();
     }
 
-    function proximaPregunta() {
+    function jugarTurno() {
         if (rondaActual > 4) {
             if (ejercicioActual < 3) {
                 ejercicioActual++; rondaActual = 1;
-                hablar(`Ejercicio ${ejercicioActual}`, proximaPregunta);
+                hablar(`Ejercicio ${ejercicioActual}`, jugarTurno);
             } else {
-                if (nivelActual < 3) { nivelActual++; ejercicioActual = 1; rondaActual = 1; mostrarTransicion(); }
+                if (nivelActual < 3) { nivelActual++; ejercicioActual = 1; rondaActual = 1; mostrarNivel(); }
                 else { finalizar(); }
             }
             return;
         }
 
-        document.getElementById('info-progreso').innerText = `Nivel ${nivelActual} - Ejercicio ${ejercicioActual}/3 (Ronda ${rondaActual}/4)`;
+        document.getElementById('info-progreso').innerText = `Nivel ${nivelActual} - Ejercicio ${ejercicioActual}/3 (Turno ${rondaActual}/4)`;
         
+        // Determinar regla
         if (nivelActual === 3) { regla = Math.random() > 0.5 ? "palabra" : "color"; }
         document.getElementById('panel-regla').innerText = regla === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
-        // 1. Seleccionar palabra y color de tinta (deben ser diferentes)
-        const pRandom = colores[Math.floor(Math.random() * colores.length)];
-        let cRandom;
-        do { cRandom = colores[Math.floor(Math.random() * colores.length)]; } while (cRandom.h === pRandom.h);
+        // Estímulo central
+        const palObj = listaColores[Math.floor(Math.random() * listaColores.length)];
+        let colObj;
+        do { colObj = listaColores[Math.floor(Math.random() * listaColores.length)]; } while (colObj.h === palObj.h);
 
-        const display = document.getElementById('estimulo-central');
-        display.innerText = pRandom.n;
-        display.style.color = cRandom.h;
+        const central = document.getElementById('estimulo-central');
+        central.innerText = palObj.n;
+        central.style.color = colObj.h;
 
-        const correcta = regla === "palabra" ? pRandom : cRandom;
+        const correcta = regla === "palabra" ? palObj : colObj;
         esperandoRespuesta = true;
 
-        // 2. GENERAR EXACTAMENTE 4 BOTONES INCLUYENDO LA CORRECTA
-        const contenedor = document.getElementById('zona-opciones');
-        contenedor.innerHTML = ""; 
+        // --- GENERAR EXACTAMENTE 4 BOTONES ---
+        const zona = document.getElementById('zona-opciones');
+        zona.innerHTML = ""; 
 
-        // Filtrar para no repetir la correcta en los distractores
-        let distractores = colores.filter(c => c.n !== correcta.n);
-        // Mezclar y tomar 3
-        distractores.sort(() => 0.5 - Math.random());
+        // 1. Empezamos con la correcta
+        let seleccion = [correcta];
+        // 2. Buscamos 3 más que no sean la correcta
+        let otros = listaColores.filter(c => c.n !== correcta.n);
+        otros.sort(() => Math.random() - 0.5);
         
-        // Unir la correcta con los 3 distractores (Total 4)
-        let opcionesFinales = [correcta, distractores[0], distractores[1], distractores[2]];
-        // Mezclar las 4 para que la correcta no siempre esté en el mismo lugar
-        opcionesFinales.sort(() => 0.5 - Math.random());
+        // 3. Añadimos los primeros 3 distractores
+        seleccion.push(otros[0], otros[1], otros[2]);
+        
+        // 4. Mezclamos los 4 finales
+        seleccion.sort(() => Math.random() - 0.5);
 
-        opcionesFinales.forEach(col => {
+        seleccion.forEach(item => {
             const btn = document.createElement('div');
             btn.className = 'opcion';
-            btn.innerText = col.n;
-            
-            btn.onpointerdown = (e) => {
+            btn.innerText = item.n;
+            btn.onclick = () => {
                 if(!esperandoRespuesta) return;
                 esperandoRespuesta = false;
                 
-                const container = document.getElementById('viewport-container');
-                if (col.n === correcta.n) {
+                if (item.n === correcta.n) {
                     aciertos++;
-                    container.style.backgroundColor = "#C8E6C9";
+                    document.getElementById('viewport-container').style.backgroundColor = "#C8E6C9";
                 } else {
                     errores++;
-                    container.style.backgroundColor = "#FFCDD2";
-                    hablar("Concéntrate Juan.");
+                    document.getElementById('viewport-container').style.backgroundColor = "#FFCDD2";
+                    hablar("Fíjate bien.");
                 }
                 
                 setTimeout(() => {
-                    container.style.backgroundColor = "#CEE5D6";
+                    document.getElementById('viewport-container').style.backgroundColor = "#CEE5D6";
                     rondaActual++;
-                    proximaPregunta();
+                    jugarTurno();
                 }, 600);
             };
-            contenedor.appendChild(btn);
+            zona.appendChild(btn);
         });
     }
 
     function finalizar() {
         const total = aciertos + errores;
-        const eficacia = Math.round((aciertos / total) * 100) || 0;
+        const ef = Math.round((aciertos / total) * 100) || 0;
         document.getElementById('visual-stats').innerHTML = `
-            <p><b>Aciertos:</b> ${aciertos}</p>
-            <p><b>Errores:</b> ${errores}</p>
+            <p>Aciertos: ${aciertos}</p>
+            <p>Errores: ${errores}</p>
             <hr>
-            <h2 style="color:#2E7D32">Eficacia: ${eficacia}%</h2>
+            <h2 style="color:#2E7D32">Eficacia: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar(`Sesión completada Juan. Eficacia del ${eficacia} por ciento.`);
+        hablar(`Sesión terminada. Eficacia del ${ef} por ciento.`);
     }
 
     function guardarYSalir() {
         const total = aciertos + errores;
         const ef = Math.round((aciertos / total) * 100) || 0;
-        const datosSesion = {
+        const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Función Ejecutiva", 
             id_sesion: 3,       
@@ -245,11 +244,10 @@
             eficacia: ef + "%"
         };
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
-        historial.push(datosSesion); 
+        historial.push(datos); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
         window.location.href = "funcion_sesiones.html";
     }
 </script>
 </body>
 </html>
-
