@@ -122,7 +122,7 @@
         <div class="cuadro-final">
             <h2 style="color: var(--p-purple); margin-top: 0;">¡SESIÓN COMPLETADA!</h2>
             <div id="stats-resumen" style="font-size: 1.1rem; margin: 15px 0; line-height: 1.6;"></div>
-            <button class="btn-ready" onclick="irAlMenu()">FINALIZAR</button>
+            <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
         </div>
     </div>
 </div>
@@ -166,7 +166,6 @@
     }
 
     function generarLaberinto() {
-        // Mantengo la complejidad original
         if(nivel === 1) { filas = 13; columnas = 13; tamañoCelda = 24; }
         else if(nivel === 2) { filas = 19; columnas = 19; tamañoCelda = 18; }
         else { filas = 25; columnas = 25; tamañoCelda = 14; }
@@ -190,7 +189,6 @@
 
         jugador = { x: 1, y: 1 };
         mapa[filas-2][columnas-2] = 2; // Meta
-
         actualizarUI();
         dibujar();
     }
@@ -208,7 +206,6 @@
                 }
             }
         }
-        // Jugador
         ctx.fillStyle = "#D32F2F";
         ctx.beginPath();
         ctx.arc(jugador.x*tamañoCelda+tamañoCelda/2, jugador.y*tamañoCelda+tamañoCelda/2, tamañoCelda/2.5, 0, Math.PI*2);
@@ -229,11 +226,9 @@
     function mover(dir) {
         let nx = jugador.x, ny = jugador.y;
         if(dir === 'up') ny--; if(dir === 'down') ny++; if(dir === 'left') nx--; if(dir === 'right') nx++;
-
         if(ny >= 0 && ny < filas && nx >= 0 && nx < columnas) {
             if(mapa[ny][nx] === 1) { errores++; actualizarUI(); return; }
             if(mapa[ny][nx] === 2) { gestionarVictoria(); return; }
-            
             jugador.x = nx; jugador.y = ny;
             dibujar();
         }
@@ -269,6 +264,18 @@
     }
 
     function irAlMenu() {
+        const ef = Math.round((aciertos / (aciertos + (errores*0.1))) * 100) || 0;
+        const datosSesion = {
+            fecha: new Date().toLocaleDateString(),
+            modulo: "Funciones Ejecutivas", 
+            id_sesion: 8,      
+            aciertos: aciertos,
+            errores: errores,
+            eficacia: ef + "%"
+        };
+        let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
+        historial.push(datosSesion); 
+        localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
         window.location.href = "funcion_sesiones.html";
     }
 
