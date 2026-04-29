@@ -6,7 +6,7 @@
     <title>Sesión 9: Monitoreo y Control - REHABILIDIA</title>
     <style>
         :root { --navy: #103A57; --gold: #FFD700; --bg: #F0F4F8; --red: #D32F2F; --green: #388E3C; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
         #viewport-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; background: white; }
         header { background: var(--navy); color: white; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-weight: bold; }
@@ -36,10 +36,10 @@
         <span>RONDA: <span id="txt-ronda">1</span>/2</span>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" onclick="detectarFrenesi()">
         <div id="zona-juego">
             <h2 id="instruccion-visual" style="color: var(--navy); margin-bottom: 20px; font-weight: 800;"></h2>
-            <div id="palabra-display" onclick="procesarIntento()">---</div>
+            <div id="palabra-display" onclick="procesarIntento(event)">---</div>
             <p style="color: #666; font-size: 1.1rem;">Toca <b>solo</b> si cumple la instrucción</p>
         </div>
         <div class="sidebar">
@@ -69,7 +69,7 @@
 
     <div id="overlay-pausa" class="overlay" style="background: var(--navy); color: white;">
         <h1>CONTROL DE IMPULSIVIDAD</h1>
-        <p style="font-size: 1.8rem;">Juan, respira profundo...</p>
+        <p style="font-size: 1.8rem;">Juan, vamos a respirar...</p>
         <div id="timer-pausa" style="font-size: 6rem; font-weight: 900;">10</div>
     </div>
 </div>
@@ -78,9 +78,22 @@
     const palabrasPos = ["AMOR", "ALEGRÍA", "AFECTO", "AMISTAD", "ALIVIO", "ABRAZO", "APOYO", "ACIERTO", "ÁNIMO", "AMABILIDAD", "BIEN", "BONDAD", "BENDICIÓN", "BELLEZA", "BESO", "BRILLO", "CALMA", "CARIÑO", "CONFIANZA", "CONSUELO", "COMPASIÓN", "CURACIÓN", "CRECIMIENTO", "CELEBRACIÓN", "DULZURA", "DICHA", "DIVERSIÓN", "DESCANSO", "DIGNIDAD", "DIÁLOGO", "ÉXITO", "ESPERANZA", "ENTUSIASMO", "EQUILIBRIO", "EMPATÍA", "ESTIMAR", "ELEGANCIA", "FELICIDAD", "FORTALEZA", "FE", "FLORECER", "FAMILIA", "GRACIAS", "GRATITUD", "GENEROSIDAD", "GOZO", "GANAR", "GENIAL", "HONESTIDAD", "HUMILDAD", "HUMOR", "ILUSIÓN", "INSPIRACIÓN", "INTELIGENCIA", "IDEAL", "ÍMPETU", "JÚBILO", "JUSTICIA", "JUEGO", "JOVIALIDAD", "LIBERTAD", "LOGRO", "LUZ", "LEALTAD", "LIMPIEZA", "MAGIA", "MOTIVACIÓN", "MÉRITO", "MEJORAR", "META", "MILAGRO", "NOBLEZA", "NATURALEZA", "OPTIMISMO", "ORGULLO", "ORDEN", "PAZ", "PLACER", "PERDÓN", "PACIENCIA", "PASIÓN", "PROGRESO", "PROPERIDAD", "QUERER", "RESPETO", "RISA", "RECOMPENSA", "REGALO", "RELAX", "SÍ", "SALUD", "SONRISA", "SUERTE", "SEGURIDAD", "SABIDURÍA", "TRIUNFO", "TRANQUILIDAD", "TERNURA", "VALOR", "VICTORIA", "VITALIDAD"];
     const palabrasNeg = ["ABURRIDO", "AGRESIÓN", "ANGUSTIA", "ASCO", "AMARGURA", "AMENAZA", "ANSIEDAD", "ATRACO", "AVERÍA", "ABANDONO", "BASURA", "BAJEZA", "BRUTAL", "BURLA", "BLOQUEO", "BARBARIE", "CRISIS", "CULPA", "CAOS", "CRUELDAD", "CARENCIA", "CORRUPCIÓN", "CASTIGO", "CELOS", "DAÑO", "DOLOR", "DERROTA", "DESPRECIO", "DUELO", "DESESPERACIÓN", "DESASTRE", "DECEPCIÓN", "ERROR", "ENOJO", "ENVIDIA", "ENFERMO", "EGOÍSMO", "ESTRÉS", "ENGAÑO", "EXCLUSIÓN", "FRACASO", "FALLO", "FEALDAD", "FATIGA", "FALTA", "FRUSTRACIÓN", "FURIA", "GUERRA", "GOLPE", "GROSERO", "GRITO", "GRAVE", "HAMBRE", "HORROR", "HOSTIL", "HUMILLACIÓN", "HUIDA", "INCULPAR", "INJUSTO", "INFELIZ", "INSULTO", "INÚTIL", "IGNORANCIA", "IRA", "JUZGAR", "JAMÁS", "LATROCINIO", "LÁGRIMA", "LAMENTAR", "LIMITACIÓN", "MALO", "MIEDO", "MUERTE", "MALTRATO", "MISERIA", "MENTIRA", "MOLESTIA", "NO", "NADA", "NEGATIVO", "NAUSEA", "NEGLIGENCIA", "ODIO", "OFENSA", "OLVIDO", "OPRESIÓN", "OBSTÁCULO", "PELIGRO", "PENA", "POBREZA", "PELEA", "PÁNICO", "PÉRDIDA", "QUEJA", "QUEMAR", "RECHAZO", "RABIA", "ROBO", "RENCOR", "RUINA", "SUCIO", "SOLEDAD", "SUFRIR", "TRISTE", "TERROR", "TRAICIÓN", "TORMENTO", "VENENO", "VENGANZA", "VACÍO"];
 
-    let nivel = 1, ronda = 1, puntos = 0, impulsividad = 0, aciertos = 0, errores = 0, preEmo, postEmo, modo = 'pre', esTargetValido = false, timerGame;
+    let nivel = 1, ronda = 1, puntos = 0, impulsividad = 0, aciertos = 0, errores = 0, preEmo, postEmo, modo = 'pre', esTargetValido = false;
+    let timerGame, timerNivel3;
+    let subFaseNivel3 = 0; // 0: Positiva Roja, 1: Negativa Verde
+    let clicksRecientes = []; // Para detectar toque rápido
 
-    function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.85; window.speechSynthesis.speak(m); }
+    function hablar(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9; window.speechSynthesis.speak(m); }
+
+    function detectarFrenesi() {
+        const ahora = Date.now();
+        clicksRecientes.push(ahora);
+        clicksRecientes = clicksRecientes.filter(ms => ahora - ms < 1000);
+        if (clicksRecientes.length > 3) {
+            impulsividad = 100;
+            activaPausa();
+        }
+    }
 
     function abrirMonitoreo(m) {
         modo = m; document.getElementById('overlay-emocion').style.display = 'flex';
@@ -105,7 +118,12 @@
         const tit = document.getElementById('fase-titulo');
         const txt = document.getElementById('fase-texto');
         tit.innerText = `NIVEL ${nivel} - RONDA ${ronda}`;
-        let ins = nivel === 1 ? "Busca palabras POSITIVAS de color VERDE." : nivel === 2 ? "Busca palabras NEGATIVAS de color ROJO." : "Busca palabras POSITIVAS de color AZUL.";
+        
+        let ins = "";
+        if(nivel === 1) ins = "Busca palabras POSITIVAS de color VERDE.";
+        else if(nivel === 2) ins = "Busca palabras NEGATIVAS de color ROJO.";
+        else ins = "Nivel 3. La regla cambiará cada 20 segundos. ¡Atento!";
+        
         txt.innerText = ins;
         hablar(`Juan, ${tit.innerText}. ${ins}. Presiona empezar.`);
     }
@@ -115,27 +133,57 @@
         puntos = 0; document.getElementById('txt-puntos').innerText = puntos;
         document.getElementById('txt-nivel').innerText = nivel;
         document.getElementById('txt-ronda').innerText = ronda;
-        document.getElementById('instruccion-visual').innerText = nivel === 1 ? "POSITIVA + VERDE" : nivel === 2 ? "NEGATIVA + ROJO" : "POSITIVA + AZUL";
+        actualizarInstruccionVisual();
+        
+        if (nivel === 3) {
+            iniciarCicloNivel3();
+        }
+        
         mostrarPalabra();
+    }
+
+    function iniciarCicloNivel3() {
+        clearInterval(timerNivel3);
+        subFaseNivel3 = 0;
+        actualizarInstruccionVisual();
+        hablar("Busca palabras POSITIVAS de color ROJO.");
+        
+        timerNivel3 = setInterval(() => {
+            subFaseNivel3 = subFaseNivel3 === 0 ? 1 : 0;
+            actualizarInstruccionVisual();
+            let aviso = subFaseNivel3 === 0 ? "Cambio: Busca POSITIVAS ROJAS" : "Cambio: Busca NEGATIVAS VERDES";
+            hablar(aviso);
+        }, 20000);
+    }
+
+    function actualizarInstruccionVisual() {
+        const ins = document.getElementById('instruccion-visual');
+        if(nivel === 1) ins.innerText = "POSITIVA + VERDE";
+        else if(nivel === 2) ins.innerText = "NEGATIVA + ROJO";
+        else {
+            ins.innerText = subFaseNivel3 === 0 ? "POSITIVA + ROJA" : "NEGATIVA + VERDE";
+        }
     }
 
     function mostrarPalabra() {
         clearTimeout(timerGame);
-        const display = document.getElementById('palabra-display');
+        const colors = ["#388E3C", "#D32F2F", "#FFD700"];
         const chance = Math.random();
-        const colors = ["#388E3C", "#D32F2F", "#103A57", "#FFD700"];
         
-        if(chance <= 0.6) { // Target
+        if(chance <= 0.5) { // Target
             if(nivel === 1) setPalabra(palabrasPos, colors[0], true);
             else if(nivel === 2) setPalabra(palabrasNeg, colors[1], true);
-            else setPalabra(palabrasPos, colors[2], true);
+            else {
+                if(subFaseNivel3 === 0) setPalabra(palabrasPos, colors[1], true);
+                else setPalabra(palabrasNeg, colors[0], true);
+            }
         } else { // Distractor
             const rCol = colors[Math.floor(Math.random()*colors.length)];
             const rPool = Math.random() > 0.5 ? palabrasPos : palabrasNeg;
             setPalabra(rPool, rCol, false);
-            verificarManual(display.innerText, display.style.color);
+            verificarManual(document.getElementById('palabra-display').innerText, document.getElementById('palabra-display').style.color);
         }
-        timerGame = setTimeout(mostrarPalabra, 2800 - (nivel * 400));
+        timerGame = setTimeout(mostrarPalabra, 2800 - (nivel * 450));
     }
 
     function setPalabra(pool, col, esT) {
@@ -147,39 +195,66 @@
     function verificarManual(txt, col) {
         if(nivel === 1 && palabrasPos.includes(txt) && col.includes("56, 142, 60")) esTargetValido = true;
         else if(nivel === 2 && palabrasNeg.includes(txt) && col.includes("211, 47, 47")) esTargetValido = true;
-        else if(nivel === 3 && palabrasPos.includes(txt) && col.includes("16, 58, 87")) esTargetValido = true;
+        else if(nivel === 3) {
+            if(subFaseNivel3 === 0 && palabrasPos.includes(txt) && col.includes("211, 47, 47")) esTargetValido = true;
+            else if(subFaseNivel3 === 1 && palabrasNeg.includes(txt) && col.includes("56, 142, 60")) esTargetValido = true;
+            else esTargetValido = false;
+        } else esTargetValido = false;
     }
 
-    function procesarIntento() {
-        if(esTargetValido) { puntos++; aciertos++; impulsividad = Math.max(0, impulsividad - 10); }
-        else { errores++; impulsividad += 25; if(puntos > 0) puntos--; }
+    function procesarIntento(e) {
+        e.stopPropagation(); // Evitar doble disparo con el detector de frenesí
+        if(esTargetValido) { 
+            puntos++; aciertos++; 
+            impulsividad = Math.max(0, impulsividad - 15); 
+            mostrarPalabra();
+        } else { 
+            errores++; 
+            impulsividad += 25; 
+            if(puntos > 0) puntos--; 
+        }
         document.getElementById('txt-puntos').innerText = puntos;
         document.getElementById('bar-fill').style.height = impulsividad + "%";
         if(impulsividad >= 100) activaPausa();
         else if(puntos >= 10) proximoTramo();
-        else mostrarPalabra();
     }
 
     function activaPausa() {
-        clearTimeout(timerGame); impulsividad = 0; document.getElementById('bar-fill').style.height = "0%";
+        clearTimeout(timerGame);
+        clearInterval(timerNivel3);
+        impulsividad = 0; document.getElementById('bar-fill').style.height = "0%";
         document.getElementById('overlay-pausa').style.display = 'flex';
-        hablar("Juan, respira profundo. 10 segundos de calma.");
+        hablar("Juan, vamos a respirar. Pausa de control de impulsos.");
         let s = 10;
         let t = setInterval(() => {
             s--; document.getElementById('timer-pausa').innerText = s;
-            if(s <= 0) { clearInterval(t); document.getElementById('overlay-pausa').style.display = 'none'; mostrarPalabra(); }
+            if(s <= 0) { 
+                clearInterval(t); 
+                document.getElementById('overlay-pausa').style.display = 'none'; 
+                if(nivel === 3) iniciarCicloNivel3();
+                mostrarPalabra(); 
+            }
         }, 1000);
     }
 
     function proximoTramo() {
         clearTimeout(timerGame);
+        clearInterval(timerNivel3);
         if(ronda < 2) { ronda++; prepararFase(); }
         else if(nivel < 3) { nivel++; ronda = 1; prepararFase(); }
         else { abrirMonitoreo('post'); }
     }
 
     function finalizarYGuardar() {
-        const res = { id_sesion: 9, eficacia: Math.round((aciertos/(aciertos+errores))*100)+"%", emo_ini: preEmo+"%", emo_fin: postEmo+"%", aciertos, errores, fecha: new Date().toLocaleString() };
+        const res = { 
+            id_sesion: 9, 
+            eficacia: Math.round((aciertos/(aciertos+errores))*100)+"%", 
+            emo_ini: preEmo+"%", 
+            emo_fin: postEmo+"%", 
+            aciertos, 
+            errores, 
+            fecha: new Date().toLocaleString() 
+        };
         let d = JSON.parse(localStorage.getItem('datos')) || [];
         d.push(res);
         localStorage.setItem('datos', JSON.stringify(d));
