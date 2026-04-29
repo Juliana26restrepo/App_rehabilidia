@@ -39,7 +39,6 @@
         #contenedor-juego { 
             flex-grow: 1; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; padding: 10px;
-            overflow-y: auto;
         }
 
         .panel-instruccion { 
@@ -148,7 +147,7 @@
     }
 
     function iniciarSesion() {
-        hablar("Juan, ordena los números. Ignora los colores que parpadean.");
+        hablar("Hola Juan, hoy organizaremos números. En el primer nivel vamos a organizarlos de menor a mayor.");
         cargarRonda();
     }
 
@@ -161,8 +160,7 @@
 
         progreso.innerText = `Nivel ${nivel} - Ronda ${ronda}/3`;
 
-        // AJUSTE DE CANTIDADES POR NIVEL
-        let cantidad = 8; // Nivel 1 por defecto
+        let cantidad = 8; 
         if (nivel === 2) cantidad = 10;
         if (nivel === 3) cantidad = 15;
         
@@ -178,7 +176,19 @@
         if (nivel === 3) tipoOrden = Math.random() > 0.5 ? "MENOR A MAYOR" : "MAYOR A MENOR";
 
         instruccion.innerText = `ORDENA DE ${tipoOrden}`;
-        hablar(instruccion.innerText);
+
+        // DIÁLOGOS SEGÚN NIVEL Y RONDA
+        if (nivel === 1 && ronda === 1) {
+            // Ya se dijo en iniciarSesion
+        } else if (nivel === 2 && ronda === 1) {
+            hablar("Muy bien Juan, continuemos con el ejercicio 2. Listo Juan, esté atento a la instrucción: ahora vamos a ordenar de mayor a menor.");
+        } else if (nivel === 3 && ronda === 1) {
+            hablar(`Bueno Juan, esté atento porque la instrucción puede cambiar. Por ahora ordena de ${tipoOrden.toLowerCase()}.`);
+        } else if (nivel === 3 && ronda > 1) {
+            hablar(`Listo Juan, ahora ordena de ${tipoOrden.toLowerCase()}.`);
+        } else {
+            hablar(`Muy bien Juan, continuemos. Ordena de ${tipoOrden.toLowerCase()}.`);
+        }
 
         if (tipoOrden === "MENOR A MAYOR") {
             secuenciaCorrecta = [...numerosRonda].sort((a,b) => a - b);
@@ -221,7 +231,6 @@
                 if (ronda > 3) {
                     if (nivel < 3) {
                         nivel++; ronda = 1;
-                        hablar("¡Excelente! Vamos al siguiente nivel.");
                         setTimeout(cargarRonda, 1500);
                     } else {
                         finalizar();
@@ -266,4 +275,3 @@
 </script>
 </body>
 </html>
-
