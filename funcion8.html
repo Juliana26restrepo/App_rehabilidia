@@ -25,8 +25,7 @@
 
         header { 
             background: var(--navy); color: white; padding: 10px;
-            text-align: center; font-weight: bold; font-size: 1.1rem;
-            flex-shrink: 0;
+            text-align: center; font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
         }
 
         .stats-bar { 
@@ -41,7 +40,6 @@
             padding: 10px; gap: 15px; overflow: hidden;
         }
 
-        /* Contenedor optimizado para el laberinto */
         #canvas-contenedor { 
             background: var(--wall); padding: 8px; border-radius: 10px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -49,10 +47,7 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        canvas { 
-            max-width: 100%; max-height: 100%; 
-            display: block; image-rendering: pixelated;
-        }
+        canvas { max-width: 100%; max-height: 100%; display: block; image-rendering: pixelated; }
 
         .panel-controles { 
             background: white; padding: 12px; border-radius: 15px; 
@@ -109,7 +104,6 @@
                 <button class="btn-dir" style="grid-area: down" onpointerdown="iniciarMovimiento('down')" onpointerup="pararMovimiento()">↓</button>
                 <button class="btn-dir" style="grid-area: right" onpointerdown="iniciarMovimiento('right')" onpointerup="pararMovimiento()">→</button>
             </div>
-            <p style="font-size: 0.7rem; color: #666; margin-top: 8px;">Usa botones o flechas del teclado</p>
         </div>
     </div>
 
@@ -145,7 +139,22 @@
     }
 
     function iniciarApp() {
-        mostrarOverlay("PLANIFICACIÓN AVANZADA", "Recoge la llave dorada para abrir la salida verde. Evita tocar las paredes oscuras.");
+        mostrarInstrucciones();
+    }
+
+    function mostrarInstrucciones() {
+        let titulo = "SESIÓN 8";
+        let mensaje = "";
+        
+        if (nivel === 1) {
+            mensaje = "Juan vamos a realizar unos laberintos, la idea es que planifiques la ruta necesaria para llegar a la meta.";
+        } else if (nivel === 2) {
+            mensaje = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
+        } else {
+            mensaje = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
+        }
+
+        mostrarOverlay(titulo, mensaje);
     }
 
     function mostrarOverlay(tit, msj) {
@@ -161,37 +170,32 @@
     }
 
     function generarLaberinto() {
-        // Configuraciones de dificultad progresiva
-        if(nivel === 1) { filas = 13; columnas = 13; tamCelda = 25; tieneLlave = true; }
-        else if(nivel === 2) { filas = 17; columnas = 17; tamCelda = 18; tieneLlave = false; }
-        else { filas = 23; columnas = 23; tamCelda = 14; tieneLlave = false; }
+        if(nivel === 1) { filas = 11; columnas = 11; tamCelda = 30; tieneLlave = true; }
+        else if(nivel === 2) { filas = 15; columnas = 15; tamCelda = 22; tieneLlave = false; }
+        else { filas = 19; columnas = 19; tamCelda = 18; tieneLlave = false; }
 
         canvas.width = columnas * tamCelda;
         canvas.height = filas * tamCelda;
-
-        // 1. Llenar de paredes
         mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
 
-        // 2. Generar caminos (Algoritmo Recursivo)
-        function crearCamino(x, y) {
+        // Algoritmo de excavación garantizado
+        function excavar(x, y) {
             mapa[y][x] = 0;
-            const dirs = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
-            for(let [dx, dy] of dirs) {
+            const vecinos = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
+            for(let [dx, dy] of vecinos) {
                 let nx = x + dx, ny = y + dy;
                 if(nx > 0 && nx < columnas-1 && ny > 0 && ny < filas-1 && mapa[ny][nx] === 1) {
                     mapa[y + dy/2][x + dx/2] = 0;
-                    crearCamino(nx, ny);
+                    excavar(nx, ny);
                 }
             }
         }
-        crearCamino(1, 1);
+        excavar(1, 1);
 
-        // 3. Colocar Salida y Llave
         mapa[filas-2][columnas-2] = 2; // Meta
         if(nivel > 1) {
-            mapa[1][columnas-2] = 3; // Llave en esquina opuesta
-        } else {
-            tieneLlave = true; // En nivel 1 no hay llave
+            // Buscamos un punto aleatorio que sea camino (0) para la llave, lejos de la salida
+            mapa[1][columnas-2] = 3; 
         }
 
         jugador = { x: 1, y: 1 };
@@ -206,20 +210,19 @@
         for(let r=0; r<filas; r++) {
             for(let c=0; c<columnas; c++) {
                 if(mapa[r][c] === 0) {
-                    ctx.fillStyle = "#FFFFFF"; // Camino
+                    ctx.fillStyle = "#FFFFFF";
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
                 } else if(mapa[r][c] === 2) {
-                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#78909C"; // Meta
+                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#78909C";
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
                 } else if(mapa[r][c] === 3) {
-                    ctx.fillStyle = "#FFD700"; // Llave
+                    ctx.fillStyle = "#FFD700";
                     ctx.beginPath();
                     ctx.arc(c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/2, tamCelda/3, 0, Math.PI*2);
                     ctx.fill();
                 }
             }
         }
-        // Dibujar Jugador (Punto Rojo)
         ctx.fillStyle = "#D32F2F";
         ctx.beginPath();
         ctx.arc(jugador.x*tamCelda + tamCelda/2, jugador.y*tamCelda + tamCelda/2, tamCelda/2.5, 0, Math.PI*2);
@@ -229,7 +232,7 @@
     function iniciarMovimiento(dir) {
         if(intervaloMovimiento) return;
         mover(dir);
-        intervaloMovimiento = setInterval(() => mover(dir), 100);
+        intervaloMovimiento = setInterval(() => mover(dir), 120);
     }
 
     function pararMovimiento() {
@@ -250,10 +253,10 @@
             if(mapa[ny][nx] === 3) {
                 tieneLlave = true;
                 mapa[ny][nx] = 0;
-                hablar("¡Llave obtenida! Ahora ve a la salida.");
+                hablar("Llave obtenida");
             }
             if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { hablar("Puerta cerrada. Busca la llave dorada."); return; }
+                if(!tieneLlave) { hablar("Busca la llave dorada"); return; }
                 gestionarVictoria();
                 return;
             }
@@ -270,7 +273,7 @@
             generarLaberinto();
         } else if(nivel < 3) {
             nivel++; intento = 1;
-            mostrarOverlay("¡Nivel superado!", "El laberinto ahora es más complejo.");
+            mostrarInstrucciones();
         } else {
             finalizar();
         }
@@ -293,7 +296,7 @@
         const ef = Math.round((aciertos / (aciertos + (errores * 0.1))) * 100);
         document.getElementById('stats-resumen').innerHTML = `<b>Aciertos:</b> ${aciertos}<br><b>Errores:</b> ${errores}<br><b>Eficacia:</b> ${ef}%`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Has completado la sesión de planificación.");
+        hablar("Muy bien Juan, has terminado.");
     }
 
     function irAlMenu() {
@@ -301,7 +304,8 @@
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas", 
-            id_sesion: 8, // ID fijo para las estadísticas
+            id_sesion: 8,
+            nombre_sesion: "Sesión 8", // Agregado para evitar undefined
             aciertos: aciertos,
             errores: errores,
             eficacia: ef + "%"
@@ -314,3 +318,4 @@
 </script>
 </body>
 </html>
+
