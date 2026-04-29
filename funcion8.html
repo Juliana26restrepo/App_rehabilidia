@@ -149,9 +149,10 @@
 
     function gestionarInstrucciones() {
         let tit = `NIVEL ${nivel}`;
-        let msg = (nivel === 1) ? 
-            "Juan vamos a realizar unos laberintos, planifica la ruta para llegar a la meta." : 
-            "Juan ahora antes de llegar a la meta debes recoger la llave dorada.";
+        let msg = "";
+        if(nivel === 1) msg = "Juan vamos a realizar unos laberintos, la idea es que planifiques la ruta necesaria para llegar a la meta.";
+        else msg = "Juan ahora antes de llegar a la meta debes de ir por la llave dorada.";
+        
         mostrarOverlay(tit, msg);
     }
 
@@ -168,7 +169,6 @@
     }
 
     function generarLaberinto() {
-        // MANTENEMOS LA COMPLEJIDAD ALTA
         if(nivel === 1) { filas = 15; columnas = 15; tamañoCelda = 22; tieneLlave = true; }
         else if(nivel === 2) { filas = 21; columnas = 21; tamañoCelda = 16; tieneLlave = false; }
         else { filas = 27; columnas = 27; tamañoCelda = 13; tieneLlave = false; }
@@ -177,31 +177,40 @@
         canvas.height = filas * tamañoCelda;
         mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
 
+        let celdasCamino = []; // Guardaremos coordenadas reales de camino
+
         function excavar(x, y) {
             mapa[y][x] = 0;
+            celdasCamino.push({x, y});
             const vecinos = [[0,2],[0,-2],[2,0],[-2,0]].sort(() => Math.random() - 0.5);
             vecinos.forEach(([dx, dy]) => {
                 let nx = x + dx, ny = y + dy;
                 if(nx > 0 && nx < columnas-1 && ny > 0 && ny < filas-1 && mapa[ny][nx] === 1) {
                     mapa[y + dy/2][x + dx/2] = 0;
+                    celdasCamino.push({x: x + dx/2, y: y + dy/2});
                     excavar(nx, ny);
                 }
             });
         }
         excavar(1, 1);
 
-        mapa[filas-2][columnas-2] = 2; // Meta
+        // Meta siempre accesible
+        mapa[filas-2][columnas-2] = 2; 
 
+        // COLOCACIÓN DE LLAVE GARANTIZADA
         if(nivel > 1) {
             tieneLlave = false;
-            let lx = columnas - 2;
-            let ly = 1;
-            
-            // CORRECCIÓN ESPECÍFICA PARA EL CAMINO DE LA LLAVE
-            // Forzamos que la celda de la llave y al menos una vecina sean camino (0)
-            mapa[ly][lx] = 3;
-            mapa[ly+1][lx] = 0; 
-            mapa[ly][lx-1] = 0;
+            // Filtramos celdas que no sean el inicio ni la meta
+            let candidatas = celdasCamino.filter(c => !(c.x === 1 && c.y === 1) && !(c.x === columnas-2 && c.y === filas-2));
+            // Ordenamos por distancia al inicio (Pitágoras simple) para que esté lejos
+            candidatas.sort((a, b) => {
+                let distA = Math.sqrt(a.x*a.x + a.y*a.y);
+                let distB = Math.sqrt(b.x*b.x + b.y*b.y);
+                return distB - distA;
+            });
+            // Ponemos la llave en la celda de camino más lejana posible
+            let celdaLlave = candidatas[0];
+            mapa[celdaLlave.y][celdaLlave.x] = 3;
         }
 
         jugador = { x: 1, y: 1 };
