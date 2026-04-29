@@ -56,7 +56,7 @@
             gap: 12px; 
             width: 100%; 
             max-width: 500px;
-            padding-bottom: 20px; /* Espacio para no chocar con el borde inferior */
+            padding-bottom: 20px; 
         }
 
         .opcion { 
@@ -200,7 +200,6 @@
             document.getElementById(`opt${idBoton}`).innerText = distractores[i].nombre;
         });
         
-        // Reset scroll al inicio de cada turno
         document.getElementById('contenedor-juego').scrollTop = 0;
     }
 
@@ -241,7 +240,7 @@
         const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
-            sesion: "Control Inhibitorio",
+            id_sesion: 3, // Ajustado para que el historial lo reconozca
             aciertos: aciertos,
             errores: errores,
             eficacia: ef + "%"
@@ -256,3 +255,4 @@
 </script>
 </body>
 </html>
+
