@@ -76,27 +76,47 @@
                 });
             }
 
-            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - SOLO CAMBIADO A "BAR"
+            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - BARRAS CON COLORES Y ETIQUETAS M/A/FE
             const ls = document.getElementById('listS');
             if(sesiones.length > 0) {
+                
+                // Lógica para etiquetas y colores dinámicos
+                const etiquetas = sesiones.map(s => {
+                    if (s.modulo.includes("Memoria")) return `M${s.id_sesion}`;
+                    if (s.modulo.includes("Ejecutiva")) return `FE${s.id_sesion}`;
+                    return `A${s.id_sesion}`; // Atención
+                });
+
+                const colores = sesiones.map(s => {
+                    if (s.modulo.includes("Memoria")) return "#2563eb"; // Azul
+                    if (s.modulo.includes("Ejecutiva")) return "#16a34a"; // Verde
+                    return "#e11d48"; // Rojo
+                });
+
                 new Chart(document.getElementById('grafSesiones'), {
-                    type: 'bar', // <--- CAMBIADO DE LINE A BAR
+                    type: 'bar',
                     data: {
-                        labels: sesiones.map((s, i) => `S${i+1}`),
+                        labels: etiquetas,
                         datasets: [{
                             label: '% Eficacia',
                             data: sesiones.map(s => parseInt(s.eficacia)),
-                            backgroundColor: '#e11d48', // Color sólido para las barras
-                            borderColor: '#e11d48',
+                            backgroundColor: colores,
+                            borderColor: colores,
                             borderWidth: 1
                         }]
                     },
-                    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+                    options: { 
+                        scales: { 
+                            y: { beginAtZero: true, max: 100 },
+                            x: { ticks: { font: { size: 10, weight: 'bold' } } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
                 });
 
                 ls.innerHTML = "";
                 [...sesiones].reverse().forEach(s => {
-                    let clase = s.modulo === "Memoria" ? "tag-memoria" : (s.modulo === "Funciones Ejecutivas" ? "tag-ejecutiva" : "tag-atencion");
+                    let clase = s.modulo.includes("Memoria") ? "tag-memoria" : (s.modulo.includes("Ejecutiva") ? "tag-ejecutiva" : "tag-atencion");
                     ls.innerHTML += `
                         <div class="item">
                             <span class="fecha-historial">${s.fecha}</span>
