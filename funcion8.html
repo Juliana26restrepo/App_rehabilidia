@@ -133,7 +133,7 @@
     
     let nivel = 1, intento = 1, aciertos = 0, errores = 0;
     let jugador = { x: 1, y: 1 }, mapa = [];
-    let tamañoCelda = 20, filas, columnas, tieneLlave = false;
+    let tamañoCelda = 20, filas, columnas;
     let intervaloMovimiento = null;
 
     function hablar(t) {
@@ -149,10 +149,7 @@
 
     function gestionarInstrucciones() {
         let tit = `NIVEL ${nivel}`;
-        let msg = "";
-        if(nivel === 1) msg = "Juan vamos a realizar unos laberintos, planifica la ruta hacia la meta.";
-        else msg = "Juan, ahora el camino a la meta está bloqueado. Primero busca la llave dorada.";
-        
+        let msg = "Juan, observa el laberinto y planifica tu ruta para llegar a la meta verde.";
         mostrarOverlay(tit, msg);
     }
 
@@ -169,9 +166,10 @@
     }
 
     function generarLaberinto() {
-        if(nivel === 1) { filas = 13; columnas = 13; tamañoCelda = 24; tieneLlave = true; }
-        else if(nivel === 2) { filas = 19; columnas = 19; tamañoCelda = 18; tieneLlave = false; }
-        else { filas = 25; columnas = 25; tamañoCelda = 14; tieneLlave = false; }
+        // Mantengo la complejidad original
+        if(nivel === 1) { filas = 13; columnas = 13; tamañoCelda = 24; }
+        else if(nivel === 2) { filas = 19; columnas = 19; tamañoCelda = 18; }
+        else { filas = 25; columnas = 25; tamañoCelda = 14; }
 
         canvas.width = columnas * tamañoCelda;
         canvas.height = filas * tamañoCelda;
@@ -190,24 +188,8 @@
         }
         excavar(1, 1);
 
-        // Posiciones estratégicas
         jugador = { x: 1, y: 1 };
-        mapa[filas-2][columnas-2] = 2; // Meta (Abajo Derecha)
-
-        if(nivel > 1) {
-            // Ponemos la llave en la esquina superior derecha (Lejos de la meta y del inicio)
-            // Nos aseguramos que sea una zona transitable (0)
-            let ky = 1;
-            let kx = columnas - 2;
-            // Si por azar el algoritmo dejó un muro ahí, buscamos el espacio libre más cercano
-            if(mapa[ky][kx] === 1) {
-                for(let r=1; r < filas-1; r++) {
-                    if(mapa[r][kx] === 0) { ky = r; break; }
-                }
-            }
-            mapa[ky][kx] = 3;
-            tieneLlave = false;
-        }
+        mapa[filas-2][columnas-2] = 2; // Meta
 
         actualizarUI();
         dibujar();
@@ -221,21 +203,8 @@
                     ctx.fillStyle = "#1A262C";
                     ctx.fillRect(c*tamañoCelda, r*tamañoCelda, tamañoCelda, tamañoCelda);
                 } else if(mapa[r][c] === 2) {
-                    ctx.fillStyle = tieneLlave ? "#4CAF50" : "#B0BEC5"; // Verde si tiene llave, gris si no
+                    ctx.fillStyle = "#4CAF50";
                     ctx.fillRect(c*tamañoCelda, r*tamañoCelda, tamañoCelda, tamañoCelda);
-                    // Dibujar un candado simple si no tiene la llave
-                    if(!tieneLlave) {
-                        ctx.fillStyle = "white";
-                        ctx.font = `${tamañoCelda*0.6}px Arial`;
-                        ctx.fillText("🔒", c*tamañoCelda + 2, r*tamañoCelda + tamañoCelda - 5);
-                    }
-                } else if(mapa[r][c] === 3) {
-                    ctx.fillStyle = "#FFD700";
-                    ctx.beginPath();
-                    ctx.arc(c*tamañoCelda+tamañoCelda/2, r*tamañoCelda+tamañoCelda/2, tamañoCelda/3, 0, Math.PI*2);
-                    ctx.fill();
-                    ctx.strokeStyle = "#B8860B";
-                    ctx.stroke();
                 }
             }
         }
@@ -263,21 +232,7 @@
 
         if(ny >= 0 && ny < filas && nx >= 0 && nx < columnas) {
             if(mapa[ny][nx] === 1) { errores++; actualizarUI(); return; }
-            
-            if(mapa[ny][nx] === 3) { 
-                tieneLlave = true; 
-                mapa[ny][nx] = 0; 
-                hablar("¡Llave obtenida! Ahora ve a la meta."); 
-            }
-            
-            if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { 
-                    hablar("La meta está cerrada, busca la llave dorada."); 
-                    return; 
-                }
-                gestionarVictoria();
-                return;
-            }
+            if(mapa[ny][nx] === 2) { gestionarVictoria(); return; }
             
             jugador.x = nx; jugador.y = ny;
             dibujar();
@@ -310,7 +265,7 @@
             <strong>Eficacia:</strong> ${ef}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Muy bien Juan, has terminado la sesión con éxito.");
+        hablar("Muy bien Juan, has terminado la sesión.");
     }
 
     function irAlMenu() {
@@ -326,3 +281,4 @@
 </script>
 </body>
 </html>
+
