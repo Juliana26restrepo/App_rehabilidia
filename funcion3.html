@@ -22,42 +22,59 @@
             position: relative; display: flex; flex-direction: column;
         }
 
-        header { background: var(--navy); color: white; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        header { background: var(--navy); color: white; min-height: 50px; height: 7%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; text-align: center; padding: 0 10px; }
 
-        #contenedor-juego { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 20px; }
+        /* Área de juego con scroll si es necesario */
+        #contenedor-juego { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            padding: 10px; 
+            overflow-y: auto; 
+            gap: 15px;
+        }
         
         .panel-regla { 
-            background: var(--p-purple); color: white; padding: 15px 40px; border-radius: 50px; 
-            font-size: 1.5rem; font-weight: bold; border: 4px solid var(--gold);
+            background: var(--p-purple); color: white; padding: 10px 30px; border-radius: 50px; 
+            font-size: 1.2rem; font-weight: bold; border: 3px solid var(--gold);
+            margin-top: 5px;
         }
 
-        #estimulo-central { font-size: 5rem; font-weight: 900; text-align: center; }
+        #estimulo-central { 
+            font-size: clamp(3rem, 12vh, 5rem); 
+            font-weight: 900; 
+            text-align: center; 
+            margin: 10px 0;
+            line-height: 1;
+        }
 
-        /* Cuadrícula de 4 botones SIEMPRE fija */
         #zona-opciones { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            grid-template-rows: 1fr 1fr;
-            gap: 20px; 
+            gap: 12px; 
             width: 100%; 
-            max-width: 600px;
-            height: 250px;
+            max-width: 500px;
+            padding-bottom: 20px; /* Espacio para no chocar con el borde inferior */
         }
 
         .opcion { 
-            background: var(--white); border: 5px solid var(--navy); border-radius: 20px; 
-            font-size: 1.8rem; font-weight: bold; cursor: pointer; color: var(--navy);
+            background: var(--white); border: 4px solid var(--navy); border-radius: 15px; 
+            font-size: clamp(1.1rem, 4vh, 1.6rem); font-weight: bold; cursor: pointer; color: var(--navy);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 6px 0px var(--navy); text-transform: uppercase;
+            box-shadow: 0 5px 0px var(--navy); text-transform: uppercase;
+            min-height: 70px; height: 12vh;
         }
-        .opcion:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--navy); }
+        .opcion:active { transform: translateY(3px); box-shadow: 0 2px 0px var(--navy); }
 
-        /* Pantallas de mensaje */
         #pantalla-mensaje, #overlay-final { 
             position: absolute; inset: 0; background: var(--p-purple); color: white;
-            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 30px;
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px;
         }
-        .btn-grande { background: var(--gold); color: var(--p-purple); border: none; padding: 20px 50px; border-radius: 50px; font-size: 1.5rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        .btn-grande { background: var(--gold); color: var(--p-purple); border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.3rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        
+        #info-progreso { font-weight: bold; color: var(--navy); font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -66,8 +83,8 @@
     <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 3</header>
 
     <div id="contenedor-juego">
-        <div id="info-progreso" style="font-weight: bold; color: var(--navy); font-size: 1.2rem;"></div>
-        <div id="panel-regla" class="panel-regla">LEE LA PALABRA</div>
+        <div id="info-progreso">Cargando...</div>
+        <div id="panel-regla" class="panel-regla">---</div>
         
         <div id="estimulo-central">---</div>
 
@@ -80,14 +97,14 @@
     </div>
 
     <div id="pantalla-mensaje">
-        <h1 id="msg-titulo" style="color: var(--gold);"></h1>
-        <p id="msg-texto" style="font-size: 1.4rem; max-width: 80%"></p>
-        <button class="btn-grande" onclick="cerrarMensaje()">EMPEZAR</button>
+        <h1 id="msg-titulo" style="color: var(--gold); margin-bottom: 10px;"></h1>
+        <p id="msg-texto" style="font-size: 1.2rem; max-width: 90%; line-height: 1.4;"></p>
+        <button class="btn-grande" onclick="cerrarMensaje()">¡ENTENDIDO!</button>
     </div>
 
     <div id="overlay-final">
         <h1>¡SESIÓN FINALIZADA!</h1>
-        <div id="stats" style="font-size: 1.5rem; margin: 20px 0;"></div>
+        <div id="stats" style="font-size: 1.4rem; margin: 15px 0; line-height: 1.6;"></div>
         <button class="btn-grande" onclick="guardarYSalir()">GUARDAR Y VOLVER</button>
     </div>
 </div>
@@ -104,6 +121,7 @@
     let nivel = 1, ejercicio = 1, ronda = 1;
     let aciertos = 0, errores = 0, respuestaCorrecta = "";
     let reglaActual = "palabra";
+    let bloqueado = false;
 
     function hablar(texto) {
         window.speechSynthesis.cancel();
@@ -112,9 +130,7 @@
         window.speechSynthesis.speak(m);
     }
 
-    function iniciar() {
-        prepararNivel();
-    }
+    function iniciar() { prepararNivel(); }
 
     function prepararNivel() {
         const p = document.getElementById('pantalla-mensaje');
@@ -123,15 +139,15 @@
         
         if(nivel === 1) {
             t.innerText = "NIVEL 1: LECTURA";
-            txt.innerText = "Juan, debes tocar el botón de la PALABRA que leas, sin importar el color de la letra.";
+            txt.innerText = "Juan, toca el botón de la PALABRA que leas. Ignora el color.";
             reglaActual = "palabra";
         } else if(nivel === 2) {
             t.innerText = "NIVEL 2: COLORES";
-            txt.innerText = "¡Cambio! Ahora toca el botón del COLOR de la letra, no leas la palabra.";
+            txt.innerText = "¡Cambio! Ahora toca el botón del COLOR de la letra. No leas la palabra.";
             reglaActual = "color";
         } else {
             t.innerText = "NIVEL 3: MIXTO";
-            txt.innerText = "¡Mucha atención! Lee el recuadro de arriba para saber si debes tocar la palabra o el color.";
+            txt.innerText = "¡Atención! Mira arriba: si dice LEE toca la palabra, si dice COLOR toca el color.";
         }
         
         p.style.display = 'flex';
@@ -156,43 +172,42 @@
             return;
         }
 
+        bloqueado = false;
         document.getElementById('info-progreso').innerText = `Nivel ${nivel} - Ejercicio ${ejercicio}/3 - Turno ${ronda}/4`;
 
-        // Definir regla en nivel mixto
-        if (nivel === 3) {
-            reglaActual = Math.random() > 0.5 ? "palabra" : "color";
-        }
+        if (nivel === 3) { reglaActual = Math.random() > 0.5 ? "palabra" : "color"; }
         document.getElementById('panel-regla').innerText = reglaActual === "palabra" ? "LEE LA PALABRA" : "MIRA EL COLOR";
 
-        // Crear estímulo con trampa (Color de tinta != Palabra)
-        let indicePalabra = Math.floor(Math.random() * COLORES.length);
-        let indiceTinta;
-        do { indiceTinta = Math.floor(Math.random() * COLORES.length); } while (indiceTinta === indicePalabra);
+        let iP = Math.floor(Math.random() * COLORES.length);
+        let iT;
+        do { iT = Math.floor(Math.random() * COLORES.length); } while (iT === iP);
 
         const central = document.getElementById('estimulo-central');
-        central.innerText = COLORES[indicePalabra].nombre;
-        central.style.color = COLORES[indiceTinta].hex;
+        central.innerText = COLORES[iP].nombre;
+        central.style.color = COLORES[iT].hex;
 
-        // Definir cuál es la respuesta que debe buscar el usuario
-        const objetoCorrecto = reglaActual === "palabra" ? COLORES[indicePalabra] : COLORES[indiceTinta];
+        const objetoCorrecto = reglaActual === "palabra" ? COLORES[iP] : COLORES[iT];
         respuestaCorrecta = objetoCorrecto.nombre;
 
-        // --- ASIGNACIÓN DE LOS 4 BOTONES ---
-        // 1. Elegir un botón al azar para la respuesta correcta
         let botones = [0, 1, 2, 3];
         let idCorrecto = botones.splice(Math.floor(Math.random() * botones.length), 1)[0];
         document.getElementById(`opt${idCorrecto}`).innerText = respuestaCorrecta;
 
-        // 2. Rellenar los otros 3 botones con colores diferentes a la correcta
         let distractores = COLORES.filter(c => c.nombre !== respuestaCorrecta);
         distractores.sort(() => Math.random() - 0.5);
 
         botones.forEach((idBoton, i) => {
             document.getElementById(`opt${idBoton}`).innerText = distractores[i].nombre;
         });
+        
+        // Reset scroll al inicio de cada turno
+        document.getElementById('contenedor-juego').scrollTop = 0;
     }
 
     function procesarRespuesta(id) {
+        if(bloqueado) return;
+        bloqueado = true;
+        
         const textoSeleccionado = document.getElementById(`opt${id}`).innerText;
         const container = document.getElementById('viewport-container');
 
@@ -202,26 +217,27 @@
         } else {
             errores++;
             container.style.backgroundColor = "#FFCDD2";
-            hablar("Fíjate bien");
+            hablar("Concéntrate Juan");
         }
 
         setTimeout(() => {
             container.style.backgroundColor = "var(--bg)";
             ronda++;
             siguienteTurno();
-        }, 600);
+        }, 700);
     }
 
     function finalizar() {
         const total = aciertos + errores;
         const ef = Math.round((aciertos / total) * 100) || 0;
-        document.getElementById('stats').innerHTML = `Aciertos: ${aciertos}<br>Errores: ${errores}<br>Eficacia: ${ef}%`;
+        document.getElementById('stats').innerHTML = `Aciertos: <b>${aciertos}</b><br>Errores: <b>${errores}</b><br>Eficacia: <b>${ef}%</b>`;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar(`Sesión completada. Eficacia del ${ef} por ciento.`);
+        hablar(`Sesión completada. Lograste un ${ef} por ciento de eficacia.`);
     }
 
     function guardarYSalir() {
-        const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
+        const total = aciertos + errores;
+        const ef = Math.round((aciertos / total) * 100) || 0;
         const datos = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas",
@@ -240,4 +256,3 @@
 </script>
 </body>
 </html>
-
