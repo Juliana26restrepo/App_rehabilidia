@@ -79,15 +79,37 @@
     ];
 
     const banco = {
-        1: [ // NIVEL BAJO (8 pasos)
+        1: [
             { t: "Lavarse los dientes", pasos: [{e:"🧴", p:"Tomar el cepillo"}, {e:"🚿", p:"Abrir la llave"}, {e:"💧", p:"Mojar el cepillo"}, {e:"🪥", p:"Aplicar crema"}, {e:"😬", p:"Cepillar superiores"}, {e:"😁", p:"Cepillar inferiores"}, {e:"💦", p:"Enjuagar la boca"}, {e:"🧼", p:"Lavar y guardar"}]},
             { t: "Preparar huevo frito", pasos: [{e:"🥚", p:"Tomar un huevo"}, {e:"🍳", p:"Poner sartén"}, {e:"🔥", p:"Encender estufa"}, {e:"🧈", p:"Agregar aceite"}, {e:"🥄", p:"Romper el huevo"}, {e:"🍳", p:"Esperar cocción"}, {e:"🧂", p:"Agregar sal"}, {e:"🍽️", p:"Servir"}]}
         ],
-        2: [ // NIVEL MEDIO (12 pasos)
+        2: [
             { t: "Preparar café", pasos: [{e:"🫙", p:"Tomar café"}, {e:"💧", p:"Llenar hervidor"}, {e:"🔥", p:"Calentar agua"}, {e:"☕", p:"Tomar una taza"}, {e:"🥄", p:"Agregar café"}, {e:"🍬", p:"Añadir azúcar"}, {e:"⏳", p:"Esperar hervor"}, {e:"💦", p:"Verter agua"}, {e:"🥄", p:"Mezclar"}, {e:"👃", p:"Dejar reposar"}, {e:"🧴", p:"Agregar leche"}, {e:"☕", p:"Beber café"}]}
         ],
-        3: [ // NIVEL ALTO (18 pasos)
-            { t: "Salir al trabajo", pasos: [{e:"⏰", p:"Despertarse"}, {e:"🛏️", p:"Levantarse"}, {e:"🚿", p:"Bañarse"}, {e:"👕", p:"Vestirse"}, {e:"🪥", p:"Lavar dientes"}, {e:"🍽️", p:"Desayunar"}, {e:"📱", p:"Revisar celular"}, {e:"📝", p:"Verificar pendientes"}, {e:"🎒", p:"Preparar mochila"}, {e:"💻", p:"Guardar materiales"}, {e:"💰", p:"Tomar dinero"}, {e:"🔑", p:"Tomar llaves"}, {e:"👟", p:"Ponerse zapatos"}, {e:"🪞", p:"Revisarse espejo"}, {e:"🚪", p:"Salir casa"}, {e:"🔒", p:"Cerrar puerta"}, {e:"🚶‍♂️", p:"Ir al transporte"}, {e:"🚌", p:"Iniciar trayecto"}]}
+        3: [
+            { 
+                t: "Salir al trabajo o estudio", 
+                pasos: [
+                    {e:"⏰", p:"Despertarse"}, 
+                    {e:"🛏️", p:"Levantarse"}, 
+                    {e:"🍽️", p:"Desayunar"}, 
+                    {e:"🚿", p:"Bañarse"}, 
+                    {e:"🪥", p:"Lavar dientes"}, 
+                    {e:"👕", p:"Vestirse"}, 
+                    {e:"👟", p:"Ponerse zapatos"}, 
+                    {e:"📱", p:"Revisar celular"}, 
+                    {e:"📝", p:"Verificar pendientes"}, 
+                    {e:"🎒", p:"Preparar mochila"}, 
+                    {e:"💻", p:"Guardar materiales"}, 
+                    {e:"💰", p:"Tomar dinero"}, 
+                    {e:"🔑", p:"Tomar llaves"}, 
+                    {e:"🪞", p:"Revisarse espejo"}, 
+                    {e:"🚪", p:"Salir casa"}, 
+                    {e:"🔒", p:"Cerrar puerta"}, 
+                    {e:"🚶‍♂️", p:"Ir al transporte"}, 
+                    {e:"🚌", p:"Iniciar trayecto"}
+                ] 
+            }
         ]
     };
 
@@ -180,14 +202,12 @@
             fallosIntentos++;
             
             if(fallosIntentos >= 2) {
-                // AYUDA GRADUADA
                 const items = document.querySelectorAll('.item-ordenado');
                 for(let j = indiceError; j < items.length; j++) items[j].classList.add('falla-visual');
                 
                 const pasoCorrecto = retoActual.pasos[indiceError];
                 hablar(`Juan, prueba con esto: el paso número ${indiceError + 1} es ${pasoCorrecto.p}`);
                 
-                // Resaltar la tarjeta correcta en las opciones
                 document.querySelectorAll('.tarjeta').forEach(t => {
                     if(t.dataset.paso === pasoCorrecto.p) t.classList.add('pista-activa');
                 });
@@ -236,4 +256,3 @@
 </script>
 </body>
 </html>
-
