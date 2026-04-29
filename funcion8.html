@@ -31,8 +31,13 @@
 
         header { 
             background: var(--navy); color: white; height: 45px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 1rem; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; font-weight: bold; font-size: 1rem; flex-shrink: 0;
+        }
+
+        .btn-salir {
+            background: #D32F2F; color: white; border: none; padding: 5px 12px;
+            border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
         }
 
         .stats-bar { 
@@ -88,7 +93,10 @@
 <body onload="iniciarApp()">
 
 <div id="viewport-container">
-    <header>SESIÓN 8: PLANIFICACIÓN Y CONTROL</header>
+    <header>
+        <span>SESIÓN 8: PLANIFICACIÓN</span>
+        <button class="btn-salir" onclick="irAlMenu()">SALIR Y GUARDAR</button>
+    </header>
 
     <div class="stats-bar">
         <span id="txt-nivel">Nivel: 1</span>
@@ -122,7 +130,7 @@
         <div class="cuadro-final">
             <h2 style="color: var(--p-purple); margin-top: 0;">¡SESIÓN COMPLETADA!</h2>
             <div id="stats-resumen" style="font-size: 1.1rem; margin: 15px 0; line-height: 1.6;"></div>
-            <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
+            <button class="btn-ready" onclick="irAlMenu()">VOLVER AL MENÚ</button>
         </div>
     </div>
 </div>
@@ -149,7 +157,7 @@
 
     function gestionarInstrucciones() {
         let tit = `NIVEL ${nivel}`;
-        let msg = "Juan, observa el laberinto y planifica tu ruta para llegar a la meta verde.";
+        let msg = "Juan, planifica tu ruta para llegar a la meta verde.";
         mostrarOverlay(tit, msg);
     }
 
@@ -188,7 +196,7 @@
         excavar(1, 1);
 
         jugador = { x: 1, y: 1 };
-        mapa[filas-2][columnas-2] = 2; // Meta
+        mapa[filas-2][columnas-2] = 2;
         actualizarUI();
         dibujar();
     }
@@ -263,6 +271,7 @@
         hablar("Muy bien Juan, has terminado la sesión.");
     }
 
+    // FUNCIÓN CRÍTICA DE GUARDADO
     function irAlMenu() {
         const ef = Math.round((aciertos / (aciertos + (errores*0.1))) * 100) || 0;
         const datosSesion = {
@@ -273,9 +282,13 @@
             errores: errores,
             eficacia: ef + "%"
         };
+
+        // Guardar en el historial
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+        
+        // Redirigir
         window.location.href = "funcion_sesiones.html";
     }
 
@@ -288,4 +301,3 @@
 </script>
 </body>
 </html>
-
