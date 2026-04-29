@@ -21,30 +21,32 @@
         }
         header { background: #103A57; height: 8%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
         
-        #juego-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 15px; }
+        /* Layout Lateral: Estímulo izquierda, Botón derecha */
+        #juego-area { flex-grow: 1; display: flex; flex-direction: row; align-items: center; justify-content: space-around; padding: 20px; position: relative; }
         
-        .instruccion-visual { background: white; padding: 10px; border-radius: 15px; width: 95%; border: 2px solid var(--p-purple); display: flex; justify-content: center; gap: 10px; font-weight: bold; font-size: 0.75rem; }
-        .regla-item { display: flex; align-items: center; gap: 4px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        #panel-izquierdo { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 45%; }
+        #panel-derecho { display: flex; flex-direction: column; align-items: center; width: 45%; }
 
-        #info-progreso { font-size: 0.9rem; font-weight: bold; color: #103A57; }
+        .instruccion-visual { position: absolute; top: 15px; background: white; padding: 10px; border-radius: 15px; width: 90%; border: 2px solid var(--p-purple); display: flex; justify-content: center; gap: 15px; font-weight: bold; font-size: 0.8rem; z-index: 10; }
+        .regla-item { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
 
-        #estimulo-container { height: 180px; display: flex; align-items: center; justify-content: center; }
+        #info-progreso { position: absolute; top: 75px; font-size: 0.9rem; font-weight: bold; color: #103A57; }
+
         #estimulo {
-            width: 140px; height: 140px; border-radius: 50%; border: 6px solid white;
+            width: 160px; height: 160px; border-radius: 50%; border: 8px solid white;
             box-shadow: 0 8px 15px rgba(0,0,0,0.2); transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; font-size: 4.5rem; color: white; font-weight: bold;
         }
 
         #btn-accion {
-            width: 190px; height: 190px; border-radius: 50%; background: var(--p-purple);
-            color: white; border: 8px solid #ba68c8; font-size: 1.5rem; font-weight: bold;
+            width: 220px; height: 220px; border-radius: 50%; background: var(--p-purple);
+            color: white; border: 10px solid #ba68c8; font-size: 1.8rem; font-weight: bold;
             cursor: pointer; box-shadow: 0 10px 0 #2a0b52; transition: 0.1s;
-            display: flex; align-items: center; justify-content: center;
         }
         #btn-accion:active { transform: translateY(6px); box-shadow: 0 4px 0 #2a0b52; }
 
-        .contador-flotante { position: absolute; top: -25px; background: var(--gold); color: black; padding: 4px 12px; border-radius: 20px; border: 2px solid black; font-weight: bold; }
+        .contador-flotante { background: var(--gold); color: black; padding: 6px 18px; border-radius: 20px; border: 2px solid black; font-weight: bold; margin-bottom: 15px; }
 
         #pantalla-transicion, #overlay-final { 
             position: absolute; inset: 0; display:none; flex-direction:column; 
@@ -52,7 +54,9 @@
             padding: 20px; background: var(--p-purple); color: white; 
         }
         .cuadro-final { background: white; color: var(--p-purple); padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; }
-        .avatar-guia { width: 90px; height: 90px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .avatar-guia { width: 100px; height: 100px; background: white; border-radius: 50%; border: 4px solid var(--gold); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        
+        #btn-empezar { margin-top: 20px; padding: 15px 40px; background: var(--gold); color: var(--p-purple); border: none; border-radius: 30px; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: none; }
     </style>
 </head>
 <body onload="iniciarSesion()">
@@ -61,14 +65,14 @@
     <header><span style="font-weight:bold;">SESIÓN 2: CONTROL INHIBITORIO</span></header>
     
     <div id="juego-area">
-        <div id="info-progreso">Nivel 1 - Ejercicio 1/3</div>
         <div id="instrucciones-nivel" class="instruccion-visual"></div>
+        <div id="info-progreso">Cargando...</div>
 
-        <div id="estimulo-container">
+        <div id="panel-izquierdo">
             <div id="estimulo"></div>
         </div>
         
-        <div style="position:relative;">
+        <div id="panel-derecho">
             <div id="cont-visual" class="contador-flotante">Toques: 0</div>
             <button id="btn-accion" onpointerdown="registrarToque()">TOCAR</button>
         </div>
@@ -76,17 +80,17 @@
 
     <div id="pantalla-transicion">
         <div class="avatar-guia">👨‍⚕️</div>
-        <h1 id="tit-nivel" style="background:var(--gold); color:var(--p-purple); padding:8px 30px; border-radius:40px; margin: 5px 0; font-size: 1.5rem;"></h1>
-        <div id="desc-nivel" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 1rem; line-height: 1.4; width: 90%;"></div>
-        <p style="margin-top: 15px; font-style: italic;">¡Empezamos el ejercicio!</p>
+        <h1 id="tit-nivel" style="background:var(--gold); color:var(--p-purple); padding:10px 40px; border-radius:40px;"></h1>
+        <div id="desc-nivel" style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; font-size: 1.2rem; line-height: 1.6; width: 90%; max-width: 600px;"></div>
+        <button id="btn-empezar" onclick="cerrarTransicion()">¡ENTENDIDO!</button>
     </div>
 
     <div id="overlay-final">
         <div class="cuadro-final">
-            <div style="font-size: 3rem;">🏆</div>
-            <h1 style="margin: 10px 0;">¡EXCELENTE TRABAJO!</h1>
-            <div id="stats-visual" style="font-size:1.1rem; margin:15px 0; text-align: left; padding: 0 15px;"></div>
-            <button onclick="irAlMenu()" style="width:100%; padding:18px; background:#2E7D32; color:white; border-radius:50px; border:none; font-weight:bold; font-size: 1.2rem; cursor:pointer;">GUARDAR Y SALIR</button>
+            <div style="font-size: 3.5rem;">🏆</div>
+            <h1 style="margin: 10px 0;">¡SESIÓN COMPLETADA!</h1>
+            <div id="stats-visual" style="font-size:1.2rem; margin:20px 0; text-align: left;"></div>
+            <button onclick="irAlMenu()" style="width:100%; padding:18px; background:#2E7D32; color:white; border-radius:50px; border:none; font-weight:bold; font-size: 1.2rem; cursor:pointer;">GUARDAR Y FINALIZAR</button>
         </div>
     </div>
 </div>
@@ -98,14 +102,16 @@
     let timerEstimulo;
 
     const config = {
-        1: { nombre: "BÁSICO", tiempo: 3500, colores: ['rojo', 'azul', 'amarillo'] },
-        2: { nombre: "INTERMEDIO", tiempo: 2800, colores: ['rojo', 'azul', 'amarillo', 'verde'] },
-        3: { nombre: "AVANZADO", tiempo: 2200, colores: ['rojo', 'azul', 'amarillo', 'verde', 'especial'] }
+        1: { nombre: "BÁSICO", tiempo: 3800, colores: ['rojo', 'azul', 'amarillo'] },
+        2: { nombre: "INTERMEDIO", tiempo: 3000, colores: ['rojo', 'azul', 'amarillo', 'verde'] },
+        3: { nombre: "AVANZADO", tiempo: 2400, colores: ['rojo', 'azul', 'amarillo', 'verde', 'especial'] }
     };
 
-    function hablar(t) {
+    function hablar(t, callback) {
         window.speechSynthesis.cancel();
-        const m = new SpeechSynthesisUtterance(t); m.lang = 'es-ES'; m.rate = 0.9;
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'es-ES'; m.rate = 0.85;
+        m.onend = () => { if(callback) callback(); };
         window.speechSynthesis.speak(m);
     }
 
@@ -118,54 +124,49 @@
         const tit = document.getElementById('tit-nivel');
         const desc = document.getElementById('desc-nivel');
         const instUI = document.getElementById('instrucciones-nivel');
+        const btn = document.getElementById('btn-empezar');
         
+        btn.style.display = "none";
         tit.innerText = `NIVEL ${nivel}: ${c.nombre}`;
         
-        let textoHablar = `Juan, nivel ${nivel}. `;
-        let htmlReglas = `<div class="regla-item"><span class="dot" style="background:var(--rojo)"></span>R:2</div>`;
-        htmlReglas += `<div class="regla-item"><span class="dot" style="background:var(--azul)"></span>A:1</div>`;
-        htmlReglas += `<div class="regla-item"><span class="dot" style="background:var(--amarillo)"></span>Am:0</div>`;
+        let textoInstruccion = `Juan, vas a tocar el botón según corresponda el color del círculo. `;
+        let htmlReglas = `<div class="regla-item"><span class="dot" style="background:var(--rojo)"></span> Rojo: 2</div>`;
+        htmlReglas += `<div class="regla-item"><span class="dot" style="background:var(--azul)"></span> Azul: 1</div>`;
+        htmlReglas += `<div class="regla-item"><span class="dot" style="background:var(--amarillo)"></span> Amarillo: 0</div>`;
         
-        let instruccionTexto = "Rojo: 2 toques. Azul: 1 toque. Amarillo: NO TOCAR. ";
+        textoInstruccion += `Toca 2 veces si es de color rojo. Toca 1 vez si es de color azul. Y no toques nada si es de color amarillo. `;
 
         if(nivel >= 2) {
-            htmlReglas += `<div class="regla-item"><span class="dot" style="background:var(--verde)"></span>V:3</div>`;
-            instruccionTexto += "Verde: 3 toques. ";
+            htmlReglas += `<div class="regla-item"><span class="dot" style="background:var(--verde)"></span> Verde: 3</div>`;
+            textoInstruccion += `Toca 3 veces si es de color verde. `;
         }
         if(nivel === 3) {
-            htmlReglas += `<div class="regla-item" style="color:var(--error); font-size:0.6rem;">⚠️X: CAMBIA</div>`;
-            instruccionTexto += "¡Atención! Si el círculo tiene una X, las reglas se invierten: Si es ROJO con X no toques nada, y si es AMARILLO con X toca 2 veces.";
+            htmlReglas += `<div class="regla-item" style="color:var(--error)">⚠️ Letra X: Cambia regla</div>`;
+            textoInstruccion += `Si el círculo tiene una X, las reglas se invierten: si es rojo con X no toques nada, y si es amarillo con X toca 2 veces.`;
         }
 
-        desc.innerText = instruccionTexto;
+        desc.innerText = textoInstruccion;
         instUI.innerHTML = htmlReglas;
         document.getElementById('pantalla-transicion').style.display = 'flex';
         
-        hablar(instruccionTexto);
-        
-        setTimeout(() => {
-            document.getElementById('pantalla-transicion').style.display = 'none';
-            lanzarRonda();
-        }, nivel === 3 ? 9000 : 6000);
+        hablar(textoInstruccion, () => {
+            btn.style.display = "block";
+        });
+    }
+
+    function cerrarTransicion() {
+        document.getElementById('pantalla-transicion').style.display = 'none';
+        lanzarRonda();
     }
 
     function lanzarRonda() {
-        // Control de Estructura: 3 Ejercicios, 4 Rondas cada uno
         if(ronda > 4) {
             if(ejercicio < 3) {
-                ejercicio++;
-                ronda = 1;
-                hablar(`Buen ejercicio Juan. Vamos por el número ${ejercicio}.`);
-                setTimeout(lanzarRonda, 2000);
+                ejercicio++; ronda = 1;
+                hablar(`Muy bien. Vamos al ejercicio ${ejercicio}.`, lanzarRonda);
             } else {
-                if(nivel < 3) {
-                    nivel++;
-                    ejercicio = 1;
-                    ronda = 1;
-                    mostrarTransicion();
-                } else {
-                    finalizarSesion();
-                }
+                if(nivel < 3) { nivel++; ejercicio = 1; ronda = 1; mostrarTransicion(); }
+                else { finalizarSesion(); }
             }
             return;
         }
@@ -212,18 +213,15 @@
         if(toquesDados === toquesNecesarios) {
             aciertos++;
             estimulo.style.borderColor = "#4CAF50";
-            estimulo.style.boxShadow = "0 0 25px #4CAF50";
         } else {
             errores++;
             estimulo.style.borderColor = "var(--error)";
-            estimulo.style.boxShadow = "0 0 25px var(--error)";
             hablar("Cuidado.");
         }
 
         setTimeout(() => {
             estimulo.style.background = "transparent";
             estimulo.style.borderColor = "white";
-            estimulo.style.boxShadow = "0 8px 15px rgba(0,0,0,0.2)";
             estimulo.innerText = "";
             ronda++;
             lanzarRonda();
@@ -231,17 +229,14 @@
     }
 
     function finalizarSesion() {
-        const totalRondas = 3 * 3 * 4; // 3 niveles * 3 ejercicios * 4 rondas
         const ef = Math.round((aciertos / (aciertos + errores)) * 100) || 0;
-        
         document.getElementById('stats-visual').innerHTML = `
-            <p><b>Rondas correctas:</b> ${aciertos}</p>
-            <p><b>Rondas fallidas:</b> ${errores}</p>
-            <hr>
-            <h2 style="color:#2E7D32">Eficacia Final: ${ef}%</h2>
+            <p><b>Aciertos:</b> ${aciertos}</p>
+            <p><b>Errores:</b> ${errores}</p>
+            <h2 style="color:#2E7D32">Eficacia Real: ${ef}%</h2>
         `;
         document.getElementById('overlay-final').style.display = "flex";
-        hablar("Excelente Juan. Has completado toda la sesión de control.");
+        hablar("Muy bien Juan. Has terminado tu sesión.");
     }
 
     function irAlMenu() {
