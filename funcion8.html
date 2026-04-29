@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sesión 8: Planificación Avanzada - REHABILIDIA</title>
+    <title>Sesión 8: Planificación Estratégica - REHABILIDIA</title>
     <style>
         :root { 
             --navy: #103A57; 
@@ -19,77 +19,84 @@
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
-            margin: 0; background: #1a1a1a; 
+            margin: 0; background: var(--bg); 
             display: flex; align-items: center; justify-content: center; 
             height: 100vh; overflow: hidden; 
         }
 
         #viewport-container {
-            width: 100vw; height: 100vh; max-width: 1024px;
-            background: var(--bg); position: relative;
-            display: flex; flex-direction: column; overflow: hidden;
+            width: 100%; height: 100%; max-width: 1024px;
+            display: flex; flex-direction: column; position: relative;
         }
 
         header { 
-            background: var(--navy); color: white; height: 45px; 
+            background: var(--navy); color: white; height: 50px; 
             display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 1rem; flex-shrink: 0;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .stats-bar { 
-            display: flex; justify-content: center; gap: 20px; 
-            font-weight: bold; background: white; padding: 8px; 
-            border-bottom: 2px solid var(--navy); font-size: 0.9rem; 
+            display: flex; justify-content: space-around; 
+            font-weight: bold; background: white; padding: 10px; 
+            border-bottom: 2px solid #ddd; font-size: 1rem; 
         }
 
         #zona-de-trabajo { 
-            flex: 1; display: flex; flex-direction: row; 
-            align-items: center; justify-content: center; gap: 20px; 
-            padding: 10px; overflow: hidden;
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            padding: 15px; gap: 15px; overflow: hidden;
         }
 
+        /* Contenedor flexible para el laberinto */
         #canvas-contenedor { 
-            background: var(--wall); padding: 8px; border-radius: 12px; 
+            background: var(--wall); padding: 10px; border-radius: 15px; 
             display: flex; align-items: center; justify-content: center;
-            max-width: 70%; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 100%; max-height: 60vh; /* Evita que crezca demasiado */
         }
 
-        canvas { background: var(--path); border-radius: 4px; image-rendering: crisp-edges; }
+        canvas { 
+            max-width: 100%; max-height: 100%; 
+            display: block; border-radius: 5px; 
+        }
 
-        .panel-derecho { 
-            display: flex; flex-direction: column; align-items: center; 
+        .panel-controles { 
             background: white; padding: 15px; border-radius: 20px; 
-            border: 3px solid var(--navy); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--navy); display: flex; 
+            flex-direction: column; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .controles-grid { display: grid; grid-template-areas: ". up ." "left down right"; gap: 10px; }
         
         .btn-dir { 
-            width: 60px; height: 60px; background: white; 
+            width: 55px; height: 55px; background: white; 
             border: 3px solid var(--navy); border-radius: 50%; 
-            font-size: 1.5rem; cursor: pointer; display: flex; 
+            font-size: 1.4rem; cursor: pointer; display: flex; 
             align-items: center; justify-content: center; 
-            box-shadow: 0 4px 0 var(--navy); transition: 0.1s;
+            box-shadow: 0 4px 0 var(--navy);
         }
 
         .btn-dir:active { background: var(--gold); transform: translateY(2px); box-shadow: 0 2px 0 var(--navy); }
 
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px; }
+        /* Overlays corregidos */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 58, 87, 0.98); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; padding: 30px; }
         
-        .cuadro-final { background: white; color: var(--navy); padding: 25px; border-radius: 25px; border: 5px solid var(--gold); width: 90%; max-width: 400px; }
+        .cuadro-final { background: white; color: var(--navy); padding: 30px; border-radius: 25px; border: 5px solid var(--gold); width: 90%; max-width: 450px; }
 
-        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: var(--navy); margin-top: 15px; }
+        .btn-ready { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: var(--navy); margin-top: 20px; box-shadow: 0 4px 0 #b8860b; }
 
-        @media (max-width: 600px) {
-            #zona-de-trabajo { flex-direction: column; }
-            #canvas-contenedor { max-width: 95%; }
+        @media (min-width: 768px) {
+            #zona-de-trabajo { flex-direction: row; }
+            #canvas-contenedor { max-width: 60%; }
         }
     </style>
 </head>
 <body onload="iniciarApp()">
 
 <div id="viewport-container">
-    <header>SESIÓN 8: PLANIFICACIÓN ESTRATÉGICA</header>
+    <header>MÓDULO: FUNCIONES EJECUTIVAS - SESIÓN 8</header>
 
     <div class="stats-bar">
         <span id="txt-nivel">Nivel: 1</span>
@@ -102,28 +109,28 @@
             <canvas id="laberintoCanvas"></canvas>
         </div>
 
-        <div class="panel-derecho">
-            <div style="margin-bottom:10px; font-weight:bold; color: var(--navy);">MOVIMIENTO</div>
+        <div class="panel-controles">
+            <div style="margin-bottom:8px; font-weight:bold; color: var(--navy); font-size: 0.9rem;">MOVIMIENTO</div>
             <div class="controles-grid">
                 <button class="btn-dir" style="grid-area: up" onpointerdown="iniciarMovimiento('up')" onpointerup="pararMovimiento()">↑</button>
                 <button class="btn-dir" style="grid-area: left" onpointerdown="iniciarMovimiento('left')" onpointerup="pararMovimiento()">←</button>
                 <button class="btn-dir" style="grid-area: down" onpointerdown="iniciarMovimiento('down')" onpointerup="pararMovimiento()">↓</button>
                 <button class="btn-dir" style="grid-area: right" onpointerdown="iniciarMovimiento('right')" onpointerup="pararMovimiento()">→</button>
             </div>
-            <p style="font-size: 0.7rem; color: #666; margin-top: 10px;">O usa las flechas del teclado</p>
+            <div style="margin-top:10px; font-size:0.7rem; color: #555;">O usa las flechas del teclado</div>
         </div>
     </div>
 
     <div id="overlay-msg" class="overlay">
-        <h1 id="msg-titulo" style="color: var(--gold); margin: 0;"></h1>
-        <p id="msg-cuerpo" style="font-size: 1.2rem; max-width: 80%;"></p>
-        <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR RETO</button>
+        <h1 id="msg-titulo" style="color: var(--gold);"></h1>
+        <p id="msg-cuerpo" style="font-size: 1.3rem; line-height: 1.5;"></p>
+        <button class="btn-ready" onclick="cerrarOverlay()">COMENZAR</button>
     </div>
 
     <div id="overlay-final" class="overlay">
         <div class="cuadro-final">
-            <h2 style="color: var(--p-purple); margin-top: 0;">¡SESIÓN COMPLETADA!</h2>
-            <div id="stats-resumen" style="font-size: 1.1rem; margin: 15px 0; line-height: 1.6;"></div>
+            <h2 style="color: var(--p-purple);">¡SESIÓN COMPLETADA!</h2>
+            <div id="stats-resumen" style="font-size: 1.2rem; margin: 20px 0;"></div>
             <button class="btn-ready" onclick="irAlMenu()">GUARDAR Y VOLVER</button>
         </div>
     </div>
@@ -146,7 +153,7 @@
     }
 
     function iniciarApp() {
-        mostrarOverlay("ENTRENAMIENTO AVANZADO", "Juan, planifica tu ruta. En niveles avanzados, busca la llave dorada para abrir la salida.");
+        mostrarOverlay("SESIÓN 8: PLANIFICACIÓN", "Juan, planifica bien tu ruta. En los niveles avanzados deberás recoger la llave dorada para abrir la salida verde.");
     }
 
     function mostrarOverlay(tit, msj) {
@@ -162,9 +169,10 @@
     }
 
     function generarLaberinto() {
-        if(nivel === 1) { filas = 13; columnas = 13; tamCelda = 28; tieneLlave = true; }
-        else if(nivel === 2) { filas = 17; columnas = 17; tamCelda = 22; tieneLlave = false; }
-        else { filas = 23; columnas = 23; tamCelda = 16; tieneLlave = false; }
+        // Laberintos de alta complejidad (2 meses de rehabilitación)
+        if(nivel === 1) { filas = 15; columnas = 15; tamCelda = 22; tieneLlave = true; }
+        else if(nivel === 2) { filas = 21; columnas = 21; tamCelda = 16; tieneLlave = false; }
+        else { filas = 27; columnas = 27; tamCelda = 13; tieneLlave = false; }
 
         canvas.width = columnas * tamCelda;
         canvas.height = filas * tamCelda;
@@ -183,18 +191,8 @@
         }
         excavar(1, 1);
 
-        // GARANTÍA DE CAMINOS: Forzamos la apertura de celdas adyacentes a puntos clave
-        // Meta
-        mapa[filas-2][columnas-2] = 2;
-        mapa[filas-2][columnas-3] = 0; 
-        mapa[filas-3][columnas-2] = 0;
-
-        if(nivel > 1) {
-            // Llave
-            mapa[1][columnas-2] = 3;
-            mapa[1][columnas-3] = 0; 
-            mapa[2][columnas-2] = 0;
-        }
+        mapa[filas-2][columnas-2] = 2; // Meta
+        if(nivel > 1) mapa[1][columnas-2] = 3; // Llave obligatoria en esquinas opuestas
 
         jugador = { x: 1, y: 1 };
         actualizarUI();
@@ -211,19 +209,11 @@
                 } else if(mapa[r][c] === 2) {
                     ctx.fillStyle = tieneLlave ? "#4CAF50" : "#546E7A";
                     ctx.fillRect(c*tamCelda, r*tamCelda, tamCelda, tamCelda);
-                    if(!tieneLlave) {
-                        ctx.fillStyle = "white";
-                        ctx.font = `bold ${tamCelda/1.8}px Arial`;
-                        ctx.textAlign = "center";
-                        ctx.fillText("L", c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/1.4);
-                    }
                 } else if(mapa[r][c] === 3) {
                     ctx.fillStyle = "#FFD700";
                     ctx.beginPath();
                     ctx.arc(c*tamCelda + tamCelda/2, r*tamCelda + tamCelda/2, tamCelda/3, 0, Math.PI*2);
                     ctx.fill();
-                    ctx.strokeStyle = "#B8860B";
-                    ctx.stroke();
                 }
             }
         }
@@ -233,7 +223,7 @@
         ctx.arc(jugador.x*tamCelda + tamCelda/2, jugador.y*tamCelda + tamCelda/2, tamCelda/2.5, 0, Math.PI*2);
         ctx.fill();
         ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.stroke();
     }
 
@@ -261,10 +251,10 @@
             if(mapa[ny][nx] === 3) {
                 tieneLlave = true;
                 mapa[ny][nx] = 0;
-                hablar("¡Llave conseguida! Ahora busca la salida.");
+                hablar("¡Llave obtenida!");
             }
             if(mapa[ny][nx] === 2) {
-                if(!tieneLlave) { hablar("Puerta cerrada. Primero la llave."); return; }
+                if(!tieneLlave) { hablar("Busca la llave"); return; }
                 gestionarVictoria();
                 return;
             }
@@ -278,11 +268,10 @@
         aciertos++;
         if(intento < 3) {
             intento++; 
-            hablar("Excelente.");
             generarLaberinto();
         } else if(nivel < 3) {
             nivel++; intento = 1;
-            mostrarOverlay(`Nivel ${nivel-1} Superado`, "Aumentamos la dificultad. El laberinto es más denso.");
+            mostrarOverlay("Nivel Completado", "Aumentamos el tamaño del mapa. ¡Sigue así!");
         } else {
             finalizar();
         }
@@ -302,32 +291,36 @@
     });
 
     function finalizar() {
-        const ef = Math.round((aciertos / (aciertos + (errores * 0.2))) * 100);
+        const ef = Math.round((aciertos / (aciertos + (errores * 0.1))) * 100);
         document.getElementById('stats-resumen').innerHTML = `
-            <strong>Completados:</strong> ${aciertos}<br>
-            <strong>Errores:</strong> ${errores}<br>
-            <strong>Eficacia:</strong> ${ef}%
+            <b>Aciertos:</b> ${aciertos}<br>
+            <b>Errores:</b> ${errores}<br>
+            <b>Eficacia:</b> ${ef}%
         `;
         document.getElementById('overlay-final').style.display = 'flex';
-        hablar("Sesión completada, Juan. Tu planificación espacial ha mejorado notablemente.");
+        hablar("Juan, has terminado con éxito. Tu planificación ha sido excelente.");
     }
 
     function irAlMenu() {
-        const ef = Math.round((aciertos / (aciertos + (errores * 0.2))) * 100) || 0;
+        const ef = Math.round((aciertos / (aciertos + (errores * 0.1))) * 100) || 0;
+        
+        // CORRECCIÓN CLAVE: El id_sesion ahora es numérico para evitar el "undefined"
         const datosSesion = {
             fecha: new Date().toLocaleDateString(),
             modulo: "Funciones Ejecutivas", 
-            id_sesion: 8,      
+            id_sesion: 8, // Se cambia a número para que el sistema lo reconozca
+            nombre_sesion: "Sesión 8", // Campo extra de seguridad
             aciertos: aciertos,
             errores: errores,
             eficacia: ef + "%"
         };
+
         let historial = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || []; 
         historial.push(datosSesion); 
         localStorage.setItem('sesiones_rehabilitidia', JSON.stringify(historial)); 
+
         window.location.href = "funcion_sesiones.html";
     }
 </script>
 </body>
 </html>
-
