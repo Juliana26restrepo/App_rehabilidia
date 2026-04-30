@@ -3,220 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diario Clínico Pro - REHABILIDIA</title>
+    <title>Diario Clínico Avanzado - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { 
-            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B; 
-            --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff;
-            --warning-yellow: #f1c40f; --error-red: #e74c3c;
+            --p-blue: #103A57; --t-blue: #307B8E; --m-green: #366B2B; 
+            --l-silver: #CEE5D6; --white: #ffffff; --soft-red: #e74c3c;
         }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
-        header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--l-silver); color: var(--p-blue); padding-bottom: 50px; }
+        header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
         
-        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; padding-bottom: 40px; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 2px solid var(--light-silver); padding-bottom: 10px; margin-bottom: 15px; color: var(--prussian-blue); display: flex; align-items: center; gap: 10px; }
-        h3 i { color: var(--teal-blue); }
-
-        /* Emociones Mejoradas */
-        .emociones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .emocion-btn { border: 2px solid #eee; background: none; border-radius: 15px; padding: 12px 5px; font-size: 1.6rem; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .emocion-btn span { font-size: 0.7rem; font-weight: bold; color: #666; text-transform: uppercase; text-align: center; }
-        .emocion-btn.active { background: var(--pastel-blue); border-color: var(--teal-blue); transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-
-        /* Síntomas Mejorados */
-        .sintomas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .sintoma-item { display: flex; align-items: center; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 12px; cursor: pointer; font-size: 0.8rem; border: 1px solid #eee; transition: 0.2s; }
-        .sintoma-item:has(input:checked) { background: #eef9f1; border-color: var(--mughal-green); }
-        .sintoma-item input { accent-color: var(--mughal-green); width: 16px; height: 16px; }
-
-        /* Energía Dinámica */
-        .energia-container { background: #f8fafc; padding: 15px; border-radius: 15px; text-align: center; }
-        .energia-range { width: 100%; margin: 15px 0; accent-color: var(--teal-blue); cursor: pointer; height: 8px; border-radius: 5px; }
-        #valorEnergia { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
-        .label-estado { font-size: 0.9rem; color: var(--teal-blue); font-weight: bold; }
-
-        /* Notas y Voz */
-        .textarea-container { position: relative; }
-        textarea { width: 100%; border: 2px solid var(--light-silver); border-radius: 15px; padding: 15px; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: none; outline: none; transition: 0.3s; }
-        textarea:focus { border-color: var(--teal-blue); }
+        .section-title { font-size: 1rem; font-weight: bold; color: var(--t-blue); border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
         
-        .btn-voz { 
-            position: absolute; bottom: 15px; right: 15px; 
-            background: var(--teal-blue); color: white; border: none; 
-            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2); transition: 0.3s;
-        }
-        .btn-voz.escuchando { background: var(--error-red); animation: pulse 1.5s infinite; }
+        /* 1. Emociones y Escalas */
+        .grid-escalas { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .escala-item { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #eee; }
+        .escala-label { font-size: 0.8rem; font-weight: bold; display: block; margin-bottom: 5px; }
+        input[type="range"] { width: 100%; accent-color: var(--t-blue); cursor: pointer; }
+
+        /* 2. Checklist de Síntomas */
+        .sintomas-flex { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip-check { cursor: pointer; }
+        .chip-check input { display: none; }
+        .chip-content { padding: 8px 12px; background: #f0f0f0; border-radius: 20px; font-size: 0.8rem; transition: 0.3s; border: 1px solid transparent; }
+        .chip-check input:checked + .chip-content { background: var(--t-blue); color: white; border-color: var(--p-blue); }
+
+        /* 3. Funciones Ejecutivas / Metacognición */
+        .meta-group { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
+        .meta-label { font-size: 0.9rem; }
         
+        .toggle-btn { background: #eee; border: none; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
+        .toggle-btn.active-si { background: var(--m-green); color: white; }
+        .toggle-btn.active-no { background: var(--soft-red); color: white; }
+
+        /* 4. Notas y Voz */
+        .textarea-box { position: relative; margin-top: 10px; }
+        textarea { width: 100%; border: 2px solid #eee; border-radius: 15px; padding: 15px; font-family: inherit; font-size: 0.95rem; box-sizing: border-box; resize: none; outline: none; }
+        .btn-mic { position: absolute; bottom: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--t-blue); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
+        .btn-mic.recording { background: var(--soft-red); animation: pulse 1.2s infinite; }
+
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        .btn-guardar { 
-            background: var(--mughal-green); color: white; border: none; 
-            width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; 
-            font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(54, 107, 43, 0.3); 
-            transition: 0.3s; margin-top: 10px;
-        }
-        .btn-guardar:active { transform: scale(0.98); }
+        .btn-final { background: var(--m-green); color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(54, 107, 43, 0.3); margin-top: 10px; }
+        
+        .alert-ia { background: #fff8e1; border-left: 4px solid #ffc107; padding: 12px; font-size: 0.8rem; border-radius: 8px; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">DIARIO DE BIENESTAR</span>
+    <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-arrow-left"></i></a>
+    <span style="font-weight: bold;">PROTOCOLO DIARIO REHABILIDIA</span>
 </header>
 
 <div class="container">
-    <div class="card">
-        <h3><i class="fas fa-heart"></i> 1. ¿Cómo te sientes hoy?</h3>
-        <div class="emociones">
-            <button class="emocion-btn" data-valor="5" onclick="seleccionar(this)">🤩<span>Excelente</span></button>
-            <button class="emocion-btn" data-valor="4" onclick="seleccionar(this)">😊<span>Bien</span></button>
-            <button class="emocion-btn" data-valor="3" onclick="seleccionar(this)">😐<span>Neutral</span></button>
-            <button class="emocion-btn" data-valor="3" onclick="seleccionar(this)">😴<span>Cansado</span></button>
-            <button class="emocion-btn" data-valor="2" onclick="seleccionar(this)">😔<span>Bajo</span></button>
-            <button class="emocion-btn" data-valor="1" onclick="seleccionar(this)">😫<span>Muy Mal</span></button>
-        </div>
-    </div>
 
     <div class="card">
-        <h3><i class="fas fa-battery-half"></i> 2. Nivel de energía / Fatiga</h3>
-        <div class="energia-container">
-            <div id="valorEnergia">Nivel: 5</div>
-            <div class="label-estado" id="estadoEnergia">Moderada</div>
-            <input type="range" class="energia-range" min="1" max="10" value="5" id="rangoEnergia">
-            <div style="display:flex; justify-content: space-between; font-size: 0.7rem; color: #888;">
-                <span>AGOTADO</span><span>MUCHA ENERGÍA</span>
+        <div class="section-title"><i class="fas fa-brain"></i> 1. Estado Afectivo y Alerta</div>
+        <div class="grid-escalas">
+            <div class="escala-item">
+                <span class="escala-label">Ánimo (1-10)</span>
+                <input type="range" id="valAnimo" min="1" max="10" value="7" oninput="checkAlerts()">
+            </div>
+            <div class="escala-item">
+                <span class="escala-label">Ansiedad (1-10)</span>
+                <input type="range" id="valAnsiedad" min="1" max="10" value="1">
+            </div>
+            <div class="escala-item">
+                <span class="escala-label">Irritabilidad (1-10)</span>
+                <input type="range" id="valIrritabilidad" min="1" max="10" value="1" oninput="checkAlerts()">
+            </div>
+            <div class="escala-item">
+                <span class="escala-label">Energía Vital (1-10)</span>
+                <input type="range" id="valEnergia" min="1" max="10" value="5">
+            </div>
+        </div>
+        <div class="meta-group">
+            <span class="meta-label">¿Sientes somnolencia diurna?</span>
+            <div>
+                <button class="toggle-btn" id="btnSomnoSi" onclick="toggleBool('Somno', true)">SÍ</button>
+                <button class="toggle-btn" id="btnSomnoNo" onclick="toggleBool('Somno', false)">NO</button>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <h3><i class="fas fa-notes-medical"></i> 3. ¿Presentas algún síntoma?</h3>
-        <div class="sintomas-grid" id="listaSintomas">
-            <label class="sintoma-item"><input type="checkbox" value="Dolor de cabeza"> Dolor de cabeza</label>
-            <label class="sintoma-item"><input type="checkbox" value="Mareo"> Mareo / Vértigo</label>
-            <label class="sintoma-item"><input type="checkbox" value="Mucho sueño"> Somnolencia</label>
-            <label class="sintoma-item"><input type="checkbox" value="Olvidos"> Olvidos frecuentes</label>
-            <label class="sintoma-item"><input type="checkbox" value="Irritabilidad"> Irritabilidad</label>
-            <label class="sintoma-item"><input type="checkbox" value="Ruido molesto"> Sensibilidad ruido</label>
-            <label class="sintoma-item"><input type="checkbox" value="Visión borrosa"> Visión borrosa</label>
-            <label class="sintoma-item"><input type="checkbox" value="Falta concentración"> Desconcentración</label>
-            <label class="sintoma-item"><input type="checkbox" value="Ansiedad"> Ansiedad</label>
-            <label class="sintoma-item"><input type="checkbox" value="Náuseas"> Náuseas</label>
+        <div class="section-title"><i class="fas fa-briefcase-medical"></i> 2. Checklist de Síntomas</div>
+        <div class="sintomas-flex" id="contSintomas">
+            <label class="chip-check"><input type="checkbox" value="Dolor de cabeza"><div class="chip-content">Cefalea</div></label>
+            <label class="chip-check"><input type="checkbox" value="Olvidos"><div class="chip-content">Falla de Memoria</div></label>
+            <label class="chip-check"><input type="checkbox" value="Lentitud"><div class="chip-content">Lentitud Mental</div></label>
+            <label class="chip-check"><input type="checkbox" value="Mareo"><div class="chip-content">Mareo</div></label>
+            <label class="chip-check"><input type="checkbox" value="Ruido"><div class="chip-content">Sensibilidad Ruido</div></label>
+            <label class="chip-check"><input type="checkbox" value="Atención"><div class="chip-content">Distractibilidad</div></label>
+            <label class="chip-check"><input type="checkbox" value="Desorientación"><div class="chip-content">Desorientación</div></label>
+            <label class="chip-check"><input type="checkbox" value="Fatiga"><div class="chip-content">Fatiga Mental</div></label>
         </div>
     </div>
 
     <div class="card">
-        <h3><i class="fas fa-comment-dots"></i> 4. Observaciones personales</h3>
-        <div class="textarea-container">
-            <textarea id="nota" rows="5" placeholder="Escribe aquí o usa el micrófono para dictar..."></textarea>
-            <button class="btn-voz" id="btnDictado" onclick="comenzarDictado()">
-                <i class="fas fa-microphone"></i>
-            </button>
+        <div class="section-title"><i class="fas fa-tasks"></i> 3. Funciones Ejecutivas (Plan / Acción)</div>
+        
+        <div class="meta-group">
+            <span class="meta-label">¿Planeaste tus tareas de hoy?</span>
+            <div>
+                <button class="toggle-btn" id="btnPlanSi" onclick="toggleBool('Plan', true)">SÍ</button>
+                <button class="toggle-btn" id="btnPlanNo" onclick="toggleBool('Plan', false)">NO</button>
+            </div>
         </div>
-        <p style="font-size: 0.7rem; color: #888; margin-top: 10px;">
-            <i class="fas fa-info-circle"></i> Estas notas son compartidas con tu especialista.
-        </p>
+        <div class="meta-group">
+            <span class="meta-label">¿Seguiste el plan sin distraerte?</span>
+            <input type="range" id="valSeguimiento" min="1" max="5" value="3" style="width: 80px;">
+        </div>
+        <div class="meta-group">
+            <span class="meta-label">¿Te diste cuenta si cometiste errores?</span>
+            <div>
+                <button class="toggle-btn" id="btnErrSi" onclick="toggleBool('Err', true)">SÍ</button>
+                <button class="toggle-btn" id="btnErrNo" onclick="toggleBool('Err', false)">NO</button>
+            </div>
+        </div>
     </div>
 
-    <button class="btn-guardar" onclick="finalizarRegistro()">
-        <i class="fas fa-check-circle"></i> GUARDAR REGISTRO DIARIO
-    </button>
+    <div class="card">
+        <div class="section-title"><i class="fas fa-lightbulb"></i> 4. Metacognición y Notas</div>
+        <span class="escala-label">¿Qué aprendiste o lograste hoy?</span>
+        <div class="textarea-box">
+            <textarea id="notaLibre" rows="4" placeholder="Escribe aquí tus logros o dificultades..."></textarea>
+            <button class="btn-mic" id="btnVoz" onclick="iniciarVoz()"><i class="fas fa-microphone"></i></button>
+        </div>
+
+        <div id="msgAlerta" class="alert-ia">
+            <i class="fas fa-exclamation-circle"></i> <b>Nota del Sistema:</b> Hemos detectado niveles de irritabilidad altos o ánimo bajo. Te recomendamos realizar el ejercicio de respiración guiada hoy.
+        </div>
+    </div>
+
+    <button class="btn-final" onclick="guardarTodo()">GUARDAR PROTOCOLO CLÍNICO</button>
+
 </div>
 
 <script>
-    // Lógica del Rango de Energía
-    const range = document.getElementById('rangoEnergia');
-    const valorE = document.getElementById('valorEnergia');
-    const estadoE = document.getElementById('estadoEnergia');
+    // Estado interno del diario (Booleano)
+    let respuestasBool = { Somno: null, Plan: null, Err: null };
 
-    range.oninput = function() {
-        const v = this.value;
-        valorE.innerHTML = "Nivel: " + v;
-        if(v <= 3) estadoE.innerHTML = "🔴 Fatiga Alta";
-        else if(v <= 7) estadoE.innerHTML = "🟡 Moderada";
-        else estadoE.innerHTML = "🟢 Energía Óptima";
+    function toggleBool(campo, val) {
+        respuestasBool[campo] = val;
+        document.getElementById(`btn${campo}Si`).className = val ? 'toggle-btn active-si' : 'toggle-btn';
+        document.getElementById(`btn${campo}No`).className = !val ? 'toggle-btn active-no' : 'toggle-btn';
     }
 
-    function seleccionar(btn) {
-        document.querySelectorAll('.emocion-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-
-    // LÓGICA DE RECONOCIMIENTO DE VOZ
-    function comenzarDictado() {
-        const btn = document.getElementById('btnDictado');
-        const textarea = document.getElementById('nota');
-
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert("Tu navegador no soporta dictado por voz.");
-            return;
+    function checkAlerts() {
+        const animo = document.getElementById('valAnimo').value;
+        const irrita = document.getElementById('valIrritabilidad').value;
+        const alerta = document.getElementById('msgAlerta');
+        
+        if (animo <= 3 || irrita >= 8) {
+            alerta.style.display = 'block';
+        } else {
+            alerta.style.display = 'none';
         }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-
-        recognition.lang = 'es-ES';
-        recognition.interimResults = false;
-
-        recognition.onstart = () => {
-            btn.classList.add('escuchando');
-            btn.innerHTML = '<i class="fas fa-stop"></i>';
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            textarea.value += (textarea.value ? " " : "") + transcript;
-        };
-
-        recognition.onerror = () => {
-            alert("Hubo un error en el reconocimiento. Intenta de nuevo.");
-        };
-
-        recognition.onend = () => {
-            btn.classList.remove('escuchando');
-            btn.innerHTML = '<i class="fas fa-microphone"></i>';
-        };
-
-        recognition.start();
     }
 
-    function finalizarRegistro() {
-        const btnActivo = document.querySelector('.emocion-btn.active');
-        if(!btnActivo) {
-            alert("Por favor selecciona cómo te sientes hoy.");
-            return;
-        }
+    // VOZ
+    function iniciarVoz() {
+        const btn = document.getElementById('btnVoz');
+        const area = document.getElementById('notaLibre');
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!Speech) return alert("Voz no soportada");
 
-        const emocionTexto = btnActivo.querySelector('span').innerText;
-        const emocionValor = btnActivo.getAttribute('data-valor');
-        const nivelEnergia = document.getElementById('rangoEnergia').value;
-        const sintomas = Array.from(document.querySelectorAll('#listaSintomas input:checked')).map(cb => cb.value);
-        const nota = document.getElementById('nota').value;
+        const rec = new Speech();
+        rec.lang = 'es-ES';
+        rec.onstart = () => btn.classList.add('recording');
+        rec.onend = () => btn.classList.remove('recording');
+        rec.onresult = (e) => area.value += " " + e.results[0][0].transcript;
+        rec.start();
+    }
 
-        const nuevoRegistro = {
+    function guardarTodo() {
+        // Validación mínima
+        if(respuestasBool.Plan === null) return alert("Por favor indica si planeaste tu día.");
+
+        // Recopilación compatible con 'diario_juan'
+        const sintomasArr = Array.from(document.querySelectorAll('#contSintomas input:checked')).map(i => i.value);
+        
+        const registroCompleto = {
+            // Campos Obligatorios (Originales para no romper gráficas)
             fecha: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
             fullFecha: new Date().toLocaleString(),
-            emocion: emocionTexto,
-            emocionValor: parseInt(emocionValor),
-            energia: parseInt(nivelEnergia),
-            sintomas: sintomas,
-            nota: nota
+            emocionValor: parseInt(document.getElementById('valAnimo').value), // Mapeado a Animo
+            energia: parseInt(document.getElementById('valEnergia').value),
+            sintomas: sintomasArr,
+            nota: document.getElementById('notaLibre').value,
+            
+            // Campos de Nueva Generación (Clínicos)
+            clinico: {
+                ansiedad: document.getElementById('valAnsiedad').value,
+                irritabilidad: document.getElementById('valIrritabilidad').value,
+                somnolencia: respuestasBool.Somno,
+                planificacion: respuestasBool.Plan,
+                monitoreoErrores: respuestasBool.Err,
+                seguimientoPlan: document.getElementById('valSeguimiento').value,
+                scoringEjecutivo: calcularScoreEjecutivo()
+            }
         };
 
+        // Guardado en LocalStorage
         let historial = JSON.parse(localStorage.getItem('diario_juan')) || [];
-        historial.push(nuevoRegistro);
+        historial.push(registroCompleto);
         localStorage.setItem('diario_juan', JSON.stringify(historial));
 
-        alert("¡Registro guardado exitosamente!");
+        alert("Protocolo registrado. Datos enviados al expediente del profesional.");
         window.location.href = "perfil_paciente.html";
     }
+
+    function calcularScoreEjecutivo() {
+        // Cálculo rápido de 1 a 10 para la IA del profesional
+        let score = 0;
+        if (respuestasBool.Plan) score += 3;
+        if (respuestasBool.Err) score += 3;
+        score += (parseInt(document.getElementById('valSeguimiento').value) * 0.8);
+        return score.toFixed(1);
+    }
 </script>
+
 </body>
 </html>
