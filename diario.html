@@ -3,86 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diario Clínico - REHABILIDIA</title>
+    <title>Diario Clínico Pro - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B; --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff; }
+        :root { 
+            --prussian-blue: #103A57; --teal-blue: #307B8E; --mughal-green: #366B2B; 
+            --pastel-blue: #A9D3C5; --light-silver: #CEE5D6; --white: #ffffff;
+            --warning-yellow: #f1c40f; --error-red: #e74c3c;
+        }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light-silver); color: var(--prussian-blue); }
         header { background-color: var(--prussian-blue); color: var(--white); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
+        
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; padding-bottom: 40px; }
         .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 2px solid var(--light-silver); padding-bottom: 10px; margin-bottom: 15px; color: var(--prussian-blue); }
-        .emociones { display: flex; justify-content: space-around; margin-bottom: 10px; }
-        .emocion-btn { border: 2px solid #eee; background: none; border-radius: 15px; padding: 10px; font-size: 1.8rem; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; margin: 0 5px; }
-        .emocion-btn span { font-size: 0.6rem; font-weight: bold; color: #666; text-transform: uppercase; }
-        .emocion-btn.active { background: var(--pastel-blue); border-color: var(--teal-blue); transform: scale(1.05); }
-        .sintomas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .sintoma-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f9f9f9; border-radius: 10px; cursor: pointer; font-size: 0.85rem; border: 1px solid #eee; }
-        .sintoma-item input { accent-color: var(--mughal-green); width: 18px; height: 18px; }
-        .energia-range { width: 100%; margin: 15px 0; accent-color: var(--teal-blue); cursor: pointer; }
-        .labels-energia { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: bold; color: #555; }
-        textarea { width: 100%; border: 2px solid var(--light-silver); border-radius: 15px; padding: 15px; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: none; outline: none; margin-top: 5px; }
-        .btn-guardar { background: var(--mughal-green); color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(54, 107, 43, 0.3); transition: 0.3s; }
+        
+        h3 { margin-top: 0; font-size: 1.1rem; border-bottom: 2px solid var(--light-silver); padding-bottom: 10px; margin-bottom: 15px; color: var(--prussian-blue); display: flex; align-items: center; gap: 10px; }
+        h3 i { color: var(--teal-blue); }
+
+        /* Emociones Mejoradas */
+        .emociones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .emocion-btn { border: 2px solid #eee; background: none; border-radius: 15px; padding: 12px 5px; font-size: 1.6rem; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .emocion-btn span { font-size: 0.7rem; font-weight: bold; color: #666; text-transform: uppercase; text-align: center; }
+        .emocion-btn.active { background: var(--pastel-blue); border-color: var(--teal-blue); transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        /* Síntomas Mejorados */
+        .sintomas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .sintoma-item { display: flex; align-items: center; gap: 8px; padding: 10px; background: #f9f9f9; border-radius: 12px; cursor: pointer; font-size: 0.8rem; border: 1px solid #eee; transition: 0.2s; }
+        .sintoma-item:has(input:checked) { background: #eef9f1; border-color: var(--mughal-green); }
+        .sintoma-item input { accent-color: var(--mughal-green); width: 16px; height: 16px; }
+
+        /* Energía Dinámica */
+        .energia-container { background: #f8fafc; padding: 15px; border-radius: 15px; text-align: center; }
+        .energia-range { width: 100%; margin: 15px 0; accent-color: var(--teal-blue); cursor: pointer; height: 8px; border-radius: 5px; }
+        #valorEnergia { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+        .label-estado { font-size: 0.9rem; color: var(--teal-blue); font-weight: bold; }
+
+        /* Notas y Voz */
+        .textarea-container { position: relative; }
+        textarea { width: 100%; border: 2px solid var(--light-silver); border-radius: 15px; padding: 15px; font-family: inherit; font-size: 1rem; box-sizing: border-box; resize: none; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--teal-blue); }
+        
+        .btn-voz { 
+            position: absolute; bottom: 15px; right: 15px; 
+            background: var(--teal-blue); color: white; border: none; 
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2); transition: 0.3s;
+        }
+        .btn-voz.escuchando { background: var(--error-red); animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        .btn-guardar { 
+            background: var(--mughal-green); color: white; border: none; 
+            width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; 
+            font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(54, 107, 43, 0.3); 
+            transition: 0.3s; margin-top: 10px;
+        }
+        .btn-guardar:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
+
 <header>
     <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">SEGUIMIENTO DIARIO</span>
+    <span style="font-weight: bold;">DIARIO DE BIENESTAR</span>
 </header>
+
 <div class="container">
     <div class="card">
-        <h3>1. ¿Cómo te sientes hoy?</h3>
+        <h3><i class="fas fa-heart"></i> 1. ¿Cómo te sientes hoy?</h3>
         <div class="emociones">
-            <button class="emocion-btn" data-valor="4" onclick="seleccionar(this)">😊<span>Excelente</span></button>
-            <button class="emocion-btn" data-valor="3" onclick="seleccionar(this)">😐<span>Bien</span></button>
+            <button class="emocion-btn" data-valor="5" onclick="seleccionar(this)">🤩<span>Excelente</span></button>
+            <button class="emocion-btn" data-valor="4" onclick="seleccionar(this)">😊<span>Bien</span></button>
+            <button class="emocion-btn" data-valor="3" onclick="seleccionar(this)">😐<span>Neutral</span></button>
+            <button class="emocion-btn" data-valor="3" onclick="seleccionar(this)">😴<span>Cansado</span></button>
             <button class="emocion-btn" data-valor="2" onclick="seleccionar(this)">😔<span>Bajo</span></button>
-            <button class="emocion-btn" data-valor="1" onclick="seleccionar(this)">😫<span>Mal</span></button>
+            <button class="emocion-btn" data-valor="1" onclick="seleccionar(this)">😫<span>Muy Mal</span></button>
         </div>
     </div>
+
     <div class="card">
-        <h3>2. Nivel de energía / Fatiga</h3>
-        <div class="labels-energia"><span>Baja</span><span>Alta</span></div>
-        <input type="range" class="energia-range" min="1" max="10" value="5" id="rangoEnergia">
-        <div id="valorEnergia" style="text-align: center; font-weight: bold; color: var(--teal-blue);">Nivel: 5</div>
+        <h3><i class="fas fa-battery-half"></i> 2. Nivel de energía / Fatiga</h3>
+        <div class="energia-container">
+            <div id="valorEnergia">Nivel: 5</div>
+            <div class="label-estado" id="estadoEnergia">Moderada</div>
+            <input type="range" class="energia-range" min="1" max="10" value="5" id="rangoEnergia">
+            <div style="display:flex; justify-content: space-between; font-size: 0.7rem; color: #888;">
+                <span>AGOTADO</span><span>MUCHA ENERGÍA</span>
+            </div>
+        </div>
     </div>
+
     <div class="card">
-        <h3>3. ¿Has sentido hoy...?</h3>
+        <h3><i class="fas fa-notes-medical"></i> 3. ¿Presentas algún síntoma?</h3>
         <div class="sintomas-grid" id="listaSintomas">
             <label class="sintoma-item"><input type="checkbox" value="Dolor de cabeza"> Dolor de cabeza</label>
-            <label class="sintoma-item"><input type="checkbox" value="Mareo"> Mareo</label>
-            <label class="sintoma-item"><input type="checkbox" value="Mucho sueño"> Mucho sueño</label>
-            <label class="sintoma-item"><input type="checkbox" value="Olvidos"> Olvidos</label>
+            <label class="sintoma-item"><input type="checkbox" value="Mareo"> Mareo / Vértigo</label>
+            <label class="sintoma-item"><input type="checkbox" value="Mucho sueño"> Somnolencia</label>
+            <label class="sintoma-item"><input type="checkbox" value="Olvidos"> Olvidos frecuentes</label>
             <label class="sintoma-item"><input type="checkbox" value="Irritabilidad"> Irritabilidad</label>
-            <label class="sintoma-item"><input type="checkbox" value="Ruido molesto"> Ruido molesto</label>
+            <label class="sintoma-item"><input type="checkbox" value="Ruido molesto"> Sensibilidad ruido</label>
+            <label class="sintoma-item"><input type="checkbox" value="Visión borrosa"> Visión borrosa</label>
+            <label class="sintoma-item"><input type="checkbox" value="Falta concentración"> Desconcentración</label>
+            <label class="sintoma-item"><input type="checkbox" value="Ansiedad"> Ansiedad</label>
+            <label class="sintoma-item"><input type="checkbox" value="Náuseas"> Náuseas</label>
         </div>
     </div>
+
     <div class="card">
-        <h3>4. Notas del paciente</h3>
-        <textarea id="nota" rows="4" placeholder="Escribe aquí tus observaciones..."></textarea>
-        <br><br>
-        <button class="btn-guardar" onclick="finalizarRegistro()">GUARDAR REGISTRO</button>
+        <h3><i class="fas fa-comment-dots"></i> 4. Observaciones personales</h3>
+        <div class="textarea-container">
+            <textarea id="nota" rows="5" placeholder="Escribe aquí o usa el micrófono para dictar..."></textarea>
+            <button class="btn-voz" id="btnDictado" onclick="comenzarDictado()">
+                <i class="fas fa-microphone"></i>
+            </button>
+        </div>
+        <p style="font-size: 0.7rem; color: #888; margin-top: 10px;">
+            <i class="fas fa-info-circle"></i> Estas notas son compartidas con tu especialista.
+        </p>
     </div>
+
+    <button class="btn-guardar" onclick="finalizarRegistro()">
+        <i class="fas fa-check-circle"></i> GUARDAR REGISTRO DIARIO
+    </button>
 </div>
+
 <script>
+    // Lógica del Rango de Energía
     const range = document.getElementById('rangoEnergia');
-    range.oninput = function() { document.getElementById('valorEnergia').innerHTML = "Nivel: " + this.value; }
+    const valorE = document.getElementById('valorEnergia');
+    const estadoE = document.getElementById('estadoEnergia');
+
+    range.oninput = function() {
+        const v = this.value;
+        valorE.innerHTML = "Nivel: " + v;
+        if(v <= 3) estadoE.innerHTML = "🔴 Fatiga Alta";
+        else if(v <= 7) estadoE.innerHTML = "🟡 Moderada";
+        else estadoE.innerHTML = "🟢 Energía Óptima";
+    }
 
     function seleccionar(btn) {
         document.querySelectorAll('.emocion-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
 
+    // LÓGICA DE RECONOCIMIENTO DE VOZ
+    function comenzarDictado() {
+        const btn = document.getElementById('btnDictado');
+        const textarea = document.getElementById('nota');
+
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Tu navegador no soporta dictado por voz.");
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.lang = 'es-ES';
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            btn.classList.add('escuchando');
+            btn.innerHTML = '<i class="fas fa-stop"></i>';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            textarea.value += (textarea.value ? " " : "") + transcript;
+        };
+
+        recognition.onerror = () => {
+            alert("Hubo un error en el reconocimiento. Intenta de nuevo.");
+        };
+
+        recognition.onend = () => {
+            btn.classList.remove('escuchando');
+            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        };
+
+        recognition.start();
+    }
+
     function finalizarRegistro() {
         const btnActivo = document.querySelector('.emocion-btn.active');
-        const emocionTexto = btnActivo?.querySelector('span').innerText || "Bien";
-        const emocionValor = btnActivo?.getAttribute('data-valor') || "3"; // Valor numérico para la gráfica
+        if(!btnActivo) {
+            alert("Por favor selecciona cómo te sientes hoy.");
+            return;
+        }
+
+        const emocionTexto = btnActivo.querySelector('span').innerText;
+        const emocionValor = btnActivo.getAttribute('data-valor');
         const nivelEnergia = document.getElementById('rangoEnergia').value;
         const sintomas = Array.from(document.querySelectorAll('#listaSintomas input:checked')).map(cb => cb.value);
         const nota = document.getElementById('nota').value;
 
-        // Objeto unificado para el puente de datos
         const nuevoRegistro = {
             fecha: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
             fullFecha: new Date().toLocaleString(),
@@ -93,15 +210,13 @@
             nota: nota
         };
 
-        // Guardamos en la clave compartida 'diario_juan'
         let historial = JSON.parse(localStorage.getItem('diario_juan')) || [];
         historial.push(nuevoRegistro);
         localStorage.setItem('diario_juan', JSON.stringify(historial));
 
-        alert("¡Registro diario guardado para el profesional!");
+        alert("¡Registro guardado exitosamente!");
         window.location.href = "perfil_paciente.html";
     }
 </script>
 </body>
 </html>
-
