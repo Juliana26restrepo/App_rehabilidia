@@ -1,1 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Notificaciones - REHABILIDIA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #CEE5D6; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--p-blue); }
+        header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+        
+        .card-notif { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .notif-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .notif-title { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1rem; }
+        .notif-title i { color: var(--t-blue); font-size: 1.2rem; }
+
+        /* Switch de Activación */
+        .switch { position: relative; display: inline-block; width: 45px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--t-blue); }
+        input:checked + .slider:before { transform: translateX(21px); }
+
+        .input-group { display: flex; gap: 10px; margin-top: 10px; }
+        input[type="time"], input[type="date"], input[type="text"] { border: 1px solid #ddd; padding: 8px; border-radius: 8px; font-family: inherit; flex: 1; }
+        
+        .btn-guardar { background: var(--p-blue); color: white; border: none; width: 100%; padding: 15px; border-radius: 15px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .desc { font-size: 0.8rem; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="ajustes.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
+    <strong>RECORDATORIOS Y ALERTAS</strong>
+</header>
+
+<div class="container">
+
+    <div class="card-notif">
+        <div class="notif-header">
+            <div class="notif-title"><i class="fas fa-pills"></i> Medicación</div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <input type="text" placeholder="Nombre del medicamento (ej: Sertralina)" id="med_nombre" style="width: 95%; margin-bottom: 8px;">
+        <div class="input-group">
+            <input type="time" id="med_hora">
+            <input type="text" placeholder="Cada 24h" style="width: 80px;">
+        </div>
+        <p class="desc">Aparecerá una alerta sonora en tu celular.</p>
+    </div>
+
+    <div class="card-notif">
+        <div class="notif-header">
+            <div class="notif-title"><i class="fas fa-gamepad"></i> Sesiones de Entrenamiento</div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="input-group">
+            <input type="time" value="10:00">
+            <select style="border-radius: 8px; border: 1px solid #ddd; padding: 5px;">
+                <option>Diario</option>
+                <option>L-M-V</option>
+            </select>
+        </div>
+        <p class="desc">Te recordará completar tus módulos de Memoria y Atención.</p>
+    </div>
+
+    <div class="card-notif">
+        <div class="notif-header">
+            <div class="notif-title"><i class="fas fa-calendar-check"></i> Consulta Presencial</div>
+            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="input-group">
+            <input type="date">
+            <input type="time">
+        </div>
+        <p class="desc">Sincronizado con la agenda del Neuropsicólogo.</p>
+    </div>
+
+    <div class="card-notif">
+        <div class="notif-header">
+            <div class="notif-title"><i class="fas fa-comment-medical"></i> Mensajes del Especialista</div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <p class="desc" style="font-size: 0.9rem; color: var(--p-blue);">Recibirás consejos de tu doctor basados en tu progreso diario.</p>
+    </div>
+
+    <button class="btn-guardar" onclick="guardarNotificaciones()">GUARDAR CONFIGURACIÓN</button>
+</div>
+
+<script>
+    function guardarNotificaciones() {
+        // Aquí podrías guardar en localStorage para que el sistema sepa qué alertas disparar
+        const config = {
+            medicamento: document.getElementById('med_nombre').value,
+            horaMed: document.getElementById('med_hora').value,
+            lastUpdate: new Date().toLocaleString()
+        };
+        localStorage.setItem('config_notificaciones', JSON.stringify(config));
+        
+        alert("Notificaciones configuradas correctamente. ¡Tu plan de ayuda está activo!");
+        window.location.href = "perfil_paciente.html";
+    }
+</script>
+
+</body>
+</html>
 
