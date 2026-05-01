@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo Clínico REHABILIDIA</title>
+    <title>Protocolo Clínico Avanzado - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { 
@@ -23,6 +23,8 @@
         .section-title { font-size: 1.1rem; font-weight: bold; color: var(--p-blue); border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .section-title i { color: var(--t-blue); width: 25px; }
 
+        .sub-label { font-size: 0.85rem; font-weight: bold; color: var(--t-blue); margin: 15px 0 10px 0; display: block; text-transform: uppercase; }
+
         /* Escalas */
         .grid-escalas { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .escala-item { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #eee; }
@@ -34,7 +36,7 @@
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .chip-select { cursor: pointer; position: relative; }
         .chip-select input { display: none; }
-        .chip-text { padding: 8px 14px; background: #f0f2f5; border-radius: 20px; font-size: 0.85rem; transition: 0.3s; display: inline-block; border: 1px solid #ddd; }
+        .chip-text { padding: 8px 14px; background: #f0f2f5; border-radius: 20px; font-size: 0.8rem; transition: 0.3s; display: inline-block; border: 1px solid #ddd; }
         .chip-select input:checked + .chip-text { background: var(--p-blue); color: white; border-color: var(--p-blue); }
         .chip-select input:checked + .chip-avd { background: var(--m-green); color: white; border-color: var(--m-green); }
 
@@ -59,7 +61,7 @@
 
 <header>
     <a href="perfil_paciente.html" class="btn-volver"><i class="fas fa-chevron-left"></i></a>
-    <span style="font-weight: bold;">PROTOCOLO NEUROPSICOLÓGICO DIARIO</span>
+    <span style="font-weight: bold;">PROTOCOLO CLÍNICO DIARIO</span>
 </header>
 
 <div class="container">
@@ -67,25 +69,13 @@
     <div class="card">
         <div class="section-title"><i class="fas fa-heartbeat"></i> 1. Estado Afectivo y Alerta</div>
         <div class="grid-escalas">
-            <div class="escala-item">
-                <span class="escala-label">Estado de Ánimo <span class="val-num" id="v1">5</span></span>
-                <input type="range" id="animo" min="1" max="10" value="5" oninput="v1.innerHTML=this.value; checkAlerts()">
-            </div>
-            <div class="escala-item">
-                <span class="escala-label">Ansiedad <span class="val-num" id="v2">1</span></span>
-                <input type="range" id="ansiedad" min="1" max="10" value="1" oninput="v2.innerHTML=this.value">
-            </div>
-            <div class="escala-item">
-                <span class="escala-label">Irritabilidad <span class="val-num" id="v3">1</span></span>
-                <input type="range" id="irritabilidad" min="1" max="10" value="1" oninput="v3.innerHTML=this.value; checkAlerts()">
-            </div>
-            <div class="escala-item">
-                <span class="escala-label">Energía Física <span class="val-num" id="v4">5</span></span>
-                <input type="range" id="energia" min="1" max="10" value="5" oninput="v4.innerHTML=this.value">
-            </div>
+            <div class="escala-item"><span class="escala-label">Ánimo <span class="val-num" id="v1">5</span></span><input type="range" id="animo" min="1" max="10" value="5" oninput="v1.innerHTML=this.value; checkAlerts()"></div>
+            <div class="escala-item"><span class="escala-label">Ansiedad <span class="val-num" id="v2">1</span></span><input type="range" id="ansiedad" min="1" max="10" value="1" oninput="v2.innerHTML=this.value"></div>
+            <div class="escala-item"><span class="escala-label">Irritabilidad <span class="val-num" id="v3">1</span></span><input type="range" id="irritabilidad" min="1" max="10" value="1" oninput="v3.innerHTML=this.value; checkAlerts()"></div>
+            <div class="escala-item"><span class="escala-label">Energía <span class="val-num" id="v4">5</span></span><input type="range" id="energia" min="1" max="10" value="5" oninput="v4.innerHTML=this.value"></div>
         </div>
         <div class="meta-group">
-            <span class="meta-label">¿Sentiste mucha fatiga mental hoy?</span>
+            <span class="meta-label">¿Sentiste fatiga mental extrema hoy?</span>
             <div class="toggle-container">
                 <button class="btn-toggle" id="btnFatigaSi" onclick="toggle('fatiga', true)">SÍ</button>
                 <button class="btn-toggle" id="btnFatigaNo" onclick="toggle('fatiga', false)">NO</button>
@@ -95,63 +85,73 @@
 
     <div class="card">
         <div class="section-title"><i class="fas fa-list-check"></i> 2. Síntomas Neuropsicológicos</div>
-        <div class="chip-group" id="listaSintomas">
-            <label class="chip-select"><input type="checkbox" value="Cefalea"><span class="chip-text">Dolor de cabeza</span></label>
-            <label class="chip-select"><input type="checkbox" value="Mareo"><span class="chip-text">Mareo</span></label>
-            <label class="chip-select"><input type="checkbox" value="Memoria"><span class="chip-text">Fallas de memoria</span></label>
-            <label class="chip-select"><input type="checkbox" value="Atencion"><span class="chip-text">Dificultad atención</span></label>
-            <label class="chip-select"><input type="checkbox" value="Lentitud"><span class="chip-text">Lentitud mental</span></label>
-            <label class="chip-select"><input type="checkbox" value="Ruido"><span class="chip-text">Sensibilidad ruido</span></label>
-            <label class="chip-select"><input type="checkbox" value="Desorientacion"><span class="chip-text">Desorientación</span></label>
+        <span class="sub-label">Físicos y Sensoriales</span>
+        <div class="chip-group">
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Cefalea"><span class="chip-text">Dolor de cabeza</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Mareo"><span class="chip-text">Mareo/Vértigo</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Nauseas"><span class="chip-text">Náuseas</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Vision"><span class="chip-text">Visión borrosa</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Ruido"><span class="chip-text">Sensibilidad ruido</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Luz"><span class="chip-text">Sensibilidad luz</span></label>
+        </div>
+        <span class="sub-label">Cognitivos</span>
+        <div class="chip-group">
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Memoria"><span class="chip-text">Fallas de memoria</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Atencion"><span class="chip-text">Distractibilidad</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Lentitud"><span class="chip-text">Lentitud mental</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Desorientacion"><span class="chip-text">Desorientación</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Palabras"><span class="chip-text">Falta de palabras</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Niebla"><span class="chip-text">Niebla mental</span></label>
+        </div>
+        <span class="sub-label">Conductuales / Otros</span>
+        <div class="chip-group">
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Sueno"><span class="chip-text">Mucho sueño</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Insomnio"><span class="chip-text">Dificultad dormir</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Impulsividad"><span class="chip-text">Impulsividad</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Tristeza"><span class="chip-text">Ganas de llorar</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Coordinacion"><span class="chip-text">Torpeza motora</span></label>
+            <label class="chip-select"><input type="checkbox" class="sintoma" value="Zumbido"><span class="chip-text">Tinnitus (zumbido)</span></label>
         </div>
     </div>
 
     <div class="card card-exec">
         <div class="section-title"><i class="fas fa-brain"></i> 3. Funciones Ejecutivas</div>
-        
+        <div class="meta-group"><span class="meta-label">¿Planeaste tu día al iniciar?</span><div class="toggle-container"><button class="btn-toggle" id="btnPlanSi" onclick="toggle('plan', true)">SÍ</button><button class="btn-toggle" id="btnPlanNo" onclick="toggle('plan', false)">NO</button></div></div>
         <div class="meta-group">
-            <span class="meta-label">¿Planeaste tu día al iniciar?</span>
-            <div class="toggle-container">
-                <button class="btn-toggle" id="btnPlanSi" onclick="toggle('plan', true)">SÍ</button>
-                <button class="btn-toggle" id="btnPlanNo" onclick="toggle('plan', false)">NO</button>
-            </div>
-        </div>
-
-        <div class="meta-group">
-            <span class="meta-label">¿Seguiste tu plan de actividades?</span>
-            <select id="seguimientoPlan" style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size: 0.8rem;">
-                <option value="No">No</option>
-                <option value="Parcial">Parcial</option>
+            <span class="meta-label">¿Seguiste tu plan?</span>
+            <select id="seguimientoPlan" style="padding:5px; border-radius:8px; border:1px solid #ddd;">
+                <option value="No">No lo seguí</option>
+                <option value="Parcial">A medias</option>
                 <option value="Total" selected>Totalmente</option>
             </select>
         </div>
-
-        <div class="escala-item" style="margin: 15px 0;">
-            <span class="escala-label">Nivel de Impulsividad <span class="val-num" id="v5">1</span></span>
-            <input type="range" id="impulsividad" min="1" max="10" value="1" oninput="v5.innerHTML=this.value; checkAlerts()">
-        </div>
-
-        <div class="meta-group">
-            <span class="meta-label">¿Te diste cuenta de tus errores y los corregiste?</span>
-            <div class="toggle-container">
-                <button class="btn-toggle" id="btnMonitoreoSi" onclick="toggle('monitoreo', true)">SÍ</button>
-                <button class="btn-toggle" id="btnMonitoreoNo" onclick="toggle('monitoreo', false)">NO</button>
-            </div>
-        </div>
+        <div class="escala-item" style="margin: 15px 0;"><span class="escala-label">Control de Impulsos <span class="val-num" id="v5">1</span></span><input type="range" id="impulsividad" min="1" max="10" value="1" oninput="v5.innerHTML=this.value; checkAlerts()"></div>
+        <div class="meta-group"><span class="meta-label">¿Corregiste tus errores al detectarlos?</span><div class="toggle-container"><button class="btn-toggle" id="btnMonitoreoSi" onclick="toggle('monitoreo', true)">SÍ</button><button class="btn-toggle" id="btnMonitoreoNo" onclick="toggle('monitoreo', false)">NO</button></div></div>
     </div>
 
     <div class="card card-avd">
         <div class="section-title"><i class="fas fa-house-user"></i> 4. Desempeño Funcional (AVD)</div>
-        <p class="escala-label">¿Qué actividades realizaste con éxito hoy?</p>
-        <div class="chip-group" id="listaAVD">
-            <label class="chip-select"><input type="checkbox" value="Aseo"><span class="chip-text chip-avd">Aseo Personal</span></label>
-            <label class="chip-select"><input type="checkbox" value="Alimentacion"><span class="chip-text chip-avd">Alimentación</span></label>
-            <label class="chip-select"><input type="checkbox" value="Trabajo/Estudio"><span class="chip-text chip-avd">Trabajo/Estudio</span></label>
-            <label class="chip-select"><input type="checkbox" value="Hogar"><span class="chip-text chip-avd">Tareas Hogar</span></label>
-            <label class="chip-select"><input type="checkbox" value="Social"><span class="chip-text chip-avd">Socializar</span></label>
+        
+        <span class="sub-label">Actividades Básicas (Autocuidado)</span>
+        <div class="chip-group">
+            <label class="chip-select"><input type="checkbox" class="avd" value="Bano"><span class="chip-text chip-avd">Baño/Ducha</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Vestido"><span class="chip-text chip-avd">Vestirse</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Alimentacion"><span class="chip-text chip-avd">Comer solo</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Movilidad"><span class="chip-text chip-avd">Caminar/Moverse</span></label>
         </div>
+
+        <span class="sub-label">Actividades Instrumentales</span>
+        <div class="chip-group">
+            <label class="chip-select"><input type="checkbox" class="avd" value="Cocina"><span class="chip-text chip-avd">Preparar comida</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Dinero"><span class="chip-text chip-avd">Manejo de dinero</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Medicacion"><span class="chip-text chip-avd">Tomar medicinas</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Compras"><span class="chip-text chip-avd">Hacer compras</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Transporte"><span class="chip-text chip-avd">Usar bus/uber</span></label>
+            <label class="chip-select"><input type="checkbox" class="avd" value="Tecnologia"><span class="chip-text chip-avd">Uso de Celular/PC</span></label>
+        </div>
+
         <div class="meta-group" style="margin-top:15px; border-bottom:none;">
-            <span class="meta-label">¿Necesitaste ayuda para alguna tarea?</span>
+            <span class="meta-label">¿Recibiste ayuda externa hoy?</span>
             <div class="toggle-container">
                 <button class="btn-toggle" id="btnAyudaSi" onclick="toggle('ayuda', true)">SÍ</button>
                 <button class="btn-toggle" id="btnAyudaNo" onclick="toggle('ayuda', false)">NO</button>
@@ -160,124 +160,88 @@
     </div>
 
     <div class="card">
-        <div class="section-title"><i class="fas fa-lightbulb"></i> 5. Reflexión y Metacognición</div>
+        <div class="section-title"><i class="fas fa-lightbulb"></i> 5. Reflexión Clínica</div>
         <div class="meta-group">
-            <span class="meta-label">¿Tomaste alguna decisión importante?</span>
-            <select id="tipoDecision" style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size:0.8rem;">
-                <option value="Ninguna">No tomé</option>
-                <option value="Impulsiva">Sí, impulsiva</option>
-                <option value="Pensada">Sí, analizada</option>
+            <span class="meta-label">Decisión más importante hoy:</span>
+            <select id="tipoDecision" style="padding:5px; border-radius:8px; border:1px solid #ddd;">
+                <option value="Ninguna">Ninguna relevante</option>
+                <option value="Impulsiva">Fue impulsiva</option>
+                <option value="Analizada">Fue analizada</option>
             </select>
         </div>
-        
-        <p class="escala-label" style="margin-top:15px;">¿Qué puedes mejorar mañana?</p>
+        <p class="escala-label" style="margin-top:15px;">Resumen del día / Logros:</p>
         <div class="textarea-box">
-            <textarea id="notaReflexion" rows="3" placeholder="Escribe o dicta tu reflexión..."></textarea>
+            <textarea id="notaReflexion" rows="3" placeholder="Ej: Hoy logré ducharme solo sin cansarme..."></textarea>
             <button class="btn-mic" onclick="iniciarVoz()"><i class="fas fa-microphone"></i></button>
         </div>
-
-        <div id="clinicaAlerta" class="alert-clinical">
-            <i class="fas fa-exclamation-triangle"></i> <strong>ALERTA DE SEGURIDAD:</strong> Se han detectado indicadores críticos. Por favor, contacta a tu profesional o sigue el protocolo de urgencias si te sientes en riesgo.
-        </div>
+        <div id="clinicaAlerta" class="alert-clinical"><i class="fas fa-exclamation-triangle"></i> <strong>ALERTA:</strong> Indicadores de riesgo detectados.</div>
     </div>
 
-    <button class="btn-final" onclick="guardarProtocolo()">FINALIZAR Y ENVIAR REGISTRO</button>
+    <button class="btn-final" onclick="guardarProtocolo()">ENVIAR PROTOCOLO AL EXPEDIENTE</button>
 
 </div>
 
 <script>
-    // Almacén de lógica booleana
     let dataBool = { fatiga: null, plan: null, monitoreo: null, ayuda: null };
 
     function toggle(campo, val) {
         dataBool[campo] = val;
-        document.getElementById(`btn${campo.charAt(0).toUpperCase() + campo.slice(1)}Si`).className = val ? 'btn-toggle active-si' : 'btn-toggle';
-        document.getElementById(`btn${campo.charAt(0).toUpperCase() + campo.slice(1)}No`).className = !val ? 'btn-toggle active-no' : 'btn-toggle';
+        const cap = campo.charAt(0).toUpperCase() + campo.slice(1);
+        document.getElementById(`btn${cap}Si`).className = val ? 'btn-toggle active-si' : 'btn-toggle';
+        document.getElementById(`btn${cap}No`).className = !val ? 'btn-toggle active-no' : 'btn-toggle';
     }
 
     function checkAlerts() {
-        const animo = document.getElementById('animo').value;
-        const irrita = document.getElementById('irritabilidad').value;
-        const impulsividad = document.getElementById('impulsividad').value;
-        const alerta = document.getElementById('clinicaAlerta');
-
-        // Lógica de alerta: Ánimo muy bajo O Irritabilidad muy alta O Impulsividad extrema
-        if (animo <= 3 || irrita >= 8 || impulsividad >= 8) {
-            alerta.style.display = 'block';
-        } else {
-            alerta.style.display = 'none';
-        }
+        const animo = parseInt(document.getElementById('animo').value);
+        const irrita = parseInt(document.getElementById('irritabilidad').value);
+        const impulsividad = parseInt(document.getElementById('impulsividad').value);
+        document.getElementById('clinicaAlerta').style.display = (animo <= 3 || irrita >= 8 || impulsividad >= 8) ? 'block' : 'none';
     }
 
     function iniciarVoz() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return alert("Dictado no soportado.");
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'es-ES';
-        recognition.onresult = (e) => { document.getElementById('notaReflexion').value += e.results[0][0].transcript; };
-        recognition.start();
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Speech) return alert("Voz no soportada.");
+        const rec = new Speech(); rec.lang = 'es-ES';
+        rec.onresult = (e) => { document.getElementById('notaReflexion').value += e.results[0][0].transcript; };
+        rec.start();
     }
 
     function guardarProtocolo() {
-        // Validación de datos clínicos críticos
-        if (dataBool.plan === null) return alert("Faltan datos en la sección de Planificación.");
+        if (dataBool.plan === null) return alert("Completa la sección de Funciones Ejecutivas.");
+        
+        const sintomas = Array.from(document.querySelectorAll('.sintoma:checked')).map(el => el.value);
+        const avds = Array.from(document.querySelectorAll('.avd:checked')).map(el => el.value);
 
-        const sintomas = Array.from(document.querySelectorAll('#listaSintomas input:checked')).map(el => el.value);
-        const avds = Array.from(document.querySelectorAll('#listaAVD input:checked')).map(el => el.value);
-
-        const registroFinal = {
-            metadata: {
-                fecha: new Date().toLocaleDateString(),
-                hora: new Date().toLocaleTimeString(),
-                protocoloDia: "12/120" // Ejemplo dinámico
-            },
-            emocional: {
-                animo: parseInt(document.getElementById('animo').value),
-                ansiedad: parseInt(document.getElementById('ansiedad').value),
-                irritabilidad: parseInt(document.getElementById('irritabilidad').value),
-                energia: parseInt(document.getElementById('energia').value),
+        const registro = {
+            fecha: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
+            fullFecha: new Date().toLocaleString(),
+            emocionValor: parseInt(document.getElementById('animo').value),
+            energia: parseInt(document.getElementById('energia').value),
+            nota: document.getElementById('notaReflexion').value,
+            clinico: {
+                ansiedad: document.getElementById('ansiedad').value,
+                irritabilidad: document.getElementById('irritabilidad').value,
+                impulsividad: document.getElementById('impulsividad').value,
+                sintomas: sintomas,
                 fatigaMental: dataBool.fatiga
             },
-            clinico: {
-                sintomas: sintomas,
-                impulsividad: parseInt(document.getElementById('impulsividad').value),
-                decision: document.getElementById('tipoDecision').value
-            },
             ejecutivo: {
-                planifico: dataBool.plan,
+                planificacion: dataBool.plan,
                 seguimiento: document.getElementById('seguimientoPlan').value,
-                monitoreo: dataBool.monitoreo,
+                monitoreoErrores: dataBool.monitoreo,
                 ayudaAVD: dataBool.ayuda,
-                avd_completas: avds
-            },
-            nota: document.getElementById('notaReflexion').value,
-            // SCORING PARA TESIS / IA
-            scoring: {
-                indice_ejecutivo: (dataBool.plan ? 5 : 0) + (dataBool.monitoreo ? 5 : 0),
-                alerta_activada: document.getElementById('clinicaAlerta').style.display === 'block'
+                avd_completas: avds,
+                decision: document.getElementById('tipoDecision').value
             }
         };
 
-        // Guardamos en la base de datos local (compatible con tus gráficas)
         let historial = JSON.parse(localStorage.getItem('diario_juan')) || [];
-        
-        // Mapeo para que no se rompa tu gráfica actual
-        const registroGrafica = {
-            fecha: registroFinal.metadata.fecha,
-            emocionValor: registroFinal.emocional.animo,
-            energia: registroFinal.emocional.energia,
-            nota: registroFinal.nota,
-            clinico: registroFinal.clinico, // Datos extra para el profesional
-            ejecutivo: registroFinal.ejecutivo
-        };
-
-        historial.push(registroGrafica);
+        historial.push(registro);
         localStorage.setItem('diario_juan', JSON.stringify(historial));
 
-        alert("Protocolo Clínico guardado con éxito. Datos sincronizados con el especialista.");
+        alert("Registro Clínico Sincronizado.");
         window.location.href = "perfil_paciente.html";
     }
 </script>
-
 </body>
 </html>
