@@ -22,11 +22,13 @@
         .tag-memoria { background: #2563eb; }
         .tag-ejecutiva { background: #16a34a; }
         
-        /* Estilos nuevos SOLO para el Diario */
+        /* Estilos para el Diario Clínico */
         .info-clinica-diario { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 8px; background: #f0f4f8; padding: 8px; border-radius: 8px; font-size: 0.75rem; }
-        .check-clinico { margin-right: 5px; }
-        .check-si { color: var(--m-green); }
-        .check-no { color: var(--soft-red); }
+        .check-si { color: var(--m-green); font-weight: bold; }
+        .check-no { color: var(--soft-red); font-weight: bold; }
+        .chip-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+        .chip-data { font-size: 0.65rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569; }
+        .chip-avd { background: #dcfce7; color: #166534; }
 
         .hidden { display: none; }
         .fecha-historial { float: right; font-size: 0.75rem; color: #666; }
@@ -69,53 +71,70 @@
             const historialDiario = JSON.parse(localStorage.getItem('diario_juan')) || [];
             const sesiones = JSON.parse(localStorage.getItem('sesiones_rehabilitidia')) || [];
 
-            // 1. GRÁFICA DIARIO (Actualizada para los nuevos datos)
+            // 1. GRÁFICA DIARIO
             if(historialDiario.length > 0) {
                 new Chart(document.getElementById('graf'), {
                     type: 'line',
                     data: {
-                        labels: historialDiario.map(r => r.fecha.split(',')[0]),
+                        labels: historialDiario.map(r => r.fecha),
                         datasets: [
                             { label: 'Energía', data: historialDiario.map(r => r.energia), borderColor: '#307B8E', tension: 0.3 },
-                            { label: 'Ánimo', data: historialDiario.map(r => r.emocionValor), borderColor: '#103A57', borderDash: [5, 5], tension: 0.3 }
+                            { label: 'Ánimo', data: historialDiario.map(r => r.emocionValor || r.emocion), borderColor: '#103A57', borderDash: [5, 5], tension: 0.3 }
                         ]
                     }
                 });
                 
                 const ld = document.getElementById('listD');
                 [...historialDiario].reverse().forEach(r => {
-                    // Detectar si es el diario nuevo (con campo clinico)
-                    const c = r.clinico;
+                    const c = r.clinico || {};
+                    const e = r.ejecutivo || {};
+                    
+                    // Lógica para el texto de estado (evitar undefined)
+                    const valAnimo = r.emocionValor || 5;
+                    let txtEstado = r.emocion || (valAnimo >= 8 ? "Excelente" : valAnimo >= 5 ? "Bien" : "Bajo");
+
                     ld.innerHTML += `
                         <div class="item">
                             <span class="fecha-historial">${r.fecha}</span>
-                            <b>Estado: ${r.emocion}</b><br>
-                            <small>Energía: ${r.energia}/10</small>
-                            ${c ? `
-                                <div class="info-clinica-diario">
-                                    <span>Ansiedad: <b>${c.ansiedad}</b></span>
-                                    <span>Irrita: <b>${c.irritabilidad}</b></span>
-                                    <span><i class="fas ${c.planificacion ? 'fa-check-circle check-si' : 'fa-times-circle check-no'}"></i> Planificó</span>
-                                    <span><i class="fas ${c.monitoreoErrores ? 'fa-check-circle check-si' : 'fa-times-circle check-no'}"></i> Monitoreó</span>
+                            <b>Estado: ${txtEstado} (${valAnimo}/10)</b><br>
+                            <small>Energía Vital: ${r.energia}/10</small>
+                            
+                            <div class="info-clinica-diario">
+                                <span>Ansiedad: <b>${c.ansiedad || '0'}</b></span>
+                                <span>Irrita: <b>${c.irritabilidad || '0'}</b></span>
+                                <span><i class="fas ${e.planificacion ? 'fa-check-circle check-si' : 'fa-times-circle check-no'}"></i> Planificó</span>
+                                <span><i class="fas ${e.monitoreoErrores ? 'fa-check-circle check-si' : 'fa-times-circle check-no'}"></i> Monitoreó</span>
+                            </div>
+
+                            ${c.sintomas && c.sintomas.length > 0 ? `
+                                <div class="chip-container">
+                                    ${c.sintomas.map(s => `<span class="chip-data">${s}</span>`).join('')}
                                 </div>
                             ` : ''}
-                            ${r.nota ? `<div style="font-size:0.8rem; color:#555; margin-top:5px; font-style:italic;">"${r.nota}"</div>` : ''}
+
+                            ${e.avd_completas && e.avd_completas.length > 0 ? `
+                                <div class="chip-container">
+                                    ${e.avd_completas.map(a => `<span class="chip-data chip-avd">${a}</span>`).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${r.nota ? `<div style="font-size:0.8rem; color:#555; margin-top:5px; font-style:italic; border-left: 2px solid #ddd; padding-left:5px;">"${r.nota}"</div>` : ''}
                         </div>`;
                 });
             }
 
-            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - CÓDIGO ORIGINAL SIN TOCAR
+            // 2. GRÁFICA DE EVOLUCIÓN (SESIONES) - ORIGINAL SIN CAMBIOS
             const ls = document.getElementById('listS');
             if(sesiones.length > 0) {
                 const etiquetas = sesiones.map(s => {
                     if (s.modulo.includes("Memoria")) return `M${s.id_sesion}`;
                     if (s.modulo.includes("Ejecutiva")) return `FE${s.id_sesion}`;
-                    return `A${s.id_sesion}`; // Atención
+                    return `A${s.id_sesion}`;
                 });
                 const colores = sesiones.map(s => {
-                    if (s.modulo.includes("Memoria")) return "#2563eb"; // Azul
-                    if (s.modulo.includes("Ejecutiva")) return "#16a34a"; // Verde
-                    return "#e11d48"; // Rojo
+                    if (s.modulo.includes("Memoria")) return "#2563eb";
+                    if (s.modulo.includes("Ejecutiva")) return "#16a34a";
+                    return "#e11d48";
                 });
                 new Chart(document.getElementById('grafSesiones'), {
                     type: 'bar',
@@ -151,9 +170,8 @@
             } else {
                 ls.innerHTML = "No hay sesiones registradas.";
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error cargando datos: ", e); }
     }
 </script>
 </body>
 </html>
-
