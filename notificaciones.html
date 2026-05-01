@@ -6,7 +6,7 @@
     <title>Configuración de Notificaciones - REHABILIDIA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #CEE5D6; --white: #ffffff; }
+        :root { --p-blue: #103A57; --t-blue: #307B8E; --bg: #CEE5D6; --white: #ffffff; --soft-red: #e74c3c; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--p-blue); }
         header { background: var(--p-blue); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
         .btn-volver { color: white; text-decoration: none; font-size: 1.2rem; }
@@ -17,7 +17,15 @@
         .notif-title { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1rem; }
         .notif-title i { color: var(--t-blue); font-size: 1.2rem; }
 
-        /* Switch de Activación */
+        /* Botón Agregar */
+        .btn-add { background: var(--t-blue); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .btn-add:hover { transform: scale(1.1); background: var(--p-blue); }
+
+        /* Medicamento Item */
+        .med-item { border-bottom: 1px dashed #ddd; padding-bottom: 15px; margin-bottom: 15px; position: relative; }
+        .med-item:last-child { border-bottom: none; margin-bottom: 0; }
+        .btn-remove { position: absolute; right: 0; top: 0; color: var(--soft-red); border: none; background: none; cursor: pointer; font-size: 1rem; }
+
         .switch { position: relative; display: inline-block; width: 45px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
@@ -44,14 +52,22 @@
     <div class="card-notif">
         <div class="notif-header">
             <div class="notif-title"><i class="fas fa-pills"></i> Medicación</div>
-            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="btn-add" onclick="agregarMedicamento()" title="Agregar otro medicamento"><i class="fas fa-plus"></i></button>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
         </div>
-        <input type="text" placeholder="Nombre del medicamento (ej: Sertralina)" id="med_nombre" style="width: 95%; margin-bottom: 8px;">
-        <div class="input-group">
-            <input type="time" id="med_hora">
-            <input type="text" placeholder="Cada 24h" style="width: 80px;">
+        
+        <div id="lista-medicamentos">
+            <div class="med-item">
+                <input type="text" placeholder="Medicamento (ej: Sertralina)" class="med-name" style="width: 90%; margin-bottom: 8px;">
+                <div class="input-group">
+                    <input type="time" class="med-time">
+                    <input type="text" placeholder="Frecuencia (ej: 24h)" style="width: 100px;">
+                </div>
+            </div>
         </div>
-        <p class="desc">Aparecerá una alerta sonora en tu celular.</p>
+        <p class="desc">Recibirás una alerta sonora por cada medicamento registrado.</p>
     </div>
 
     <div class="card-notif">
@@ -61,12 +77,13 @@
         </div>
         <div class="input-group">
             <input type="time" value="10:00">
-            <select style="border-radius: 8px; border: 1px solid #ddd; padding: 5px;">
+            <select style="border-radius: 8px; border: 1px solid #ddd; padding: 8px; flex: 1;">
                 <option>Diario</option>
-                <option>L-M-V</option>
+                <option>Lunes, Miércoles y Viernes</option>
+                <option>Fines de semana</option>
             </select>
         </div>
-        <p class="desc">Te recordará completar tus módulos de Memoria y Atención.</p>
+        <p class="desc">Recordatorio para tus ejercicios de Memoria y Atención.</p>
     </div>
 
     <div class="card-notif">
@@ -78,7 +95,6 @@
             <input type="date">
             <input type="time">
         </div>
-        <p class="desc">Sincronizado con la agenda del Neuropsicólogo.</p>
     </div>
 
     <div class="card-notif">
@@ -86,27 +102,48 @@
             <div class="notif-title"><i class="fas fa-comment-medical"></i> Mensajes del Especialista</div>
             <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
         </div>
-        <p class="desc" style="font-size: 0.9rem; color: var(--p-blue);">Recibirás consejos de tu doctor basados en tu progreso diario.</p>
+        <p class="desc">Consejos personalizados de tu neuropsicólogo.</p>
     </div>
 
     <button class="btn-guardar" onclick="guardarNotificaciones()">GUARDAR CONFIGURACIÓN</button>
 </div>
 
 <script>
+    function agregarMedicamento() {
+        const contenedor = document.getElementById('lista-medicamentos');
+        const nuevoMed = document.createElement('div');
+        nuevoMed.className = 'med-item';
+        nuevoMed.innerHTML = `
+            <button class="btn-remove" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            <input type="text" placeholder="Nombre del medicamento" class="med-name" style="width: 90%; margin-bottom: 8px;">
+            <div class="input-group">
+                <input type="time" class="med-time">
+                <input type="text" placeholder="Frecuencia" style="width: 100px;">
+            </div>
+        `;
+        contenedor.appendChild(nuevoMed);
+    }
+
     function guardarNotificaciones() {
-        // Aquí podrías guardar en localStorage para que el sistema sepa qué alertas disparar
-        const config = {
-            medicamento: document.getElementById('med_nombre').value,
-            horaMed: document.getElementById('med_hora').value,
-            lastUpdate: new Date().toLocaleString()
-        };
-        localStorage.setItem('config_notificaciones', JSON.stringify(config));
+        const medNombres = document.querySelectorAll('.med-name');
+        const medHoras = document.querySelectorAll('.med-time');
         
-        alert("Notificaciones configuradas correctamente. ¡Tu plan de ayuda está activo!");
+        let medicamentosArr = [];
+        medNombres.forEach((input, index) => {
+            if(input.value) {
+                medicamentosArr.push({
+                    nombre: input.value,
+                    hora: medHoras[index].value
+                });
+            }
+        });
+
+        localStorage.setItem('config_medicamentos', JSON.stringify(medicamentosArr));
+        
+        alert("¡Configuración guardada! Se han registrado " + medicamentosArr.length + " medicamentos.");
         window.location.href = "perfil_paciente.html";
     }
 </script>
 
 </body>
 </html>
-
