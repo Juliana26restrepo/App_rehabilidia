@@ -98,10 +98,10 @@
 
     <div class="card">
         <h3>Gestión y Seguridad</h3>
-        <div class="item-gestion">
-            <div><i class="fas fa-bell"></i> Notificaciones</div>
-            <label class="switch"><input type="checkbox" checked><span class="slider-sw"></span></label>
-        </div>
+        <a href="notificaciones.html" class="item-gestion">
+            <div><i class="fas fa-bell"></i> Configurar Notificaciones</div>
+            <i class="fas fa-chevron-right" style="font-size:0.8rem; color:#ccc;"></i>
+        </a>
         
         <a href="privacidad.html" class="item-gestion">
             <div><i class="fas fa-lock"></i> Privacidad y Legal</div>
@@ -112,7 +112,6 @@
 </div>
 
 <script>
-    // Se mantienen todas las funciones de lógica visual intactas para no dañar nada
     function setLetra(valor) {
         localStorage.setItem('config_tamaño', valor);
         actualizarUI();
@@ -164,16 +163,23 @@
         document.getElementById('btn-v-normal').classList.toggle('active', voz === '1.0');
 
         const checkN = document.getElementById('check-negrilla');
-        checkN.checked = (negrilla === 'activo');
+        if(checkN) {
+            checkN.checked = (negrilla === 'activo');
+        }
         document.body.style.fontWeight = (negrilla === 'activo') ? 'bold' : 'normal';
 
         const b = localStorage.getItem('config_brillo') || 100;
         const c = localStorage.getItem('config_contraste') || 100;
         const s = localStorage.getItem('config_saturacion') || 100;
         
-        document.getElementById('range-brillo').value = b;
-        document.getElementById('range-contraste').value = c;
-        document.getElementById('range-saturacion').value = s;
+        const rBrillo = document.getElementById('range-brillo');
+        const rContraste = document.getElementById('range-contraste');
+        const rSaturacion = document.getElementById('range-saturacion');
+
+        if(rBrillo) rBrillo.value = b;
+        if(rContraste) rContraste.value = c;
+        if(rSaturacion) rSaturacion.value = s;
+        
         document.body.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
     }
 
@@ -182,4 +188,3 @@
 
 </body>
 </html>
-
